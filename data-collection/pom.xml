@@ -1,0 +1,161 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>br.usp.ime</groupId>
+  <artifactId>refactoring-analyzer</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>refactoring-analyzer</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+
+	  <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+	  <dependency>
+		  <groupId>org.mockito</groupId>
+		  <artifactId>mockito-core</artifactId>
+		  <version>2.23.4</version>
+		  <scope>test</scope>
+	  </dependency>
+
+
+
+	  <!-- https://mvnrepository.com/artifact/com.github.mauricioaniche/ck -->
+	  <dependency>
+		  <groupId>com.github.mauricioaniche</groupId>
+		  <artifactId>ck</artifactId>
+		  <version>0.3.0</version>
+	  </dependency>
+
+
+	  <!-- https://mvnrepository.com/artifact/junit/junit -->
+	  <dependency>
+		  <groupId>junit</groupId>
+		  <artifactId>junit</artifactId>
+		  <version>4.13-beta-1</version>
+		  <scope>test</scope>
+	  </dependency>
+
+
+	  <dependency>
+		  <groupId>org.refactoringminer</groupId>
+		  <artifactId>refactoringminer</artifactId>
+		  <version>1.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/lib/RefactoringMiner-2.jar</systemPath>
+	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
+	  <dependency>
+		  <groupId>org.eclipse.jgit</groupId>
+		  <artifactId>org.eclipse.jgit</artifactId>
+		  <version>5.2.1.201812262042-r</version>
+	  </dependency>
+
+      <!-- https://mvnrepository.com/artifact/com.jcabi/jcabi-github -->
+      <dependency>
+          <groupId>com.jcabi</groupId>
+          <artifactId>jcabi-github</artifactId>
+          <version>1.0</version>
+      </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+	  <dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-core</artifactId>
+		  <version>2.9.8</version>
+	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+	  <dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-databind</artifactId>
+		  <version>2.9.8</version>
+	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+	  <dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-annotations</artifactId>
+		  <version>2.9.8</version>
+	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/org.kohsuke/github-api -->
+	  <dependency>
+		  <groupId>org.kohsuke</groupId>
+		  <artifactId>github-api</artifactId>
+		  <version>1.95</version>
+	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
+	  <dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-lang3</artifactId>
+		  <version>3.8.1</version>
+	  </dependency>
+
+
+	  <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+	  <dependency>
+		  <groupId>commons-codec</groupId>
+		  <artifactId>commons-codec</artifactId>
+		  <version>1.10</version>
+	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core -->
+	  <dependency>
+		  <groupId>org.eclipse.jdt</groupId>
+		  <artifactId>org.eclipse.jdt.core</artifactId>
+		  <version>3.16.0</version>
+	  </dependency>
+
+  </dependencies>
+
+	<build>
+
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>9</source>
+					<target>9</target>
+					<release>10</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>
+                                        refactoringml.App
+                                    </mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

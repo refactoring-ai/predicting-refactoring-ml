@@ -1,0 +1,6 @@
+mysql-connector-python
+pandas
+sklearn
+numpy
+imblearn
+configparser
