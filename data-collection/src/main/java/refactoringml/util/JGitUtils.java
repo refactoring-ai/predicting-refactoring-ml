@@ -1,4 +1,4 @@
-package refactoringml;
+package refactoringml.util;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry;

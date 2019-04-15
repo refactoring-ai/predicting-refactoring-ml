@@ -1,4 +1,4 @@
-package refactoringml;
+package refactoringml.util;
 
 public class CSVUtils {
 

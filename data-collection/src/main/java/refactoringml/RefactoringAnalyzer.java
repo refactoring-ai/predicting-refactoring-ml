@@ -11,70 +11,47 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
+import refactoringml.db.*;
+import refactoringml.util.CKUtils;
+import refactoringml.util.CSVUtils;
+import refactoringml.util.RefactoringUtils;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static refactoringml.FilePathUtils.*;
-import static refactoringml.JGitUtils.readFileFromGit;
-import static refactoringml.RefactoringUtils.*;
+import static refactoringml.util.FilePathUtils.*;
+import static refactoringml.util.JGitUtils.readFileFromGit;
+import static refactoringml.util.RefactoringUtils.*;
 
 
 public class RefactoringAnalyzer {
 	private String tempDir;
-	private String datasetName;
-	private String gitUrl;
-	private String projectName;
+	private Project project;
+	private Database db;
 	private Repository repository;
 	private ProcessMetricsCollector processMetrics;
-	private PrintStream refactoredOutputFile;
-	private PrintStream classOutputFile;
-	private PrintStream methodOutputFile;
-	private PrintStream variableOutputFile;
-	private PrintStream fieldOutputFile;
 	private String fileStorageDir;
-
-	// stores the latest <commit,file> processed
-	// we may find more than one refactoring per file, and thus, we don't wanna print repeated metrics
-	// e.g., if a file suffers 2 refactorings, we want the two entries there, but a single one for the code metrics
-	private String lastCommit = "";
-	private String lastFile = "";
 
 	private static final Logger log = Logger.getLogger(RefactoringAnalyzer.class);
 
-	public RefactoringAnalyzer (String datasetName, String gitUrl, String projectName, Repository repository, ProcessMetricsCollector processMetrics,
-	                            PrintStream refactoredOutputFile, PrintStream classOutputFile,PrintStream methodOutputFile,PrintStream variableOutputFile,
-	                            PrintStream fieldOutputFile,String fileStorageDir) {
-		this.datasetName = datasetName;
-		this.gitUrl = gitUrl;
-		this.projectName = projectName;
+	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir) {
+		this.project = project;
+		this.db = db;
 		this.repository = repository;
 		this.processMetrics = processMetrics;
-		this.refactoredOutputFile = refactoredOutputFile;
 
-		this.classOutputFile = classOutputFile;
-		this.methodOutputFile = methodOutputFile;
-		this.variableOutputFile = variableOutputFile;
-		this.fieldOutputFile = fieldOutputFile;
 
 		this.tempDir = "";
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
-
-		this.refactoredOutputFile.println("dataset,gitUrl,project,refactorCommit,parentCommit,path,class,refactoring,method,variable");
-		this.classOutputFile.println("dataset,gitUrl,project,refactorCommit,parentCommit,path,class,type,cbo,wmc,rfc,lcom,totalMethods,staticMethods,publicMethods,privateMethods,protectedMethods,defaultMethods,abstractMethods,finalMethods,synchronizedMethods,totalFields,staticFields,publicFields,privateFields,protectedFields,defaultFields,finalFields,synchronizedFields,nosi,loc,returnQty,loopQty,comparisonsQty,tryCatchQty,parenthesizedExpsQty,stringLiteralsQty,numbersQty,assignmentsQty,mathOperationsQty,variablesQty,maxNestedBlocks,anonymousClassesQty,subClassesQty,lambdasQty,uniqueWordsQty");
-		this.methodOutputFile.println("dataset,gitUrl,project,refactorCommit,parentCommit,path,class,method,simplemethodname,line,cbo,wmc,rfc,loc,returns,variables,parameters,startLine,loopQty,comparisonsQty,tryCatchQty,parenthesizedExpsQty,stringLiteralsQty,numbersQty,assignmentsQty,mathOperationsQty,maxNestedBlocks,anonymousClassesQty,subClassesQty,lambdasQty,uniqueWordsQty");
-		this.variableOutputFile.println("dataset,gitUrl,project,refactorCommit,parentCommit,path,class,method,simplemethodname,variable,qty");
-		this.fieldOutputFile.println("dataset,gitUrl,project,refactorCommit,after,parentCommit,class,method,simplemethodname,variable,qty");
 
 	}
 
 	public void collectCommitData(RevCommit commit, Refactoring refactoring) {
 
-		if(commit.getId().getName().equals("babb6c8e99746531174073ebd2bce291d18770f4")) {
-			System.out.println("found it");
-		}
+		db.openSession();
 
 		if (commit.getParentCount() == 0) {
 			return ;
@@ -120,206 +97,199 @@ public class RefactoringAnalyzer {
 				return;
 			}
 
+
 			DiffEntry entry = refactoredEntry.get();
 			diffFormatter.toFileHeader(entry);
 
 			String oldFileName = entry.getOldPath();
 			String currentFileName = entry.getNewPath();
 
-            String fileBefore = readFileFromGit(repository, commitParent, oldFileName);
+			String fileBefore = readFileFromGit(repository, commitParent, oldFileName);
 			String fileAfter = readFileFromGit(repository, commit.getName(), currentFileName);
 
-			boolean sawThisFileBefore = lastCommit.equals(commit.getId().getName()) && lastFile.equals(currentFileName);
-			if(!sawThisFileBefore) {
-				// store the before and after versions for the deep learning training
-				saveSourceCode(commit.getId().getName(), currentFileName, fileBefore, fileAfter);
 
-				// save the current file in a temp dir to execute the CK tool
-				cleanTmpDir();
-				createAllDirs(tempDir, currentFileName);
-				try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + currentFileName))) {
-					out.print(fileBefore);
-				}
-
-				// mark it as To Do for the process metrics tool
-				processMetrics.addToList(commit, currentFileName);
+			// save the current file in a temp dir to execute the CK tool
+			cleanTmpDir();
+			createAllDirs(tempDir, currentFileName);
+			try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + currentFileName))) {
+				out.print(fileBefore);
 			}
 
-		    // generate metric for the refactored class
-		    calculateCkMetrics(commit.getId().getName(), refactoring, commitParent.getId().getName(), sawThisFileBefore);
+			// generate metric for the refactored class
+			Yes yes = calculateCkMetrics(commit.getId().getName(), refactoring, commitParent.getId().getName());
 
-			// store the latest <commit, file> visited
-			lastCommit = commit.getId().getName();
-			lastFile = currentFileName;
+			if(yes!=null) {
+				// mark it as To Do for the process metrics tool
+				processMetrics.addToList(commit, yes);
+
+				// store the before and after versions for the deep learning training
+				// note that we save the file before with the same name of the current file name,
+				// as to help in finding it (from the SQL query to the file)
+				saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter);
+			}
 
 		} catch(Exception e) {
 			log.error("Failed when working on " + refactoring, e);
 		}
 
+		db.commit();
+
     }
 
-	private void saveSourceCode (String commit, String fileName, String fileBefore, String fileAfter) throws FileNotFoundException {
+	private void saveSourceCode (String commit, String fileBefore, String fileNameAfter, String fileAfter) throws FileNotFoundException {
 
-		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileName);
-		createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileName);
+		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameAfter);
+		createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileNameAfter);
 
-		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + fileName);
+		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + fileNameAfter);
 		before.print(fileBefore);
 		before.close();
 
-		PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + fileName);
+		PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + fileNameAfter);
 		after.print(fileAfter);
 		after.close();
 	}
 
-	private void calculateCkMetrics(String commitId, Refactoring refactoring, String commitParent, boolean sawThisFileBefore) {
+	private Yes calculateCkMetrics(String refactorCommit, Refactoring refactoring, String parentCommit) {
+		final List<Yes> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 
 			if(ck.isError())
 				throw new RuntimeException("CK failed: " + ck.getFile());
 
-			String fullRefactoredMethod = isMethodLevelRefactoring(refactoring) || isVariableLevelRefactoring(refactoring) ?
-					RefactoringUtils.fullMethodName(getRefactoredMethod(refactoring)) : "";
 
-			String refactoredVariable = isVariableLevelRefactoring(refactoring) || isAttributeLevelRefactoring(refactoring) ?
-					getRefactoredVariableOrAttribute(refactoring) : "";
-
-			refactoredOutputFile.println(
-				datasetName + "," +
-				gitUrl + "," +
-				projectName + "," +
-				commitId + "," +
-				commitParent + "," +
-				ck.getFile().replace(tempDir, "") + "," +
-				ck.getClassName() + "," +
-				refactoring.getRefactoringType().getDisplayName() + "," +
-				CSVUtils.escape(fullRefactoredMethod) + "," +
-				refactoredVariable
-			);
-
-			if(!sawThisFileBefore) {
-				classOutputFile.println(
-					datasetName + "," +
-					gitUrl + "," +
-					projectName + "," +
-					commitId + "," +
-					commitParent + "," +
-					ck.getFile().replace(tempDir, "") + "," +
-					ck.getClassName() + "," +
-					ck.getType() + "," +
-					ck.getCbo() + "," +
-					ck.getWmc() + "," +
-					ck.getRfc() + "," +
-					ck.getLcom() + "," +
-					ck.getNumberOfMethods() + "," +
-					ck.getNumberOfStaticMethods() + "," +
-					ck.getNumberOfPublicMethods() + "," +
-					ck.getNumberOfPrivateMethods() + "," +
-					ck.getNumberOfProtectedMethods() + "," +
-					ck.getNumberOfDefaultMethods() + "," +
-					ck.getNumberOfAbstractMethods() + "," +
-					ck.getNumberOfFinalMethods() + "," +
-					ck.getNumberOfSynchronizedMethods() + "," +
-					ck.getNumberOfFields() + "," +
-					ck.getNumberOfStaticFields() + "," +
-					ck.getNumberOfPublicFields() + "," +
-					ck.getNumberOfPrivateFields() + "," +
-					ck.getNumberOfProtectedFields() + "," +
-					ck.getNumberOfDefaultFields() + "," +
-					ck.getNumberOfFinalFields() + "," +
-					ck.getNumberOfSynchronizedFields() + "," +
-					ck.getNosi() + "," +
-					ck.getLoc() + "," +
-					ck.getReturnQty() + "," +
-					ck.getLoopQty() + "," +
-					ck.getComparisonsQty() + "," +
-					ck.getTryCatchQty() + "," +
-					ck.getParenthesizedExpsQty() + "," +
-					ck.getStringLiteralsQty() + "," +
-					ck.getNumbersQty() + "," +
-					ck.getAssignmentsQty() + "," +
-					ck.getMathOperationsQty() + "," +
-					ck.getVariablesQty() + "," +
-					ck.getMaxNestedBlocks() + "," +
-					ck.getAnonymousClassesQty() + "," +
-					ck.getSubClassesQty() + "," +
-					ck.getLambdasQty() + "," +
+			// collect the class level metrics
+			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
+					ck.getWmc(),
+					ck.getRfc(),
+					ck.getLcom(),
+					ck.getNumberOfMethods(),
+					ck.getNumberOfStaticMethods(),
+					ck.getNumberOfPublicMethods(),
+					ck.getNumberOfPrivateMethods(),
+					ck.getNumberOfProtectedMethods(),
+					ck.getNumberOfDefaultMethods(),
+					ck.getNumberOfAbstractMethods(),
+					ck.getNumberOfFinalMethods(),
+					ck.getNumberOfSynchronizedMethods(),
+					ck.getNumberOfFields(),
+					ck.getNumberOfStaticFields(),
+					ck.getNumberOfPublicFields(),
+					ck.getNumberOfPrivateFields(),
+					ck.getNumberOfProtectedFields(),
+					ck.getNumberOfDefaultFields(),
+					ck.getNumberOfFinalFields(),
+					ck.getNumberOfSynchronizedFields(),
+					ck.getNosi(),
+					ck.getLoc(),
+					ck.getReturnQty(),
+					ck.getLoopQty(),
+					ck.getComparisonsQty(),
+					ck.getTryCatchQty(),
+					ck.getParenthesizedExpsQty(),
+					ck.getStringLiteralsQty(),
+					ck.getNumbersQty(),
+					ck.getAssignmentsQty(),
+					ck.getMathOperationsQty(),
+					ck.getVariablesQty(),
+					ck.getMaxNestedBlocks(),
+					ck.getAnonymousClassesQty(),
+					ck.getSubClassesQty(),
+					ck.getLambdasQty(),
 					ck.getUniqueWordsQty());
 
-				for (CKMethodResult method : ck.getMethods()) {
-					methodOutputFile.println(
-						datasetName + "," +
-						gitUrl + "," +
-						projectName + "," +
-						commitId + "," +
-						commitParent + "," +
-						ck.getFile().replace(tempDir, "") + "," +
-						ck.getClassName() + "," +
-						CSVUtils.escape(CKUtils.simplifyFullName(method.getMethodName())) + "," +
-						cleanMethodName(method.getMethodName()) + "," +
-						method.getStartLine() + "," +
-						method.getCbo() + "," +
-						method.getWmc() + "," +
-						method.getRfc() + "," +
-						method.getLoc() + "," +
-						method.getReturnQty() + "," +
-						method.getVariablesQty() + "," +
-						method.getParametersQty() + "," +
-						method.getStartLine() + "," +
-						method.getLoopQty() + "," +
-						method.getComparisonsQty() + "," +
-						method.getTryCatchQty() + "," +
-						method.getParenthesizedExpsQty() + "," +
-						method.getStringLiteralsQty() + "," +
-						method.getNumbersQty() + "," +
-						method.getAssignmentsQty() + "," +
-						method.getMathOperationsQty() + "," +
-						method.getMaxNestedBlocks() + "," +
-						method.getAnonymousClassesQty() + "," +
-						method.getSubClassesQty() + "," +
-						method.getLambdasQty() + "," +
-						method.getUniqueWordsQty()
+
+			MethodMetric methodMetrics = null;
+			VariableMetric variableMetrics = null;
+
+			// if it's a method or a variable-level refactoring, collect the data
+			if(isMethodLevelRefactoring(refactoring) || isVariableLevelRefactoring(refactoring)) {
+				String fullRefactoredMethod = RefactoringUtils.fullMethodName(getRefactoredMethod(refactoring));
+
+				Optional<CKMethodResult> ckMethod = ck.getMethods().stream().filter(x -> CKUtils.simplifyFullName(x.getMethodName()).equals(fullRefactoredMethod))
+						.findFirst();
+
+				if(!ckMethod.isPresent()) {
+					// for some reason we did not find the method, let's remove it from the list.
+					return;
+				} else {
+
+					CKMethodResult ckMethodResult = ckMethod.get();
+
+					methodMetrics = new MethodMetric(
+							CSVUtils.escape(CKUtils.simplifyFullName(ckMethodResult.getMethodName())),
+							cleanMethodName(ckMethodResult.getMethodName()),
+							ckMethodResult.getStartLine(),
+							ckMethodResult.getCbo(),
+							ckMethodResult.getWmc(),
+							ckMethodResult.getRfc(),
+							ckMethodResult.getLoc(),
+							ckMethodResult.getReturnQty(),
+							ckMethodResult.getVariablesQty(),
+							ckMethodResult.getParametersQty(),
+							ckMethodResult.getLoopQty(),
+							ckMethodResult.getComparisonsQty(),
+							ckMethodResult.getTryCatchQty(),
+							ckMethodResult.getParenthesizedExpsQty(),
+							ckMethodResult.getStringLiteralsQty(),
+							ckMethodResult.getNumbersQty(),
+							ckMethodResult.getAssignmentsQty(),
+							ckMethodResult.getMathOperationsQty(),
+							ckMethodResult.getMaxNestedBlocks(),
+							ckMethodResult.getAnonymousClassesQty(),
+							ckMethodResult.getSubClassesQty(),
+							ckMethodResult.getLambdasQty(),
+							ckMethodResult.getUniqueWordsQty()
 					);
 
-					for (Map.Entry<String, Integer> entry : method.getVariablesUsage().entrySet()) {
-						variableOutputFile.println(
-							datasetName + "," +
-							gitUrl + "," +
-							projectName + "," +
-							commitId + "," +
-							commitParent + "," +
-							ck.getFile().replace(tempDir, "") + "," +
-							ck.getClassName() + "," +
-							CSVUtils.escape(CKUtils.simplifyFullName(method.getMethodName())) + "," +
-							cleanMethodName(method.getMethodName()) + "," +
-							entry.getKey() + "," +
-							entry.getValue());
-					}
+					if(isVariableLevelRefactoring(refactoring)) {
+						String refactoredVariable = getRefactoredVariableOrAttribute(refactoring);
 
-					for (Map.Entry<String, Integer> entry : method.getFieldUsage().entrySet()) {
-						fieldOutputFile.println(
-							datasetName + "," +
-							gitUrl + "," +
-							projectName + "," +
-							commitId + "," +
-							commitParent + "," +
-							ck.getFile().replace(tempDir, "") + "," +
-							ck.getClassName() + "," +
-							CSVUtils.escape(CKUtils.simplifyFullName(method.getMethodName())) + "," +
-							cleanMethodName(method.getMethodName()) + "," +
-							entry.getKey() + "," +
-							entry.getValue());
+						Integer appearances = ckMethodResult.getVariablesUsage().get(refactoredVariable);
+						if(appearances == null) {
+							// if we couldn't find the variable, for any reason, give it a -1, so we can filter it
+							// out later
+							appearances = -1;
+						}
+						variableMetrics = new VariableMetric(refactoredVariable, appearances);
 					}
 				}
 
 			}
 
-			refactoredOutputFile.flush();
-			classOutputFile.flush();
-			methodOutputFile.flush();
-			variableOutputFile.flush();
-			fieldOutputFile.flush();
+			// finally, if it's a field refactoring, we then only have class + field
+			FieldMetric fieldMetrics = null;
+			if(isAttributeLevelRefactoring(refactoring)) {
+				String refactoredField = getRefactoredVariableOrAttribute(refactoring);
+
+				int totalAppearances = ck.getMethods().stream()
+						.map(x -> x.getFieldUsage().get(refactoredField) == null ? 0 : x.getFieldUsage().get(refactoredField))
+						.mapToInt(Integer::intValue).sum();
+
+				fieldMetrics = new FieldMetric(refactoredField, totalAppearances);
+
+			}
+
+			// assemble the final object
+			Yes yes = new Yes(
+					project,
+					refactorCommit,
+					parentCommit,
+					ck.getFile().replace(tempDir, ""),
+					ck.getClassName(),
+					refactoring.getRefactoringType().getDisplayName(),
+					refactoringTypeInNumber(refactoring),
+					classMetric,
+					methodMetrics,
+					variableMetrics,
+					fieldMetrics);
+			list.add(yes);
+
+			db.persist(yes);
+
 		});
+
+		return list.isEmpty() ? null : list.get(0);
 	}
 
 	private void cleanTmpDir() throws IOException {
