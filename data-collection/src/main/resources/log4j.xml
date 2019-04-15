@@ -21,7 +21,7 @@
     </logger>
 
     <logger name="org.refactoringminer">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
 
