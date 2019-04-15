@@ -47,8 +47,17 @@
 		  <artifactId>refactoringminer</artifactId>
 		  <version>1.0</version>
 		  <scope>system</scope>
-		  <systemPath>${project.basedir}/lib/RefactoringMiner-2.jar</systemPath>
+		  <systemPath>${project.basedir}/lib/RefactoringMiner-3.jar</systemPath>
 	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+	  <dependency>
+		  <groupId>org.hibernate</groupId>
+		  <artifactId>hibernate-core</artifactId>
+		  <version>6.0.0.Alpha2</version>
+		  <type>pom</type>
+	  </dependency>
+
 
 	  <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
 	  <dependency>
