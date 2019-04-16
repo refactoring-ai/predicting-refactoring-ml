@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 export IFS=","
 
-if [ "$#" -ne 7 ]; then
-  echo "Usage: $0 CSV BEGIN END DATASET_NAME DB_URL DB_USER DB_PWD" >&2
+if [ "$#" -ne 6 ]; then
+  echo "Usage: $0 CSV BEGIN END DB_URL DB_USER DB_PWD" >&2
   exit 1
 fi
 
@@ -15,10 +15,9 @@ ASTCONVERTER2=/root/predicting-refactoring-ml/data-collection/astconverter/astco
 THRESHOLD=1000
 BEGIN=$2
 END=$3
-DATASET=$4
-URL=$5
-USER=$6
-PWD=$7
+URL=$4
+USER=$5
+PWD=$6
 
 
 CLASS="refactoringml.App"
@@ -27,7 +26,7 @@ mkdir $OUTPUT_PATH
 echo ""
 i=0
 cat $PROJECTS_CSV_PATH | while 
-	read PROJECT REPO; do 
+	read PROJECT REPO DATASET; do
 	let "i++"
 
 	if [ $i -ge $BEGIN -a $i -le $END ]; then
