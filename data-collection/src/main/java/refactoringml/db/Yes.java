@@ -59,4 +59,8 @@ public class Yes {
 	public String getFilePath() {
 		return filePath;
 	}
+
+	public long getId() {
+		return id;
+	}
 }

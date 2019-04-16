@@ -51,8 +51,6 @@ public class RefactoringAnalyzer {
 
 	public void collectCommitData(RevCommit commit, Refactoring refactoring) {
 
-		db.openSession();
-
 		if (commit.getParentCount() == 0) {
 			return ;
 		}
@@ -131,8 +129,6 @@ public class RefactoringAnalyzer {
 		} catch(Exception e) {
 			log.error("Failed when working on " + refactoring, e);
 		}
-
-		db.commit();
 
     }
 

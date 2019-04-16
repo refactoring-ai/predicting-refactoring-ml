@@ -20,14 +20,28 @@ public class Database {
 	public void commit() {
 		this.session.getTransaction().commit();
 		this.session.close();
+		this.session = null;
 	}
+
 
 	public void persist(Object obj) {
 		session.persist(obj);
 	}
 
-	public void persistProcessMetric(Yes yes) {
-		session.update(yes);
+	public void update(Object obj) {
+		session.update(obj);
+	}
 
+	public void close() {
+		try {
+			if (session != null)
+				session.close();
+		} catch(Exception e) {
+			session = null;
+		}
+	}
+
+	public Yes findYes(Long yesId) {
+		return session.load(Yes.class, yesId);
 	}
 }

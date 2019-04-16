@@ -16,10 +16,17 @@ public class Project {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Calendar dateOfProcessing;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	private Calendar finishedDate;
+
 	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing) {
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.projectName = projectName;
 		this.dateOfProcessing = dateOfProcessing;
+	}
+
+	public void setFinishedDate(Calendar finishedDate) {
+		this.finishedDate = finishedDate;
 	}
 }

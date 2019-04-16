@@ -33,7 +33,7 @@ public class ProcessMetricsCollector {
 	private String tempDir;
 
 	// commit hash, file name
-	Map<String, Set<Yes>> todo;
+	Map<String, Set<Long>> todo;
 
 	private Project project;
 	private Database db;
@@ -62,7 +62,7 @@ public class ProcessMetricsCollector {
 		if(!todo.containsKey(id))
 			todo.put(id, new HashSet<>());
 
-		todo.get(id).add(yes);
+		todo.get(id).add(yes.getId());
 	}
 
 	public void collect() throws IOException {
@@ -81,107 +81,135 @@ public class ProcessMetricsCollector {
 
 			// if the class happened to be refactored, then, print its process metrics at that time
 			if(todo.containsKey(commit.getName())) {
-
-				db.openSession();
-				Set<Yes> allYeses = todo.get(commit.getName());
-
-				for (Yes yes : allYeses) {
-
-					String fileName = yes.getFilePath();
-
-					// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
-					ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
-					ProcessMetrics dbProcessMetrics = new ProcessMetrics(
-							currentProcessMetrics.qtyOfCommits(),
-							currentProcessMetrics.getLinesAdded(),
-							currentProcessMetrics.getLinesDeleted(),
-							currentProcessMetrics.qtyOfAuthors(),
-							currentProcessMetrics.qtyMinorAuthors(),
-							currentProcessMetrics.qtyMajorAuthors(),
-							currentProcessMetrics.authorOwnership(),
-							currentProcessMetrics.getBugFixCount(),
-							currentProcessMetrics.getRefactoringsInvolved()
-					);
-					yes.setProcessMetrics(dbProcessMetrics);
-					db.persistProcessMetric(yes);
-
-					// update counters
-					currentProcessMetrics.increaseRefactoringCounter();
-					currentProcessMetrics.resetRefactoringCounter(commit.getName());
-					refactoredClasses.add(fileName);
+				try {
+					db.openSession();
+					refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
+					db.commit();
+				} catch(Exception e) {
+					db.close();
 				}
-
-				db.commit();
 			}
 
 			// we go now change by change in the commit to update the process metrics there
-			try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-				diffFormatter.setRepository(repository);
-				diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
-				diffFormatter.setDetectRenames(true);
-
-				for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
-					String fileName = entry.getPath(null);
-
-					if (!fileName.toLowerCase().endsWith("java")) {
-						continue;
-					}
-
-					// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
-					// with the refactoring counter...
-					// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
-					// as this is basically exceptional when compared to thousands of commits and changes.
-					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
-						pmDatabase.remove(entry.getOldPath());
-
-						if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
-							continue;
-					}
-
-					// add class to our in-memory pmDatabase
-					if(!pmDatabase.containsKey(fileName))
-						pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName()));
-
-					// collect number of lines deleted and added in that file
-					int linesDeleted = 0;
-					int linesAdded = 0;
-
-					for (Edit edit : diffFormatter.toFileHeader(entry).toEditList()) {
-						linesDeleted = edit.getEndA() - edit.getBeginA();
-						linesAdded = edit.getEndB() - edit.getBeginB();
-					}
-
-					// update our pmDatabase entry with the information of the current commit
-					ProcessMetric currentClazz = pmDatabase.get(fileName);
-					currentClazz.existsIn(commit.getName(), commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
-				}
-			}
+			// (no need for db here, as this update happens only locally)
+			updateProcessMetrics(commit, commitParent);
 
 			// update classes that were not refactored on this commit
-			db.openSession();
-			pmDatabase.updateNotRefactored(refactoredClasses);
-
-			// if there are classes over the threshold, we output them as an examples of not refactored classes,
-			// and we reset their counter.
-			// note that we have a lot of failures here, as 500 commits later, the class might had been
-			// renamed or moved, and thus the class (with the name before) "doesn't exist" anymore..
-			// that is still ok as we are collecting thousands of examples.
-			// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
-			// but that's not a big deal.
-			for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
-				outputNonRefactoredClass(pm);
-
-				// we then reset the counter, and start again.
-				// it is ok to use the same class more than once, as metrics as well as
-				// its source code will/may change, and thus, they are a different instance.
-				pm.resetRefactoringCounter(commit.getName());
-
+			try {
+				db.openSession();
+				updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
+				db.commit();
+			} catch(Exception e) {
+				db.close();
 			}
-			db.commit();
 
 			commit = walk.next();
 		}
 		walk.close();
+	}
+
+	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, Set<String> refactoredClasses) throws IOException {
+
+		pmDatabase.updateNotRefactored(refactoredClasses);
+
+		// if there are classes over the threshold, we output them as an examples of not refactored classes,
+		// and we reset their counter.
+		// note that we have a lot of failures here, as 500 commits later, the class might had been
+		// renamed or moved, and thus the class (with the name before) "doesn't exist" anymore..
+		// that is still ok as we are collecting thousands of examples.
+		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
+		// but that's not a big deal.
+		for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
+			outputNonRefactoredClass(pm);
+
+			// we then reset the counter, and start again.
+			// it is ok to use the same class more than once, as metrics as well as
+			// its source code will/may change, and thus, they are a different instance.
+			pm.resetRefactoringCounter(commit.getName());
+
+		}
+
+	}
+
+	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent) throws IOException {
+		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+			diffFormatter.setRepository(repository);
+			diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
+			diffFormatter.setDetectRenames(true);
+
+			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
+				String fileName = entry.getPath(null);
+
+				if (!fileName.toLowerCase().endsWith("java")) {
+					continue;
+				}
+
+				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
+				// with the refactoring counter...
+				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
+				// as this is basically exceptional when compared to thousands of commits and changes.
+				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
+					pmDatabase.remove(entry.getOldPath());
+
+					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
+						continue;
+				}
+
+				// add class to our in-memory pmDatabase
+				if(!pmDatabase.containsKey(fileName))
+					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName()));
+
+				// collect number of lines deleted and added in that file
+				int linesDeleted = 0;
+				int linesAdded = 0;
+
+				for (Edit edit : diffFormatter.toFileHeader(entry).toEditList()) {
+					linesDeleted = edit.getEndA() - edit.getBeginA();
+					linesAdded = edit.getEndB() - edit.getBeginB();
+				}
+
+				// update our pmDatabase entry with the information of the current commit
+				ProcessMetric currentClazz = pmDatabase.get(fileName);
+				currentClazz.existsIn(commit.getName(), commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
+			}
+		}
+	}
+
+	private Set<String> collectProcessMetricsOfRefactoredCommit(RevCommit commit) {
+
+		Set<String> refactoredClasses = new HashSet<>();
+		Set<Long> allYeses = todo.get(commit.getName());
+
+		for (Long yesId : allYeses) {
+
+			Yes yes = db.findYes(yesId);
+
+			String fileName = yes.getFilePath();
+
+			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
+			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
+			ProcessMetrics dbProcessMetrics = new ProcessMetrics(
+					currentProcessMetrics.qtyOfCommits(),
+					currentProcessMetrics.getLinesAdded(),
+					currentProcessMetrics.getLinesDeleted(),
+					currentProcessMetrics.qtyOfAuthors(),
+					currentProcessMetrics.qtyMinorAuthors(),
+					currentProcessMetrics.qtyMajorAuthors(),
+					currentProcessMetrics.authorOwnership(),
+					currentProcessMetrics.getBugFixCount(),
+					currentProcessMetrics.getRefactoringsInvolved()
+			);
+			yes.setProcessMetrics(dbProcessMetrics);
+			db.update(yes);
+
+			// update counters
+			currentProcessMetrics.increaseRefactoringCounter();
+			currentProcessMetrics.resetRefactoringCounter(commit.getName());
+			refactoredClasses.add(fileName);
+		}
+
+		return refactoredClasses;
+
 	}
 
 	private void storeProcessMetric(String fileName, List<No> nos) {

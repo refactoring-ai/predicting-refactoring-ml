@@ -63,7 +63,7 @@ public class App {
 		int commitThreshold;
 
 		if(test) {
-			gitUrl = "/Users/mauricioaniche/Desktop/commons-csv";
+			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
 			highLevelOutputPath = "/Users/mauricioaniche/Desktop/results/";
 			commitThreshold = 500;
 			datasetName = "test";
@@ -84,6 +84,8 @@ public class App {
 		new File(filesStoragePath).mkdirs();
 
 		Database db = new Database(new HibernateConfig().getSessionFactory());
+
+		// TODO: nao rodar se o projeto já existir
 
 		new App(datasetName, clonePath, gitUrl,
 				filesStoragePath,
@@ -119,12 +121,15 @@ public class App {
 		miner.detectAll(repo, mainBranch, new RefactoringHandler() {
 			@Override
 			public void handle(RevCommit commitData, List<Refactoring> refactorings) {
-				try {
-					for (Refactoring ref : refactorings) {
+				for (Refactoring ref : refactorings) {
+					try {
+						db.openSession();
 						refactoringAnalyzer.collectCommitData(commitData, ref);
+						db.commit();
+					} catch (Exception e) {
+						log.error("Error", e);
+						db.close();
 					}
-				} catch (Exception e) {
-					log.error("Error", e);
 				}
 			}
 
@@ -149,6 +154,11 @@ public class App {
 
 		long end = System.currentTimeMillis();
 		log.info(String.format("Finished in %.2f minutes", ((end-start)/1000.0/60.0)));
+
+		db.openSession();
+		project.setFinishedDate(Calendar.getInstance());
+		db.update(project);
+		db.commit();
 	}
 
 	private String extractProjectName(String gitUrl) {
