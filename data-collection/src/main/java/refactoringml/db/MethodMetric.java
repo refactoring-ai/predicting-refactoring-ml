@@ -62,4 +62,8 @@ public class MethodMetric {
 		this.methodLambdasQty = methodLambdasQty;
 		this.methodUniqueWordsQty = methodUniqueWordsQty;
 	}
+
+	public int getStartLine() {
+		return startLine;
+	}
 }

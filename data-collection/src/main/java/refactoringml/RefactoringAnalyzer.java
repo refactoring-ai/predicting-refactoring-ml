@@ -125,7 +125,7 @@ public class RefactoringAnalyzer {
 				// store the before and after versions for the deep learning training
 				// note that we save the file before with the same name of the current file name,
 				// as to help in finding it (from the SQL query to the file)
-				saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter);
+				saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
 			}
 
 		} catch(Exception e) {
@@ -134,16 +134,22 @@ public class RefactoringAnalyzer {
 
     }
 
-	private void saveSourceCode (String commit, String fileBefore, String fileNameAfter, String fileAfter) throws FileNotFoundException {
+	private void saveSourceCode(String commit, String fileBefore, String fileNameAfter, String fileAfter, Yes yes) throws FileNotFoundException {
 
 		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameAfter);
 		createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileNameAfter);
 
-		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + fileNameAfter);
+		String completeFileName = String.format("%s-%d-%s-%d",
+						fileNameAfter,
+						yes.getRefactoringType(),
+						yes.getRefactoring(),
+						(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0));
+
+		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileName);
 		before.print(fileBefore);
 		before.close();
 
-		PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + fileNameAfter);
+		PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileName);
 		after.print(fileAfter);
 		after.close();
 	}

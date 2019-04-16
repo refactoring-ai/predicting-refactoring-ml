@@ -65,4 +65,16 @@ public class Yes {
 	public long getId() {
 		return id;
 	}
+
+	public int getRefactoringType() {
+		return refactoringType;
+	}
+
+	public String getRefactoring() {
+		return refactoring;
+	}
+
+	public MethodMetric getMethodMetrics() {
+		return methodMetrics;
+	}
 }
