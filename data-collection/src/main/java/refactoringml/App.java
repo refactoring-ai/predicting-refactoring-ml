@@ -93,7 +93,7 @@ public class App {
 		}
 
 		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "/repo";
-		String filesStoragePath = highLevelOutputPath + extractProjectNameFromGitUrl(gitUrl);
+		String filesStoragePath = highLevelOutputPath; // No need for the name of the project, as the run.sh creates a folder for it already
 		new File(filesStoragePath).mkdirs();
 
 		Database db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));

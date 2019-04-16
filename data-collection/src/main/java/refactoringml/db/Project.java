@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Calendar;
 
 @Entity
-@Table(indexes = @Index(columnList = "datasetName"))
+@Table(indexes = {@Index(columnList = "datasetName"), @Index(columnList = "projectName")})
 public class Project {
 
 	@Id
