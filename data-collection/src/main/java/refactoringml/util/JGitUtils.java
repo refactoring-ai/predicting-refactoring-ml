@@ -38,10 +38,10 @@ public class JGitUtils {
 		return readFileFromGit(repo, revCommit, filepath);
 	}
 
-	public static String getSourceCodeFromDiffEntry(Repository repository, DiffEntry entry) throws IOException {
-		ObjectReader reader = repository.newObjectReader();
-		byte[] bytes = reader.open(entry.getNewId().toObjectId()).getBytes();
-		return new String(bytes, "utf-8");
+	public static String extractProjectNameFromGitUrl(String gitUrl) {
+		String[] splittedGitUrl = gitUrl.split("/");
+		return splittedGitUrl[splittedGitUrl.length - 1].replace(".git", "");
 	}
+
 
 }

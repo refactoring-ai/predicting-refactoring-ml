@@ -125,7 +125,7 @@ public class ProcessMetricsCollector {
 			// we then reset the counter, and start again.
 			// it is ok to use the same class more than once, as metrics as well as
 			// its source code will/may change, and thus, they are a different instance.
-			pm.resetRefactoringCounter(commit.getName());
+			pm.resetLastRefactoringStats(commit.getName());
 
 		}
 
@@ -204,7 +204,8 @@ public class ProcessMetricsCollector {
 
 			// update counters
 			currentProcessMetrics.increaseRefactoringCounter();
-			currentProcessMetrics.resetRefactoringCounter(commit.getName());
+			currentProcessMetrics.resetLastRefactoringStats(commit.getName());
+
 			refactoredClasses.add(fileName);
 		}
 

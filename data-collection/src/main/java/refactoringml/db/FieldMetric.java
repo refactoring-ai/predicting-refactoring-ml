@@ -11,7 +11,7 @@ public class FieldMetric {
 	@Column(nullable = true)
 	private int fieldAppearances;
 
-	private FieldMetric(){}
+	public FieldMetric(){}
 
 	public FieldMetric(String fieldName, int fieldAppearances) {
 		this.fieldName = fieldName;

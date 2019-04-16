@@ -102,6 +102,9 @@ public class RefactoringAnalyzer {
 			String oldFileName = entry.getOldPath();
 			String currentFileName = entry.getNewPath();
 
+			if(RefactoringUtils.isTestFile(oldFileName) || RefactoringUtils.isTestFile(currentFileName))
+				return;
+
 			String fileBefore = readFileFromGit(repository, commitParent, oldFileName);
 			String fileAfter = readFileFromGit(repository, commit.getName(), currentFileName);
 

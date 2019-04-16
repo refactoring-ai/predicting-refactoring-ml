@@ -42,6 +42,12 @@ public class Database {
 	}
 
 	public Yes findYes(Long yesId) {
-		return session.load(Yes.class, yesId);
+		return session.get(Yes.class, yesId);
+	}
+
+	public boolean projectExists(String gitUrl) {
+		return session.createQuery("from Project p where p.gitUrl = :gitUrl")
+				.setParameter("gitUrl", gitUrl)
+				.getResultList().size() > 0;
 	}
 }

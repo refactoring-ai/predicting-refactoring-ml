@@ -45,7 +45,7 @@ public class ClassMetric {
 	private int classLambdasQty;
 	private int classUniqueWordsQty;
 
-	private ClassMetric(){}
+	public ClassMetric(){}
 
 	public ClassMetric(int classCbo, int classWmc, int classRfc, int classLcom, int classNumberOfMethods, int classNumberOfStaticMethods, int classNumberOfPublicMethods, int classNumberOfPrivateMethods, int classNumberOfProtectedMethods,
 	                   int classNumberOfDefaultMethods, int classNumberOfAbstractMethods, int classNumberOfFinalMethods, int classNumberOfSynchronizedMethods, int classNumberOfFields, int classNumberOfStaticFields,

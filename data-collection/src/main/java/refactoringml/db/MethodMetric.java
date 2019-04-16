@@ -32,7 +32,7 @@ public class MethodMetric {
 	@Column(nullable = true) private int methodLambdasQty;
 	@Column(nullable = true) private int methodUniqueWordsQty;
 
-	private MethodMetric() {}
+	public MethodMetric() {}
 
 	public MethodMetric(String fullMethodName, String shortMethodName, int startLine, int methodCbo, int methodWmc, int methodRfc, int loc, int methodReturnQty,
 	                    int methodVariablesQty, int methodParametersQty, int methodLoopQty, int methodComparisonsQty, int methodTryCatchQty, int methodParenthesizedExpsQty, int methodStringLiteralsQty, int methodNumbersQty,

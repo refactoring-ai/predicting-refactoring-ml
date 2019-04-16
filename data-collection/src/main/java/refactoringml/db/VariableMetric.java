@@ -9,7 +9,7 @@ public class VariableMetric {
 	@Column(nullable = true) private String variableName;
 	@Column(nullable = true) private int variableAppearances;
 
-	private VariableMetric(){}
+	public VariableMetric(){}
 
 	public VariableMetric(String variableName, int variableAppearances) {
 		this.variableName = variableName;

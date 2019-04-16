@@ -16,7 +16,7 @@ public class ProcessMetrics {
 	@Column(nullable = true) private int bugFixCount;
 	@Column(nullable = true) private int refactoringsInvolved;
 
-	private ProcessMetrics() {}
+	public ProcessMetrics() {}
 
 	public ProcessMetrics(int qtyOfCommits, int linesAdded, int linesDeleted, int qtyOfAuthors, long qtyMinorAuthors,
 	                      long qtyMajorAuthors, double authorOwnership, int bugFixCount, int refactoringsInvolved) {

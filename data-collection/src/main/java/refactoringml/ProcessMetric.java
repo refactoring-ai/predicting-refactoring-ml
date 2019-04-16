@@ -68,7 +68,7 @@ public class ProcessMetric {
 		return authors.size();
 	}
 
-	public void resetRefactoringCounter (String commitHash) {
+	public void resetLastRefactoringStats(String commitHash) {
 		lastRefactoring = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 

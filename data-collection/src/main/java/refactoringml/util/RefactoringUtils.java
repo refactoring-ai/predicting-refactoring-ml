@@ -220,4 +220,10 @@ public class RefactoringUtils {
 		if(isAttributeLevelRefactoring(refactoring)) return 4;
 		return -1;
 	}
+
+	public static boolean isTestFile(String fileName) {
+		String normalizedFileName = fileName.toLowerCase();
+		return normalizedFileName.contains("test.java") || normalizedFileName.contains("tests.java") ||
+				normalizedFileName.contains("/test/");
+	}
 }

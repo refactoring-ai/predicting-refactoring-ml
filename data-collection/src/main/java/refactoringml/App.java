@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import static refactoringml.util.FilePathUtils.lastSlashDir;
+import static refactoringml.util.JGitUtils.*;
 
 public class App {
 
@@ -65,7 +66,7 @@ public class App {
 		if(test) {
 			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
 			highLevelOutputPath = "/Users/mauricioaniche/Desktop/results/";
-			commitThreshold = 500;
+			commitThreshold = 1000;
 			datasetName = "test";
 		} else {
 			if (args == null || args.length != 4) {
@@ -80,12 +81,16 @@ public class App {
 		}
 
 		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "/repo";
-		String filesStoragePath = highLevelOutputPath + "/storage/";
+		String filesStoragePath = highLevelOutputPath + extractProjectNameFromGitUrl(gitUrl);
 		new File(filesStoragePath).mkdirs();
 
 		Database db = new Database(new HibernateConfig().getSessionFactory());
 
-		// TODO: nao rodar se o projeto já existir
+		// do not run if the project is already in the database
+		if(db.projectExists(gitUrl)) {
+			System.out.println("Project already in the database");
+			System.exit(-1);
+		}
 
 		new App(datasetName, clonePath, gitUrl,
 				filesStoragePath,
@@ -109,7 +114,7 @@ public class App {
 		String mainBranch = discoverMainBranch(git);
 		log.debug("main branch: " + mainBranch);
 
-		Project project = new Project(datasetName, gitUrl, extractProjectName(gitUrl), Calendar.getInstance());
+		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance());
 		db.openSession();
 		db.persist(project);
 		db.commit();
@@ -161,10 +166,6 @@ public class App {
 		db.commit();
 	}
 
-	private String extractProjectName(String gitUrl) {
-		String[] splittedGitUrl = gitUrl.split("/");
-		return splittedGitUrl[splittedGitUrl.length - 1].replace("\\.git", "");
-	}
 
 	private String discoverMainBranch(Git git) throws IOException {
 		return git.getRepository().getBranch();

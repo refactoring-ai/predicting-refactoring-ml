@@ -19,6 +19,8 @@ public class Project {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Calendar finishedDate;
 
+	public Project() {}
+
 	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing) {
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;

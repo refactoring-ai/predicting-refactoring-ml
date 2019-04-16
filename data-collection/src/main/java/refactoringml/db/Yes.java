@@ -35,7 +35,7 @@ public class Yes {
 	@Embedded
 	private ProcessMetrics processMetrics;
 
-	private Yes() {}
+	public Yes() {}
 
 	public Yes(Project project, String refactorCommit, String parentCommit, String filePath, String className,String refactoring, int refactoringType,
 	           ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
