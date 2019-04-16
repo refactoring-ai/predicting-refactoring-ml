@@ -60,6 +60,9 @@ public class App {
 		String gitUrl;
 		String highLevelOutputPath;
 		String datasetName;
+		String url;
+		String user;
+		String pwd;
 
 		int commitThreshold;
 
@@ -68,9 +71,14 @@ public class App {
 			highLevelOutputPath = "/Users/mauricioaniche/Desktop/results/";
 			commitThreshold = 1000;
 			datasetName = "test";
+
+			url = "jdbc:mysql://localhost:3306/refactoring2?useSSL=false";
+			user = "root";
+			pwd = "";
+
 		} else {
-			if (args == null || args.length != 4) {
-				System.out.println("4 arguments: (dataset name) (git url or project directory) (output path) (not refactoring threshold)");
+			if (args == null || args.length != 7) {
+				System.out.println("7 arguments: (dataset name) (git url or project directory) (output path) (not refactoring threshold) (database url) (database user) (database pwd)");
 				System.exit(-1);
 			}
 
@@ -78,13 +86,17 @@ public class App {
 			gitUrl = args[1].trim();
 			highLevelOutputPath = lastSlashDir(args[2].trim());
 			commitThreshold = Integer.parseInt(args[3].trim());
+
+			url = args[4];
+			user = args[5];
+			pwd = args[6];
 		}
 
 		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "/repo";
 		String filesStoragePath = highLevelOutputPath + extractProjectNameFromGitUrl(gitUrl);
 		new File(filesStoragePath).mkdirs();
 
-		Database db = new Database(new HibernateConfig().getSessionFactory());
+		Database db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
 
 		// do not run if the project is already in the database
 		if(db.projectExists(gitUrl)) {

@@ -12,45 +12,41 @@ public class HibernateConfig {
 
 	private static SessionFactory sessionFactory;
 
-	private void build() {
+	public SessionFactory getSessionFactory(String url, String user, String pwd) {
+		if(sessionFactory == null) {
+			Configuration configuration = new Configuration();
 
-		Configuration configuration = new Configuration();
+			Properties settings = new Properties();
+			settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
+			settings.put(Environment.URL, url);
+			settings.put(Environment.USER, user);
+			settings.put(Environment.PASS, pwd);
+			settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+			settings.put(Environment.SHOW_SQL, "false");
+			settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+			settings.put(Environment.HBM2DDL_AUTO, "update");
 
-		Properties settings = new Properties();
-		settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-		settings.put(Environment.URL, "jdbc:mysql://localhost:3306/refactoring2?useSSL=false");
-		settings.put(Environment.USER, "root");
-		settings.put(Environment.PASS, "");
-		settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-		settings.put(Environment.SHOW_SQL, "false");
-		settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-		settings.put(Environment.HBM2DDL_AUTO, "update");
+			settings.put("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
+			settings.put("hibernate.c3p0.acquire_increment", 1);
+			settings.put("hibernate.c3p0.idle_test_period", 60);
+			settings.put("hibernate.c3p0.min_size", 1);
+			settings.put("hibernate.c3p0.max_size", 2); // 1 connection is actually enough...
+			settings.put("hibernate.c3p0.max_statements", 50);
+			settings.put("hibernate.c3p0.timeout", 0);
+			settings.put("hibernate.c3p0.acquireRetryAttempts", 1);
+			settings.put("hibernate.c3p0.acquireRetryDelay", 250);
 
-		settings.put("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
-		settings.put("hibernate.c3p0.acquire_increment", 1);
-		settings.put("hibernate.c3p0.idle_test_period", 60);
-		settings.put("hibernate.c3p0.min_size", 1);
-		settings.put("hibernate.c3p0.max_size", 2); // 1 connection is actually enough...
-		settings.put("hibernate.c3p0.max_statements", 50);
-		settings.put("hibernate.c3p0.timeout", 0);
-		settings.put("hibernate.c3p0.acquireRetryAttempts", 1);
-		settings.put("hibernate.c3p0.acquireRetryDelay", 250);
+			configuration.setProperties(settings);
 
-		configuration.setProperties(settings);
+			configuration.addAnnotatedClass(Yes.class);
+			configuration.addAnnotatedClass(No.class);
+			configuration.addAnnotatedClass(Project.class);
 
-		configuration.addAnnotatedClass(Yes.class);
-		configuration.addAnnotatedClass(No.class);
-		configuration.addAnnotatedClass(Project.class);
+			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+					.applySettings(configuration.getProperties()).build();
 
-		ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-				.applySettings(configuration.getProperties()).build();
-
-		sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-	}
-
-	public SessionFactory getSessionFactory() {
-		if(sessionFactory == null)
-			build();
+			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+		}
 
 		return sessionFactory;
 	}
