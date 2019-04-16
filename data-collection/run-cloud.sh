@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 export IFS=","
 
-if [ "$#" -ne 4 ]; then
-  echo "Usage: $0 CSV BEGIN END DATASET_NAME" >&2
+if [ "$#" -ne 7 ]; then
+  echo "Usage: $0 CSV BEGIN END DATASET_NAME DB_URL DB_USER DB_PWD" >&2
   exit 1
 fi
 
