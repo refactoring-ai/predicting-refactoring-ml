@@ -16,6 +16,7 @@ public class ProcessMetrics {
 	@Column(nullable = true) private int bugFixCount;
 	@Column(nullable = true) private int refactoringsInvolved;
 
+	@Deprecated // hibernate purposes
 	public ProcessMetrics() {}
 
 	public ProcessMetrics(int qtyOfCommits, int linesAdded, int linesDeleted, int qtyOfAuthors, long qtyMinorAuthors,

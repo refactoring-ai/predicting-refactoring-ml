@@ -3,6 +3,7 @@ package refactoringml.db;
 import javax.persistence.*;
 
 @Entity
+@Table(indexes = {@Index(columnList = "project_id"), @Index(columnList = "refactoringType"), @Index(columnList = "refactoring")})
 public class Yes {
 
 	@Id
@@ -35,6 +36,7 @@ public class Yes {
 	@Embedded
 	private ProcessMetrics processMetrics;
 
+	@Deprecated // hibernate purposes
 	public Yes() {}
 
 	public Yes(Project project, String refactorCommit, String parentCommit, String filePath, String className,String refactoring, int refactoringType,

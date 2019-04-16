@@ -45,6 +45,7 @@ public class ClassMetric {
 	private int classLambdasQty;
 	private int classUniqueWordsQty;
 
+	@Deprecated // hibernate purposes
 	public ClassMetric(){}
 
 	public ClassMetric(int classCbo, int classWmc, int classRfc, int classLcom, int classNumberOfMethods, int classNumberOfStaticMethods, int classNumberOfPublicMethods, int classNumberOfPrivateMethods, int classNumberOfProtectedMethods,

@@ -32,6 +32,7 @@ public class MethodMetric {
 	@Column(nullable = true) private int methodLambdasQty;
 	@Column(nullable = true) private int methodUniqueWordsQty;
 
+	@Deprecated // hibernate purposes
 	public MethodMetric() {}
 
 	public MethodMetric(String fullMethodName, String shortMethodName, int startLine, int methodCbo, int methodWmc, int methodRfc, int loc, int methodReturnQty,

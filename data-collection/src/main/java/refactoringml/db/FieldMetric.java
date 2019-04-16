@@ -11,6 +11,7 @@ public class FieldMetric {
 	@Column(nullable = true)
 	private int fieldAppearances;
 
+	@Deprecated // hibernate purposes
 	public FieldMetric(){}
 
 	public FieldMetric(String fieldName, int fieldAppearances) {

@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.Calendar;
 
 @Entity
+@Table(indexes = @Index(columnList = "datasetName"))
 public class Project {
 
 	@Id
@@ -19,6 +20,7 @@ public class Project {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Calendar finishedDate;
 
+	@Deprecated // hibernate purposes
 	public Project() {}
 
 	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing) {
