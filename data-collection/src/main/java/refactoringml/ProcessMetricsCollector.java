@@ -18,6 +18,7 @@ import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.CSVUtils;
 import refactoringml.util.FilePathUtils;
+import refactoringml.util.RefactoringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,7 +141,9 @@ public class ProcessMetricsCollector {
 			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
 				String fileName = entry.getPath(null);
 
-				if (!fileName.toLowerCase().endsWith("java")) {
+				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
+				boolean refactoringIsInATestFile = RefactoringUtils.isTestFile(fileName);
+				if (!isAJavaFile || refactoringIsInATestFile) {
 					continue;
 				}
 
@@ -155,7 +158,7 @@ public class ProcessMetricsCollector {
 						continue;
 				}
 
-				// add class to our in-memory pmDatabase
+				// add class to our in-memory pmDatabase (if it's not a test file)
 				if(!pmDatabase.containsKey(fileName))
 					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName()));
 
