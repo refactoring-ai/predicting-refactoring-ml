@@ -16,12 +16,12 @@
     </logger>
 
     <logger name="org.hibernate">
-        <level value="DEBUG"/>
+        <level value="ERROR"/>
         <appender-ref ref="console"/>
     </logger>
 
     <logger name="org.refactoringminer">
-        <level value="DEBUG"/>
+        <level value="ERROR"/>
         <appender-ref ref="console"/>
     </logger>
 
