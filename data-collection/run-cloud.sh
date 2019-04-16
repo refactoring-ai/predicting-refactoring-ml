@@ -21,7 +21,7 @@ USER=$6
 PWD=$7
 
 
-CLASS="App"
+CLASS="refactoringml.App"
 
 mkdir $OUTPUT_PATH
 echo ""
