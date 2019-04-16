@@ -88,7 +88,7 @@ public class App {
 
 		// do not run if the project is already in the database
 		if(db.projectExists(gitUrl)) {
-			System.out.println("Project already in the database");
+			System.out.println(String.format("Project %s already in the database", gitUrl));
 			System.exit(-1);
 		}
 

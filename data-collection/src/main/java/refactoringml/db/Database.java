@@ -46,8 +46,12 @@ public class Database {
 	}
 
 	public boolean projectExists(String gitUrl) {
-		return session.createQuery("from Project p where p.gitUrl = :gitUrl")
+		Session shortSession = sf.openSession();
+		boolean exists = shortSession.createQuery("from Project p where p.gitUrl = :gitUrl")
 				.setParameter("gitUrl", gitUrl)
-				.getResultList().size() > 0;
+				.list().size() > 0;
+		shortSession.close();
+
+		return exists;
 	}
 }
