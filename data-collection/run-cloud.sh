@@ -6,12 +6,12 @@ if [ "$#" -ne 4 ]; then
   exit 1
 fi
 
-JAR_PATH=/root/refactoring-analyzer/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-REFACTORINGMINER_JAR_PATH=/root/refactoring-analyzer/lib/RefactoringMiner-3.jar
+JAR_PATH=/root/predicting-refactoring-ml/data-collection/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+REFACTORINGMINER_JAR_PATH=/root/predicting-refactoring-ml/data-collection/lib/RefactoringMiner-3.jar
 OUTPUT_PATH=/root/output
 PROJECTS_CSV_PATH=$1
-ASTCONVERTER=/root/refactoring-analyzer/astconverter/astconverter.jar
-ASTCONVERTER2=/root/refactoring-analyzer/astconverter/astconverter2.jar
+ASTCONVERTER=/root/predicting-refactoring-ml/data-collection/astconverter/astconverter.jar
+ASTCONVERTER2=/root/predicting-refactoring-ml/data-collection/astconverter/astconverter2.jar
 THRESHOLD=1000
 BEGIN=$2
 END=$3
