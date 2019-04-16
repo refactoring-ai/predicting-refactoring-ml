@@ -55,7 +55,7 @@ public class App {
 
 		// do we want to get data from the vars or not?
 		// i.e., is this a local IDE test?
-		boolean test = true;
+		boolean test = false;
 
 		String gitUrl;
 		String highLevelOutputPath;
