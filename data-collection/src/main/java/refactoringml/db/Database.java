@@ -19,8 +19,7 @@ public class Database {
 
 	public void commit() {
 		this.session.getTransaction().commit();
-		this.session.close();
-		this.session = null;
+		close();
 	}
 
 
@@ -37,7 +36,10 @@ public class Database {
 			if (session != null)
 				session.close();
 		} catch(Exception e) {
-			session = null;
+			// what to do? this really shouldn't happen.
+			e.printStackTrace();
+		} finally {
+			this.session = null;
 		}
 	}
 

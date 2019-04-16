@@ -3,7 +3,7 @@ package refactoringml.db;
 import javax.persistence.*;
 
 @Entity
-@Table(indexes = {@Index(columnList = "project_id")})
+@Table(name = "no", indexes = {@Index(columnList = "project_id")})
 public class No {
 
 	@Id

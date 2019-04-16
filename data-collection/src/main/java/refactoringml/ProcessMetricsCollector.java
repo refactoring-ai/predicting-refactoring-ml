@@ -332,7 +332,7 @@ public class ProcessMetricsCollector {
 
 			for(CKMethodResult ckMethodResult : ck.getMethods()) {
 				MethodMetric methodMetrics = new MethodMetric(
-						CSVUtils.escape(CKUtils.simplifyFullName(ckMethodResult.getMethodName())),
+						CKUtils.simplifyFullName(ckMethodResult.getMethodName()),
 						cleanMethodName(ckMethodResult.getMethodName()),
 						ckMethodResult.getStartLine(),
 						ckMethodResult.getCbo(),

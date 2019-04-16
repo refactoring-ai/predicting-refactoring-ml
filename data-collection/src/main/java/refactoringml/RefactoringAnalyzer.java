@@ -13,14 +13,12 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
-import refactoringml.util.CSVUtils;
 import refactoringml.util.RefactoringUtils;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
@@ -217,7 +215,7 @@ public class RefactoringAnalyzer {
 					CKMethodResult ckMethodResult = ckMethod.get();
 
 					methodMetrics = new MethodMetric(
-							CSVUtils.escape(CKUtils.simplifyFullName(ckMethodResult.getMethodName())),
+							CKUtils.simplifyFullName(ckMethodResult.getMethodName()),
 							cleanMethodName(ckMethodResult.getMethodName()),
 							ckMethodResult.getStartLine(),
 							ckMethodResult.getCbo(),
