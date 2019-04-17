@@ -14,73 +14,56 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
+import refactoringml.db.*;
+import refactoringml.util.CKUtils;
+import refactoringml.util.CSVUtils;
+import refactoringml.util.FilePathUtils;
+import refactoringml.util.RefactoringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static refactoringml.JGitUtils.readFileFromGit;
+import static refactoringml.util.JGitUtils.readFileFromGit;
+import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
 public class ProcessMetricsCollector {
 
-	private final PrintStream processMetricsOutput;
 	private String tempDir;
 
 	// commit hash, file name
-	Map<String, Set<String>> todo;
-	private String datasetName;
-	private String gitUrl;
-	private String projectName;
+	Map<String, Set<Long>> todo;
+
+	private Project project;
+	private Database db;
 	private Repository repository;
-	private PrintStream classOutputFile;
-	private PrintStream methodOutputFile;
-	private PrintStream variableOutputFile;
-	private PrintStream fieldOutputFile;
 	private String fileStoragePath;
 
-	private PMDatabase database;
+	private PMDatabase pmDatabase;
 
 	private static final Logger log = Logger.getLogger(ProcessMetricsCollector.class);
 	private String branch;
 
-	public ProcessMetricsCollector(String datasetName, String gitUrl, String projectName, Repository repository, String branch, int commitThreshold, PrintStream processMetricsOutput,
-	                               PrintStream classOutputFile,PrintStream methodOutputFile,PrintStream variableOutputFile,PrintStream fieldOutputFile,
+	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch, int commitThreshold,
 	                               String fileStoragePath) {
-		this.datasetName = datasetName;
-		this.gitUrl = gitUrl;
-		this.projectName = projectName;
+		this.project = project;
+		this.db = db;
 		this.repository = repository;
 		this.branch = branch;
-		this.processMetricsOutput = processMetricsOutput;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-
 		todo = new HashMap<>();
-		database = new PMDatabase(commitThreshold);
-
+		pmDatabase = new PMDatabase(commitThreshold);
 		this.tempDir = FilePathUtils.lastSlashDir(Files.createTempDir().getAbsolutePath());
-
-		this.classOutputFile = classOutputFile;
-		this.methodOutputFile = methodOutputFile;
-		this.variableOutputFile = variableOutputFile;
-		this.fieldOutputFile = fieldOutputFile;
-
-		this.processMetricsOutput.println("dataset,gitUrl,project,commit,file,commits,linesAdded,linesDeleted,authors,minorAuthors,majorAuthors,authorOwnership,bugs,refactorings");
-		this.classOutputFile.println("dataset,gitUrl,project,commit,path,class,type,cbo,wmc,rfc,lcom,totalMethods,staticMethods,publicMethods,privateMethods,protectedMethods,defaultMethods,abstractMethods,finalMethods,synchronizedMethods,totalFields,staticFields,publicFields,privateFields,protectedFields,defaultFields,finalFields,synchronizedFields,nosi,loc,returnQty,loopQty,comparisonsQty,tryCatchQty,parenthesizedExpsQty,stringLiteralsQty,numbersQty,assignmentsQty,mathOperationsQty,variablesQty,maxNestedBlocks,anonymousClassesQty,subClassesQty,lambdasQty,uniqueWordsQty");
-		this.methodOutputFile.println("dataset,gitUrl,project,commit,path,class,method,simplemethodname,line,cbo,wmc,rfc,loc,returns,variables,parameters,startLine,loopQty,comparisonsQty,tryCatchQty,parenthesizedExpsQty,stringLiteralsQty,numbersQty,assignmentsQty,mathOperationsQty,maxNestedBlocks,anonymousClassesQty,subClassesQty,lambdasQty,uniqueWordsQty");
-		this.variableOutputFile.println("dataset,gitUrl,project,commit,path,class,method,simplemethodname,variable,qty");
-		this.fieldOutputFile.println("dataset,gitUrl,project,commit,path,class,method,simplemethodname,variable,qty");
 	}
 
-	public void addToList (RevCommit commitData, String fileName) {
+	public void addToList (RevCommit commitData, Yes yes) {
 		String id = commitData.getName();
 		if(!todo.containsKey(id))
 			todo.put(id, new HashSet<>());
 
-		todo.get(id).add(fileName);
+		todo.get(id).add(yes.getId());
 	}
 
 	public void collect() throws IOException {
@@ -97,79 +80,28 @@ public class ProcessMetricsCollector {
 
 			Set<String> refactoredClasses = new HashSet<>();
 
-			try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-				diffFormatter.setRepository(repository);
-				diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
-				diffFormatter.setDetectRenames(true);
-
-				for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
-					String fileName = entry.getPath(null);
-
-					if (!fileName.toLowerCase().endsWith("java")) {
-						continue;
-					}
-
-					// if the class was either removed or deleted, we remove it from our database, as to not mess
-					// with the refactoring counter...
-					// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
-					// as this is basically exceptional when compared to thousands of commits and changes.
-					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
-						database.remove(entry.getOldPath());
-
-						if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
-							continue;
-					}
-
-					// add class to our in-memory database
-					if(!database.containsKey(fileName))
-						database.put(fileName, new ProcessMetric(fileName, commit.getName()));
-
-					// collect number of lines deleted and added in that file
-					int linesDeleted = 0;
-					int linesAdded = 0;
-
-					for (Edit edit : diffFormatter.toFileHeader(entry).toEditList()) {
-						linesDeleted = edit.getEndA() - edit.getBeginA();
-						linesAdded = edit.getEndB() - edit.getBeginB();
-					}
-
-					// if the class happened to be refactored, then, print its process metrics at that time
-					ProcessMetric currentClazz = database.get(fileName);
-					if(refactoring(commit.getName(), fileName)) {
-
-						log.info("Printing process metrics for the refactored class " + fileName + " in commit " + commit.getName());
-
-						// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
-						printProcessMetric(commit.getName(), fileName, true);
-
-						currentClazz.increaseRefactoringCounter();
-						currentClazz.resetRefactoringCounter(commit.getName());
-						refactoredClasses.add(fileName);
-					}
-
-					// update our database entry with the information of the current commit
-					currentClazz.existsIn(commit.getName(), commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
+			// if the class happened to be refactored, then, print its process metrics at that time
+			if(todo.containsKey(commit.getName())) {
+				try {
+					db.openSession();
+					refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
+					db.commit();
+				} catch(Exception e) {
+					db.close();
 				}
 			}
 
+			// we go now change by change in the commit to update the process metrics there
+			// (no need for db here, as this update happens only locally)
+			updateProcessMetrics(commit, commitParent);
+
 			// update classes that were not refactored on this commit
-			database.updateNotRefactored(refactoredClasses);
-
-			// if there are classes over the threshold, we output them as an examples of not refactored classes,
-			// and we reset their counter.
-			// note that we have a lot of failures here, as 500 commits later, the class might had been
-			// renamed or moved, and thus the class (with the name before) "doesn't exist" anymore..
-			// that is still ok as we are collecting thousands of examples.
-			// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
-			// but that's not a big deal.
-			for(ProcessMetric pm : database.refactoredLongAgo()) {
-				outputNonRefactoredClass(pm);
-
-				// we then reset the counter, and start again.
-				// it is ok to use the same class more than once, as metrics as well as
-				// its source code will/may change, and thus, they are a different instance.
-				pm.resetRefactoringCounter(commit.getName());
-
+			try {
+				db.openSession();
+				updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
+				db.commit();
+			} catch(Exception e) {
+				db.close();
 			}
 
 			commit = walk.next();
@@ -177,42 +109,131 @@ public class ProcessMetricsCollector {
 		walk.close();
 	}
 
-	private void printProcessMetric (String commit, String fileName, boolean recent) {
+	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, Set<String> refactoredClasses) throws IOException {
 
-		if(recent){
-			processMetricsOutput.println(
-				datasetName + "," +
-				gitUrl + "," +
-				projectName + "," +
-               commit + "," +
-               fileName  + "," +
-               database.get(fileName).qtyOfCommits() + "," +
-               database.get(fileName).getLinesAdded() + "," +
-               database.get(fileName).getLinesDeleted() + "," +
-               database.get(fileName).qtyOfAuthors() + "," +
-               database.get(fileName).qtyMinorAuthors() + "," +
-               database.get(fileName).qtyMajorAuthors() + "," +
-               database.get(fileName).authorOwnership() + "," +
-               database.get(fileName).getBugFixCount() + "," +
-               database.get(fileName).getRefactoringsInvolved()
+		pmDatabase.updateNotRefactored(refactoredClasses);
+
+		// if there are classes over the threshold, we output them as an examples of not refactored classes,
+		// and we reset their counter.
+		// note that we have a lot of failures here, as 500 commits later, the class might had been
+		// renamed or moved, and thus the class (with the name before) "doesn't exist" anymore..
+		// that is still ok as we are collecting thousands of examples.
+		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
+		// but that's not a big deal.
+		for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
+			outputNonRefactoredClass(pm);
+
+			// we then reset the counter, and start again.
+			// it is ok to use the same class more than once, as metrics as well as
+			// its source code will/may change, and thus, they are a different instance.
+			pm.resetLastRefactoringStats(commit.getName());
+
+		}
+
+	}
+
+	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent) throws IOException {
+		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+			diffFormatter.setRepository(repository);
+			diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
+			diffFormatter.setDetectRenames(true);
+
+			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
+				String fileName = entry.getPath(null);
+
+				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
+				boolean refactoringIsInATestFile = RefactoringUtils.isTestFile(fileName);
+				if (!isAJavaFile || refactoringIsInATestFile) {
+					continue;
+				}
+
+				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
+				// with the refactoring counter...
+				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
+				// as this is basically exceptional when compared to thousands of commits and changes.
+				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
+					pmDatabase.remove(entry.getOldPath());
+
+					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
+						continue;
+				}
+
+				// add class to our in-memory pmDatabase (if it's not a test file)
+				if(!pmDatabase.containsKey(fileName))
+					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName()));
+
+				// collect number of lines deleted and added in that file
+				int linesDeleted = 0;
+				int linesAdded = 0;
+
+				for (Edit edit : diffFormatter.toFileHeader(entry).toEditList()) {
+					linesDeleted = edit.getEndA() - edit.getBeginA();
+					linesAdded = edit.getEndB() - edit.getBeginB();
+				}
+
+				// update our pmDatabase entry with the information of the current commit
+				ProcessMetric currentClazz = pmDatabase.get(fileName);
+				currentClazz.existsIn(commit.getName(), commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
+			}
+		}
+	}
+
+	private Set<String> collectProcessMetricsOfRefactoredCommit(RevCommit commit) {
+
+		Set<String> refactoredClasses = new HashSet<>();
+		Set<Long> allYeses = todo.get(commit.getName());
+
+		for (Long yesId : allYeses) {
+
+			Yes yes = db.findYes(yesId);
+
+			String fileName = yes.getFilePath();
+
+			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
+			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
+			ProcessMetrics dbProcessMetrics = new ProcessMetrics(
+					currentProcessMetrics.qtyOfCommits(),
+					currentProcessMetrics.getLinesAdded(),
+					currentProcessMetrics.getLinesDeleted(),
+					currentProcessMetrics.qtyOfAuthors(),
+					currentProcessMetrics.qtyMinorAuthors(),
+					currentProcessMetrics.qtyMajorAuthors(),
+					currentProcessMetrics.authorOwnership(),
+					currentProcessMetrics.getBugFixCount(),
+					currentProcessMetrics.getRefactoringsInvolved()
 			);
-		} else {
-			processMetricsOutput.println(
-				datasetName + "," +
-				gitUrl + "," +
-				projectName + "," +
-				commit + "," +
-				fileName  + "," +
-				database.get(fileName).getBaseCommits() + "," +
-				database.get(fileName).getBaseLinesAdded() + "," +
-				database.get(fileName).getBaseLinesDeleted() + "," +
-				database.get(fileName).getBaseAuthors() + "," +
-				database.get(fileName).getBaseMinorAuthors() + "," +
-				database.get(fileName).getBaseMajorAuthors() + "," +
-				database.get(fileName).getBaseAuthorOwnership() + "," +
-				database.get(fileName).getBaseBugFixCount() + "," +
-				database.get(fileName).getBaseRefactoringsInvolved()
-			);
+			yes.setProcessMetrics(dbProcessMetrics);
+			db.update(yes);
+
+			// update counters
+			currentProcessMetrics.increaseRefactoringCounter();
+			currentProcessMetrics.resetLastRefactoringStats(commit.getName());
+
+			refactoredClasses.add(fileName);
+		}
+
+		return refactoredClasses;
+
+	}
+
+	private void storeProcessMetric(String fileName, List<No> nos) {
+
+		for(No no : nos) {
+
+			ProcessMetric filePm = pmDatabase.get(fileName);
+			ProcessMetrics dbProcessMetrics = new ProcessMetrics(
+					filePm.getBaseCommits(),
+					filePm.getBaseLinesAdded(),
+					filePm.getBaseLinesDeleted(),
+					filePm.getBaseAuthors(),
+					filePm.getBaseMinorAuthors(),
+					filePm.getBaseMajorAuthors(),
+					filePm.getBaseAuthorOwnership(),
+					filePm.getBaseBugFixCount(),
+					filePm.getBaseRefactoringsInvolved());
+
+			no.setProcessMetrics(dbProcessMetrics);
+			db.persist(no);
 		}
 
 	}
@@ -228,148 +249,169 @@ public class ProcessMetricsCollector {
 			sourceCodeBackThen = readFileFromGit(repository, commitHashBackThen, clazz.getFileName());
 		} catch(Exception e) {
 			log.error("Failed when getting source code of the class... The class was probably moved or deleted...");
-			database.remove(clazz);
+			pmDatabase.remove(clazz);
 			return;
 		}
 
 		try {
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
-			codeMetrics(commitHashBackThen, clazz);
+			List<No> nos = codeMetrics(commitHashBackThen, clazz);
 
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
-			printProcessMetric(commitHashBackThen, clazz.getFileName(), false);
+			storeProcessMetric(clazz.getFileName(), nos);
 		} catch(Exception e) {
 			log.error("Failing when calculating metrics", e);
 		}
 
 	}
 
-	private void codeMetrics(String commitHashBackThen, ProcessMetric clazz) {
+	private List<No> codeMetrics(String commitHashBackThen, ProcessMetric clazz) {
 
-		new CK().calculate(tempDir, number -> {
+		List<No> nos = new ArrayList<>();
 
-			if(number.isError()) {
-				log.error("CK failed: " + number.getClassName());
-				throw new RuntimeException("CK failed: " + number.getFile());
+		new CK().calculate(tempDir, ck -> {
+
+			if(ck.isError()) {
+				log.error("CK failed: " + ck.getClassName());
+				throw new RuntimeException("CK failed: " + ck.getFile());
 			}
 
-			classOutputFile.println(
-				datasetName + "," +
-				gitUrl + "," +
-				projectName + "," +
-				commitHashBackThen + "," +
-				clazz.getFileName() + "," +
-				number.getClassName() + "," +
-				number.getType() + "," +
-				number.getCbo() + "," +
-				number.getWmc() + "," +
-				number.getRfc() + "," +
-				number.getLcom() + "," +
-				number.getNumberOfMethods() + "," +
-				number.getNumberOfStaticMethods() + "," +
-				number.getNumberOfPublicMethods() + "," +
-				number.getNumberOfPrivateMethods() + "," +
-				number.getNumberOfProtectedMethods() + "," +
-				number.getNumberOfDefaultMethods() + "," +
-				number.getNumberOfAbstractMethods() + "," +
-				number.getNumberOfFinalMethods() + "," +
-				number.getNumberOfSynchronizedMethods() + "," +
-				number.getNumberOfFields() + "," +
-				number.getNumberOfStaticFields() + "," +
-				number.getNumberOfPublicFields() + "," +
-				number.getNumberOfPrivateFields() + "," +
-				number.getNumberOfProtectedFields() + "," +
-				number.getNumberOfDefaultFields() + "," +
-				number.getNumberOfFinalFields() + "," +
-				number.getNumberOfSynchronizedFields() + "," +
-				number.getNosi() + "," +
-				number.getLoc() + "," +
-				number.getReturnQty() + "," +
-				number.getLoopQty() + "," +
-				number.getComparisonsQty() + "," +
-				number.getTryCatchQty() + "," +
-				number.getParenthesizedExpsQty() + "," +
-				number.getStringLiteralsQty() + "," +
-				number.getNumbersQty() + "," +
-				number.getAssignmentsQty() + "," +
-				number.getMathOperationsQty() + "," +
-				number.getVariablesQty() + "," +
-				number.getMaxNestedBlocks() + "," +
-				number.getAnonymousClassesQty() + "," +
-				number.getSubClassesQty() + "," +
-				number.getLambdasQty() + "," +
-				number.getUniqueWordsQty());
+			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
+					ck.getWmc(),
+					ck.getRfc(),
+					ck.getLcom(),
+					ck.getNumberOfMethods(),
+					ck.getNumberOfStaticMethods(),
+					ck.getNumberOfPublicMethods(),
+					ck.getNumberOfPrivateMethods(),
+					ck.getNumberOfProtectedMethods(),
+					ck.getNumberOfDefaultMethods(),
+					ck.getNumberOfAbstractMethods(),
+					ck.getNumberOfFinalMethods(),
+					ck.getNumberOfSynchronizedMethods(),
+					ck.getNumberOfFields(),
+					ck.getNumberOfStaticFields(),
+					ck.getNumberOfPublicFields(),
+					ck.getNumberOfPrivateFields(),
+					ck.getNumberOfProtectedFields(),
+					ck.getNumberOfDefaultFields(),
+					ck.getNumberOfFinalFields(),
+					ck.getNumberOfSynchronizedFields(),
+					ck.getNosi(),
+					ck.getLoc(),
+					ck.getReturnQty(),
+					ck.getLoopQty(),
+					ck.getComparisonsQty(),
+					ck.getTryCatchQty(),
+					ck.getParenthesizedExpsQty(),
+					ck.getStringLiteralsQty(),
+					ck.getNumbersQty(),
+					ck.getAssignmentsQty(),
+					ck.getMathOperationsQty(),
+					ck.getVariablesQty(),
+					ck.getMaxNestedBlocks(),
+					ck.getAnonymousClassesQty(),
+					ck.getSubClassesQty(),
+					ck.getLambdasQty(),
+					ck.getUniqueWordsQty());
 
-			for(CKMethodResult method : number.getMethods()) {
-				methodOutputFile.println(
-					datasetName + "," +
-					gitUrl + "," +
-					projectName + "," +
-					commitHashBackThen + "," +
-					clazz.getFileName() + "," +
-					number.getClassName() + "," +
-					CSVUtils.escape(method.getMethodName()) + "," +
-					RefactoringUtils.cleanMethodName(method.getMethodName()) + "," +
-					method.getStartLine() + "," +
-					method.getCbo() + "," +
-					method.getWmc() + "," +
-					method.getRfc() + "," +
-					method.getLoc() + "," +
-					method.getReturnQty() + "," +
-					method.getVariablesQty() + "," +
-					method.getParametersQty() + "," +
-					method.getStartLine() + "," +
-					method.getLoopQty() + "," +
-					method.getComparisonsQty() + "," +
-					method.getTryCatchQty() + "," +
-					method.getParenthesizedExpsQty() + "," +
-					method.getStringLiteralsQty() + "," +
-					method.getNumbersQty() + "," +
-					method.getAssignmentsQty() + "," +
-					method.getMathOperationsQty() + "," +
-					method.getMaxNestedBlocks() + "," +
-					method.getAnonymousClassesQty() + "," +
-					method.getSubClassesQty() + "," +
-					method.getLambdasQty() + "," +
-					method.getUniqueWordsQty()
+
+			No no = new No(
+					project,
+					commitHashBackThen,
+					ck.getFile().replace(tempDir, ""),
+					ck.getClassName(),
+					classMetric,
+					null,
+					null,
+					null);
+
+			nos.add(no);
+
+
+			for(CKMethodResult ckMethodResult : ck.getMethods()) {
+				MethodMetric methodMetrics = new MethodMetric(
+						CKUtils.simplifyFullName(ckMethodResult.getMethodName()),
+						cleanMethodName(ckMethodResult.getMethodName()),
+						ckMethodResult.getStartLine(),
+						ckMethodResult.getCbo(),
+						ckMethodResult.getWmc(),
+						ckMethodResult.getRfc(),
+						ckMethodResult.getLoc(),
+						ckMethodResult.getReturnQty(),
+						ckMethodResult.getVariablesQty(),
+						ckMethodResult.getParametersQty(),
+						ckMethodResult.getLoopQty(),
+						ckMethodResult.getComparisonsQty(),
+						ckMethodResult.getTryCatchQty(),
+						ckMethodResult.getParenthesizedExpsQty(),
+						ckMethodResult.getStringLiteralsQty(),
+						ckMethodResult.getNumbersQty(),
+						ckMethodResult.getAssignmentsQty(),
+						ckMethodResult.getMathOperationsQty(),
+						ckMethodResult.getMaxNestedBlocks(),
+						ckMethodResult.getAnonymousClassesQty(),
+						ckMethodResult.getSubClassesQty(),
+						ckMethodResult.getLambdasQty(),
+						ckMethodResult.getUniqueWordsQty()
 				);
 
-				for (Map.Entry<String, Integer> entry : method.getVariablesUsage().entrySet()) {
-					variableOutputFile.println(
-						datasetName + "," +
-						gitUrl + "," +
-						projectName + "," +
-						commitHashBackThen + "," +
-						clazz.getFileName() + "," +
-						number.getClassName() + "," +
-						CSVUtils.escape(method.getMethodName()) + "," +
-						RefactoringUtils.cleanMethodName(method.getMethodName()) + "," +
-						entry.getKey() + "," +
-						entry.getValue());
+				No noM = new No(
+						project,
+						commitHashBackThen,
+						ck.getFile().replace(tempDir, ""),
+						ck.getClassName(),
+						classMetric,
+						methodMetrics,
+						null,
+						null);
+
+				nos.add(noM);
+
+				for (Map.Entry<String, Integer> entry : ckMethodResult.getVariablesUsage().entrySet()) {
+					VariableMetric variableMetric = new VariableMetric(entry.getKey(), entry.getValue());
+
+					No noV = new No(
+							project,
+							commitHashBackThen,
+							ck.getFile().replace(tempDir, ""),
+							ck.getClassName(),
+							classMetric,
+							methodMetrics,
+							variableMetric,
+							null);
+
+					nos.add(noV);
+
 				}
 
-				for (Map.Entry<String, Integer> entry : method.getFieldUsage().entrySet()) {
-					fieldOutputFile.println(
-						datasetName + "," +
-						gitUrl + "," +
-						projectName + "," +
-						commitHashBackThen + "," +
-						clazz.getFileName() + "," +
-						number.getClassName() + "," +
-						CSVUtils.escape(method.getMethodName()) + "," +
-						RefactoringUtils.cleanMethodName(method.getMethodName()) + "," +
-						entry.getKey() + "," +
-						entry.getValue());
-				}
 			}
 
-			classOutputFile.flush();
-			methodOutputFile.flush();
-			variableOutputFile.flush();
-			fieldOutputFile.flush();
+			Set<String> fields = ck.getMethods().stream().flatMap(x -> x.getFieldUsage().keySet().stream()).collect(Collectors.toSet());
+
+			for(String field : fields) {
+				int totalAppearances = ck.getMethods().stream()
+						.map(x -> x.getFieldUsage().get(field) == null ? 0 : x.getFieldUsage().get(field))
+						.mapToInt(Integer::intValue).sum();
+
+				FieldMetric fieldMetrics = new FieldMetric(field, totalAppearances);
+
+				No noF = new No(
+						project,
+						commitHashBackThen,
+						ck.getFile().replace(tempDir, ""),
+						ck.getClassName(),
+						classMetric,
+						null,
+						null,
+						fieldMetrics);
+
+				nos.add(noF);
+			}
 		});
 
+		return nos;
 	}
 
 	private void saveFile (String commitBackThen, String sourceCodeBackThen, String fileName) throws IOException {
@@ -392,7 +434,4 @@ public class ProcessMetricsCollector {
 		tempDir = FilePathUtils.lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
 	}
 
-	private boolean refactoring (String commit, String fileName) {
-		return todo.containsKey(commit) && todo.get(commit).contains(fileName);
-	}
 }

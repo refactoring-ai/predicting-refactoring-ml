@@ -1,30 +1,32 @@
 #!/usr/bin/env bash
 export IFS=","
 
-if [ "$#" -ne 4 ]; then
-  echo "Usage: $0 CSV BEGIN END DATASET_NAME" >&2
+if [ "$#" -ne 6 ]; then
+  echo "Usage: $0 CSV BEGIN END DB_URL DB_USER DB_PWD" >&2
   exit 1
 fi
 
-JAR_PATH=/root/refactoring-analyzer/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-ANICHE_JAR_PATH=/root/refactoring-analyzer/lib/RefactoringMiner-2.jar
+JAR_PATH=/root/predicting-refactoring-ml/data-collection/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+REFACTORINGMINER_JAR_PATH=/root/predicting-refactoring-ml/data-collection/lib/RefactoringMiner-3.jar
 OUTPUT_PATH=/root/output
 PROJECTS_CSV_PATH=$1
-ASTCONVERTER=/root/refactoring-analyzer/astconverter/astconverter.jar
-ASTCONVERTER2=/root/refactoring-analyzer/astconverter/astconverter2.jar
-THRESHOLD=500
+ASTCONVERTER=/root/predicting-refactoring-ml/data-collection/astconverter/astconverter.jar
+ASTCONVERTER2=/root/predicting-refactoring-ml/data-collection/astconverter/astconverter2.jar
+THRESHOLD=1000
 BEGIN=$2
 END=$3
-DATASET=$4
+URL=$4
+USER=$5
+PWD=$6
 
 
-CLASS="App"
+CLASS="refactoringml.App"
 
 mkdir $OUTPUT_PATH
 echo ""
 i=0
 cat $PROJECTS_CSV_PATH | while 
-	read PROJECT REPO; do 
+	read PROJECT REPO DATASET; do
 	let "i++"
 
 	if [ $i -ge $BEGIN -a $i -le $END ]; then
@@ -36,7 +38,7 @@ cat $PROJECTS_CSV_PATH | while
 		echo "Running refactoring analyzer"
 		echo "java -cp $ANICHE_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $OUTPUT_PROJECT_PATH $THRESHOLD"
 
-		java -Xmx650m -Xms350m -cp $ANICHE_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $OUTPUT_PROJECT_PATH $THRESHOLD >> /root/log.txt 2>> /root/error.txt
+		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $OUTPUT_PROJECT_PATH $THRESHOLD $URL $USER $PWD >> /root/log.txt 2>> /root/error.txt
 		if [ $? -eq 0 ]
 		then
 			AST_OUTPUT_PATH="$OUTPUT_PROJECT_PATH/clean"

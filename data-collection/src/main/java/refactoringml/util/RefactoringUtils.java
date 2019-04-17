@@ -1,4 +1,4 @@
-package refactoringml;
+package refactoringml.util;
 
 import gr.uom.java.xmi.UMLOperation;
 import gr.uom.java.xmi.UMLType;
@@ -211,5 +211,19 @@ public class RefactoringUtils {
 
 	public static String cleanMethodName(String methodName) {
 		return methodName.contains("/") ? methodName.substring(0, methodName.indexOf("/")) : methodName;
+	}
+
+	public static int refactoringTypeInNumber(Refactoring refactoring) {
+		if(isClassLevelRefactoring(refactoring)) return 1;
+		if(isMethodLevelRefactoring(refactoring)) return 2;
+		if(isVariableLevelRefactoring(refactoring)) return 3;
+		if(isAttributeLevelRefactoring(refactoring)) return 4;
+		return -1;
+	}
+
+	public static boolean isTestFile(String fileName) {
+		String normalizedFileName = fileName.toLowerCase();
+		return normalizedFileName.contains("test.java") || normalizedFileName.contains("tests.java") ||
+				normalizedFileName.contains("/test/");
 	}
 }

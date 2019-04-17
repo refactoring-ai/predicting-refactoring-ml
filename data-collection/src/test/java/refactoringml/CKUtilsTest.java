@@ -2,6 +2,7 @@ package refactoringml;
 
 import org.junit.Assert;
 import org.junit.Test;
+import refactoringml.util.CKUtils;
 
 public class CKUtilsTest {
 

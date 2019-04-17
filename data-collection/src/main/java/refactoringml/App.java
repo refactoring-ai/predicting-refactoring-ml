@@ -7,43 +7,31 @@ import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.RemoteConfig;
 import org.refactoringminer.api.GitHistoryRefactoringMiner;
 import org.refactoringminer.api.GitService;
 import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
+import refactoringml.db.Database;
+import refactoringml.db.HibernateConfig;
+import refactoringml.db.Project;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static refactoringml.FilePathUtils.lastSlashDir;
+import static refactoringml.util.FilePathUtils.lastSlashDir;
+import static refactoringml.util.JGitUtils.*;
 
 public class App {
 
 	private String clonePath;
 	private String gitUrl;
-	private PrintStream notRefactoredFieldLevelOutputFile;
 	private String filesStoragePath;
-
-	private PrintStream notRefactoredClassLevelOutputFile;
-	private PrintStream notRefactoredMethodLevelOutputFile;
-	private PrintStream notRefactoredVariableLevelOutputFile;
-
-	private PrintStream refactoredOutputFile;
-	private PrintStream refactoredClassLevelOutputFile;
-	private PrintStream refactoredMethodLevelOutputFile;
-	private PrintStream refactoredVariableLevelOutputFile;
-
-	private PrintStream refactoredFieldLevelOutputFile;
-	private PrintStream processMetricsOutputFile;
-	private PrintStream projectInfoOutputFile;
 	private int commitThreshold;
+	private Database db;
 
 	private static final Logger log = Logger.getLogger(App.class);
 	private String datasetName;
@@ -51,61 +39,46 @@ public class App {
 	public App (String datasetName,
 	            String clonePath,
 	            String gitUrl,
-	            PrintStream notRefactoredClassLevelOutputFile,
-	            PrintStream notRefactoredMethodLevelOutputFile,
-	            PrintStream notRefactoredVariableLevelOutputFile,
-	            PrintStream notRefactoredFieldLevelOutputFile,
 	            String filesStoragePath,
-	            PrintStream refactoredOutputFile,
-	            PrintStream refactoredClassLevelOutputFile,
-	            PrintStream refactoredMethodLevelOutputFile,
-	            PrintStream refactoredVariableLevelOutputFile,
-	            PrintStream refactoredFieldLevelOutputFile,
-	            PrintStream processMetricsOutputFile,
-	            PrintStream projectInfoOutputFile,
-	            int commitThreshold) {
+	            int commitThreshold,
+	            Database db) {
+
 		this.datasetName = datasetName;
 		this.clonePath = clonePath;
 		this.gitUrl = gitUrl;
-
-		this.notRefactoredClassLevelOutputFile = notRefactoredClassLevelOutputFile;
-		this.notRefactoredMethodLevelOutputFile = notRefactoredMethodLevelOutputFile;
-		this.notRefactoredVariableLevelOutputFile = notRefactoredVariableLevelOutputFile;
-		this.notRefactoredFieldLevelOutputFile = notRefactoredFieldLevelOutputFile;
-
 		this.filesStoragePath = filesStoragePath;
-		this.refactoredOutputFile = refactoredOutputFile;
-
-		this.refactoredClassLevelOutputFile = refactoredClassLevelOutputFile;
-		this.refactoredMethodLevelOutputFile = refactoredMethodLevelOutputFile;
-		this.refactoredVariableLevelOutputFile = refactoredVariableLevelOutputFile;
-		this.refactoredFieldLevelOutputFile = refactoredFieldLevelOutputFile;
-
-		this.processMetricsOutputFile = processMetricsOutputFile;
-		this.projectInfoOutputFile = projectInfoOutputFile;
 		this.commitThreshold = commitThreshold;
+		this.db = db;
 	}
 
 	public static void main(String[] args) throws Exception {
 
 		// do we want to get data from the vars or not?
 		// i.e., is this a local IDE test?
-		boolean test = true;
+		boolean test = false;
 
 		String gitUrl;
 		String highLevelOutputPath;
 		String datasetName;
+		String url;
+		String user;
+		String pwd;
 
 		int commitThreshold;
 
 		if(test) {
-			gitUrl = "/Users/mauricioaniche/Desktop/abdera";
-			highLevelOutputPath = "/Users/mauricioaniche/Desktop/fse19/";
-			commitThreshold = 500;
+			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
+			highLevelOutputPath = "/Users/mauricioaniche/Desktop/results/";
+			commitThreshold = 1000;
 			datasetName = "test";
+
+			url = "jdbc:mysql://localhost:3306/refactoring2?useSSL=false";
+			user = "root";
+			pwd = "";
+
 		} else {
-			if (args == null || args.length != 4) {
-				System.out.println("4 arguments: (dataset name) (git url or project directory) (output path) (not refactoring threshold)");
+			if (args == null || args.length != 7) {
+				System.out.println("7 arguments: (dataset name) (git url or project directory) (output path) (not refactoring threshold) (database url) (database user) (database pwd)");
 				System.exit(-1);
 			}
 
@@ -113,42 +86,27 @@ public class App {
 			gitUrl = args[1].trim();
 			highLevelOutputPath = lastSlashDir(args[2].trim());
 			commitThreshold = Integer.parseInt(args[3].trim());
+
+			url = args[4];
+			user = args[5];
+			pwd = args[6];
 		}
 
 		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "/repo";
-		String filesStoragePath = highLevelOutputPath + "/storage/";
+		String filesStoragePath = highLevelOutputPath; // No need for the name of the project, as the run.sh creates a folder for it already
 		new File(filesStoragePath).mkdirs();
 
-		String notRefactoredClassLevelFilePath = highLevelOutputPath + "no-class.csv";
-		String notRefactoredMethodLevelFilePath = highLevelOutputPath + "no-method.csv";
-		String notRefactoredVariableLevelFilePath = highLevelOutputPath + "no-variable.csv";
-		String notRefactoredFieldLevelFilePath = highLevelOutputPath + "no-field.csv";
+		Database db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
 
-		String refactoredFilePath = highLevelOutputPath + "yes.csv";
-		String refactoredClassLevelFilePath = highLevelOutputPath + "yes-class.csv";
-		String refactoredMethodLevelFilePath = highLevelOutputPath + "yes-method.csv";
-		String refactoredVariableLevelFilePath = highLevelOutputPath + "yes-variable.csv";
-		String refactoredFieldLevelFilePath = highLevelOutputPath + "yes-field.csv";
-
-		String processMetricsOutputFile = highLevelOutputPath + "process.csv";
-		String projectInfoFilePath = highLevelOutputPath + "project-info.txt";
+		// do not run if the project is already in the database
+		if(db.projectExists(gitUrl)) {
+			System.out.println(String.format("Project %s already in the database", gitUrl));
+			System.exit(-1);
+		}
 
 		new App(datasetName, clonePath, gitUrl,
-				new PrintStream(notRefactoredClassLevelFilePath),
-				new PrintStream(notRefactoredMethodLevelFilePath),
-				new PrintStream(notRefactoredVariableLevelFilePath),
-				new PrintStream(notRefactoredFieldLevelFilePath),
-
 				filesStoragePath,
-
-				new PrintStream(refactoredFilePath),
-				new PrintStream(refactoredClassLevelFilePath),
-				new PrintStream(refactoredMethodLevelFilePath),
-				new PrintStream(refactoredVariableLevelFilePath),
-				new PrintStream(refactoredFieldLevelFilePath),
-
-				new PrintStream(processMetricsOutputFile),
-				new PrintStream(projectInfoFilePath), commitThreshold).run();
+				commitThreshold, db).run();
 
     }
 
@@ -159,7 +117,6 @@ public class App {
 		GitService gitService = new GitServiceImpl();
 		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
 
-
 		log.info("Refactoring analyzer");
 		log.info("Starting project " + gitUrl + "(clone at " + clonePath + ")");
 		final Repository repo = gitService.cloneIfNotExists(clonePath, gitUrl);
@@ -169,23 +126,27 @@ public class App {
 		String mainBranch = discoverMainBranch(git);
 		log.debug("main branch: " + mainBranch);
 
-		storeRepoInfo(git);
+		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance());
+		db.openSession();
+		db.persist(project);
+		db.commit();
 
-		String projectName = extractProjectName(gitUrl);
 
-		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(datasetName, gitUrl, projectName, repo, mainBranch, commitThreshold,processMetricsOutputFile, notRefactoredClassLevelOutputFile, notRefactoredMethodLevelOutputFile, notRefactoredVariableLevelOutputFile, notRefactoredFieldLevelOutputFile, filesStoragePath);
-		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(datasetName, gitUrl, projectName, repo, processMetrics, refactoredOutputFile, refactoredClassLevelOutputFile, refactoredMethodLevelOutputFile, refactoredVariableLevelOutputFile, refactoredFieldLevelOutputFile, filesStoragePath);
+		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, commitThreshold, filesStoragePath);
+		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath);
 
-//		miner.detectAll(repo, mainBranch, new RefactoringHandler() {
-		miner.detectAtCommit(repo, mainBranch, "babb6c8e99746531174073ebd2bce291d18770f4", new RefactoringHandler() {
+		miner.detectAll(repo, mainBranch, new RefactoringHandler() {
 			@Override
 			public void handle(RevCommit commitData, List<Refactoring> refactorings) {
-				try {
-					for (Refactoring ref : refactorings) {
+				for (Refactoring ref : refactorings) {
+					try {
+						db.openSession();
 						refactoringAnalyzer.collectCommitData(commitData, ref);
+						db.commit();
+					} catch (Exception e) {
+						log.error("Error", e);
+						db.close();
 					}
-				} catch (Exception e) {
-					log.error("Error", e);
 				}
 			}
 
@@ -208,40 +169,18 @@ public class App {
 		log.info("Starting the collection of the process metrics and the non-refactored classes");
 		processMetrics.collect();
 
-		closeAllOutputFiles();
-
 		long end = System.currentTimeMillis();
 		log.info(String.format("Finished in %.2f minutes", ((end-start)/1000.0/60.0)));
+
+		db.openSession();
+		project.setFinishedDate(Calendar.getInstance());
+		db.update(project);
+		db.commit();
 	}
 
-	private String extractProjectName(String gitUrl) {
-		String[] splittedGitUrl = gitUrl.split("/");
-		return splittedGitUrl[splittedGitUrl.length - 1].replace("\\.git", "");
-	}
 
 	private String discoverMainBranch(Git git) throws IOException {
 		return git.getRepository().getBranch();
-	}
-
-	private void closeAllOutputFiles() {
-		notRefactoredClassLevelOutputFile.close();
-		notRefactoredMethodLevelOutputFile.close();
-		notRefactoredVariableLevelOutputFile.close();
-
-		refactoredClassLevelOutputFile.close();
-		refactoredMethodLevelOutputFile.close();
-		refactoredVariableLevelOutputFile.close();
-
-		processMetricsOutputFile.close();
-		projectInfoOutputFile.close();
-	}
-
-	private void storeRepoInfo(Git git) throws GitAPIException {
-		projectInfoOutputFile.println(new Date().toString());
-		projectInfoOutputFile.println(gitUrl);
-		for (RemoteConfig remoteConfig : git.remoteList().call()) {
-			projectInfoOutputFile.println(remoteConfig.getName() + ": " + remoteConfig.getURIs().stream().map(x -> x.toString()).collect(Collectors.joining(",")));
-		}
 	}
 
 

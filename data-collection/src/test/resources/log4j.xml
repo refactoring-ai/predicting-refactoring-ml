@@ -10,15 +10,25 @@
     </appender>
 
 
-    <logger name="com.github.mauricioaniche.ck" additivity="false">
+    <logger name="com.github.mauricioaniche">
         <level value="ERROR"/>
         <appender-ref ref="console"/>
     </logger>
 
+    <logger name="org.hibernate">
+        <level value="ERROR"/>
+        <appender-ref ref="console"/>
+    </logger>
 
-    <root>
-        <level value="DEBUG" />
-        <appender-ref ref="console" />
-    </root>
+    <logger name="org.refactoringminer">
+        <level value="ERROR"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <logger name="refactoringml">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
 
 </log4j:configuration>

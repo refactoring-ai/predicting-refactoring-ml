@@ -1,4 +1,4 @@
-package refactoringml;
+package refactoringml.util;
 
 import java.io.File;
 

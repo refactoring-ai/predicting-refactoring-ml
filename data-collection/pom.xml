@@ -47,8 +47,25 @@
 		  <artifactId>refactoringminer</artifactId>
 		  <version>1.0</version>
 		  <scope>system</scope>
-		  <systemPath>${project.basedir}/lib/RefactoringMiner-2.jar</systemPath>
+		  <systemPath>${project.basedir}/lib/RefactoringMiner-3.jar</systemPath>
 	  </dependency>
+
+
+	  <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+	  <dependency>
+		  <groupId>mysql</groupId>
+		  <artifactId>mysql-connector-java</artifactId>
+		  <version>8.0.15</version>
+	  </dependency>
+
+
+	  <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+	  <dependency>
+		  <groupId>org.hibernate</groupId>
+		  <artifactId>hibernate-core</artifactId>
+		  <version>5.4.2.Final</version>
+	  </dependency>
+
 
 	  <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
 	  <dependency>
@@ -113,6 +130,22 @@
 		  <artifactId>org.eclipse.jdt.core</artifactId>
 		  <version>3.16.0</version>
 	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
+	  <dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-text</artifactId>
+		  <version>1.6</version>
+	  </dependency>
+
+
+	  <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-c3p0 -->
+	  <dependency>
+		  <groupId>org.hibernate</groupId>
+		  <artifactId>hibernate-c3p0</artifactId>
+		  <version>5.4.2.Final</version>
+	  </dependency>
+
 
   </dependencies>
 
