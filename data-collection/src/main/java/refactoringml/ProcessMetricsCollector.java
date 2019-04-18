@@ -14,6 +14,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
+import org.jboss.forge.roaster.Roaster;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.FilePathUtils;
@@ -245,7 +246,7 @@ public class ProcessMetricsCollector {
 
 		try {
 			// we extract the source code from back then (as that's the one that never deserved a refactoring)
-			sourceCodeBackThen = readFileFromGit(repository, commitHashBackThen, clazz.getFileName());
+			sourceCodeBackThen = Roaster.format(readFileFromGit(repository, commitHashBackThen, clazz.getFileName()));
 		} catch(Exception e) {
 			log.error("Failed when getting source code of the class... The class was probably moved or deleted...");
 			pmDatabase.remove(clazz);
@@ -254,7 +255,7 @@ public class ProcessMetricsCollector {
 
 		try {
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
-			List<No> nos = codeMetrics(commitHashBackThen, clazz);
+			List<No> nos = codeMetrics(commitHashBackThen);
 
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
@@ -265,7 +266,7 @@ public class ProcessMetricsCollector {
 
 	}
 
-	private List<No> codeMetrics(String commitHashBackThen, ProcessMetric clazz) {
+	private List<No> codeMetrics(String commitHashBackThen) {
 
 		List<No> nos = new ArrayList<>();
 

@@ -10,6 +10,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
+import org.jboss.forge.roaster.Roaster;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
@@ -104,9 +105,8 @@ public class RefactoringAnalyzer {
 			if(refactoringIsInATestFile)
 				return;
 
-			String fileBefore = readFileFromGit(repository, commitParent, oldFileName);
-			String fileAfter = readFileFromGit(repository, commit.getName(), currentFileName);
-
+			String fileBefore = Roaster.format(readFileFromGit(repository, commitParent, oldFileName));
+			String fileAfter = Roaster.format(readFileFromGit(repository, commit.getName(), currentFileName));
 
 			// save the current file in a temp dir to execute the CK tool
 			cleanTmpDir();
