@@ -9,7 +9,7 @@ def build_model(file_name, counts_function, refactoring_get_function, non_refact
     counts = counts_function()
     for refactoring_name in counts["refactoring"].values:
         try:
-            print("Field-level refactoring %s" % refactoring_name)
+            print("refactoring %s" % refactoring_name)
 
             # get all the refactoring examples we have in our dataset
             refactorings = refactoring_get_function(refactoring_name)
