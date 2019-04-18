@@ -16,7 +16,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
-import refactoringml.util.CSVUtils;
 import refactoringml.util.FilePathUtils;
 import refactoringml.util.RefactoringUtils;
 
@@ -325,7 +324,8 @@ public class ProcessMetricsCollector {
 					classMetric,
 					null,
 					null,
-					null);
+					null,
+					RefactoringUtils.TYPE_CLASS_LEVEL);
 
 			nos.add(no);
 
@@ -365,7 +365,8 @@ public class ProcessMetricsCollector {
 						classMetric,
 						methodMetrics,
 						null,
-						null);
+						null,
+						RefactoringUtils.TYPE_METHOD_LEVEL);
 
 				nos.add(noM);
 
@@ -380,7 +381,8 @@ public class ProcessMetricsCollector {
 							classMetric,
 							methodMetrics,
 							variableMetric,
-							null);
+							null,
+							RefactoringUtils.TYPE_VARIABLE_LEVEL);
 
 					nos.add(noV);
 
@@ -405,7 +407,8 @@ public class ProcessMetricsCollector {
 						classMetric,
 						null,
 						null,
-						fieldMetrics);
+						fieldMetrics,
+						RefactoringUtils.TYPE_ATTRIBUTE_LEVEL);
 
 				nos.add(noF);
 			}

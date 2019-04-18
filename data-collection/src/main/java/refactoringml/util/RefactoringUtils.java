@@ -13,6 +13,11 @@ import java.util.Set;
 
 public class RefactoringUtils {
 
+	public static final int TYPE_CLASS_LEVEL = 1;
+	public static final int TYPE_METHOD_LEVEL = 2;
+	public static final int TYPE_VARIABLE_LEVEL = 3;
+	public static final int TYPE_ATTRIBUTE_LEVEL = 4;
+
 	private static Set<RefactoringType> methodLevelRefactorings;
 	private static Set<RefactoringType> classLevelRefactorings;
 	private static Set<RefactoringType> variableLevelRefactorings;
@@ -214,10 +219,10 @@ public class RefactoringUtils {
 	}
 
 	public static int refactoringTypeInNumber(Refactoring refactoring) {
-		if(isClassLevelRefactoring(refactoring)) return 1;
-		if(isMethodLevelRefactoring(refactoring)) return 2;
-		if(isVariableLevelRefactoring(refactoring)) return 3;
-		if(isAttributeLevelRefactoring(refactoring)) return 4;
+		if(isClassLevelRefactoring(refactoring)) return TYPE_CLASS_LEVEL;
+		if(isMethodLevelRefactoring(refactoring)) return TYPE_METHOD_LEVEL;
+		if(isVariableLevelRefactoring(refactoring)) return TYPE_VARIABLE_LEVEL;
+		if(isAttributeLevelRefactoring(refactoring)) return TYPE_ATTRIBUTE_LEVEL;
 		return -1;
 	}
 
