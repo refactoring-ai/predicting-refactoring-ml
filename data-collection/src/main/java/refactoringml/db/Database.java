@@ -56,4 +56,14 @@ public class Database {
 
 		return exists;
 	}
+
+	public void cleanProject(Project project) {
+		session.createQuery("delete from yes where project = :project and authorOwnership is null")
+				.setParameter("project", project)
+				.executeUpdate();
+
+		session.createQuery("delete from no where project = :project and authorOwnership is null")
+				.setParameter("project", project)
+				.executeUpdate();
+	}
 }

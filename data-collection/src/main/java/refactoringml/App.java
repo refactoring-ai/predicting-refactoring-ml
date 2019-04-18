@@ -172,9 +172,18 @@ public class App {
 		long end = System.currentTimeMillis();
 		log.info(String.format("Finished in %.2f minutes", ((end-start)/1000.0/60.0)));
 
+		// set finished data
+		// note that if this process crashes, finisheddate will be equals to null in the database
+		// these projects must be deleted manually afterwards....
 		db.openSession();
 		project.setFinishedDate(Calendar.getInstance());
 		db.update(project);
+		db.commit();
+
+		// we may have collected data from refactorings and non refactorings, but not able to collect
+		// their process metric. We thus delete these data points as we can't really use them in training
+		db.openSession();
+		db.cleanProject(project);
 		db.commit();
 	}
 
