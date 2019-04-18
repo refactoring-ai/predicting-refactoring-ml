@@ -8,16 +8,21 @@ def build_model(file_name, counts_function, refactoring_get_function, non_refact
     f = open(file_name, "w+")
     counts = counts_function()
     for refactoring_name in counts["refactoring"].values:
-        print("Field-level refactoring %s" % refactoring_name)
+        try:
+            print("Field-level refactoring %s" % refactoring_name)
 
-        # get all the refactoring examples we have in our dataset
-        refactorings = refactoring_get_function(refactoring_name)
-        assert refactorings.shape[0] == counts.loc[counts['refactoring'] == refactoring_name].iloc[0][1]
+            # get all the refactoring examples we have in our dataset
+            refactorings = refactoring_get_function(refactoring_name)
+            assert refactorings.shape[0] == counts.loc[counts['refactoring'] == refactoring_name].iloc[0][1]
 
-        # load the non-refactoring examples
-        non_refactored_fields = non_refactored_function()
+            # load the non-refactoring examples
+            non_refactored_fields = non_refactored_function()
 
-        run_svm(refactoring_name, refactorings, non_refactored_fields, f)
+            run_svm(refactoring_name, refactorings, non_refactored_fields, f)
+        except Exception as e:
+            print("An error occured.")
+            print(str(e))
+            print("-------")
 
         sys.stdout.flush()
     f.close()
