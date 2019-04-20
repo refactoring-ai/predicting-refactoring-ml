@@ -146,6 +146,13 @@
 		  <version>5.4.2.Final</version>
 	  </dependency>
 
+	  <!-- https://mvnrepository.com/artifact/com.github.javaparser/javaparser-core -->
+	  <dependency>
+		  <groupId>com.github.javaparser</groupId>
+		  <artifactId>javaparser-core</artifactId>
+		  <version>3.13.6</version>
+	  </dependency>
+
   </dependencies>
 
 	<build>
