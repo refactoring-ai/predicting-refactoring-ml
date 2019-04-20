@@ -15,6 +15,7 @@ import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.RefactoringUtils;
+import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -105,8 +106,8 @@ public class RefactoringAnalyzer {
 			if(refactoringIsInATestFile)
 				return;
 
-			String fileBefore = Roaster.format(readFileFromGit(repository, commitParent, oldFileName));
-			String fileAfter = Roaster.format(readFileFromGit(repository, commit.getName(), currentFileName));
+			String fileBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
+			String fileAfter = SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName));
 
 			// save the current file in a temp dir to execute the CK tool
 			cleanTmpDir();

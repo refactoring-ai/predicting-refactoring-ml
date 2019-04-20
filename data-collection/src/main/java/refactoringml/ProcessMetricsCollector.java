@@ -14,11 +14,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.jboss.forge.roaster.Roaster;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.FilePathUtils;
 import refactoringml.util.RefactoringUtils;
+import refactoringml.util.SourceCodeUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -246,7 +246,7 @@ public class ProcessMetricsCollector {
 
 		try {
 			// we extract the source code from back then (as that's the one that never deserved a refactoring)
-			sourceCodeBackThen = Roaster.format(readFileFromGit(repository, commitHashBackThen, clazz.getFileName()));
+			sourceCodeBackThen = SourceCodeUtils.removeComments(readFileFromGit(repository, commitHashBackThen, clazz.getFileName()));
 		} catch(Exception e) {
 			log.error("Failed when getting source code of the class... The class was probably moved or deleted...");
 			pmDatabase.remove(clazz);
