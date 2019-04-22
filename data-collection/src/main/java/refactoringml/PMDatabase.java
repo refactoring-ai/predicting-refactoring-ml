@@ -3,7 +3,6 @@ package refactoringml;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PMDatabase {
@@ -31,7 +30,7 @@ public class PMDatabase {
 
 	public List<ProcessMetric> refactoredLongAgo () {
 		return database.values().stream()
-				.filter(p -> p.lastRefactoring() >= commitThreshold)
+				.filter(p -> p.counter() >= commitThreshold)
 				.collect(Collectors.toList());
 	}
 

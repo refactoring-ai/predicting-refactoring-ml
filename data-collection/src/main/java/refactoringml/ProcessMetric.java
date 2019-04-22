@@ -16,7 +16,7 @@ public class ProcessMetric {
 	private int refactoringsInvolved = 0;
 
 
-	private int lastRefactoring = 0;
+	private int counter = 0;
 
 	// counters at the time of the base commit
 	private String baseCommitForNonRefactoring;
@@ -52,10 +52,6 @@ public class ProcessMetric {
 		if(isBugFix(commitMsg))
 			bugFixCount++;
 
-		// we increase the counter here. This means a class will go to the 'non refactored' bucket
-		// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
-		this.notRefactoredInThisCommit();
-
 	}
 
 	private boolean isBugFix(String commitMsg) {
@@ -72,8 +68,8 @@ public class ProcessMetric {
 		return authors.size();
 	}
 
-	public void resetLastRefactoringStats(String commitHash) {
-		lastRefactoring = 0;
+	public void resetCounter(String commitHash) {
+		counter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 
 		baseLinesAdded = linesAdded;
@@ -87,12 +83,12 @@ public class ProcessMetric {
 		baseCommits = qtyOfCommits();
 	}
 
-	public void notRefactoredInThisCommit () {
-		lastRefactoring++;
+	public void increaseCounter() {
+		counter++;
 	}
 
-	public int lastRefactoring () {
-		return lastRefactoring;
+	public int counter() {
+		return counter;
 	}
 
 	public String getFileName () {
@@ -181,7 +177,7 @@ public class ProcessMetric {
 		return refactoringsInvolved;
 	}
 
-	public void increaseRefactoringCounter() {
+	public void increaseRefactoringsInvolved() {
 		refactoringsInvolved++;
 	}
 }
