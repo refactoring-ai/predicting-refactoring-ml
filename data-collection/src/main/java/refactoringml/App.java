@@ -30,7 +30,6 @@ public class App {
 	private String clonePath;
 	private String gitUrl;
 	private String filesStoragePath;
-	private int commitThreshold;
 	private Database db;
 
 	private static final Logger log = Logger.getLogger(App.class);
@@ -40,14 +39,12 @@ public class App {
 	            String clonePath,
 	            String gitUrl,
 	            String filesStoragePath,
-	            int commitThreshold,
 	            Database db) {
 
 		this.datasetName = datasetName;
 		this.clonePath = clonePath;
 		this.gitUrl = gitUrl;
 		this.filesStoragePath = filesStoragePath;
-		this.commitThreshold = commitThreshold;
 		this.db = db;
 	}
 
@@ -64,12 +61,9 @@ public class App {
 		String user;
 		String pwd;
 
-		int commitThreshold;
-
 		if(test) {
 			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
 			highLevelOutputPath = "/Users/mauricioaniche/Desktop/results/";
-			commitThreshold = 1000;
 			datasetName = "test";
 
 			url = "jdbc:mysql://localhost:3306/refactoring2?useSSL=false";
@@ -77,19 +71,18 @@ public class App {
 			pwd = "";
 
 		} else {
-			if (args == null || args.length != 7) {
-				System.out.println("7 arguments: (dataset name) (git url or project directory) (output path) (not refactoring threshold) (database url) (database user) (database pwd)");
+			if (args == null || args.length != 6) {
+				System.out.println("6 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd)");
 				System.exit(-1);
 			}
 
 			datasetName = args[0].trim();
 			gitUrl = args[1].trim();
 			highLevelOutputPath = lastSlashDir(args[2].trim());
-			commitThreshold = Integer.parseInt(args[3].trim());
 
-			url = args[4];
-			user = args[5];
-			pwd = args[6];
+			url = args[3];
+			user = args[4];
+			pwd = args[5];
 		}
 
 		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "repo";
@@ -105,8 +98,7 @@ public class App {
 		}
 
 		new App(datasetName, clonePath, gitUrl,
-				filesStoragePath,
-				commitThreshold, db).run();
+				filesStoragePath, db).run();
 
     }
 
@@ -130,6 +122,10 @@ public class App {
 		db.openSession();
 		db.persist(project);
 		db.commit();
+
+		// we define the threshold to consider a file as a non-refactored data point,
+		// if it is changed by 10% of the commits without being refactored.
+		int commitThreshold = (int) (numberOfCommits(git) * 0.10);
 
 
 		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, commitThreshold, filesStoragePath);
@@ -185,6 +181,16 @@ public class App {
 		db.openSession();
 		db.cleanProject(project);
 		db.commit();
+	}
+
+	private int numberOfCommits(Git git) throws GitAPIException {
+		Iterable<RevCommit> commits = git.log().call();
+		int count = 0;
+		for(RevCommit ignored : commits) {
+			count++;
+		}
+
+		return count;
 	}
 
 

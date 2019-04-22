@@ -13,7 +13,6 @@ OUTPUT_PATH=/root/output
 PROJECTS_CSV_PATH=$1
 ASTCONVERTER=/root/predicting-refactoring-ml/data-collection/astconverter/astconverter.jar
 ASTCONVERTER2=/root/predicting-refactoring-ml/data-collection/astconverter/astconverter2.jar
-THRESHOLD=1000
 BEGIN=$2
 END=$3
 URL=$4
@@ -40,7 +39,7 @@ cat $PROJECTS_CSV_PATH | while
 
 		echo "Running refactoring analyzer"
 
-		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $THRESHOLD $URL $USER $PWD >> /root/log.txt 2>> /root/error.txt
+		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD >> /root/log.txt 2>> /root/error.txt
 		if [ $? -eq 0 ]
 		then
 			AST_OUTPUT_PATH="$OUTPUT_PROJECT_PATH/astc"
