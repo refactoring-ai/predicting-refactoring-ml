@@ -6,6 +6,7 @@ if [ "$#" -ne 6 ]; then
   exit 1
 fi
 
+CLASS="refactoringml.App"
 JAR_PATH=/root/predicting-refactoring-ml/data-collection/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 REFACTORINGMINER_JAR_PATH=/root/predicting-refactoring-ml/data-collection/lib/RefactoringMiner-3.jar
 OUTPUT_PATH=/root/output
@@ -20,9 +21,8 @@ USER=$5
 PWD=$6
 
 
-CLASS="refactoringml.App"
-
 mkdir $OUTPUT_PATH
+
 echo ""
 i=0
 cat $PROJECTS_CSV_PATH | while 
@@ -35,20 +35,23 @@ cat $PROJECTS_CSV_PATH | while
 		OUTPUT_PROJECT_PATH="$OUTPUT_PATH/$PROJECT"
 		mkdir $OUTPUT_PROJECT_PATH
 
+		STORAGE_PATH="$OUTPUT_PROJECT_PATH/storage"
+		mkdir $STORAGE_PATH
+
 		echo "Running refactoring analyzer"
-		echo "java -cp $ANICHE_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $OUTPUT_PROJECT_PATH $THRESHOLD"
+		echo "java -cp $ANICHE_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $THRESHOLD"
 
 		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $OUTPUT_PROJECT_PATH $THRESHOLD $URL $USER $PWD >> /root/log.txt 2>> /root/error.txt
 		if [ $? -eq 0 ]
 		then
-			AST_OUTPUT_PATH="$OUTPUT_PROJECT_PATH/clean"
+			AST_OUTPUT_PATH="$OUTPUT_PROJECT_PATH/astc"
 			mkdir $AST_OUTPUT_PATH
 			mkdir $AST_OUTPUT_PATH/astconverter1
 			echo "Running astconverter1"
-			java -jar $ASTCONVERTER -aIn $OUTPUT_PROJECT_PATH/storage -aOut $AST_OUTPUT_PATH/astconverter1
+			java -jar $ASTCONVERTER -aIn $STORAGE_PATH -aOut $AST_OUTPUT_PATH/astconverter1
 			echo "Running astconverter2"
 			mkdir $AST_OUTPUT_PATH/astconverter2
-			java -jar $ASTCONVERTER2 -aIn $OUTPUT_PROJECT_PATH/storage -aOut $AST_OUTPUT_PATH/astconverter2
+			java -jar $ASTCONVERTER2 -aIn $STORAGE_PATH -aOut $AST_OUTPUT_PATH/astconverter2
 
 			echo "Zipping"
 			zip -q -r $PROJECT.zip $OUTPUT_PROJECT_PATH/*
