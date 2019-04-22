@@ -39,9 +39,8 @@ cat $PROJECTS_CSV_PATH | while
 		mkdir $STORAGE_PATH
 
 		echo "Running refactoring analyzer"
-		echo "java -cp $ANICHE_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $THRESHOLD"
 
-		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $OUTPUT_PROJECT_PATH $THRESHOLD $URL $USER $PWD >> /root/log.txt 2>> /root/error.txt
+		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $THRESHOLD $URL $USER $PWD >> /root/log.txt 2>> /root/error.txt
 		if [ $? -eq 0 ]
 		then
 			AST_OUTPUT_PATH="$OUTPUT_PROJECT_PATH/astc"
