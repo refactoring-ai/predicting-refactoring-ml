@@ -29,12 +29,6 @@ public class PMDatabase {
 		return database.get(key);
 	}
 
-	public void updateNotRefactored (Set<String> refactoredClasses) {
-		database.values().stream()
-				.filter(p -> !refactoredClasses.contains(p.getFileName()))
-				.forEach(p -> p.notRefactoredInThisCommit());
-	}
-
 	public List<ProcessMetric> refactoredLongAgo () {
 		return database.values().stream()
 				.filter(p -> p.lastRefactoring() >= commitThreshold)

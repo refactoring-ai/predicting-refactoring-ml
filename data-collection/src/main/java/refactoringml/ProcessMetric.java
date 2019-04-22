@@ -52,6 +52,10 @@ public class ProcessMetric {
 		if(isBugFix(commitMsg))
 			bugFixCount++;
 
+		// we increase the counter here. This means a class will go to the 'non refactored' bucket
+		// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
+		this.notRefactoredInThisCommit();
+
 	}
 
 	private boolean isBugFix(String commitMsg) {

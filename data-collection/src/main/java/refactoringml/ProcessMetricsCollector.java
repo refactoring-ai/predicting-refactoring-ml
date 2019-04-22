@@ -111,8 +111,6 @@ public class ProcessMetricsCollector {
 
 	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, Set<String> refactoredClasses) throws IOException {
 
-		pmDatabase.updateNotRefactored(refactoredClasses);
-
 		// if there are classes over the threshold, we output them as an examples of not refactored classes,
 		// and we reset their counter.
 		// note that we have a lot of failures here, as 500 commits later, the class might had been
