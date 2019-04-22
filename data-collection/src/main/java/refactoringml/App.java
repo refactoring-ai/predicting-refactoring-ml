@@ -92,7 +92,7 @@ public class App {
 			pwd = args[6];
 		}
 
-		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "/repo";
+		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "repo";
 		String filesStoragePath = highLevelOutputPath; // No need for the name of the project, as the run.sh creates a folder for it already
 		new File(filesStoragePath).mkdirs();
 
