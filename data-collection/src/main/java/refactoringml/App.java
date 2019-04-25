@@ -16,6 +16,7 @@ import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import refactoringml.db.Project;
+import refactoringml.util.LOCUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class App {
 
 		// do we want to get data from the vars or not?
 		// i.e., is this a local IDE test?
-		boolean test = false;
+		boolean test = (args == null || args.length == 0);
 
 		String gitUrl;
 		String highLevelOutputPath;
@@ -118,14 +119,17 @@ public class App {
 		String mainBranch = discoverMainBranch(git);
 		log.debug("main branch: " + mainBranch);
 
-		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance());
+		// we define the threshold to consider a file as a non-refactored data point,
+		// if it is changed by 10% of the commits without being refactored.
+		int numberOfCommits = numberOfCommits(git);
+		int commitThreshold = (int) ( numberOfCommits * 0.10);
+
+		int loc = LOCUtils.countJavaFiles(clonePath);
+
+		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(), numberOfCommits, commitThreshold, loc);
 		db.openSession();
 		db.persist(project);
 		db.commit();
-
-		// we define the threshold to consider a file as a non-refactored data point,
-		// if it is changed by 10% of the commits without being refactored.
-		int commitThreshold = (int) (numberOfCommits(git) * 0.10);
 
 
 		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, commitThreshold, filesStoragePath);
