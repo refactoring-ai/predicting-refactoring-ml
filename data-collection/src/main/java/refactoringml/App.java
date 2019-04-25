@@ -92,7 +92,7 @@ public class App {
 
 		Database db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
 
-		 do not run if the project is already in the database
+		// do not run if the project is already in the database
 		if(db.projectExists(gitUrl)) {
 			System.out.println(String.format("Project %s already in the database", gitUrl));
 			System.exit(-1);
