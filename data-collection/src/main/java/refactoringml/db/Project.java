@@ -20,14 +20,20 @@ public class Project {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Calendar finishedDate;
 
+	private int commits;
+
+	private int threshold;
+
 	@Deprecated // hibernate purposes
 	public Project() {}
 
-	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing) {
+	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, int threshold) {
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.projectName = projectName;
 		this.dateOfProcessing = dateOfProcessing;
+		this.commits = commits;
+		this.threshold = threshold;
 	}
 
 	public void setFinishedDate(Calendar finishedDate) {
