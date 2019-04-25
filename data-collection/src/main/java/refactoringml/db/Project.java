@@ -23,17 +23,19 @@ public class Project {
 	private int commits;
 
 	private int threshold;
+	private int javaLoc;
 
 	@Deprecated // hibernate purposes
 	public Project() {}
 
-	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, int threshold) {
+	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, int threshold, int javaLoc) {
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.projectName = projectName;
 		this.dateOfProcessing = dateOfProcessing;
 		this.commits = commits;
 		this.threshold = threshold;
+		this.javaLoc = javaLoc;
 	}
 
 	public void setFinishedDate(Calendar finishedDate) {

@@ -16,6 +16,7 @@ import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import refactoringml.db.Project;
+import refactoringml.util.LOCUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class App {
 
 		// do we want to get data from the vars or not?
 		// i.e., is this a local IDE test?
-		boolean test = false;
+		boolean test = true;
 
 		String gitUrl;
 		String highLevelOutputPath;
@@ -91,7 +92,7 @@ public class App {
 
 		Database db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
 
-		// do not run if the project is already in the database
+		 do not run if the project is already in the database
 		if(db.projectExists(gitUrl)) {
 			System.out.println(String.format("Project %s already in the database", gitUrl));
 			System.exit(-1);
@@ -123,7 +124,9 @@ public class App {
 		int numberOfCommits = numberOfCommits(git);
 		int commitThreshold = (int) ( numberOfCommits * 0.10);
 
-		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(), numberOfCommits, commitThreshold);
+		int loc = LOCUtils.countJavaFiles(clonePath);
+
+		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(), numberOfCommits, commitThreshold, loc);
 		db.openSession();
 		db.persist(project);
 		db.commit();
