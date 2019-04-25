@@ -6,7 +6,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import cross_val_score
 
-
 #THIS IS DUPLICATED CODE (THE SAME CODE APPEARS IN THE REFACTORING_MODELS_SVM.PY FILE)
 #TODO: later on we should probably move this method to a separate file
 def perform_under_sampling(x, y):
