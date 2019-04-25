@@ -24,6 +24,7 @@ public class Project {
 
 	private int threshold;
 	private int javaLoc;
+	private int interruptions;
 
 	@Deprecated // hibernate purposes
 	public Project() {}
@@ -40,5 +41,9 @@ public class Project {
 
 	public void setFinishedDate(Calendar finishedDate) {
 		this.finishedDate = finishedDate;
+	}
+
+	public void setInterruptions(int interruptions) {
+		this.interruptions = interruptions;
 	}
 }
