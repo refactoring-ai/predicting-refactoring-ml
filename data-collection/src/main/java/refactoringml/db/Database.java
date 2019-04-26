@@ -65,5 +65,17 @@ public class Database {
 		session.createQuery("delete from No where project = :project and authorOwnership is null")
 				.setParameter("project", project)
 				.executeUpdate();
+
+		session.createQuery("delete from Yes where project = :project and variableAppearences < 0")
+				.setParameter("project", project)
+				.executeUpdate();
+
+		session.createQuery("delete from No where project = :project and variableAppearences < 0")
+				.setParameter("project", project)
+				.executeUpdate();
+	}
+
+	public void rollback() {
+		session.getTransaction().rollback();
 	}
 }

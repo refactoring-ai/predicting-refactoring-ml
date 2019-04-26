@@ -22,4 +22,10 @@ public class CKUtilsTest {
 		Assert.assertEquals("method/2[int,ClassC,ClassD]", CKUtils.simplifyFullName("method/2[int,a.b.ClassC,d.e.ClassD]"));
 		Assert.assertEquals("method/2[ClassD]", CKUtils.simplifyFullName("method/2[d.e.ClassD]"));
 	}
+
+	@Test
+	public void array() {
+		Assert.assertEquals("method/2[int,ClassC,ClassD[]]", CKUtils.simplifyFullName("method/2[int,a.b.ClassC,d.e.ClassD[]]"));
+		Assert.assertEquals("method/2[int,ClassC,ClassD[]]", CKUtils.simplifyFullName("method/2[int,ClassC,ClassD[]]"));
+	}
 }

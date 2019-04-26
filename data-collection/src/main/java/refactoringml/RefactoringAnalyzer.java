@@ -42,13 +42,12 @@ public class RefactoringAnalyzer {
 		this.repository = repository;
 		this.processMetrics = processMetrics;
 
-
 		this.tempDir = "";
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 
 	}
 
-	public void collectCommitData(RevCommit commit, Refactoring refactoring) {
+	public void collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
 
 		if (commit.getParentCount() == 0) {
 			return ;
@@ -128,8 +127,6 @@ public class RefactoringAnalyzer {
 				saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
 			}
 
-		} catch(Exception e) {
-			log.error("Failed when working on " + refactoring, e);
 		}
 
     }
@@ -160,7 +157,6 @@ public class RefactoringAnalyzer {
 
 			if(ck.isError())
 				throw new RuntimeException("CK failed: " + ck.getFile());
-
 
 			// collect the class level metrics
 			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
