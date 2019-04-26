@@ -35,9 +35,10 @@ def run_decision_tree(m_refactoring, refactorings, non_refactored_methods, f):
     scaler = MinMaxScaler()  #default behavior scales data to the following range: (0,1)
     balanced_x = scaler.fit_transform(balanced_x)
 
-    #create [decision tree] model
+    #create decision tree classifier object
     print("Starting to build the decision tree for %s" % m_refactoring)
     model = DecisionTreeClassifier(random_state=42)
+    #train model
     model.fit(balanced_x, balanced_y)
     
     #perform 10-fold validation 
