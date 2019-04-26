@@ -122,7 +122,7 @@ public class App {
 		// we define the threshold to consider a file as a non-refactored data point,
 		// if it is changed by 10% of the commits without being refactored.
 		int numberOfCommits = numberOfCommits(git);
-		int commitThreshold = (int) ( numberOfCommits * 0.10);
+		int commitThreshold = (int) ( numberOfCommits * 0.02);
 
 		int loc = LOCUtils.countJavaFiles(clonePath);
 
