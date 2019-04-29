@@ -61,6 +61,3 @@ def run_decision_tree(m_refactoring, refactorings, non_refactored_methods, f):
 
     return model
 
-
-run_decision_tree
-
