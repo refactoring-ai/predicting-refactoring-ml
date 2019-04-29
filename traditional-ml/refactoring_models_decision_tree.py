@@ -45,14 +45,18 @@ def run_decision_tree(m_refactoring, refactorings, non_refactored_methods, f):
     scores = cross_val_score(model, balanced_x, balanced_y, cv=10)
     print(scores)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+    #show feature importances
+    feature_importances_str = ''.join(["%-33s: %-5.4f\n" % (feature, importance) for feature, importance in 
+        zip(x.columns.values, model.feature_importances_)])
+    print(feature_importances_str)
     
     #output results to file 
     f.write("\n---\n")
     f.write(m_refactoring + "\n")
     f.write("Instances: %d\n" % refactorings.shape[0])
     f.write("Accuracy: %0.2f (+/- %0.2f)\n" % (scores.mean(), scores.std() * 2))
-    f.write("\nFeatures:\n")
-    f.write(', '.join(str(e) for e in list(x.columns.values)))
+    f.write("\nFeature Importances\n")
+    f.write(feature_importances_str)
     f.write("\n---\n")
 
     return model

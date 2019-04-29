@@ -28,7 +28,6 @@ def get_field_level_refactorings_count():
     df = execute_query(sql)
     return df
 
-
 def get_method_level_refactorings(m_refactoring):
     sql = (
         "select  " +
