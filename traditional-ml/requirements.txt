@@ -4,4 +4,3 @@ sklearn
 numpy
 imblearn
 configparser
-pydotplus
