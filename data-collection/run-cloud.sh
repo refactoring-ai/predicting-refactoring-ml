@@ -9,7 +9,7 @@ fi
 CLASS="refactoringml.App"
 JAR_PATH=/home/maniche/predicting-refactoring-ml/data-collection/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 REFACTORINGMINER_JAR_PATH=/home/maniche/predicting-refactoring-ml/data-collection/lib/RefactoringMiner-20190430.jar
-OUTPUT_PATH=/root/output
+OUTPUT_PATH=/home/maniche/output
 PROJECTS_CSV_PATH=$1
 BEGIN=$2
 END=$3
