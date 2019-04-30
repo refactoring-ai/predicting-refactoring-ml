@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 export IFS=","
 
-if [ "$#" -ne 6 ]; then
-  echo "Usage: $0 CSV BEGIN END DB_URL DB_USER DB_PWD" >&2
+if [ "$#" -ne 7 ]; then
+  echo "wrong usage" >&2
   exit 1
 fi
 
@@ -16,6 +16,7 @@ END=$3
 URL=$4
 USER=$5
 PWD=$6
+STORAGE_MACHINE=$7
 
 
 mkdir $OUTPUT_PATH
@@ -40,8 +41,10 @@ cat $PROJECTS_CSV_PATH | while
 		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD >> /root/log.txt 2>> /root/error.txt
 		if [ $? -eq 0 ]
 		then
-			echo "Zipping"
-			zip -q -r $PROJECT.zip $OUTPUT_PROJECT_PATH/*
+			echo "Zipping and sending it to the storage machine"
+			zip -q -r $DATASET-$PROJECT.zip $OUTPUT_PROJECT_PATH/*
+			scp $DATASET-$PROJECT.zip $STORAGE_MACHINE
+			rm $DATASET-$PROJECT.zip
 		fi
 
 		echo "Deleting folder"
