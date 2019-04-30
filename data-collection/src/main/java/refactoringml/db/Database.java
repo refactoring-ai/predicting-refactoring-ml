@@ -58,21 +58,17 @@ public class Database {
 	}
 
 	public void cleanProject(Project project) {
-		session.createQuery("delete from Yes where project = :project and authorOwnership is null")
+
+		int countYes = session.createQuery("delete from Yes where project = :project and (authorOwnership is null or variableAppearances < 0)")
 				.setParameter("project", project)
 				.executeUpdate();
 
-		session.createQuery("delete from No where project = :project and authorOwnership is null")
+		int countNo = session.createQuery("delete from No where project = :project and (authorOwnership is null or variableAppearances < 0)")
 				.setParameter("project", project)
 				.executeUpdate();
 
-		session.createQuery("delete from Yes where project = :project and variableAppearences < 0")
-				.setParameter("project", project)
-				.executeUpdate();
+		project.setCleanedRows(countYes + countNo);
 
-		session.createQuery("delete from No where project = :project and variableAppearences < 0")
-				.setParameter("project", project)
-				.executeUpdate();
 	}
 
 	public void rollback() {

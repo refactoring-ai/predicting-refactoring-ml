@@ -90,10 +90,8 @@ public class RefactoringAnalyzer {
 			// 3) It is a refactoring on a deleted file. We filtered them out (see refactoredEntry filters above).
 			// 4) the name of the file doesn't match with the name of the class.
 			if(!refactoredEntry.isPresent()) {
-				log.error("RefactoringMiner finds a refactoring, but we can't find it in DiffEntry: a " + refactoring.getRefactoringType() + " at " + refactoredClass);
-				return;
+				throw new RuntimeException("RefactoringMiner finds a refactoring, but we can't find it in DiffEntry: a " + refactoring.getRefactoringType() + " at " + refactoredClass);
 			}
-
 
 			DiffEntry entry = refactoredEntry.get();
 			diffFormatter.toFileHeader(entry);

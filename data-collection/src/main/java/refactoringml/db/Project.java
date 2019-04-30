@@ -25,6 +25,7 @@ public class Project {
 	private int threshold;
 	private int javaLoc;
 	private int exceptionsCount;
+	private int cleanedRows;
 
 	@Deprecated // hibernate purposes
 	public Project() {}
@@ -45,5 +46,9 @@ public class Project {
 
 	public void setExceptions(int exceptionsCount) {
 		this.exceptionsCount = exceptionsCount;
+	}
+
+	public void setCleanedRows(int cleanedRows) {
+		this.cleanedRows = cleanedRows;
 	}
 }

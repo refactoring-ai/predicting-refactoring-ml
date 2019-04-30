@@ -143,11 +143,16 @@ public class App {
 
 
 		while(it.hasNext()) {
-			RevCommit currentCommit = it.next();
-			String commitHash = currentCommit.getId().getName();
+			try {
+				RevCommit currentCommit = it.next();
+				String commitHash = currentCommit.getId().getName();
 
-			// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
-			miner.detectAtCommit(repo, null, commitHash, handler, 20);
+				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
+				miner.detectAtCommit(repo, null, commitHash, handler, 20);
+			} catch(Exception e) {
+				exceptionsCount++;
+				log.error("Unexpected exception, but moving on", e);
+			}
 		}
 
 		// all refactorings were detected, now we start the second phase:
