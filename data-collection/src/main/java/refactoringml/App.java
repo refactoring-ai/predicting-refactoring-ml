@@ -142,18 +142,12 @@ public class App {
 		Iterator<RevCommit> it = getAllCommits(repo);
 		RefactoringHandler handler = getRefactoringHandler(git, refactoringAnalyzer);
 
-
 		while(it.hasNext()) {
-			try {
-				RevCommit currentCommit = it.next();
-				String commitHash = currentCommit.getId().getName();
+			RevCommit currentCommit = it.next();
+			String commitHash = currentCommit.getId().getName();
 
-				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
-				miner.detectAtCommit(repo, null, commitHash, handler, 20);
-			} catch(Exception e) {
-				exceptionsCount++;
-				log.error("Unexpected exception, but moving on", e);
-			}
+			// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
+			miner.detectAtCommit(repo, null, commitHash, handler, 20);
 		}
 
 		// all refactorings were detected, now we start the second phase:
@@ -191,6 +185,7 @@ public class App {
 							refactoringAnalyzer.collectCommitData(commitData, ref);
 							db.commit();
 						} catch (Exception e) {
+							exceptionsCount++;
 							log.error("Error", e);
 							db.rollback();
 						} finally {
