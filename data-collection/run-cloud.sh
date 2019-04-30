@@ -44,7 +44,7 @@ cat $PROJECTS_CSV_PATH | while
 		then
 			echo "Zipping and sending it to the storage machine"
 			zip -q -r $DATASET-$PROJECT.zip $OUTPUT_PROJECT_PATH/*
-			scp $DATASET-$PROJECT.zip $STORAGE_MACHINE
+			scp $DATASET-$PROJECT.zip $STORAGE_MACHINE/$DATASET-$PROJECT.zip
 			rm $DATASET-$PROJECT.zip
 		fi
 
