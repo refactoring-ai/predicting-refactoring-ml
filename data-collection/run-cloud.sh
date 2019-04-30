@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 export IFS=","
 
-if [ "$#" -ne 7 ]; then
+if [ "$#" -ne 8 ]; then
   echo "wrong usage" >&2
   exit 1
 fi
 
 CLASS="refactoringml.App"
-JAR_PATH=/home/maniche/predicting-refactoring-ml/data-collection/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-REFACTORINGMINER_JAR_PATH=/home/maniche/predicting-refactoring-ml/data-collection/lib/RefactoringMiner-20190430.jar
-OUTPUT_PATH=/home/maniche/output
+JAR_PATH=$8/predicting-refactoring-ml/data-collection/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+REFACTORINGMINER_JAR_PATH=$8/predicting-refactoring-ml/data-collection/lib/RefactoringMiner-20190430.jar
+OUTPUT_PATH=$8/output
 PROJECTS_CSV_PATH=$1
 BEGIN=$2
 END=$3
@@ -38,7 +38,7 @@ cat $PROJECTS_CSV_PATH | while
 
 		echo "Running refactoring analyzer"
 
-		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD >> /root/log.txt 2>> /root/error.txt
+		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD >> $8/log.txt 2>> $8/error.txt
 		if [ $? -eq 0 ]
 		then
 			echo "Zipping and sending it to the storage machine"
