@@ -5,14 +5,7 @@ import db
 import pandas as pd
 from sklearn import svm
 from sklearn.model_selection import cross_val_score, GridSearchCV
-from imblearn.under_sampling import RandomUnderSampler
-
-# more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html
-def perform_under_sampling(x, y):
-    rus = RandomUnderSampler(random_state=42) # 42 is a random number, just to ensure our results are reproducible
-    return rus.fit_resample(x, y)
-
-
+from ml_utils import perform_under_sampling
 
 def run_svm(m_refactoring, refactorings, non_refactored_methods, f):
     assert refactorings.shape[0] > 0, "No refactorings found"
@@ -62,8 +55,6 @@ def run_svm(m_refactoring, refactorings, non_refactored_methods, f):
     f.write("\n---\n")
 
     return model
-
-
 
 # might be useful in the future:
 

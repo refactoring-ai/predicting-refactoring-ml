@@ -1,16 +1,10 @@
 import db
 import pandas as pd
-from imblearn.under_sampling import RandomUnderSampler
+from ml_utils import perform_under_sampling
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import cross_val_score
-
-#THIS IS DUPLICATED CODE (THE SAME CODE APPEARS IN THE REFACTORING_MODELS_SVM.PY FILE)
-#TODO: later on we should probably move this method to a separate file
-def perform_under_sampling(x, y):
-    rus = RandomUnderSampler(random_state=42) # 42 is a random number, just to ensure our results are reproducible
-    return rus.fit_resample(x, y)
 
 def run_decision_tree(m_refactoring, refactorings, non_refactored_methods, f):
     assert refactorings.shape[0] > 0, "No refactorings found"
