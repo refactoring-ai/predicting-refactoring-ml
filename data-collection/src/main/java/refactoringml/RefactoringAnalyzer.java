@@ -11,6 +11,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
+import refactoringml.astconverter.ASTConverter;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.RefactoringUtils;
@@ -125,11 +126,51 @@ public class RefactoringAnalyzer {
 				// note that we save the file before with the same name of the current file name,
 				// as to help in finding it (from the SQL query to the file)
 				saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
+
+				// save also a cleaned version of the source code (using astc)
+				// this is to facilitate the deep learning process
+				cleanSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
 			}
 
 		}
 
     }
+
+	private void cleanSourceCode(String commit, String fileBefore, String fileNameAfter, String fileAfter, Yes yes) throws FileNotFoundException {
+
+		// Run ast converter 1
+		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameAfter);
+		createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileNameAfter);
+
+		String completeFileNameAstC1 = String.format("%s-%d-%s-%d-astc1",
+				fileNameAfter,
+				yes.getRefactoringType(),
+				yes.getRefactoring(),
+				(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0));
+
+		PrintStream before1 = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameAstC1);
+		before1.print(ASTConverter.converter(fileBefore, 1));
+		before1.close();
+
+		PrintStream after1 = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAstC1);
+		after1.print(ASTConverter.converter(fileAfter, 1));
+		after1.close();
+
+		// Run ast converter 2
+		String completeFileNameAstC2 = String.format("%s-%d-%s-%d-astc2",
+				fileNameAfter,
+				yes.getRefactoringType(),
+				yes.getRefactoring(),
+				(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0));
+
+		PrintStream before2 = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameAstC2);
+		before2.print(ASTConverter.converter(fileBefore, 2));
+		before2.close();
+
+		PrintStream after2 = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAstC2);
+		after2.print(ASTConverter.converter(fileAfter, 2));
+		after2.close();
+	}
 
 	private void saveSourceCode(String commit, String fileBefore, String fileNameAfter, String fileAfter, Yes yes) throws FileNotFoundException {
 

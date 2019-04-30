@@ -1,4 +1,6 @@
-import com.github.javaparser.JavaParser;
+package refactoringml.astconverter;
+
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.PackageDeclaration;
@@ -11,8 +13,8 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.printer.PrettyPrinterConfiguration;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ASTConverter {
 
@@ -40,120 +42,18 @@ public class ASTConverter {
     private static Map<String,String> mapMethod = null;
     private static Map<String,String> mapVar = null;
 
-    public static void main(String...args) {
-
-        String returno = ASTConverter.converter("package com.cloudera.util;\n" +
-                "\n" +
-                "import java.util.Map;\n" +
-                "import com.cloudera.flume.reporter.ReportEvent;\n" +
-                "import com.cloudera.flume.reporter.ReportUtil;\n" +
-                "import com.cloudera.flume.reporter.Reportable;\n" +
-                "\n" +
-                "public class CappedExponentialBackoff implements BackoffPolicy {\n" +
-                "\n" +
-                "    final long initialSleep;\n" +
-                "\n" +
-                "    final long sleepCap;\n" +
-                "\n" +
-                "    final static public String A_INITIAL = \"backoffInitialMs\";\n" +
-                "\n" +
-                "    final static public String A_COUNT = \"backoffCount\";\n" +
-                "\n" +
-                "    final static public String A_CURRENTBACKOFF = \"backoffCurrentMs\";\n" +
-                "\n" +
-                "    final static public String A_RETRYTIME = \"backoffRetryTime\";\n" +
-                "\n" +
-                "    final static public String A_SLEEPCAP = \"backoffSleepCapMs\";\n" +
-                "\n" +
-                "    long backoffCount = 0;\n" +
-                "\n" +
-                "    long sleepIncrement;\n" +
-                "\n" +
-                "    long retryTime;\n" +
-                "\n" +
-                "    public CappedExponentialBackoff(long initialSleep, long max) {\n" +
-                "        this.initialSleep = initialSleep;\n" +
-                "        this.sleepCap = max;\n" +
-                "        reset();\n" +
-                "    }\n" +
-                "\n" +
-                "    public void backoff() {\n" +
-                "        retryTime = Clock.unixTime() + sleepIncrement;\n" +
-                "        sleepIncrement *= 2;\n" +
-                "        sleepIncrement = (sleepIncrement > sleepCap) ? sleepCap : sleepIncrement;\n" +
-                "        backoffCount++;\n" +
-                "    }\n" +
-                "\n" +
-                "    public boolean isRetryOk() {\n" +
-                "        long now = Clock.unixTime();\n" +
-                "        return retryTime <= now;\n" +
-                "    }\n" +
-                "\n" +
-                "    public boolean isFailed() {\n" +
-                "        return false;\n" +
-                "    }\n" +
-                "\n" +
-                "    public void reset() {\n" +
-                "        sleepIncrement = initialSleep;\n" +
-                "        long cur = Clock.unixTime();\n" +
-                "        retryTime = cur + initialSleep;\n" +
-                "    }\n" +
-                "\n" +
-                "    @Override\n" +
-                "    public long sleepIncrement() {\n" +
-                "        return sleepIncrement;\n" +
-                "    }\n" +
-                "\n" +
-                "    @Override\n" +
-                "    public String getName() {\n" +
-                "        return \"CappedExpBackoff\";\n" +
-                "    }\n" +
-                "\n" +
-                "    @Override\n" +
-                "    public ReportEvent getMetrics() {\n" +
-                "        ReportEvent rpt = new ReportEvent(getName());\n" +
-                "        rpt.setLongMetric(A_SLEEPCAP, sleepCap);\n" +
-                "        rpt.setLongMetric(A_INITIAL, initialSleep);\n" +
-                "        rpt.setLongMetric(A_COUNT, backoffCount);\n" +
-                "        rpt.setLongMetric(A_CURRENTBACKOFF, sleepIncrement);\n" +
-                "        rpt.setLongMetric(A_RETRYTIME, retryTime);\n" +
-                "        return rpt;\n" +
-                "    }\n" +
-                "\n" +
-                "    @Override\n" +
-                "    public Map<String, Reportable> getSubMetrics() {\n" +
-                "        return ReportUtil.noChildren();\n" +
-                "    }\n" +
-                "\n" +
-                "    @Override\n" +
-                "    public void waitUntilRetryOk() throws InterruptedException {\n" +
-                "        long sleeptime = retryTime - Clock.unixTime();\n" +
-                "        if (sleeptime <= 0)\n" +
-                "            return;\n" +
-                "        Thread.sleep(sleeptime);\n" +
-                "    }\n" +
-                "}", 1);
-
-        System.out.println(returno);
-
-    }
 
     public static String converter (String javaSourceCode, Integer version) {
 
-        CompilationUnit compilationUnit = JavaParser.parse(javaSourceCode);
+        CompilationUnit compilationUnit = StaticJavaParser.parse(javaSourceCode);
 
         if (version == 1) {
-
             version1(compilationUnit);
-
-
         } else if (version == 2) {
-            // chama a segunda versao do AST
-
             version2(compilationUnit);
 
         } else {
-            return "Please verify the version. It should be either 1 or 2";
+            throw new RuntimeException("Please verify the version. It should be either 1 or 2");
         }
 
         String formattedJavaCode = prettyPrinter(compilationUnit);
