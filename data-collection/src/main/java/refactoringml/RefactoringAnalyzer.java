@@ -187,11 +187,12 @@ public class RefactoringAnalyzer {
 		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameAfter);
 		createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileNameAfter);
 
-		String completeFileName = String.format("%s-%d-%s-%d",
+		String completeFileName = String.format("%s-%d-%s-%d-%s",
 						fileNameAfter,
 						yes.getRefactoringType(),
 						yes.getRefactoring(),
-						(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0));
+						(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0),
+						getRefactoredElementNameIfAny(yes));
 
 		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileName);
 		before.print(fileBefore);
