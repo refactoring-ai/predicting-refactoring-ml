@@ -1,8 +1,8 @@
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import LinearSVC
-
 import db
 import pandas as pd
+
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import LinearSVC
 from sklearn import svm
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from ml_utils import perform_under_sampling

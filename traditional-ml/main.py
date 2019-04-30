@@ -3,7 +3,6 @@ import sys
 import db
 from refactoring_models_svm import run_svm
 
-
 def build_model(file_name, counts_function, refactoring_get_function, non_refactored_function):
     f = open(file_name, "w+")
     counts = counts_function()
@@ -54,3 +53,4 @@ build_model("results-field-level-svm.txt",
             db.get_non_refactored_fields)
 
 print("Done")
+

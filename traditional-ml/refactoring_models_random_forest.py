@@ -1,7 +1,7 @@
 import db
 import pandas as pd
-from ml_utils import perform_under_sampling
 
+from ml_utils import perform_under_sampling
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
