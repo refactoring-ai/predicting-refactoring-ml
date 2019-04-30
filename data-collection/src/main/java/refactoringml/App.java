@@ -21,6 +21,7 @@ import refactoringml.util.LOCUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import static refactoringml.util.FilePathUtils.lastSlashDir;
@@ -35,6 +36,7 @@ public class App {
 
 	private static final Logger log = Logger.getLogger(App.class);
 	private String datasetName;
+	private int exceptionsCount = 0;
 
 	public App (String datasetName,
 	            String clonePath,
@@ -135,39 +137,21 @@ public class App {
 		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, commitThreshold, filesStoragePath);
 		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath);
 
-		miner.detectAll(repo, mainBranch, new RefactoringHandler() {
-			@Override
-			public void handle(RevCommit commitData, List<Refactoring> refactorings) {
-				for (Refactoring ref : refactorings) {
-					try {
-						db.openSession();
-						refactoringAnalyzer.collectCommitData(commitData, ref);
-						db.commit();
-					} catch (Exception e) {
-						log.error("Error", e);
-						db.rollback();
-					} finally {
-						db.close();
-					}
-				}
-			}
+		// get all commits in the repo, and to each commit with a refactoring, extract the metrics
+		Iterator<RevCommit> it = getAllCommits(repo);
+		RefactoringHandler handler = getRefactoringHandler(git, refactoringAnalyzer);
 
-			@Override
-			public void handleException(String commitId, Exception e) {
-				log.error("RefactoringMiner not handle commit Id " + commitId, e);
-				resetGitRepo();
 
-			}
+		while(it.hasNext()) {
+			RevCommit currentCommit = it.next();
+			String commitHash = currentCommit.getId().getName();
 
-			private void resetGitRepo () {
-				try {
-					git.reset().setMode(ResetCommand.ResetType.HARD).call();
-				} catch (GitAPIException e1) {
-					log.error("Reset failed", e1);
-				}
-			}
-		});
+			// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
+			miner.detectAtCommit(repo, null, commitHash, handler, 20);
+		}
 
+		// all refactorings were detected, now we start the second phase:
+		// collecting process metrics and examples of non-refatored code
 		log.info("Starting the collection of the process metrics and the non-refactored classes");
 		processMetrics.collect();
 
@@ -179,6 +163,7 @@ public class App {
 		// these projects must be deleted manually afterwards....
 		db.openSession();
 		project.setFinishedDate(Calendar.getInstance());
+		project.setExceptions(exceptionsCount);
 		db.update(project);
 		db.commit();
 
@@ -188,6 +173,47 @@ public class App {
 		db.openSession();
 		db.cleanProject(project);
 		db.commit();
+	}
+
+	private RefactoringHandler getRefactoringHandler(Git git, RefactoringAnalyzer refactoringAnalyzer) {
+		return new RefactoringHandler() {
+				@Override
+				public void handle(RevCommit commitData, List<Refactoring> refactorings) {
+					for (Refactoring ref : refactorings) {
+						try {
+							db.openSession();
+							refactoringAnalyzer.collectCommitData(commitData, ref);
+							db.commit();
+						} catch (Exception e) {
+							log.error("Error", e);
+							db.rollback();
+						} finally {
+							db.close();
+						}
+					}
+				}
+
+				@Override
+				public void handleException(String commitId, Exception e) {
+					exceptionsCount++;
+					log.error("RefactoringMiner not handle commit Id " + commitId, e);
+					resetGitRepo();
+
+				}
+
+				private void resetGitRepo() {
+					try {
+						git.reset().setMode(ResetCommand.ResetType.HARD).call();
+					} catch (GitAPIException e1) {
+						log.error("Reset failed", e1);
+					}
+				}
+			};
+	}
+
+	private Iterator<RevCommit> getAllCommits(Repository repo) throws Exception {
+		GitServiceImpl gs = new GitServiceImpl();
+		return gs.createAllRevsWalk(repo).iterator();
 	}
 
 	private int numberOfCommits(Git git) throws GitAPIException {
