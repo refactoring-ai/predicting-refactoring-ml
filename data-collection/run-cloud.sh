@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#! /bin/bash
+
 export IFS=","
 
 if [ "$#" -ne 8 ]; then
