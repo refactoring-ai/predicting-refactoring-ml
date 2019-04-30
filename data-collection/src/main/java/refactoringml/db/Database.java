@@ -57,7 +57,7 @@ public class Database {
 		return exists;
 	}
 
-	public void cleanProject(Project project) {
+	public int cleanProject(Project project) {
 
 		int countYes = session.createQuery("delete from Yes where project = :project and (authorOwnership is null or variableAppearances < 0)")
 				.setParameter("project", project)
@@ -67,7 +67,7 @@ public class Database {
 				.setParameter("project", project)
 				.executeUpdate();
 
-		project.setCleanedRows(countYes + countNo);
+		return countYes + countNo;
 
 	}
 

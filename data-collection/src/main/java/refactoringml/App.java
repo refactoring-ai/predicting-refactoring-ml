@@ -171,7 +171,11 @@ public class App {
 		// their process metric. We thus delete these data points as we can't really use them in training.
 		// we also delete variable usages that was equals to -1 (which means, we failed to detect it for some reason)
 		db.openSession();
-		db.cleanProject(project);
+		int cleanedRows = db.cleanProject(project);
+		db.commit();
+
+		db.openSession();
+		project.setCleanedRows(cleanedRows);
 		db.commit();
 	}
 
