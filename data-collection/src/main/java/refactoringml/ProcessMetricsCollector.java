@@ -176,7 +176,7 @@ public class ProcessMetricsCollector {
 
 				// update our pmDatabase entry with the information of the current commit
 				ProcessMetric currentClazz = pmDatabase.get(fileName);
-				currentClazz.existsIn(commit.getName(), commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
+				currentClazz.existsIn(commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
 
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).

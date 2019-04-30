@@ -12,15 +12,15 @@ public class ProcessMetricTest {
 		ProcessMetric pm = new ProcessMetric("a.Java", "123");
 
 		for(int i = 0; i < 90; i++) {
-			pm.existsIn("a" + String.valueOf(i), "commit","Mauricio", 10, 20);
+			pm.existsIn("commit","Mauricio", 10, 20);
 		}
 
 		for(int i = 0; i < 6; i++) {
-			pm.existsIn("b" + String.valueOf(i), "commit","Diogo", 10, 20);
+			pm.existsIn("commit","Diogo", 10, 20);
 		}
 
 		for(int i = 0; i < 4; i++) {
-			pm.existsIn("c" + String.valueOf(i), "commit","Rafael", 10, 20);
+			pm.existsIn("commit","Rafael", 10, 20);
 		}
 
 		Assert.assertEquals(3, pm.qtyOfAuthors(), 0.0001);
@@ -38,7 +38,7 @@ public class ProcessMetricTest {
 
 		ProcessMetric pm = new ProcessMetric("a.Java", "123");
 
-		pm.existsIn("c0", "bug fix here","Rafael", 10, 20);
+		pm.existsIn( "bug fix here","Rafael", 10, 20);
 
 		int qty = 1;
 		for(int i = 0; i < 500; i++) {
@@ -48,7 +48,7 @@ public class ProcessMetricTest {
 				qty++;
 			}
 
-			pm.existsIn("c" + String.valueOf(i), "bla bla " + (keywordHere) + "ble ble","Rafael", 10, 20);
+			pm.existsIn("bla bla " + (keywordHere) + "ble ble","Rafael", 10, 20);
 		}
 
 		Assert.assertEquals(qty, pm.getBugFixCount());

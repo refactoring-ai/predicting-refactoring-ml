@@ -8,7 +8,7 @@ public class ProcessMetric {
 	private String fileName;
 
 	// updated info about the class
-	private Set<String> commits = new HashSet<>();
+	private int commits = 0;
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
 	private int linesAdded = 0;
 	private int linesDeleted = 0;
@@ -38,8 +38,8 @@ public class ProcessMetric {
 	}
 
 
-	public void existsIn (String commit, String commitMsg, String authorName, int linesAdded, int linesDeleted) {
-		commits.add(commit);
+	public void existsIn (String commitMsg, String authorName, int linesAdded, int linesDeleted) {
+		commits++;
 
 		if(!authors.containsKey(authorName)) {
 			authors.put(authorName, 0);
@@ -60,10 +60,6 @@ public class ProcessMetric {
 				.count() > 0;
 	}
 
-	public int qtyOfCommits() {
-		return commits.size();
-	}
-
 	public int qtyOfAuthors() {
 		return authors.size();
 	}
@@ -80,7 +76,7 @@ public class ProcessMetric {
 		baseMajorAuthors = qtyMajorAuthors();
 		baseAuthorOwnership = authorOwnership();
 		baseAuthors = qtyOfAuthors();
-		baseCommits = qtyOfCommits();
+		baseCommits = commits;
 	}
 
 	public void increaseCounter() {
@@ -112,11 +108,11 @@ public class ProcessMetric {
 
 		String mostRecurrentAuthor = Collections.max(authors.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
 
-		return authors.get(mostRecurrentAuthor) / (double) qtyOfCommits();
+		return authors.get(mostRecurrentAuthor) / (double) commits;
 	}
 
 	private double fivePercent () {
-		return qtyOfCommits() * 0.05;
+		return commits * 0.05;
 	}
 
 	private long countAuthors (Predicate<String> predicate) {
@@ -203,5 +199,9 @@ public class ProcessMetric {
 				", baseAuthors=" + baseAuthors +
 				", baseCommits=" + baseCommits +
 				'}';
+	}
+
+	public int qtyOfCommits() {
+		return this.commits;
 	}
 }
