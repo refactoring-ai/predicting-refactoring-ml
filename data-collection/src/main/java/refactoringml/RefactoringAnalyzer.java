@@ -206,7 +206,7 @@ public class RefactoringAnalyzer {
 		new CK().calculate(tempDir, ck -> {
 
 			if(ck.isError())
-				throw new RuntimeException("CK failed: " + ck.getFile());
+				throw new RuntimeException("CK failed in " + ck.getFile() + ": " + ck.getErrorMessage());
 
 			// collect the class level metrics
 			ClassMetric classMetric = new ClassMetric(ck.getCbo(),

@@ -180,4 +180,28 @@ public class ProcessMetric {
 	public void increaseRefactoringsInvolved() {
 		refactoringsInvolved++;
 	}
+
+	@Override
+	public String toString() {
+		return "ProcessMetric{" +
+				"fileName='" + fileName + '\'' +
+				", commits=" + commits +
+				", authors=" + authors +
+				", linesAdded=" + linesAdded +
+				", linesDeleted=" + linesDeleted +
+				", bugFixCount=" + bugFixCount +
+				", refactoringsInvolved=" + refactoringsInvolved +
+				", counter=" + counter +
+				", baseCommitForNonRefactoring='" + baseCommitForNonRefactoring + '\'' +
+				", baseLinesAdded=" + baseLinesAdded +
+				", baseLinesDeleted=" + baseLinesDeleted +
+				", baseBugFixCount=" + baseBugFixCount +
+				", baseRefactoringsInvolved=" + baseRefactoringsInvolved +
+				", baseMinorAuthors=" + baseMinorAuthors +
+				", baseMajorAuthors=" + baseMajorAuthors +
+				", baseAuthorOwnership=" + baseAuthorOwnership +
+				", baseAuthors=" + baseAuthors +
+				", baseCommits=" + baseCommits +
+				'}';
+	}
 }

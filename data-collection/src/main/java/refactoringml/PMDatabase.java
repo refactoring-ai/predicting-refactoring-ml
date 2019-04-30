@@ -41,4 +41,8 @@ public class PMDatabase {
 	public void remove (String key) {
 		database.remove(key);
 	}
+
+	public Map<String, ProcessMetric> getDatabase() {
+		return database;
+	}
 }

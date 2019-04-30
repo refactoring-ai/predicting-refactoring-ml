@@ -87,6 +87,8 @@ public class ProcessMetricsCollector {
 					refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
 					db.commit();
 				} catch(Exception e) {
+					db.rollback();
+				} finally {
 					db.close();
 				}
 			}
@@ -101,19 +103,22 @@ public class ProcessMetricsCollector {
 				updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
 				db.commit();
 			} catch(Exception e) {
+				db.rollback();
+			} finally {
 				db.close();
 			}
 
 			commit = walk.next();
 		}
 		walk.close();
+
 	}
 
 	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, Set<String> refactoredClasses) throws IOException {
 
 		// if there are classes over the threshold, we output them as an examples of not refactored classes,
 		// and we reset their counter.
-		// note that we have a lot of failures here, as 500 commits later, the class might had been
+		// note that we have a lot of failures here, as X commits later, the class might had been
 		// renamed or moved, and thus the class (with the name before) "doesn't exist" anymore..
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
@@ -140,8 +145,8 @@ public class ProcessMetricsCollector {
 				String fileName = entry.getPath(null);
 
 				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
-				boolean refactoringIsInATestFile = RefactoringUtils.isTestFile(fileName);
-				if (!isAJavaFile || refactoringIsInATestFile) {
+				boolean isATestFile = RefactoringUtils.isTestFile(fileName);
+				if (!isAJavaFile || isATestFile) {
 					continue;
 				}
 
