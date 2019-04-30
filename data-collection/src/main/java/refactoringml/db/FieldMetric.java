@@ -18,4 +18,9 @@ public class FieldMetric {
 		this.fieldName = fieldName;
 		this.fieldAppearances = fieldAppearances;
 	}
+
+	public String getFieldName() {
+		return fieldName;
+	}
+
 }

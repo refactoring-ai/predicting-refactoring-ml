@@ -142,34 +142,44 @@ public class RefactoringAnalyzer {
 		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameAfter);
 		createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileNameAfter);
 
-		String completeFileNameAstC1 = String.format("%s-%d-%s-%d-astc1",
+		String completeFileNameAstC1 = String.format("%s-%d-%s-%d-%s-astc1",
 				fileNameAfter,
 				yes.getRefactoringType(),
 				yes.getRefactoring(),
-				(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0));
+				(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0),
+				getRefactoredElementNameIfAny(yes)
+				);
 
 		PrintStream before1 = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameAstC1);
 		before1.print(ASTConverter.converter(fileBefore, 1));
 		before1.close();
 
-		PrintStream after1 = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAstC1);
-		after1.print(ASTConverter.converter(fileAfter, 1));
-		after1.close();
-
 		// Run ast converter 2
-		String completeFileNameAstC2 = String.format("%s-%d-%s-%d-astc2",
+		String completeFileNameAstC2 = String.format("%s-%d-%s-%d-%s-astc2",
 				fileNameAfter,
 				yes.getRefactoringType(),
 				yes.getRefactoring(),
-				(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0));
+				(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0),
+				getRefactoredElementNameIfAny(yes));
 
 		PrintStream before2 = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameAstC2);
 		before2.print(ASTConverter.converter(fileBefore, 2));
 		before2.close();
+	}
 
-		PrintStream after2 = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAstC2);
-		after2.print(ASTConverter.converter(fileAfter, 2));
-		after2.close();
+	private String getRefactoredElementNameIfAny(Yes yes) {
+		if(yes.getRefactoringType() == TYPE_METHOD_LEVEL) {
+			return yes.getMethodMetrics().getShortMethodName();
+		}
+		if(yes.getRefactoringType() == TYPE_VARIABLE_LEVEL) {
+			return yes.getVariableMetrics().getVariableName();
+		}
+		if(yes.getRefactoringType() == TYPE_ATTRIBUTE_LEVEL) {
+			return yes.getFieldMetrics().getFieldName();
+		}
+
+		// this is no method, variable, or attribute refactoring
+		return "";
 	}
 
 	private void saveSourceCode(String commit, String fileBefore, String fileNameAfter, String fileAfter, Yes yes) throws FileNotFoundException {

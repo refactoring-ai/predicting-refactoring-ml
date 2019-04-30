@@ -77,4 +77,12 @@ public class Yes {
 	public MethodMetric getMethodMetrics() {
 		return methodMetrics;
 	}
+
+	public VariableMetric getVariableMetrics() {
+		return variableMetrics;
+	}
+
+	public FieldMetric getFieldMetrics() {
+		return fieldMetrics;
+	}
 }

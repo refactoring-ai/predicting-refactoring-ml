@@ -16,4 +16,8 @@ public class VariableMetric {
 		this.variableName = variableName;
 		this.variableAppearances = variableAppearances;
 	}
+
+	public String getVariableName() {
+		return variableName;
+	}
 }

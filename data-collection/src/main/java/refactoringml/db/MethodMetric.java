@@ -66,4 +66,8 @@ public class MethodMetric {
 	public int getStartLine() {
 		return startLine;
 	}
+
+	public String getShortMethodName() {
+		return shortMethodName;
+	}
 }
