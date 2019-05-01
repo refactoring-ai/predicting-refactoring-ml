@@ -62,7 +62,7 @@ public class Database {
 
 	public void cleanProject(Project project) {
 
-		long countYes = (long) session.createSQLQuery("select count(*) from yes where project = :project and (authorOwnership is null or variableAppearances < 0)")
+		long countYes = (long) session.createSQLQuery("select count(*) from yes where project_id = " + project.getId() + " and (authorOwnership is null or variableAppearances < 0)")
 				.setParameter("project", project)
 				.uniqueResult();
 
@@ -70,7 +70,7 @@ public class Database {
 				.setParameter("project", project)
 				.executeUpdate();
 
-		long countNo = (long) session.createSQLQuery("select count(*) from no where project = :project and (authorOwnership is null or variableAppearances < 0)")
+		long countNo = (long) session.createSQLQuery("select count(*) from no where project_id = " + project.getId()  + " and (authorOwnership is null or variableAppearances < 0)")
 				.setParameter("project", project)
 				.uniqueResult();
 

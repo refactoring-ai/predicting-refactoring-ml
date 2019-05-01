@@ -51,4 +51,8 @@ public class Project {
 	public void setCleanedRows(int cleanedRows) {
 		this.cleanedRows = cleanedRows;
 	}
+
+	public long getId() {
+		return id;
+	}
 }

@@ -182,7 +182,6 @@ public class App {
 				@Override
 				public void handle(RevCommit commitData, List<Refactoring> refactorings) {
 
-					if(Thread.currentThread().isInterrupted())
 					for (Refactoring ref : refactorings) {
 						try {
 							db.openSession();
