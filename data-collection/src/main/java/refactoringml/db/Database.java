@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import java.math.BigInteger;
+
 public class Database {
 
 	private SessionFactory sf;
@@ -62,23 +64,20 @@ public class Database {
 
 	public void cleanProject(Project project) {
 
-		long countYes = (long) session.createSQLQuery("select count(*) from yes where project_id = " + project.getId() + " and (authorOwnership is null or variableAppearances < 0)")
-				.setParameter("project", project)
+		BigInteger countYes = (BigInteger) session.createSQLQuery("select count(*) from yes where project_id = " + project.getId() + " and (authorOwnership is null or variableAppearances < 0)")
 				.uniqueResult();
 
-		session.createQuery("delete from Yes where project = :project and (authorOwnership is null or variableAppearances < 0)")
-				.setParameter("project", project)
+		session.createSQLQuery("delete from yes where project_id = " + project.getId() + " and (authorOwnership is null or variableAppearances < 0)")
 				.executeUpdate();
 
-		long countNo = (long) session.createSQLQuery("select count(*) from no where project_id = " + project.getId()  + " and (authorOwnership is null or variableAppearances < 0)")
-				.setParameter("project", project)
+		BigInteger countNo = (BigInteger) session.createSQLQuery("select count(*) from no where project_id = " + project.getId()  + " and (authorOwnership is null or variableAppearances < 0)")
 				.uniqueResult();
 
-		session.createQuery("delete from No where project = :project and (authorOwnership is null or variableAppearances < 0)")
-				.setParameter("project", project)
+		session.createSQLQuery("delete from no where project_id = " + project.getId() + " and (authorOwnership is null or variableAppearances < 0)")
 				.executeUpdate();
 
-		project.setCleanedRows((int) countYes + (int) countNo);
+		project.setCleanedRows(countYes.intValue() + countNo.intValue());
+		this.update(project);
 
 	}
 
