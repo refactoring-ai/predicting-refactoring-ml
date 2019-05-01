@@ -75,37 +75,41 @@ public class ProcessMetricsCollector {
 		RevCommit commit = walk.next();
 
 		while(commit!=null) {
-			log.debug("Commit ID " + commit.getName());
-			RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 
-			Set<String> refactoredClasses = new HashSet<>();
+			if(commit.getParentCount() <= 1) {
 
-			// if the class happened to be refactored, then, print its process metrics at that time
-			if(todo.containsKey(commit.getName())) {
+				log.debug("Commit ID " + commit.getName());
+				RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
+
+				Set<String> refactoredClasses = new HashSet<>();
+
+				// if the class happened to be refactored, then, print its process metrics at that time
+				if (todo.containsKey(commit.getName())) {
+					try {
+						db.openSession();
+						refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
+						db.commit();
+					} catch (Exception e) {
+						db.rollback();
+					} finally {
+						db.close();
+					}
+				}
+
+				// we go now change by change in the commit to update the process metrics there
+				// (no need for db here, as this update happens only locally)
+				updateProcessMetrics(commit, commitParent);
+
+				// update classes that were not refactored on this commit
 				try {
 					db.openSession();
-					refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
+					updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
 					db.commit();
-				} catch(Exception e) {
+				} catch (Exception e) {
 					db.rollback();
 				} finally {
 					db.close();
 				}
-			}
-
-			// we go now change by change in the commit to update the process metrics there
-			// (no need for db here, as this update happens only locally)
-			updateProcessMetrics(commit, commitParent);
-
-			// update classes that were not refactored on this commit
-			try {
-				db.openSession();
-				updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
-				db.commit();
-			} catch(Exception e) {
-				db.rollback();
-			} finally {
-				db.close();
 			}
 
 			commit = walk.next();
