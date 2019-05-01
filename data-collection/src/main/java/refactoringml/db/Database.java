@@ -1,5 +1,6 @@
 package refactoringml.db;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -7,6 +8,8 @@ public class Database {
 
 	private SessionFactory sf;
 	private Session session;
+
+	private static final Logger log = Logger.getLogger(Database.class);
 
 	public Database(SessionFactory sf) {
 		this.sf = sf;
@@ -37,7 +40,7 @@ public class Database {
 				session.close();
 		} catch(Exception e) {
 			// what to do? this really shouldn't happen.
-			e.printStackTrace();
+			log.error("error when closing the connection", e);
 		} finally {
 			this.session = null;
 		}

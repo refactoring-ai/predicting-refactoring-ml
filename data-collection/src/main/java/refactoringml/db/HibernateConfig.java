@@ -23,18 +23,28 @@ public class HibernateConfig {
 			settings.put(Environment.PASS, pwd);
 			settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5InnoDBDialect");
 			settings.put(Environment.SHOW_SQL, "false");
-			settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 			settings.put(Environment.HBM2DDL_AUTO, "update");
 
 			settings.put("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
 			settings.put("hibernate.c3p0.acquire_increment", 1);
 			settings.put("hibernate.c3p0.idle_test_period", 60);
 			settings.put("hibernate.c3p0.min_size", 1);
-			settings.put("hibernate.c3p0.max_size", 2); // 1 connection is actually enough...
+			settings.put("hibernate.c3p0.max_size", 5);
 			settings.put("hibernate.c3p0.max_statements", 50);
-			settings.put("hibernate.c3p0.timeout", 0);
-			settings.put("hibernate.c3p0.acquireRetryAttempts", 1);
-			settings.put("hibernate.c3p0.acquireRetryDelay", 250);
+
+			settings.put("hibernate.c3p0.timeout", 300);
+			settings.put("hibernate.c3p0.maxConnectionAge", 3600);
+
+			settings.put("hibernate.c3p0.maxIdleTimeExcessConnections", 3600);
+
+			settings.put("hibernate.c3p0.acquireRetryAttempts", 10);
+			settings.put("hibernate.c3p0.acquireRetryDelay", 60);
+
+			settings.put("hibernate.c3p0.preferredTestQuery", "SELECT 1");
+			settings.put("hibernate.c3p0.testConnectionOnCheckout", true);
+
+			settings.put("hibernate.c3p0.autoCommitOnClose", false);
+			settings.put("hibernate.c3p0.unreturnedConnectionTimeout", 120);
 
 			configuration.setProperties(settings);
 

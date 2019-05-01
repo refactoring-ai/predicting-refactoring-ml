@@ -146,6 +146,8 @@ public class App {
 			RevCommit currentCommit = it.next();
 			String commitHash = currentCommit.getId().getName();
 
+			log.info("Invoking refactoringminer for commit " + commitHash);
+
 			// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
 			miner.detectAtCommit(repo, null, commitHash, handler, 20);
 		}
@@ -179,6 +181,8 @@ public class App {
 		return new RefactoringHandler() {
 				@Override
 				public void handle(RevCommit commitData, List<Refactoring> refactorings) {
+
+					if(Thread.currentThread().isInterrupted())
 					for (Refactoring ref : refactorings) {
 						try {
 							db.openSession();
@@ -186,7 +190,7 @@ public class App {
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
-							log.error("Error", e);
+							log.error("Error when collecting commit data", e);
 							db.rollback();
 						} finally {
 							db.close();
