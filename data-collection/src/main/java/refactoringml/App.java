@@ -184,21 +184,28 @@ public class App {
 
 					for (Refactoring ref : refactorings) {
 
-							new Thread(() -> {
-								try {
-									Thread.sleep(1);
+						Thread t = new Thread(() -> {
+							try {
+								Thread.sleep(1);
 
-									db.openSession();
-									refactoringAnalyzer.collectCommitData(commitData, ref);
-									db.commit();
-								} catch (Exception e) {
-									exceptionsCount++;
-									log.error("Error when collecting commit data", e);
-									db.rollback();
-								} finally {
-									db.close();
-								}
-							}).start();
+								db.openSession();
+								refactoringAnalyzer.collectCommitData(commitData, ref);
+								db.commit();
+							} catch (Exception e) {
+								exceptionsCount++;
+								log.error("Error when collecting commit data", e);
+								db.rollback();
+							} finally {
+								db.close();
+							}
+						});
+
+						try {
+							t.start();
+							t.join();
+						} catch (InterruptedException e) {
+							log.error("InterruptedExceptiom when joining the thread", e);
+						}
 					}
 				}
 
