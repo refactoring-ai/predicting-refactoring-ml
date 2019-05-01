@@ -38,6 +38,9 @@ public class App {
 	private String datasetName;
 	private int exceptionsCount = 0;
 
+	RevCommit commitDataToProcess;
+	List<Refactoring> refactoringsToProcess;
+
 	public App (String datasetName,
 	            String clonePath,
 	            String gitUrl,
@@ -148,8 +151,32 @@ public class App {
 
 			log.debug("Invoking refactoringminer for commit " + commitHash);
 
+			refactoringsToProcess = null;
+			commitDataToProcess = null;
+
 			// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
 			miner.detectAtCommit(repo, null, commitHash, handler, 20);
+
+			// if no timeout happened
+			boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitDataToProcess != null;
+			if(thereIsRefactoringToProcess) {
+				for (Refactoring ref : refactoringsToProcess) {
+					try {
+						db.openSession();
+						refactoringAnalyzer.collectCommitData(commitDataToProcess, ref);
+						db.commit();
+					} catch (Exception e) {
+						exceptionsCount++;
+						log.error("Error when collecting commit data", e);
+						db.rollback();
+					} finally {
+						db.close();
+					}
+				}
+			} else {
+				// timeout happened, so count it as an exception
+				exceptionsCount++;
+			}
 		}
 
 		// all refactorings were detected, now we start the second phase:
@@ -181,32 +208,8 @@ public class App {
 		return new RefactoringHandler() {
 				@Override
 				public void handle(RevCommit commitData, List<Refactoring> refactorings) {
-
-					for (Refactoring ref : refactorings) {
-
-						Thread t = new Thread(() -> {
-							try {
-								Thread.sleep(1);
-
-								db.openSession();
-								refactoringAnalyzer.collectCommitData(commitData, ref);
-								db.commit();
-							} catch (Exception e) {
-								exceptionsCount++;
-								log.error("Error when collecting commit data", e);
-								db.rollback();
-							} finally {
-								db.close();
-							}
-						});
-
-						try {
-							t.start();
-							t.join();
-						} catch (InterruptedException e) {
-							log.error("InterruptedExceptiom when joining the thread", e);
-						}
-					}
+					commitDataToProcess = commitData;
+					refactoringsToProcess = refactorings;
 				}
 
 				@Override
