@@ -146,7 +146,7 @@ public class App {
 			RevCommit currentCommit = it.next();
 			String commitHash = currentCommit.getId().getName();
 
-			log.info("Invoking refactoringminer for commit " + commitHash);
+			log.debug("Invoking refactoringminer for commit " + commitHash);
 
 			// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
 			miner.detectAtCommit(repo, null, commitHash, handler, 20);
