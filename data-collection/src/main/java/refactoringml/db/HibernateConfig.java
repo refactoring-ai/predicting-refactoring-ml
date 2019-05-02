@@ -44,7 +44,7 @@ public class HibernateConfig {
 			settings.put("hibernate.c3p0.testConnectionOnCheckout", true);
 
 			settings.put("hibernate.c3p0.autoCommitOnClose", false);
-			settings.put("hibernate.c3p0.unreturnedConnectionTimeout", 120);
+			settings.put("hibernate.c3p0.unreturnedConnectionTimeout", 300);
 
 			configuration.setProperties(settings);
 
