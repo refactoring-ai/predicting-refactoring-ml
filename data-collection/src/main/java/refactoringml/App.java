@@ -90,20 +90,23 @@ public class App {
 			url = args[3];
 			user = args[4];
 			pwd = args[5];
-
-			log.info(String.format("%s, %s, %s", url, user, pwd));
 		}
 
 		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "repo";
 		String filesStoragePath = highLevelOutputPath; // No need for the name of the project, as the run.sh creates a folder for it already
 		new File(filesStoragePath).mkdirs();
 
-		Database db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
+		Database db = null;
+		try {
+			db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
 
-		// do not run if the project is already in the database
-		if(db.projectExists(gitUrl)) {
-			System.out.println(String.format("Project %s already in the database", gitUrl));
-			System.exit(-1);
+			// do not run if the project is already in the database
+			if (db.projectExists(gitUrl)) {
+				System.out.println(String.format("Project %s already in the database", gitUrl));
+				System.exit(-1);
+			}
+		}catch(Exception e) {
+			log.error("Error when connecting to the db", e);
 		}
 
 		new App(datasetName, clonePath, gitUrl,
