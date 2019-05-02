@@ -145,8 +145,8 @@ public class RefactoringAnalyzer {
 				fileNameAfter,
 				yes.getRefactoringType(),
 				yes.getRefactoring(),
-				(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0),
-				getRefactoredElementNameIfAny(yes)
+				(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+				getMethodAndOrVariableNameIfAny(yes)
 				);
 
 		PrintStream before1 = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameAstC1);
@@ -158,20 +158,20 @@ public class RefactoringAnalyzer {
 				fileNameAfter,
 				yes.getRefactoringType(),
 				yes.getRefactoring(),
-				(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0),
-				getRefactoredElementNameIfAny(yes));
+				(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+				getMethodAndOrVariableNameIfAny(yes));
 
 		PrintStream before2 = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameAstC2);
 		before2.print(ASTConverter.converter(fileBefore, 2));
 		before2.close();
 	}
 
-	private String getRefactoredElementNameIfAny(Yes yes) {
+	private String getMethodAndOrVariableNameIfAny(Yes yes) {
 		if(yes.getRefactoringType() == TYPE_METHOD_LEVEL) {
 			return yes.getMethodMetrics().getShortMethodName();
 		}
 		if(yes.getRefactoringType() == TYPE_VARIABLE_LEVEL) {
-			return yes.getVariableMetrics().getVariableName();
+			return yes.getMethodMetrics().getShortMethodName() + "-" + yes.getVariableMetrics().getVariableName();
 		}
 		if(yes.getRefactoringType() == TYPE_ATTRIBUTE_LEVEL) {
 			return yes.getFieldMetrics().getFieldName();
@@ -190,8 +190,8 @@ public class RefactoringAnalyzer {
 						fileNameAfter,
 						yes.getRefactoringType(),
 						yes.getRefactoring(),
-						(yes.getRefactoringType() == 2 ? yes.getMethodMetrics().getStartLine() : 0),
-						getRefactoredElementNameIfAny(yes));
+						(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+						getMethodAndOrVariableNameIfAny(yes));
 
 		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileName);
 		before.print(fileBefore);

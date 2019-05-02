@@ -231,4 +231,5 @@ public class RefactoringUtils {
 		return normalizedFileName.contains("test.java") || normalizedFileName.contains("tests.java") ||
 				normalizedFileName.contains("/test/");
 	}
+
 }

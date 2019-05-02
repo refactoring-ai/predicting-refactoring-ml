@@ -68,6 +68,6 @@ public class MethodMetric {
 	}
 
 	public String getShortMethodName() {
-		return shortMethodName;
+		return shortMethodName == null ? "" : shortMethodName;
 	}
 }
