@@ -90,6 +90,8 @@ public class App {
 			url = args[3];
 			user = args[4];
 			pwd = args[5];
+
+			log.info(String.format("%s, %s, %s", url, user, pwd));
 		}
 
 		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "repo";
