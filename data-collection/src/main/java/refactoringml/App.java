@@ -87,7 +87,7 @@ public class App {
 			gitUrl = args[1].trim();
 			highLevelOutputPath = lastSlashDir(args[2].trim());
 
-			url = args[3];
+			url = args[3] + "?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; // our servers config.
 			user = args[4];
 			pwd = args[5];
 		}
