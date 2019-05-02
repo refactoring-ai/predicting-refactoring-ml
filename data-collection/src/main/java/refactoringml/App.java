@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.refactoringminer.api.GitHistoryRefactoringMiner;
@@ -130,9 +131,13 @@ public class App {
 		int numberOfCommits = numberOfCommits(git);
 		int commitThreshold = 50; //(int) (numberOfCommits * 0.01);
 
+		String lastCommitHash = getHead(git);
+
 		int loc = LOCUtils.countJavaFiles(clonePath);
 
-		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(), numberOfCommits, commitThreshold, loc);
+		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
+				numberOfCommits, commitThreshold, loc, lastCommitHash);
+
 		db.openSession();
 		db.persist(project);
 		db.commit();
@@ -202,6 +207,10 @@ public class App {
 		db.openSession();
 		db.cleanProject(project);
 		db.commit();
+	}
+
+	private String getHead(Git git) throws IOException {
+		return git.getRepository().resolve(Constants.HEAD).getName();
 	}
 
 	private RefactoringHandler getRefactoringHandler(Git git, RefactoringAnalyzer refactoringAnalyzer) {

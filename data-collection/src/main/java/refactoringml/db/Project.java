@@ -27,10 +27,12 @@ public class Project {
 	private int exceptionsCount;
 	private int cleanedRows;
 
+	private String lastCommitHash;
+
 	@Deprecated // hibernate purposes
 	public Project() {}
 
-	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, int threshold, int javaLoc) {
+	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, int threshold, int javaLoc, String lastCommitHash) {
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.projectName = projectName;
@@ -38,6 +40,7 @@ public class Project {
 		this.commits = commits;
 		this.threshold = threshold;
 		this.javaLoc = javaLoc;
+		this.lastCommitHash = lastCommitHash;
 	}
 
 	public void setFinishedDate(Calendar finishedDate) {
@@ -55,4 +58,5 @@ public class Project {
 	public long getId() {
 		return id;
 	}
+
 }
