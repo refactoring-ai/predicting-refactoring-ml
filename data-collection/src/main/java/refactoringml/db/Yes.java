@@ -1,6 +1,7 @@
 package refactoringml.db;
 
 import javax.persistence.*;
+import java.util.Calendar;
 
 @Entity
 @Table(name = "yes", indexes = {@Index(columnList = "project_id"), @Index(columnList = "refactoringType"), @Index(columnList = "refactoring")})
@@ -15,6 +16,10 @@ public class Yes {
 
 	private String refactorCommit;
 	private String parentCommit;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Calendar refactoringDate;
+
 	private String filePath;
 	private String className;
 
@@ -39,10 +44,11 @@ public class Yes {
 	@Deprecated // hibernate purposes
 	public Yes() {}
 
-	public Yes(Project project, String refactorCommit, String parentCommit, String filePath, String className,String refactoring, int refactoringType,
+	public Yes(Project project, String refactorCommit, Calendar refactoringDate, String parentCommit, String filePath, String className,String refactoring, int refactoringType,
 	           ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
 		this.project = project;
 		this.refactorCommit = refactorCommit;
+		this.refactoringDate = refactoringDate;
 		this.parentCommit = parentCommit;
 		this.filePath = filePath;
 		this.className = className;

@@ -11,6 +11,8 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class JGitUtils {
 
@@ -41,6 +43,14 @@ public class JGitUtils {
 	public static String extractProjectNameFromGitUrl(String gitUrl) {
 		String[] splittedGitUrl = gitUrl.split("/");
 		return splittedGitUrl[splittedGitUrl.length - 1].replace(".git", "");
+	}
+
+
+	public static Calendar getGregorianCalendar(RevCommit commit) {
+		GregorianCalendar commitTime = new GregorianCalendar();
+		commitTime.setTime(commit.getAuthorIdent().getWhen());
+		commitTime.setTimeZone(commit.getAuthorIdent().getTimeZone());
+		return commitTime;
 	}
 
 

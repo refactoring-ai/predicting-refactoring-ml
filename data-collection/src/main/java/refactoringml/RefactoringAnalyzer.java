@@ -14,13 +14,12 @@ import org.refactoringminer.api.Refactoring;
 import refactoringml.astconverter.ASTConverter;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
+import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
@@ -114,7 +113,9 @@ public class RefactoringAnalyzer {
 			}
 
 			// generate metric for the refactored class
-			Yes yes = calculateCkMetrics(commit.getId().getName(), refactoring, commitParent.getId().getName());
+			Calendar commitTime = JGitUtils.getGregorianCalendar(commit);
+
+			Yes yes = calculateCkMetrics(commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
 
 			if(yes!=null) {
 				// mark it as To Do for the process metrics tool
@@ -201,7 +202,7 @@ public class RefactoringAnalyzer {
 		after.close();
 	}
 
-	private Yes calculateCkMetrics(String refactorCommit, Refactoring refactoring, String parentCommit) {
+	private Yes calculateCkMetrics(String refactorCommit, Calendar refactoringDate, Refactoring refactoring, String parentCommit) {
 		final List<Yes> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 
@@ -324,6 +325,7 @@ public class RefactoringAnalyzer {
 			Yes yes = new Yes(
 					project,
 					refactorCommit,
+					refactoringDate,
 					parentCommit,
 					ck.getFile().replace(tempDir, ""),
 					ck.getClassName(),

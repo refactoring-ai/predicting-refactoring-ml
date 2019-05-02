@@ -31,10 +31,12 @@ public class ProcessMetric {
 	private int baseCommits = 0;
 
 	public static String[] bugKeywords = {"bug", "error", "mistake", "fault", "wrong", "fail", "fix"};
+	private Calendar baseCommitDateForNonRefactoring;
 
-	public ProcessMetric (String fileName, String baseCommitForNonRefactoring) {
+	public ProcessMetric (String fileName, String baseCommitForNonRefactoring, Calendar baseCommitDateForNonRefactoring) {
 		this.fileName = fileName;
 		this.baseCommitForNonRefactoring = baseCommitForNonRefactoring;
+		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
 	}
 
 
@@ -64,9 +66,10 @@ public class ProcessMetric {
 		return authors.size();
 	}
 
-	public void resetCounter(String commitHash) {
+	public void resetCounter(String commitHash, Calendar commitDate) {
 		counter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
+		this.baseCommitDateForNonRefactoring = commitDate;
 
 		baseLinesAdded = linesAdded;
 		baseLinesDeleted = linesDeleted;
@@ -93,6 +96,10 @@ public class ProcessMetric {
 
 	public String getBaseCommitForNonRefactoring () {
 		return baseCommitForNonRefactoring;
+	}
+
+	public Calendar getBaseCommitDateForNonRefactoring() {
+		return baseCommitDateForNonRefactoring;
 	}
 
 	public long qtyMinorAuthors() {
