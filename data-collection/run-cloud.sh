@@ -24,7 +24,7 @@ mkdir $OUTPUT_PATH
 
 echo ""
 i=0
-cat $PROJECTS_CSV_PATH | while local
+cat $PROJECTS_CSV_PATH | while
 	read PROJECT REPO DATASET; do
 	let "i++"
 
