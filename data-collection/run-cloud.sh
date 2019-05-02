@@ -40,7 +40,7 @@ cat $PROJECTS_CSV_PATH | while local
 
 		echo "Running refactoring analyzer"
 
-		java -Xmx650m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD >> log.txt 2>> error.txt
+		java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD >> log.txt 2>> error.txt
 		if [ $? -eq 0 ]
 		then
 			echo "Packing the java files"
