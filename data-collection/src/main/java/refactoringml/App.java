@@ -1,6 +1,7 @@
 package refactoringml;
 
 import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
@@ -92,7 +93,8 @@ public class App {
 			pwd = args[5];
 		}
 
-		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(Files.createTempDir().getAbsolutePath()) + "repo";
+		String newTmpDir = Files.createTempDir().getAbsolutePath();
+		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(newTmpDir) + "repo";
 		String filesStoragePath = highLevelOutputPath; // No need for the name of the project, as the run.sh creates a folder for it already
 		new File(filesStoragePath).mkdirs();
 
@@ -109,10 +111,22 @@ public class App {
 			log.error("Error when connecting to the db", e);
 		}
 
-		new App(datasetName, clonePath, gitUrl,
-				filesStoragePath, db).run();
+		try {
+			new App(datasetName, clonePath, gitUrl,
+					filesStoragePath, db).run();
+		} finally {
+			cleanTmpDir(newTmpDir);
+		}
 
     }
+
+	private static void cleanTmpDir(String newTmpDir) {
+		try {
+			FileUtils.deleteDirectory(new File(newTmpDir));
+		} catch(Exception e) {
+			log.error("Failed to delete tmp dir");
+		}
+	}
 
 	public void run () throws Exception {
 
