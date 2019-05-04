@@ -57,17 +57,23 @@ for model in models:
             db.get_non_refactored_variables)
 print("[DONE BUILDING VARIABLE-LEVEL MODELS]")
 
-## class level
-#build_model("results-class-level-svm.txt",
-            #db.get_class_level_refactorings_count,
-            #db.get_class_level_refactorings,
-            #db.get_non_refactored_classes)
-#
-## field level
-#build_model("results-field-level-svm.txt",
-            #db.get_field_level_refactorings_count,
-            #db.get_field_level_refactorings,
-            #db.get_non_refactored_fields)
+#class level
+print("[BUILDING CLASS-LEVEL MODELS]")
+for model in models: 
+    build_model(model, "class-level", 
+            db.get_class_level_refactorings_count,
+            db.get_class_level_refactorings,
+            db.get_non_refactored_classes)
+print("[DONE BUILDING CLASS-LEVEL MODELS]")
+
+#field level
+print("[BUILDING FIELD-LEVEL MODELS]")
+for model in models: 
+    build_model(model, "field-level", 
+            db.get_field_level_refactorings_count,
+            db.get_field_level_refactorings,
+            db.get_non_refactored_fields)
+print("[DONE BUILDING FIELD-LEVEL MODELS]")
 
 print("[DONE]")
 
