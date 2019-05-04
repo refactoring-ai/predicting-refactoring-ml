@@ -1,56 +1,73 @@
 import sys
-
 import db
-from refactoring_models_svm import run_svm
 
-def build_model(file_name, counts_function, refactoring_get_function, non_refactored_function):
+from refactoring_models_svm import run_svm
+from refactoring_models_decision_tree import run_decision_tree
+from refactoring_models_random_forest import run_random_forest
+
+def build_model(model_name, refactoring_level, counts_function, refactoring_get_function, non_refactored_function):
+    file_name = "results-" + refactoring_level + "-" + model_name + ".txt"
     f = open(file_name, "w+")
     counts = counts_function()
     for refactoring_name in counts["refactoring"].values:
         try:
-            print("refactoring %s" % refactoring_name)
+            print("Refactoring %s" % refactoring_name)
 
-            # get all the refactoring examples we have in our dataset
+            #get all refactoring examples we have in our dataset
             refactorings = refactoring_get_function(refactoring_name)
             assert refactorings.shape[0] == counts.loc[counts['refactoring'] == refactoring_name].iloc[0][1]
 
-            # load the non-refactoring examples
+            #load non-refactoring examples
             non_refactored_fields = non_refactored_function()
 
-            run_svm(refactoring_name, refactorings, non_refactored_fields, f)
+            method_name = 'run_' + model_name.replace("-", "_") 
+            possibles = globals().copy()
+            possibles.update(locals())
+            method = possibles.get(method_name)
+            if not method:
+                 raise NotImplementedError("Method %s not implemented" % method_name)
+            #build model
+            method(refactoring_name, refactorings, non_refactored_fields, f)
         except Exception as e:
-            print("An error occured.")
+            print("An error occured while building " + model_name.replace('-', ' ') + " model")
             print(str(e))
-            print("-------")
 
         sys.stdout.flush()
     f.close()
 
-print("Starting")
+print("[STARTING...]")
+#models/algorithms we use so far
+models = ['svm', 'decision-tree', 'random-forest']
 
-# method level
-build_model("results-method-level-svm.txt",
-            db.get_method_level_refactorings_count,
-            db.get_method_level_refactorings,
+#method level
+print("[BUILDING METHOD-LEVEL MODELS]")
+for model in models: 
+    build_model(model, "method-level", 
+            db.get_method_level_refactorings_count, 
+            db.get_method_level_refactorings, 
             db.get_non_refactored_methods)
+print("[DONE BUILDING METHOD-LEVEL MODELS]")
 
-# variable level
-build_model("results-variable-level-svm.txt",
+#variable level
+print("[BUILDING VARIABLE-LEVEL MODELS]")
+for model in models: 
+    build_model(model, "variable-level", 
             db.get_variable_level_refactorings_count,
             db.get_variable_level_refactorings,
             db.get_non_refactored_variables)
+print("[DONE BUILDING VARIABLE-LEVEL MODELS]")
 
-# class level
-build_model("results-class-level-svm.txt",
-            db.get_class_level_refactorings_count,
-            db.get_class_level_refactorings,
-            db.get_non_refactored_classes)
+## class level
+#build_model("results-class-level-svm.txt",
+            #db.get_class_level_refactorings_count,
+            #db.get_class_level_refactorings,
+            #db.get_non_refactored_classes)
+#
+## field level
+#build_model("results-field-level-svm.txt",
+            #db.get_field_level_refactorings_count,
+            #db.get_field_level_refactorings,
+            #db.get_non_refactored_fields)
 
-# field level
-build_model("results-field-level-svm.txt",
-            db.get_field_level_refactorings_count,
-            db.get_field_level_refactorings,
-            db.get_non_refactored_fields)
-
-print("Done")
+print("[DONE]")
 
