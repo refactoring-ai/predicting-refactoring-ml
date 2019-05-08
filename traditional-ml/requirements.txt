@@ -5,3 +5,5 @@ numpy
 imblearn
 configparser
 joblib
+keras
+tensorflow
