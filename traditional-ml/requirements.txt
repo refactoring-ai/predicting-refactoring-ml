@@ -4,3 +4,4 @@ sklearn
 numpy
 imblearn
 configparser
+joblib
