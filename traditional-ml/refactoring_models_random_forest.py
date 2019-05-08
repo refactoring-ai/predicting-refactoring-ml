@@ -1,7 +1,9 @@
 import db
+import os
+import joblib
 import pandas as pd
 
-from ml_utils import perform_under_sampling
+from ml_utils import perform_under_sampling, create_persistence_file_name
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
@@ -29,12 +31,21 @@ def run_random_forest(m_refactoring, refactorings, non_refactored_methods, f):
     scaler = MinMaxScaler()  #default behavior scales data to the following range: (0,1)
     balanced_x = scaler.fit_transform(balanced_x)
 
-    #create random forest classifier object
+    #create or load random forest classifier object
     print("Starting to build the random forest model for %s" % m_refactoring)
-    #use all available cores by setting n_jobs=-1.
-    model = RandomForestClassifier(random_state=42, n_jobs=-1)
-    #train model
-    model.fit(balanced_x, balanced_y)
+    #load existing model or create and persist a new one 
+    persistence_file_name_without_extension = create_persistence_file_name(f, m_refactoring)
+    if(os.path.isfile(persistence_file_name_without_extension  + '.joblib')):
+        print("Loading preexisting model for %s" % m_refactoring)
+        model = joblib.load(persistence_file_name_without_extension + '.joblib')
+    else:
+        print("Building model for %s" % m_refactoring)
+        #use all available cores by setting n_jobs=-1.
+        model = RandomForestClassifier(random_state=42, n_jobs=-1)
+        #fit model
+        model.fit(balanced_x, balanced_y)
+        #save model to file
+        joblib.dump(model, persistence_file_name_without_extension + '.joblib') 
     
     #perform 10-fold validation 
     scores = cross_val_score(model, balanced_x, balanced_y, cv=10)
