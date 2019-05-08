@@ -1,11 +1,13 @@
 import db
+import os
+import joblib
 import pandas as pd
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import LinearSVC
 from sklearn import svm
 from sklearn.model_selection import cross_val_score, GridSearchCV
-from ml_utils import perform_under_sampling
+from ml_utils import perform_under_sampling, create_persistence_file_name
 
 def run_svm(m_refactoring, refactorings, non_refactored_methods, f):
     assert refactorings.shape[0] > 0, "No refactorings found"
@@ -30,16 +32,25 @@ def run_svm(m_refactoring, refactorings, non_refactored_methods, f):
     scaler = MinMaxScaler()  # Default behavior is to scale to [0,1]
     balanced_x = scaler.fit_transform(balanced_x)
 
-    # create the linear SVM model
+    #create (or load) the linear SVM model
     print("Starting the SVM training for %s" % m_refactoring)
-    model = LinearSVC()
+    persistence_file_name_without_extension = create_persistence_file_name(f, m_refactoring)
+    if(os.path.isfile(persistence_file_name_without_extension  + '.joblib')):
+        print("Loading preexisting model for %s" % m_refactoring)
+        model = joblib.load(persistence_file_name_without_extension + '.joblib')
+    else:
+        print("Building model for %s" % m_refactoring)
+        model = LinearSVC()
+        #fit model
+        model.fit(balanced_x, balanced_y)
+        #save model to file
+        joblib.dump(model, persistence_file_name_without_extension + '.joblib') 
 
     # apply 10-fold validation
     scores = cross_val_score(model, balanced_x, balanced_y, cv=10)
     print(scores)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
-    model.fit(balanced_x, balanced_y)
     print("Features")
     print(model.coef_)
 
