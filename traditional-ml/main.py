@@ -37,7 +37,7 @@ def build_model(model_name, refactoring_level, counts_function, refactoring_get_
 
 print("[STARTING...]")
 #models/algorithms we use so far
-models = ['svm', 'decision-tree', 'random-forest']
+models = ['svm', 'decision-tree', 'random-forest', 'deep-learning']
 
 #method level
 print("[BUILDING METHOD-LEVEL MODELS]")
