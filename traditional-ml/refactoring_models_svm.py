@@ -54,6 +54,18 @@ def run_svm(m_refactoring, refactorings, non_refactored_methods, f):
     print("Features")
     print(model.coef_)
 
+    precision = cross_val_score(model, balanced_x, balanced_y, scoring='precision', cv=10)
+    recall = cross_val_score(model, balanced_x, balanced_y, scoring='recall', cv=10)
+    precision_scores_str = "Precision scores: " + ', '.join(list([f"{e:.2f}" for e in precision]))
+    precision_scores_str += f'\n(Min and max: {precision.min():.2f} and {precision.max():.2f})'
+    precision_scores_str += f'\nMean precision: {precision.mean():.2f}'
+    recall_scores_str = "Recall scores: " + ', '.join(list([f"{e:.2f}" for e in recall]))
+    recall_scores_str += f'\n(Min and max: {recall.min():.2f} and {recall.max():.2f})'
+    recall_scores_str += f'\nMean recall: {recall.mean():.2f}'
+    print(precision_scores_str)
+    print(recall_scores_str)
+    print("\n")
+
     f.write("\n---\n")
     f.write(m_refactoring + "\n")
     f.write("instances: %d\n" % refactorings.shape[0])
@@ -63,6 +75,10 @@ def run_svm(m_refactoring, refactorings, non_refactored_methods, f):
     f.write("\n")
     f.write("Coefficients:\n")
     f.write(''.join(str(e) for e in model.coef_.tolist()))
+    f.write("\n")
+    f.write(precision_scores_str)
+    f.write("\n")
+    f.write(recall_scores_str)
     f.write("\n---\n")
 
     return model
