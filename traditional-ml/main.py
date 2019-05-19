@@ -6,7 +6,7 @@ import db
 def build_model(dataset, model_name, refactoring_level, counts_function, refactoring_get_function, non_refactored_function):
     file_name = "results-" + refactoring_level + "-" + model_name + "-" + ("all" if dataset == "" else dataset) + ".txt"
     f = open(file_name, "w+")
-    counts = counts_function()
+    counts = counts_function(dataset)
     for refactoring_name in counts["refactoring"].values:
         try:
             print("Refactoring %s" % refactoring_name)

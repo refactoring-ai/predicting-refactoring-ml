@@ -1,30 +1,52 @@
 from db_utils import execute_query
 
-# get all the different types of refactoring we have in our entire dataset
-# (**not** divided by project groups, e.g., apache, github)
-def get_refactoring_types():
-    sql = "SELECT refactoring, count(*) total from yes group by refactoring order by count(*)"
+
+def get_refactoring_types(dataset = ""):
+    if dataset=="":
+        sql = "SELECT refactoring, count(*) total from yes group by refactoring order by count(*)"
+    else:
+        sql = "SELECT refactoring, count(*) total from yes where project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)";
+
     df = execute_query(sql)
     return df
 
 
-def get_class_level_refactorings_count():
-    sql = "SELECT refactoring, count(*) total from yes where refactoringType = 1 group by refactoring order by count(*)"
+def get_class_level_refactorings_count(dataset = ""):
+    if dataset=="":
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 1 group by refactoring order by count(*)"
+    else:
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 1 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)"
+
     df = execute_query(sql)
     return df
 
-def get_method_level_refactorings_count():
-    sql = "SELECT refactoring, count(*) total from yes where refactoringType = 2 group by refactoring order by count(*)"
+
+def get_method_level_refactorings_count(dataset = ""):
+    if dataset=="":
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 2 group by refactoring order by count(*)"
+    else:
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 2 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)"
+
     df = execute_query(sql)
     return df
 
-def get_variable_level_refactorings_count():
-    sql = "SELECT refactoring, count(*) total from yes where refactoringType = 3 group by refactoring order by count(*)"
+
+def get_variable_level_refactorings_count(dataset = ""):
+    if dataset=="":
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 3 group by refactoring order by count(*)"
+    else:
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 3 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)"
+
     df = execute_query(sql)
     return df
 
-def get_field_level_refactorings_count():
-    sql = "SELECT refactoring, count(*) total from yes where refactoringType = 4 group by refactoring order by count(*)"
+
+def get_field_level_refactorings_count(dataset = ""):
+    if dataset=="":
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 4 group by refactoring order by count(*)"
+    else:
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 4 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)"
+
     df = execute_query(sql)
     return df
 
