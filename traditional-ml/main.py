@@ -12,12 +12,16 @@ def build_model(dataset, model_name, refactoring_level, counts_function, refacto
             print("Refactoring %s" % refactoring_name)
 
             # get all refactoring examples we have in our dataset
-            refactorings = refactoring_get_function(refactoring_name, dataset)
-            assert refactorings.shape[0] == counts.loc[counts['refactoring'] == refactoring_name].iloc[0][1]
+            refactored_instances = refactoring_get_function(refactoring_name, dataset)
 
             # load non-refactoring examples
-            non_refactored_fields = non_refactored_function(dataset)
+            non_refactored_instances = non_refactored_function(dataset)
 
+            # if there' still a row with NAs, drop it as it'll cause a failure later on.
+            refactored_instances.dropna()
+            non_refactored_instances.dropna()
+
+            # find the right method for the model
             method_name = 'run_' + model_name.replace("-", "_")
             possibles = globals().copy()
             possibles.update(locals())
@@ -25,7 +29,7 @@ def build_model(dataset, model_name, refactoring_level, counts_function, refacto
             if not method:
                 raise NotImplementedError("Method %s not implemented" % method_name)
             # build model
-            method(refactoring_name, refactorings, non_refactored_fields, f)
+            method(refactoring_name, refactored_instances, non_refactored_instances, f)
         except Exception as e:
             print("An error occured while building " + model_name.replace('-', ' ') + " model")
             print(str(e))
