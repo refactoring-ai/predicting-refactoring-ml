@@ -18,8 +18,14 @@ def build_model(dataset, model_name, refactoring_level, counts_function, refacto
             non_refactored_instances = non_refactored_function(dataset)
 
             # if there' still a row with NAs, drop it as it'll cause a failure later on.
-            refactored_instances.dropna()
-            non_refactored_instances.dropna()
+            f.write("refactoring instances: " + refactored_instances.shape[0] + "\n")
+            f.write("not refactoring instances: " + non_refactored_instances.shape[0] + "\n")
+
+            refactored_instances = refactored_instances.dropna()
+            non_refactored_instances = non_refactored_instances.dropna()
+
+            f.write("refactoring instance(after dropping NA)s (after dropping NA): " + refactored_instances.shape[0] + "\n")
+            f.write("not refactoring instances: " + non_refactored_instances.shape[0] + "\n\n")
 
             # find the right method for the model
             method_name = 'run_' + model_name.replace("-", "_")
