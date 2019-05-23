@@ -2,7 +2,7 @@
 
 export IFS=","
 
-if [ "$#" -ne 7 ]; then
+if [ "$#" -ne 8 ]; then
   echo "wrong usage" >&2
   exit 1
 fi
@@ -18,6 +18,7 @@ URL=$4
 USER=$5
 PWD=$6
 STORAGE_MACHINE=$7
+THRESHOLD=$8
 
 
 mkdir $OUTPUT_PATH
@@ -40,7 +41,7 @@ cat $PROJECTS_CSV_PATH | while
 
 		echo "Running refactoring analyzer"
 
-		java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD >> log.txt 2>> error.txt
+		java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD $THRESHOLD >> log.txt 2>> error.txt
 		if [ $? -eq 0 ]
 		then
 			echo "Packing the java files"

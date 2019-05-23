@@ -42,17 +42,20 @@ public class App {
 
 	RevCommit commitDataToProcess;
 	List<Refactoring> refactoringsToProcess;
+	private int threshold;
 
 	public App (String datasetName,
 	            String clonePath,
 	            String gitUrl,
 	            String filesStoragePath,
+	            int threshold,
 	            Database db) {
 
 		this.datasetName = datasetName;
 		this.clonePath = clonePath;
 		this.gitUrl = gitUrl;
 		this.filesStoragePath = filesStoragePath;
+		this.threshold = threshold;
 		this.db = db;
 	}
 
@@ -68,6 +71,8 @@ public class App {
 		String url;
 		String user;
 		String pwd;
+		int threshold;
+
 
 		if(test) {
 			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
@@ -77,10 +82,11 @@ public class App {
 			url = "jdbc:mysql://localhost:3306/refactoring2?useSSL=false";
 			user = "root";
 			pwd = "";
+			threshold = 50;
 
 		} else {
-			if (args == null || args.length != 6) {
-				System.out.println("6 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd)");
+			if (args == null || args.length != 7) {
+				System.out.println("7 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold)");
 				System.exit(-1);
 			}
 
@@ -91,6 +97,7 @@ public class App {
 			url = args[3] + "?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; // our servers config.
 			user = args[4];
 			pwd = args[5];
+			threshold = Integer.parseInt(args[6]);
 		}
 
 		String newTmpDir = Files.createTempDir().getAbsolutePath();
@@ -113,7 +120,7 @@ public class App {
 
 		try {
 			new App(datasetName, clonePath, gitUrl,
-					filesStoragePath, db).run();
+					filesStoragePath, threshold, db).run();
 		} finally {
 			cleanTmpDir(newTmpDir);
 		}
@@ -148,7 +155,7 @@ public class App {
 		// if it is changed by 10% of the commits without being refactored.
 		// NEW CHANGE: Fixing the threshold in 50 commits
 		int numberOfCommits = numberOfCommits(git);
-		int commitThreshold = 50; //(int) (numberOfCommits * 0.01);
+		int commitThreshold = threshold; //(int) (numberOfCommits * 0.01);
 
 		String lastCommitHash = getHead(git);
 
