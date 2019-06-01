@@ -46,7 +46,7 @@ def build_model(dataset, model_name, refactoring_level, counts_function, refacto
 
 print("[STARTING...]")
 # models/algorithms we use so far
-models = ['svm', 'decision-tree', 'random-forest', 'deep-learning']
+models = ['logistic_regression','svm', 'decision-tree', 'random-forest', 'deep-learning']
 datasets = ['', 'apache', 'github', 'fdroid']
 
 for model in models:
