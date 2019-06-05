@@ -29,7 +29,7 @@ def find_model_method(model_name):
 
 
 def save_model(model, model_name, dataset, refactoring_name):
-    joblib.dump(model, ("model-%s-%s-%s.joblib", model_name, dataset, refactoring_name))
+    joblib.dump(model, ("model-%s-%s-%s.joblib" % model_name, dataset, refactoring_name))
 
 
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
