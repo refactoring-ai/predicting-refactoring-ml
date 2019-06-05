@@ -71,24 +71,28 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 balanced_x = scaler.fit_transform(balanced_x)
 
                 for model_name in models:
-                    f.write("\n\n- Model: %s\n\n" % model_name)
-                    print("- %s" % model_name)
+                    try:
+                        f.write("\n\n- Model: %s\n\n" % model_name)
+                        print("- %s" % model_name)
 
-                    method_name = 'run_' + model_name.replace("-", "_")
-                    model = None
+                        method_name = 'run_' + model_name.replace("-", "_")
+                        model = None
 
-                    if method_name == 'run_svm':
-                        model = run_svm(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
-                    elif method_name == 'run_random_forest':
-                        model = run_random_forest(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
-                    elif method_name == 'run_decision_tree':
-                        model = run_decision_tree(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
-                    elif method_name == 'run_deep_learning':
-                        model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
-                    elif method_name == 'run_logistic_regression':
-                        model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                        if method_name == 'run_svm':
+                            model = run_svm(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                        elif method_name == 'run_random_forest':
+                            model = run_random_forest(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                        elif method_name == 'run_decision_tree':
+                            model = run_decision_tree(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                        elif method_name == 'run_deep_learning':
+                            model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                        elif method_name == 'run_logistic_regression':
+                            model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
 
-                    save_model(model, model_name, dataset, refactoring_name)
+                        save_model(model, model_name, dataset, refactoring_name)
+                    except Exception as e:
+                        print("An error occured while working on refactoring " + refactoring_name + " model " + model_name)
+                        print(e)
 
             except Exception as e:
                 print("An error occured while working on refactoring " + refactoring_name)
