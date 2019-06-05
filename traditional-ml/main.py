@@ -1,35 +1,19 @@
 import sys
 
-import joblib
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 import db
-from ml_utils import perform_under_sampling
-
-from refactoring_models_svm import run_svm
+from ml_utils import perform_under_sampling, save_model
 from refactoring_models_decision_tree import run_decision_tree
-from refactoring_models_random_forest import run_random_forest
 from refactoring_models_deep_learning import run_deep_learning
-
+from refactoring_models_random_forest import run_random_forest
+from refactoring_models_svm import run_svm
 
 # all the models and datasets we have available
 models = ['logistic_regression', 'svm', 'decision-tree', 'random-forest', 'deep-learning']
 datasets = ['', 'apache', 'github', 'fdroid']
 
-
-def find_model_method(model_name):
-    method_name = 'run_' + model_name.replace("-", "_")
-    possibles = globals().copy()
-    possibles.update(locals())
-    method = possibles.get(method_name)
-    if not method:
-        raise NotImplementedError("Method %s not implemented" % method_name)
-    return method
-
-
-def save_model(model, model_name, dataset, refactoring_name):
-    joblib.dump(model, ("model-%s-%s-%s.joblib" % model_name, dataset, refactoring_name))
 
 
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
@@ -89,7 +73,6 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                     f.write("\n\n- Model: %s\n\n" % model_name)
                     print("- %s" % model_name)
 
-                    # method = find_model_method(model_name)
                     method_name = 'run_' + model_name.replace("-", "_")
                     model = None
 
@@ -101,6 +84,8 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                         model = run_decision_tree(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                     elif method_name == 'run_deep_learning':
                         model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                    elif method_name == 'run_logistic_regression':
+                        model = run_random_forest(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
 
                     save_model(model, model_name, dataset, refactoring_name)
 

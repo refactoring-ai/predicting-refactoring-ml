@@ -1,10 +1,18 @@
 import os
+
+import joblib
 from imblearn.under_sampling import RandomUnderSampler
 import numpy as np
 import matplotlib.pyplot as plt
 
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
+
+
+def save_model(model, model_name, dataset, refactoring_name):
+    file_name = "model-%s-%s-%s.joblib" % (model_name, dataset, refactoring_name)
+    joblib.dump(model, file_name)
+
 
 #more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html
 def perform_under_sampling(x, y):

@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def run_logistic_regression(x, y, f, refactoring_name):
+def run_logistic_regression(x, columns, y, f, refactoring_name):
 
     model = LogisticRegression()
 
@@ -65,7 +65,7 @@ def run_logistic_regression(x, y, f, refactoring_name):
 
     f.write("Accuracy: %0.2f (+/- %0.2f)\n" % (scores.mean(), scores.std() * 2))
     f.write("\nFeatures:\n")
-    f.write(', '.join(str(e) for e in list(x.columns.values)))
+    f.write(', '.join(str(e) for e in list(columns)))
     f.write("\n")
     f.write("Coefficients:\n")
     f.write(''.join(str(e) for e in model.coef_.tolist()))
