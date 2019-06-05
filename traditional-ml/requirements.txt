@@ -7,3 +7,5 @@ configparser
 joblib
 keras
 tensorflow
+matplotlib
+scipy

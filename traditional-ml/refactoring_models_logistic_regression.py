@@ -1,10 +1,52 @@
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_val_score
+from sklearn.utils.multiclass import unique_labels
+from sklearn.model_selection import cross_val_score, train_test_split, RandomizedSearchCV
+from ml_utils import plot_confusion_matrix
+from random import uniform
+import json
+import warnings
+
+warnings.filterwarnings("ignore")
 
 
-def run_logistic_regression(x, y, f):
+def run_logistic_regression(x, y, f, refactoring_name):
 
     model = LogisticRegression()
+
+    param_dist = {"penalty": ["l1", "l2", "elasticnet", "none"],
+                  "dual": [True, False],
+                  "C": uniform(0.01, 10),
+                  "solver": ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
+                  "multi_class": ["ovr", "multinomial", "auto"]}
+
+    # run randomized search
+    print("Performing hyper parameter tuning")
+    n_iter_search = 100
+    tuned_model = RandomizedSearchCV(model, param_distributions=param_dist,
+                                     n_iter=n_iter_search, cv=10, iid=False)
+
+    # split train and test data
+    X_train, X_test, y_train, y_test = train_test_split(x, y,
+                                                        test_size=0.3,
+                                                        random_state=42)
+    tuned_model.fit(X_train, y_train)
+
+    best_parameters = tuned_model.best_params_
+    f.write("\nHyperparametrization:\n")
+    f.write("Best parameters:\n")
+    f.write(json.dumps(best_parameters, indent=2))
+    print("Best parameters: " + json.dumps(best_parameters, indent=2))
+    best_result = tuned_model.best_score_
+    print("Best result: " + str(best_result))
+    f.write("Best result:\n")
+    f.write(str(best_result))
+
+    # plot confusion matrix
+    y_pred = tuned_model.predict(X_test)
+    classes = unique_labels(y_test, y_pred)
+    plot_confusion_matrix(y_test, y_pred, classes,
+                          title="{} with Random Forest".format(refactoring_name))
+
     model.fit(x, y)
 
     # apply 10-fold validation

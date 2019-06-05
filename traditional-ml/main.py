@@ -7,6 +7,12 @@ from sklearn.preprocessing import MinMaxScaler
 import db
 from ml_utils import perform_under_sampling
 
+from refactoring_models_svm import run_svm
+from refactoring_models_decision_tree import run_decision_tree
+from refactoring_models_random_forest import run_random_forest
+from refactoring_models_deep_learning import run_deep_learning
+
+
 # all the models and datasets we have available
 models = ['logistic_regression', 'svm', 'decision-tree', 'random-forest', 'deep-learning']
 datasets = ['', 'apache', 'github', 'fdroid']
@@ -44,16 +50,16 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 # load non-refactoring examples
                 non_refactored_instances = get_non_refactored_function(dataset)
 
-                f.write("refactoring instances: " + refactored_instances.shape[0] + "\n")
-                f.write("not refactoring instances: " + non_refactored_instances.shape[0] + "\n")
+                f.write("refactoring instances: " + str(refactored_instances.shape[0]) + "\n")
+                f.write("not refactoring instances: " + str(non_refactored_instances.shape[0]) + "\n")
 
                 # if there' still a row with NAs, drop it as it'll cause a failure later on.
                 refactored_instances = refactored_instances.dropna()
                 non_refactored_instances = non_refactored_instances.dropna()
 
-                f.write("refactoring instance(after dropping NA)s (after dropping NA): " + refactored_instances.shape[
-                    0] + "\n")
-                f.write("not refactoring instances: " + non_refactored_instances.shape[0] + "\n\n")
+                f.write("refactoring instance(after dropping NA)s (after dropping NA): " + str(refactored_instances.shape[
+                    0]) + "\n")
+                f.write("not refactoring instances: " + str(non_refactored_instances.shape[0]) + "\n\n")
 
                 assert refactored_instances.shape[0] > 0, "No refactorings found"
 
@@ -83,15 +89,20 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                     f.write("\n\n- Model: %s\n\n" % model_name)
                     print("- %s" % model_name)
 
-                    method = find_model_method(model_name)
-
-                    # build model
-                    try:
-                        model = method(balanced_x, balanced_y, f)
+                    # method = find_model_method(model_name)
+                    method_name = 'run_' + model_name.replace("-", "_")
+                    if method_name == 'run_svm':
+                        model = run_svm(balanced_x, balanced_y, f, refactoring_name)
                         save_model(model, model_name, dataset, refactoring_name)
-                    except:
-                        print("An error occured while building " + model_name.replace('-', ' ') + " model")
-                        print(str(e))
+                    elif method_name == 'run_random_forest':
+                        model = run_random_forest(balanced_x, balanced_y, f, refactoring_name)
+                        save_model(model, model_name, dataset, refactoring_name)
+                    elif method_name == 'run_decision_tree':
+                        model = run_decision_tree(balanced_x, balanced_y, f, refactoring_name)
+                        save_model(model, model_name, dataset, refactoring_name)
+                    elif method_name == 'run_deep_learning':
+                        model = run_deep_learning(balanced_x, balanced_y, f, refactoring_name)
+                        save_model(model, model_name, dataset, refactoring_name)
 
             except Exception as e:
                 print("An error occured while working on refactoring " + refactoring_name)
