@@ -7,6 +7,7 @@ import db
 from ml_utils import perform_under_sampling, save_model
 from refactoring_models_decision_tree import run_decision_tree
 from refactoring_models_deep_learning import run_deep_learning
+from refactoring_models_logistic_regression import run_logistic_regression
 from refactoring_models_random_forest import run_random_forest
 from refactoring_models_svm import run_svm
 
@@ -85,7 +86,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                     elif method_name == 'run_deep_learning':
                         model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                     elif method_name == 'run_logistic_regression':
-                        model = run_random_forest(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                        model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
 
                     save_model(model, model_name, dataset, refactoring_name)
 
