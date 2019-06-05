@@ -10,7 +10,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def run_svm(x, y, f, refactoring_name):
+def run_svm(x, columns, y, f, refactoring_name):
     model = SVC()
 
     param_dist = {"C": [uniform(0.01, 10) for i in range(0,10)],
@@ -65,7 +65,7 @@ def run_svm(x, y, f, refactoring_name):
 
     f.write("Accuracy: %0.2f (+/- %0.2f)\n" % (scores.mean(), scores.std() * 2))
     f.write("\nFeatures:\n")
-    f.write(', '.join(str(e) for e in list(x.columns.values)))
+    f.write(', '.join(str(e) for e in list(columns)))
     f.write("\n")
     f.write("Coefficients:\n")
     f.write(''.join(str(e) for e in tuned_model.coef_.tolist()))

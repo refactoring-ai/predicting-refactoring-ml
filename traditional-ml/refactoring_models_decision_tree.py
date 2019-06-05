@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def run_decision_tree(x, y, f, refactoring_name):
+def run_decision_tree(x, columns, y, f, refactoring_name):
     model = DecisionTreeClassifier(random_state=42)
 
     param_dist = {"max_depth": [3, 6, 12, 24, None],
@@ -55,9 +55,9 @@ def run_decision_tree(x, y, f, refactoring_name):
     scores = cross_val_score(tuned_model, x, y, cv=10)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
-    # show feature importances ANICHE
-    # feature_importances_str = ''.join(["%-33s: %-5.4f\n" % (feature, importance) for feature, importance in
-    #                                    zip(x.columns.values, tuned_model.feature_importances_)])
+    # show feature importances
+    feature_importances_str = ''.join(["%-33s: %-5.4f\n" % (feature, importance) for feature, importance in
+                                       zip(columns, tuned_model.feature_importances_)])
 
     precision = cross_val_score(tuned_model, x, y, scoring='precision', cv=10)
     recall = cross_val_score(tuned_model, x, y, scoring='recall', cv=10)
@@ -70,10 +70,9 @@ def run_decision_tree(x, y, f, refactoring_name):
 
     # output results to file
     f.write("Accuracy: %0.2f (+/- %0.2f)\n" % (scores.mean(), scores.std() * 2))
-    # ANICHE
-    # f.write("\nFeature Importances\n")
-    # f.write(feature_importances_str)
-    # f.write("\n")
+    f.write("\nFeature Importances\n")
+    f.write(feature_importances_str)
+    f.write("\n")
     f.write(precision_scores_str)
     f.write("\n")
     f.write(recall_scores_str)

@@ -2,7 +2,7 @@ from keras.layers import Dense, Activation
 from keras.models import Sequential
 
 
-def run_deep_learning(x, y, f):
+def run_deep_learning(x, columns, y, f):
 
     #network architecture
     model = Sequential()

@@ -92,17 +92,15 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                     # method = find_model_method(model_name)
                     method_name = 'run_' + model_name.replace("-", "_")
                     if method_name == 'run_svm':
-                        model = run_svm(balanced_x, balanced_y, f, refactoring_name)
-                        save_model(model, model_name, dataset, refactoring_name)
+                        model = run_svm(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                     elif method_name == 'run_random_forest':
-                        model = run_random_forest(balanced_x, balanced_y, f, refactoring_name)
-                        save_model(model, model_name, dataset, refactoring_name)
+                        model = run_random_forest(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                     elif method_name == 'run_decision_tree':
-                        model = run_decision_tree(balanced_x, balanced_y, f, refactoring_name)
-                        save_model(model, model_name, dataset, refactoring_name)
+                        model = run_decision_tree(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                     elif method_name == 'run_deep_learning':
-                        model = run_deep_learning(balanced_x, balanced_y, f, refactoring_name)
-                        save_model(model, model_name, dataset, refactoring_name)
+                        model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+
+                    save_model(model, model_name, dataset, refactoring_name)
 
             except Exception as e:
                 print("An error occured while working on refactoring " + refactoring_name)
