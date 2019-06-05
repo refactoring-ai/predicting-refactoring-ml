@@ -12,7 +12,7 @@ from refactoring_models_random_forest import run_random_forest
 from refactoring_models_svm import run_svm
 
 # all the models and datasets we have available
-models = ['logistic_regression', 'svm', 'decision-tree', 'random-forest', 'deep-learning']
+models = ['logistic-regression', 'svm', 'decision-tree', 'random-forest', 'deep-learning']
 datasets = ['', 'apache', 'github', 'fdroid']
 
 
@@ -75,18 +75,17 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                         f.write("\n\n- Model: %s\n\n" % model_name)
                         print("- %s" % model_name)
 
-                        method_name = 'run_' + model_name.replace("-", "_")
                         model = None
 
-                        if method_name == 'run_svm':
+                        if model_name == 'svm':
                             model = run_svm(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
-                        elif method_name == 'run_random_forest':
+                        elif model_name == 'random-forest':
                             model = run_random_forest(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
-                        elif method_name == 'run_decision_tree':
+                        elif model_name == 'decision-tree':
                             model = run_decision_tree(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
-                        elif method_name == 'run_deep_learning':
+                        elif model_name == 'deep-learning':
                             model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
-                        elif method_name == 'run_logistic_regression':
+                        elif model_name == 'logistic-regression':
                             model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
 
                         save_model(model, model_name, dataset, refactoring_name)
