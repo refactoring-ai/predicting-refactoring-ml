@@ -92,7 +92,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                     # method = find_model_method(model_name)
                     method_name = 'run_' + model_name.replace("-", "_")
                     model = None
-                    
+
                     if method_name == 'run_svm':
                         model = run_svm(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                     elif method_name == 'run_random_forest':
@@ -106,7 +106,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
 
             except Exception as e:
                 print("An error occured while working on refactoring " + refactoring_name)
-                print(str(e))
+                print(e)
 
             sys.stdout.flush()
         f.close()
