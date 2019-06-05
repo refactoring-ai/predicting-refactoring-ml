@@ -15,7 +15,7 @@ def run_logistic_regression(x, columns, y, f, refactoring_name):
 
     param_dist = {"penalty": ["l1", "l2", "elasticnet", "none"],
                   "dual": [True, False],
-                  "C": uniform(0.01, 10),
+                  "C": [uniform(0.01, 10) for i in range(0,10)],
                   "solver": ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
                   "multi_class": ["ovr", "multinomial", "auto"]}
 
