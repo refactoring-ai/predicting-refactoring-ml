@@ -76,4 +76,4 @@ def run_logistic_regression(x, columns, y, f, refactoring_name, cm=False):
     f.write("\n")
     f.write(recall_scores_str)
 
-    return tuned_model.best_estimator_
+    return best_model
