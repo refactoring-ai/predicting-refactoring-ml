@@ -89,8 +89,10 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                             model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
 
                         save_model(model, model_name, dataset, refactoring_name)
+                        sys.stdout.flush()
+                        f.flush()
                     except Exception as e:
-                        print("An error occured while working on refactoring " + refactoring_name + " model " + model_name)
+                        print("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
                         print(e)
 
             except Exception as e:
@@ -98,6 +100,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 print(e)
 
             sys.stdout.flush()
+            f.flush()
         f.close()
 
 
