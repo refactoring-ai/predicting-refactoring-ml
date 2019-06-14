@@ -12,7 +12,7 @@ from refactoring_models_random_forest import run_random_forest
 from refactoring_models_svm import run_svm
 
 # all the models and datasets we have available
-models = ['logistic-regression', 'svm', 'decision-tree', 'random-forest', 'deep-learning']
+models = ['logistic-regression', 'svm', 'decision-tree', 'random-forest']
 datasets = ['', 'apache', 'github', 'fdroid']
 
 
