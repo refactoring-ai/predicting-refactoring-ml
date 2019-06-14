@@ -8,11 +8,11 @@ from warnings import simplefilter
 
 simplefilter(action='ignore', category=FutureWarning)
 
-def run_logistic_regression(x, columns, y, f, refactoring_name, cm=False):
 
+def run_logistic_regression(x, columns, y, f, refactoring_name, cm=False):
     model = LogisticRegression(solver='lbfgs', max_iter=3000)
 
-    param_dist = {"C": [uniform(0.01, 100) for i in range(0,10)]}
+    param_dist = {"C": [uniform(0.01, 100) for i in range(0, 10)]}
 
     # run randomized search
     print("Performing hyper parameter tuning")
@@ -36,7 +36,6 @@ def run_logistic_regression(x, columns, y, f, refactoring_name, cm=False):
         classes = unique_labels(y_test, y_pred)
         plot_confusion_matrix(y_test, y_pred, classes,
                               title="{} with Logistic Regression".format(refactoring_name))
-    
 
     best_parameters = tuned_model.best_params_
     f.write("\nHyperparametrization:\n")
@@ -49,8 +48,12 @@ def run_logistic_regression(x, columns, y, f, refactoring_name, cm=False):
     f.write(str(best_result))
 
 
+    # create a clean model, now with the best parameters
+    best_model = LogisticRegression(solver='lbfgs', max_iter=3000, C=tuned_model.best_params_["C"])
+
     # apply 10-fold validation
-    scores = cross_validate(tuned_model, x, y, cv=10, n_jobs=-1,
+
+    scores = cross_validate(best_model, x, y, cv=10, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
     print(scores)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2))
