@@ -20,7 +20,7 @@ datasets = ['', 'apache', 'github', 'fdroid']
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
     for dataset in datasets:
 
-        file_name = "results-" + refactoring_level + "-" + ("all" if dataset == "" else dataset) + ".txt"
+        file_name = "results/results-" + refactoring_level + "-" + ("all" if dataset == "" else dataset) + ".txt"
         f = open(file_name, "w+")
 
         counts = counts_function(dataset)
