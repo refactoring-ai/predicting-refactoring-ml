@@ -10,17 +10,19 @@ from sklearn.utils.multiclass import unique_labels
 
 
 def save_model(model, model_name, dataset, refactoring_name):
-    file_name = "results/model-%s-%s-%s.joblib" % (model_name, dataset, refactoring_name)
+    file_name = "results/model-" + model_name + "-" + dataset + "-" + refactoring_name + ".joblib"
     joblib.dump(model, file_name)
 
 
-#more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html
+# more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html
 def perform_under_sampling(x, y):
-    rus = RandomUnderSampler(random_state=42) # 42 is a random number, just to ensure our results are reproducible
+    rus = RandomUnderSampler(random_state=42)  # 42 is a random number, just to ensure our results are reproducible
     return rus.fit_resample(x, y)
+
 
 def create_persistence_file_name(f, m_refactoring):
     return os.path.splitext(f.name)[0] + '--' + m_refactoring.lower().replace(' ', '-')
+
 
 def plot_confusion_matrix(y_true, y_pred, classes,
                           normalize=False,
