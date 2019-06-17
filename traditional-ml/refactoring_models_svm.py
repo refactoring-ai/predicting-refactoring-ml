@@ -56,7 +56,7 @@ def run_svm(x, columns, y, f, refactoring_name, cm=False):
     scores = cross_validate(best_model, x, y, cv=10, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
 
-    print_scores_1(scores, best_model, columns, f)
+    print_scores_1(scores, tuned_model.best_estimator_, columns, f)
 
     return tuned_model.best_estimator_
 

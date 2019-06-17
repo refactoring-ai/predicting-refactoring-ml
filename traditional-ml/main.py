@@ -22,13 +22,14 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
 
         file_name = "results/results-" + refactoring_level + "-" + ("all" if dataset == "" else dataset) + ".txt"
         f = open(file_name, "w+")
+        f.write(dataset + "\n\n")
 
         counts = counts_function(dataset)
         for refactoring_name in counts["refactoring"].values:
 
             if not refactoring_name == "Extract And Move Method":
                 continue
-                
+
             try:
                 f.write("\n\n**** %s\n\n" % refactoring_name)
                 print("Refactoring %s" % refactoring_name)
