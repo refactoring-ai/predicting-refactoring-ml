@@ -48,12 +48,12 @@ def run_svm(x, columns, y, f, refactoring_name, cm=False):
 
     # apply 10-fold validation
     # create a clean model, now with the best parameters
-    best_model = SVC(C=tuned_model.best_params_["C"], kernel=tuned_model.best_params_["kernel"],
+    model_for_cv = SVC(C=tuned_model.best_params_["C"], kernel=tuned_model.best_params_["kernel"],
                      degree=tuned_model.best_params_["degree"], gamma=tuned_model.best_params_["gamma"],
                      decision_function_shape=tuned_model.best_params_["decision_function_shape"])
 
     # apply 10-fold validation
-    scores = cross_validate(best_model, x, y, cv=10, n_jobs=-1,
+    scores = cross_validate(model_for_cv, x, y, cv=10, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
 
     print_scores_1(scores, tuned_model.best_estimator_, columns, f)

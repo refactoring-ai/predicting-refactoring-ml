@@ -46,15 +46,15 @@ def run_random_forest(x, columns, y, f, refactoring_name, cm=False):
                               title="{} with Random Forest".format(refactoring_name))
 
     # perform 10-fold validation
-    best_model = RandomForestClassifier(random_state=42, n_jobs=-1,
+    model_for_cv = RandomForestClassifier(random_state=42, n_jobs=-1,
                                         max_depth=tuned_model.best_params_["max_depth"],max_features=tuned_model.best_params_["max_features"],
                                         min_samples_split=tuned_model.best_params_["min_samples_split"], bootstrap=tuned_model.best_params_["bootstrap"],
                                         criterion=tuned_model.best_params_["criterion"])
 
-    scores = cross_validate(best_model, x, y, cv=10, n_jobs=-1,
+    scores = cross_validate(model_for_cv, x, y, cv=10, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
 
-    print_scores_2(best_model, columns, f, scores)
+    print_scores_2(tuned_model.best_estimator_, columns, f, scores)
 
     return tuned_model.best_estimator_
 

@@ -43,10 +43,10 @@ def run_logistic_regression(x, columns, y, f, refactoring_name, cm=False):
                               title="{} with Logistic Regression".format(refactoring_name))
 
     # create a clean model, now with the best parameters
-    best_model = LogisticRegression(solver='lbfgs', max_iter=3000, C=tuned_model.best_params_["C"])
+    model_for_cv = LogisticRegression(solver='lbfgs', max_iter=3000, C=tuned_model.best_params_["C"])
 
     # apply 10-fold validation
-    scores = cross_validate(best_model, x, y, cv=10, n_jobs=-1,
+    scores = cross_validate(model_for_cv, x, y, cv=10, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
 
     print_scores_1(scores, tuned_model.best_estimator_, columns, f)
