@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
@@ -14,7 +15,6 @@ from refactoring_models_svm import run_svm
 # all the models and datasets we have available
 models = ['logistic-regression', 'svm', 'decision-tree', 'random-forest']
 datasets = ['', 'apache', 'github', 'fdroid']
-
 
 
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
@@ -94,10 +94,12 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                     except Exception as e:
                         print("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
                         print(e)
+                        print(traceback.format_exc())
 
             except Exception as e:
                 print("An error occured while working on refactoring " + refactoring_name)
                 print(e)
+                print(traceback.format_exc())
 
             sys.stdout.flush()
             f.flush()
