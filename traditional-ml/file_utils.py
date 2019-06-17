@@ -2,7 +2,6 @@ import json
 
 
 def print_scores_1(scores, best_model, columns, f):
-    print(scores)
     accuracy_str = "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
     print(accuracy_str)
 
