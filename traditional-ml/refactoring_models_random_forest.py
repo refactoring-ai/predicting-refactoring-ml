@@ -56,5 +56,5 @@ def run_random_forest(x, columns, y, f, refactoring_name, cm=False):
 
     print_scores_2(best_model, columns, f, scores)
 
-    return tuned_model
+    return tuned_model.best_estimator_
 

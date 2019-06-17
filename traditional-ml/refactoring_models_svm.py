@@ -58,5 +58,5 @@ def run_svm(x, columns, y, f, refactoring_name, cm=False):
 
     print_scores_1(scores, best_model, columns, f)
 
-    return tuned_model
+    return tuned_model.best_estimator_
 
