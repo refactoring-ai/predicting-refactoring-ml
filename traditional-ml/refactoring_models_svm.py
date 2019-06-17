@@ -17,7 +17,7 @@ def run_svm(x, columns, y, f, refactoring_name, cm=False):
 
     # run randomized search
     param_dist = {"C": [uniform(0.01, 10) for i in range(0, 10)],
-                  "kernel": ["linear", "poly", "rbf", "sigmoid"],
+                  "kernel": ["linear"], #, "poly", "rbf", "sigmoid"
                   "degree": randint(2, 5),
                   "gamma": [uniform(0.01, 10) for i in range(0, 10)],
                   "decision_function_shape": ["ovo", "ovr"]}
