@@ -3,7 +3,8 @@ import json
 
 def print_scores_1(scores, best_model, columns, f):
     print(scores)
-    print("Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2))
+    accuracy_str = "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
+    print(accuracy_str)
 
     precision_scores_str = "Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']]))
     precision_scores_str += f'\n(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})'
@@ -12,7 +13,7 @@ def print_scores_1(scores, best_model, columns, f):
     recall_scores_str += f'\n(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})'
     recall_scores_str += f'\nMean recall: {scores["test_recall"].mean():.2f}'
 
-    f.write("Accuracy: %0.2f (+/- %0.2f)\n" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2))
+    f.write(accuracy_str)
     f.write("\nFeatures:\n")
     f.write(', '.join(str(e) for e in list(columns)))
     f.write("\n")
