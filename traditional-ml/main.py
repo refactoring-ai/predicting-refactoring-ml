@@ -20,6 +20,9 @@ datasets = ['', 'apache', 'github', 'fdroid']
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
     for dataset in datasets:
 
+        if not dataset == '':
+            continue
+
         file_name = "results/results-" + refactoring_level + "-" + ("all" if dataset == "" else dataset) + ".txt"
         f = open(file_name, "w+")
         f.write(dataset + "\n\n")
