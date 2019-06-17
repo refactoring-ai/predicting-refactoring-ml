@@ -26,7 +26,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
         counts = counts_function(dataset)
         for refactoring_name in counts["refactoring"].values:
             try:
-                f.write("**** %s\n\n" % refactoring_name)
+                f.write("\n\n**** %s\n\n" % refactoring_name)
                 print("Refactoring %s" % refactoring_name)
 
                 # get all refactoring examples we have in our dataset
@@ -42,7 +42,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 refactored_instances = refactored_instances.dropna()
                 non_refactored_instances = non_refactored_instances.dropna()
 
-                f.write("refactoring instance(after dropping NA)s (after dropping NA): " + str(refactored_instances.shape[
+                f.write("refactoring instance(after dropping NA)s: " + str(refactored_instances.shape[
                     0]) + "\n")
                 f.write("not refactoring instances: " + str(non_refactored_instances.shape[0]) + "\n\n")
 

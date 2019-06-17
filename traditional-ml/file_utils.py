@@ -22,6 +22,7 @@ def print_scores_1(scores, best_model, columns, f):
     f.write(precision_scores_str)
     f.write("\n")
     f.write(recall_scores_str)
+    f.write("\n")
 
 
 def print_scores_2(best_model, columns, f, scores):
@@ -46,6 +47,7 @@ def print_scores_2(best_model, columns, f, scores):
     f.write(precision_scores_str)
     f.write("\n")
     f.write(recall_scores_str)
+    f.write("\n")
 
 
 def print_best_parameters(f, tuned_model):
@@ -58,3 +60,4 @@ def print_best_parameters(f, tuned_model):
     print("Best result: " + str(best_result))
     f.write("Best result:\n")
     f.write(str(best_result))
+    f.write("\n")
