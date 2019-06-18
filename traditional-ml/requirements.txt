@@ -9,3 +9,4 @@ keras
 tensorflow
 matplotlib
 scipy
+keras-metrics
