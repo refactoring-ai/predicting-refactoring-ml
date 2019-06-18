@@ -30,7 +30,7 @@ def print_scores_2(best_model, columns, f, scores):
     accuracy_str = "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
     print(accuracy_str)
     # show feature importances
-    feature_importances_str = "Feature Importances: " + ''.join(
+    feature_importances_str = "Feature Importances: \n" + ''.join(
         ["%-33s: %-5.4f\n" % (feature, importance) for feature, importance in
          zip(columns, best_model.feature_importances_)])
     precision_scores_str = "Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']]))
