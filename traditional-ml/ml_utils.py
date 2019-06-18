@@ -10,7 +10,7 @@ from sklearn.utils.multiclass import unique_labels
 
 
 def save_model(model, model_name, dataset, refactoring_name):
-    file_name = "results/model-" + model_name + "-" + dataset + "-" + refactoring_name + ".joblib"
+    file_name = "results/model-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
     joblib.dump(model, file_name)
 
 
