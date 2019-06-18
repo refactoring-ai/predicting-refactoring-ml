@@ -20,7 +20,8 @@ def run_random_forest(x, columns, y, f, refactoring_name, cm=False):
                   "max_features": randint(1, 11),
                   "min_samples_split": randint(2, 11),
                   "bootstrap": [True, False],
-                  "criterion": ["gini", "entropy"]}
+                  "criterion": ["gini", "entropy"],
+                  "n_estimators": [10, 50, 100]}
 
     print("Performing hyper parameter tuning")
     n_iter_search = 100
@@ -49,7 +50,8 @@ def run_random_forest(x, columns, y, f, refactoring_name, cm=False):
     model_for_cv = RandomForestClassifier(random_state=42, n_jobs=-1,
                                         max_depth=tuned_model.best_params_["max_depth"],max_features=tuned_model.best_params_["max_features"],
                                         min_samples_split=tuned_model.best_params_["min_samples_split"], bootstrap=tuned_model.best_params_["bootstrap"],
-                                        criterion=tuned_model.best_params_["criterion"])
+                                        criterion=tuned_model.best_params_["criterion"],
+                                        n_estimators=tuned_model.best_params_["n_estimators"])
 
     scores = cross_validate(model_for_cv, x, y, cv=10, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
