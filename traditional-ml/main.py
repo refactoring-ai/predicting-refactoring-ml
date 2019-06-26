@@ -5,12 +5,17 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 import db
+from date_utils import now
 from ml_utils import perform_under_sampling, save_model
 from refactoring_models_decision_tree import run_decision_tree
 from refactoring_models_deep_learning import run_deep_learning
 from refactoring_models_logistic_regression import run_logistic_regression
 from refactoring_models_random_forest import run_random_forest
 from refactoring_models_svm import run_svm
+
+# global configs
+N_ITER = 10
+N_CV = 5
 
 # all the models and datasets we have available
 models = ['logistic-regression', 'svm', 'decision-tree', 'random-forest']
@@ -83,20 +88,26 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 for model_name in models:
                     try:
                         f.write("\n\n- Model: %s\n\n" % model_name)
-                        print("- %s" % model_name)
+                        print("Model: %s" % model_name)
 
                         model = None
 
+                        print("Started at %s\n" % now())
+                        f.write("Started at %s\n" % now())
+
                         if model_name == 'svm':
-                            model = run_svm(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                            model = run_svm(balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'random-forest':
-                            model = run_random_forest(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                            model = run_random_forest(balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'decision-tree':
-                            model = run_decision_tree(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                            model = run_decision_tree(balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'deep-learning':
                             model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                         elif model_name == 'logistic-regression':
-                            model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                            model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f)
+
+                        print("Finished at %s\n" % now())
+                        f.write("Finished at %s\n" % now())
 
                         save_model(model, model_name, dataset, refactoring_name)
                         sys.stdout.flush()
