@@ -3,9 +3,9 @@ from db_utils import execute_query
 
 def get_refactoring_types(dataset = ""):
     if dataset=="":
-        sql = "SELECT refactoring, count(*) total from yes group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes group by refactoring order by count(*) desc"
     else:
-        sql = "SELECT refactoring, count(*) total from yes where project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)";
+        sql = "SELECT refactoring, count(*) total from yes where project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*) desc";
 
     df = execute_query(sql)
     return df
@@ -13,9 +13,9 @@ def get_refactoring_types(dataset = ""):
 
 def get_class_level_refactorings_count(dataset = ""):
     if dataset=="":
-        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 1 group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 1 group by refactoring order by count(*) desc"
     else:
-        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 1 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 1 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*) desc"
 
     df = execute_query(sql)
     return df
@@ -23,9 +23,9 @@ def get_class_level_refactorings_count(dataset = ""):
 
 def get_method_level_refactorings_count(dataset = ""):
     if dataset=="":
-        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 2 group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 2 group by refactoring order by count(*) desc"
     else:
-        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 2 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 2 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*) desc"
 
     df = execute_query(sql)
     return df
@@ -33,9 +33,9 @@ def get_method_level_refactorings_count(dataset = ""):
 
 def get_variable_level_refactorings_count(dataset = ""):
     if dataset=="":
-        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 3 group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 3 group by refactoring order by count(*) desc"
     else:
-        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 3 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 3 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*) desc"
 
     df = execute_query(sql)
     return df
@@ -43,9 +43,9 @@ def get_variable_level_refactorings_count(dataset = ""):
 
 def get_field_level_refactorings_count(dataset = ""):
     if dataset=="":
-        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 4 group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 4 group by refactoring order by count(*) desc"
     else:
-        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 4 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*)"
+        sql = "SELECT refactoring, count(*) total from yes where refactoringType = 4 and project_id in (select id from project where datasetName = '" + dataset + "') group by refactoring order by count(*) desc"
 
     df = execute_query(sql)
     return df
