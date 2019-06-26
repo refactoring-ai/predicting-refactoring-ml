@@ -5,8 +5,8 @@ from scipy.stats import randint
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 from sklearn.svm import SVC
 
+from configs import N_ITER, N_CV
 from file_utils import print_scores_1, print_best_parameters
-from main import N_ITER, N_CV
 
 warnings.filterwarnings("ignore")
 

@@ -13,10 +13,6 @@ from refactoring_models_logistic_regression import run_logistic_regression
 from refactoring_models_random_forest import run_random_forest
 from refactoring_models_svm import run_svm
 
-# global configs
-N_ITER = 10
-N_CV = 5
-
 # all the models and datasets we have available
 models = ['logistic-regression', 'svm', 'decision-tree', 'random-forest']
 datasets = ['', 'apache', 'github', 'fdroid']

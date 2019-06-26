@@ -4,8 +4,8 @@ from warnings import simplefilter
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate, RandomizedSearchCV
 
+from configs import N_ITER, N_CV
 from file_utils import print_scores_1, print_best_parameters
-from main import N_CV, N_ITER
 
 simplefilter(action='ignore', category=FutureWarning)
 
