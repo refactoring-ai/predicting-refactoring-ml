@@ -5,23 +5,36 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate, RandomizedSearchCV
 
 from configs import N_ITER, N_CV
+from date_utils import now
 from file_utils import print_scores_1, print_best_parameters
 
 simplefilter(action='ignore', category=FutureWarning)
 
 
 def run_logistic_regression(x, columns, y, f):
-    model = LogisticRegression(solver='lbfgs', max_iter=3000)
+    model = LogisticRegression(solver='lbfgs', max_iter=3000, verbose=2)
 
+    # search
     param_dist = {"C": [uniform(0.01, 100) for i in range(0, 10)]}
     search = RandomizedSearchCV(model, param_dist,
                                 n_iter=N_ITER, cv=N_CV, iid=False,
-                                n_jobs=-1)
+                                n_jobs=-1, verbose=2)
 
-    scores = cross_validate(search, x, y, cv=N_CV, n_jobs=-1,
-                            scoring=['accuracy', 'precision', 'recall'])
+    print("Search started at %s\n" % now())
+    f.write("Search started at %s\n" % now())
 
-    # print_best_parameters(f, search)
+    search.fit(x, y)
+    print_best_parameters(f, search)
+
+    # cv
+    model_for_cv = LogisticRegression(solver='lbfgs', max_iter=3000, C=search.best_params_["C"], verbose=2)
+
+    print("Cross validation started at %s\n" % now())
+    f.write("Cross validation started at %s\n" % now())
+
+    scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
+                            scoring=['accuracy', 'precision', 'recall'], verbose=2)
+
     print_scores_1(scores, search.best_estimator_, columns, f)
 
     return search.best_estimator_
