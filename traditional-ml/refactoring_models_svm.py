@@ -26,7 +26,7 @@ def run_svm(x, columns, y, f):
     scores = cross_validate(search, x, y, cv=N_CV, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
 
-    print_best_parameters(f, search)
+    # print_best_parameters(f, search)
     print_scores_1(scores, search.best_estimator_, columns, f)
 
     return search.best_estimator_

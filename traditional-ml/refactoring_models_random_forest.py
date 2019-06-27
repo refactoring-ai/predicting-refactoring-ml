@@ -26,7 +26,7 @@ def run_random_forest(x, columns, y, f):
     scores = cross_validate(search, x, y, cv=N_CV, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
 
-    print_best_parameters(f, search)
+    # print_best_parameters(f, search)
     print_scores_2(search.best_estimator_, columns, f, scores)
 
     return search.best_estimator_
