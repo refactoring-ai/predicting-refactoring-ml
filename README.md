@@ -6,4 +6,8 @@ Notes (to be improved in this README):
 
 * O CSV que geramos contém duplicações. Nós limpamos essas duplicações na mão e criamos PKs e FKs. O dump do banco que disponibilizaremos é o melhor a ser usado.
 
+## Traditional ML
 
+pip3 install -r requirements.txt
+python3 warm_cache.py
+python3 main.py
