@@ -14,7 +14,9 @@ from refactoring_models_random_forest import run_random_forest
 from refactoring_models_svm import run_svm
 
 # all the models and datasets we have available
-models = ['svm', 'decision-tree', 'random-forest','logistic-regression']
+from refactoring_models_svm_non_linear import run_svm_non_linear
+
+models = ['svm', 'decision-tree', 'random-forest','logistic-regression', 'svm-non-linear']
 datasets = ['', 'apache', 'github', 'fdroid']
 
 
@@ -101,6 +103,8 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                             model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                         elif model_name == 'logistic-regression':
                             model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f)
+                        elif model_name == 'svm-non-linear':
+                            model = run_svm_non_linear(balanced_x, x.columns.values, balanced_y, f)
 
                         print("Finished at %s\n" % now())
                         f.write("Finished at %s\n" % now())
