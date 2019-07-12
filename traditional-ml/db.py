@@ -50,6 +50,7 @@ def get_field_level_refactorings_count(dataset = ""):
     df = execute_query(sql)
     return df
 
+
 def get_method_level_refactorings(m_refactoring, dataset = ""):
     sql = (
         "select  " +
@@ -134,6 +135,90 @@ def get_method_level_refactorings(m_refactoring, dataset = ""):
     return df
 
 
+def get_all_method_level_refactorings(type, dataset = ""):
+    sql = (
+        "select refactoring," +
+        "  classAnonymousClassesQty, " +
+        "  classAssignmentsQty, " +
+        "  classCbo, " +
+        "  classComparisonsQty, " +
+        "  classLambdasQty, " +
+        "  classLcom, " +
+        "  classLoc, " +
+        "  classLoopQty, " +
+        "  classMathOperationsQty, " +
+        "  classMaxNestedBlocks, " +
+        "  classNosi, " +
+        "  classNumberOfAbstractMethods, " +
+        "  classNumberOfDefaultFields, " +
+        "  classNumberOfDefaultMethods, " +
+        "  classNumberOfFields, " +
+        "  classNumberOfFinalFields, " +
+        "  classNumberOfFinalMethods, " +
+        "  classNumberOfMethods, " +
+        "  classNumberOfPrivateFields, " +
+        "  classNumberOfPrivateMethods, " +
+        "  classNumberOfProtectedFields, " +
+        "  classNumberOfProtectedMethods, " +
+        "  classNumberOfPublicFields, " +
+        "  classNumberOfPublicMethods, " +
+        "  classNumberOfStaticFields, " +
+        "  classNumberOfStaticMethods, " +
+        "  classNumberOfSynchronizedFields, " +
+        "  classNumberOfSynchronizedMethods, " +
+        "  classNumbersQty, " +
+        "  classParenthesizedExpsQty, " +
+        "  classReturnQty, " +
+        "  classRfc, " +
+        "  classStringLiteralsQty, " +
+        "  classSubClassesQty, " +
+        "  classTryCatchQty, " +
+        "  classUniqueWordsQty, " +
+        "  classVariablesQty, " +
+        "  classWmc, " +
+
+        "  methodAnonymousClassesQty, " +
+        "  methodAssignmentsQty, " +
+        "  methodCbo, " +
+        "  methodComparisonsQty, " +
+        "  methodLambdasQty, " +
+        "  methodLoc, " +
+        "  methodLoopQty, " +
+        "  methodMathOperationsQty, " +
+        "  methodMaxNestedBlocks, " +
+        "  methodNumbersQty, " +
+        "  methodParametersQty, " +
+        "  methodParenthesizedExpsQty, " +
+        "  methodReturnQty, " +
+        "  methodRfc, " +
+        "  methodStringLiteralsQty, " +
+        "  methodSubClassesQty, " +
+        "  methodTryCatchQty, " +
+        "  methodUniqueWordsQty, " +
+        "  methodVariablesQty, " +
+        "  methodWmc, " +
+
+        "  authorOwnership, " +
+        "  bugFixCount, " +
+        "  linesAdded, " +
+        "  linesDeleted, " +
+        "  qtyMajorAuthors, " +
+        "  qtyMinorAuthors, " +
+        "  qtyOfAuthors, " +
+        "  qtyOfCommits, " +
+        "  refactoringsInvolved " +
+        " " +
+        "from yes " +
+        "where refactoringType = " + type
+    )
+
+    if not dataset == "":
+        sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
+
+    df = execute_query(sql)
+    return df
+
+
 def get_class_level_refactorings(m_refactoring, dataset = ""):
     sql = (
             "select  " +
@@ -188,6 +273,69 @@ def get_class_level_refactorings(m_refactoring, dataset = ""):
             " " +
             "from yes " +
             "where refactoring = '" + m_refactoring + "'"
+            )
+
+    if not dataset == "":
+        sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
+
+    df = execute_query(sql)
+    return df
+
+
+def get_all_class_level_refactorings(type, dataset = ""):
+    sql = (
+            "select refactoring, " +
+            "  classAnonymousClassesQty, " +
+            "  classAssignmentsQty, " +
+            "  classCbo, " +
+            "  classComparisonsQty, " +
+            "  classLambdasQty, " +
+            "  classLcom, " +
+            "  classLoc, " +
+            "  classLoopQty, " +
+            "  classMathOperationsQty, " +
+            "  classMaxNestedBlocks, " +
+            "  classNosi, " +
+            "  classNumberOfAbstractMethods, " +
+            "  classNumberOfDefaultFields, " +
+            "  classNumberOfDefaultMethods, " +
+            "  classNumberOfFields, " +
+            "  classNumberOfFinalFields, " +
+            "  classNumberOfFinalMethods, " +
+            "  classNumberOfMethods, " +
+            "  classNumberOfPrivateFields, " +
+            "  classNumberOfPrivateMethods, " +
+            "  classNumberOfProtectedFields, " +
+            "  classNumberOfProtectedMethods, " +
+            "  classNumberOfPublicFields, " +
+            "  classNumberOfPublicMethods, " +
+            "  classNumberOfStaticFields, " +
+            "  classNumberOfStaticMethods, " +
+            "  classNumberOfSynchronizedFields, " +
+            "  classNumberOfSynchronizedMethods, " +
+            "  classNumbersQty, " +
+            "  classParenthesizedExpsQty, " +
+            "  classReturnQty, " +
+            "  classRfc, " +
+            "  classStringLiteralsQty, " +
+            "  classSubClassesQty, " +
+            "  classTryCatchQty, " +
+            "  classUniqueWordsQty, " +
+            "  classVariablesQty, " +
+            "  classWmc, " +
+
+            "  authorOwnership, " +
+            "  bugFixCount, " +
+            "  linesAdded, " +
+            "  linesDeleted, " +
+            "  qtyMajorAuthors, " +
+            "  qtyMinorAuthors, " +
+            "  qtyOfAuthors, " +
+            "  qtyOfCommits, " +
+            "  refactoringsInvolved " +
+            " " +
+            "from yes " +
+            "where refactoringType = " + type
             )
 
     if not dataset == "":
@@ -283,7 +431,93 @@ def get_variable_level_refactorings(m_refactoring, dataset = ""):
     return df
 
 
-def get_field_level_refactorings(m_refactoring, dataset):
+def get_all_variable_level_refactorings(type, dataset = ""):
+    sql = (
+        "select refactoring, " +
+        "  classAnonymousClassesQty, " +
+        "  classAssignmentsQty, " +
+        "  classCbo, " +
+        "  classComparisonsQty, " +
+        "  classLambdasQty, " +
+        "  classLcom, " +
+        "  classLoc, " +
+        "  classLoopQty, " +
+        "  classMathOperationsQty, " +
+        "  classMaxNestedBlocks, " +
+        "  classNosi, " +
+        "  classNumberOfAbstractMethods, " +
+        "  classNumberOfDefaultFields, " +
+        "  classNumberOfDefaultMethods, " +
+        "  classNumberOfFields, " +
+        "  classNumberOfFinalFields, " +
+        "  classNumberOfFinalMethods, " +
+        "  classNumberOfMethods, " +
+        "  classNumberOfPrivateFields, " +
+        "  classNumberOfPrivateMethods, " +
+        "  classNumberOfProtectedFields, " +
+        "  classNumberOfProtectedMethods, " +
+        "  classNumberOfPublicFields, " +
+        "  classNumberOfPublicMethods, " +
+        "  classNumberOfStaticFields, " +
+        "  classNumberOfStaticMethods, " +
+        "  classNumberOfSynchronizedFields, " +
+        "  classNumberOfSynchronizedMethods, " +
+        "  classNumbersQty, " +
+        "  classParenthesizedExpsQty, " +
+        "  classReturnQty, " +
+        "  classRfc, " +
+        "  classStringLiteralsQty, " +
+        "  classSubClassesQty, " +
+        "  classTryCatchQty, " +
+        "  classUniqueWordsQty, " +
+        "  classVariablesQty, " +
+        "  classWmc, " +
+
+        "  methodAnonymousClassesQty, " +
+        "  methodAssignmentsQty, " +
+        "  methodCbo, " +
+        "  methodComparisonsQty, " +
+        "  methodLambdasQty, " +
+        "  methodLoc, " +
+        "  methodLoopQty, " +
+        "  methodMathOperationsQty, " +
+        "  methodMaxNestedBlocks, " +
+        "  methodNumbersQty, " +
+        "  methodParametersQty, " +
+        "  methodParenthesizedExpsQty, " +
+        "  methodReturnQty, " +
+        "  methodRfc, " +
+        "  methodStringLiteralsQty, " +
+        "  methodSubClassesQty, " +
+        "  methodTryCatchQty, " +
+        "  methodUniqueWordsQty, " +
+        "  methodVariablesQty, " +
+        "  methodWmc, " +
+
+        "  variableAppearances, " +
+
+        "  authorOwnership, " +
+        "  bugFixCount, " +
+        "  linesAdded, " +
+        "  linesDeleted, " +
+        "  qtyMajorAuthors, " +
+        "  qtyMinorAuthors, " +
+        "  qtyOfAuthors, " +
+        "  qtyOfCommits, " +
+        "  refactoringsInvolved " +
+        " " +
+        "from yes " +
+        "where refactoringType = " + type
+    )
+
+    if not dataset == "":
+        sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
+
+    df = execute_query(sql)
+    return df
+
+
+def get_field_level_refactorings(m_refactoring, dataset = ""):
     sql = (
         "select  " +
         "  classAnonymousClassesQty, " +
@@ -348,11 +582,74 @@ def get_field_level_refactorings(m_refactoring, dataset):
     return df
 
 
+def get_all_field_level_refactorings(type, dataset = ""):
+    sql = (
+        "select refactoring, " +
+        "  classAnonymousClassesQty, " +
+        "  classAssignmentsQty, " +
+        "  classCbo, " +
+        "  classComparisonsQty, " +
+        "  classLambdasQty, " +
+        "  classLcom, " +
+        "  classLoc, " +
+        "  classLoopQty, " +
+        "  classMathOperationsQty, " +
+        "  classMaxNestedBlocks, " +
+        "  classNosi, " +
+        "  classNumberOfAbstractMethods, " +
+        "  classNumberOfDefaultFields, " +
+        "  classNumberOfDefaultMethods, " +
+        "  classNumberOfFields, " +
+        "  classNumberOfFinalFields, " +
+        "  classNumberOfFinalMethods, " +
+        "  classNumberOfMethods, " +
+        "  classNumberOfPrivateFields, " +
+        "  classNumberOfPrivateMethods, " +
+        "  classNumberOfProtectedFields, " +
+        "  classNumberOfProtectedMethods, " +
+        "  classNumberOfPublicFields, " +
+        "  classNumberOfPublicMethods, " +
+        "  classNumberOfStaticFields, " +
+        "  classNumberOfStaticMethods, " +
+        "  classNumberOfSynchronizedFields, " +
+        "  classNumberOfSynchronizedMethods, " +
+        "  classNumbersQty, " +
+        "  classParenthesizedExpsQty, " +
+        "  classReturnQty, " +
+        "  classRfc, " +
+        "  classStringLiteralsQty, " +
+        "  classSubClassesQty, " +
+        "  classTryCatchQty, " +
+        "  classUniqueWordsQty, " +
+        "  classVariablesQty, " +
+        "  classWmc, " +
+
+        "  fieldAppearances, " +
+
+        "  authorOwnership, " +
+        "  bugFixCount, " +
+        "  linesAdded, " +
+        "  linesDeleted, " +
+        "  qtyMajorAuthors, " +
+        "  qtyMinorAuthors, " +
+        "  qtyOfAuthors, " +
+        "  qtyOfCommits, " +
+        "  refactoringsInvolved " +
+        " " +
+        "from yes " +
+        "where refactoringType = " + type
+    )
+
+    if not dataset == "":
+        sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
+
+    df = execute_query(sql)
+    return df
+
 
 # --------
 # queries related to non refactored data
 # --------
-
 def get_non_refactored_methods(dataset = ""):
     sql = (
         "select  " +
@@ -435,9 +732,6 @@ def get_non_refactored_methods(dataset = ""):
 
     df = execute_query(sql)
     return df
-
-
-
 
 
 def get_non_refactored_variables(dataset = ""):
@@ -589,7 +883,6 @@ def get_non_refactored_classes(dataset = ""):
 
     df = execute_query(sql)
     return df
-
 
 
 def get_non_refactored_fields(dataset = ""):
