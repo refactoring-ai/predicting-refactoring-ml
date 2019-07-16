@@ -8,10 +8,8 @@ datasets = ['', 'apache', 'github', 'fdroid']
 def check_model_performance(dataset, model, model_name, refactoring_name):
     if is_not_blank(dataset) and dataset in datasets: 
         #VALID DATASET, READY TO GO!
-        #LOAD MODEL BUILT FROM DATASET
+        #LOAD MODEL BUILT FROM SPECIFIC DATASET
         model_under_eval = load_model(model, model_name, dataset, refactoring_name)
-        #LOAD REMAINING MODELS (I.E., ALL BUT THE ONE FROM THE DATASET UNDER EVALUATION)
-        models_built_from_other_datasets = [i for i in datasets if i not in ['', dataset]]
 
 #THIS METHOD SHOULD PROBABLY BE MOVED TO ml_utils
 def load_model(model, model_name, dataset, refactoring_name):
