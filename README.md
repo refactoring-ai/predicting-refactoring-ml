@@ -19,6 +19,8 @@ delete from project where finishedDate is null;
 
 ## Traditional ML
 
-pip3 install -r requirements.txt
+```
+pip3 install --user -r requirements.txt
 python3 warm_cache.py
 python3 main.py
+```
