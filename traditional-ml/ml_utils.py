@@ -1,12 +1,14 @@
 import os
 
 import joblib
-from imblearn.under_sampling import RandomUnderSampler
+from imblearn.under_sampling import RandomUnderSampler, ClusterCentroids
 import numpy as np
 import matplotlib.pyplot as plt
 
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
+
+from configs import BALANCE_DATASET
 
 
 def save_model(model, model_name, dataset, refactoring_name):
@@ -16,8 +18,16 @@ def save_model(model, model_name, dataset, refactoring_name):
 
 # more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html
 def perform_under_sampling(x, y):
-    rus = RandomUnderSampler(random_state=42)  # 42 is a random number, just to ensure our results are reproducible
-    return rus.fit_resample(x, y)
+
+    if BALANCE_DATASET == 'random':
+        rus = RandomUnderSampler(random_state=42)  # 42 is a random number, just to ensure our results are reproducible
+        return rus.fit_resample(x, y)
+
+    if BALANCE_DATASET == 'cluster_centroids':
+        rus = ClusterCentroids(random_state=42)
+        return rus.fit_resample(x, y)
+
+    raise Exception("algorithm not found")
 
 
 def create_persistence_file_name(f, m_refactoring):
