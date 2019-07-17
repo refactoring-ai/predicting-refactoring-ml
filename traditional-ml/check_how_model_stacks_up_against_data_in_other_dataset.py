@@ -1,10 +1,10 @@
 from joblib import load
 from configs import N_CV
 #from ml_utils import load_model #SEE BELOW
-#from main import datasets, models
+from main import datasets, models
 
-models = ['svm', 'decision-tree', 'random-forest','logistic-regression', 'svm-non-linear']
-datasets = ['', 'apache', 'github', 'fdroid']
+#models = ['svm', 'decision-tree', 'random-forest','logistic-regression', 'svm-non-linear']
+#datasets = ['', 'apache', 'github', 'fdroid']
 
 def check_model_performance(dataset, refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
     if is_not_blank(dataset) and dataset in datasets: 
@@ -72,5 +72,29 @@ def load_model(model, model_name, dataset, refactoring_name):
 def is_not_blank(s):
     return bool(s and s.strip())
 
-check_model_performance('apache', 'model', 'model_name', 'class-level')
+
+# COMPARING STUFF (FOR NOW, ONLY METHOD-LEVEL MODELS)...
+print("[COMPARING METHOD-LEVEL MODELS]")
+print("[COMPARING MODEL GENERATED FROM APACHE DATASET...]")
+check_model_performance('apache', "method-level",
+            db.get_method_level_refactorings_count,
+            db.get_method_level_refactorings,
+            db.get_non_refactored_methods)
+print("[DONE COMPARING MODEL GENERATED FROM APACHE DATASET]")
+
+print("[COMPARING MODEL GENERATED FROM GITHUB DATASET...]")
+check_model_performance('github', "method-level",
+            db.get_method_level_refactorings_count,
+            db.get_method_level_refactorings,
+            db.get_non_refactored_methods)
+print("[DONE COMPARING MODEL GENERATED FROM GITHUB DATASET]")
+
+print("[COMPARING MODEL GENERATED FROM FDROID DATASET...]")
+check_model_performance('fdroid', "method-level",
+            db.get_method_level_refactorings_count,
+            db.get_method_level_refactorings,
+            db.get_non_refactored_methods)
+print("[DONE COMPARING MODEL GENERATED FROM FDROID DATASET]")
+print("[DONE COMPARING METHOD-LEVEL MODELS]")
+
 
