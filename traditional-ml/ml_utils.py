@@ -1,7 +1,7 @@
 import os
 
 import joblib
-from imblearn.under_sampling import RandomUnderSampler, ClusterCentroids
+from imblearn.under_sampling import RandomUnderSampler, ClusterCentroids, NearMiss
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -25,6 +25,10 @@ def perform_under_sampling(x, y):
 
     if BALANCE_DATASET == 'cluster_centroids':
         rus = ClusterCentroids(random_state=42)
+        return rus.fit_resample(x, y)
+
+    if BALANCE_DATASET == 'nearmiss':
+        rus = NearMiss(version=1)
         return rus.fit_resample(x, y)
 
     raise Exception("algorithm not found")
