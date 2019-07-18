@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 import db
+from configs import ONLY_SOURCE_CODE_METRICS
 from date_utils import now
 from ml_utils import perform_under_sampling, save_model
 from refactoring_models_decision_tree import run_decision_tree
@@ -73,6 +74,10 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 # separate the x from the y (as required by the scikit-learn API)
                 x = merged_dataset.drop("prediction", axis=1)
                 y = merged_dataset["prediction"]
+
+                if ONLY_SOURCE_CODE_METRICS:
+                    x = x.drop(["authorOwnership","bugFixCount","linesAdded","linesDeleted","qtyMajorAuthors",
+                                "qtyMinorAuthors","qtyOfAuthors","qtyOfCommits","refactoringsInvolved"], axis=1)
 
                 # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
                 # for now, we basically perform under sampling
