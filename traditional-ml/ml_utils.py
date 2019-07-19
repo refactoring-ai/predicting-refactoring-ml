@@ -18,8 +18,12 @@ def load_model(root_folder, model_name, dataset, refactoring_name):
 
 
 def save_model(model, model_name, dataset, refactoring_name):
-    file_name = "results/model-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
-    joblib.dump(model, file_name)
+    save_object("model", model, model_name, dataset, refactoring_name)
+
+
+def save_object(type, obj, model_name, dataset, refactoring_name):
+    file_name = "results/" + type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
+    joblib.dump(obj, file_name)
 
 
 # more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html

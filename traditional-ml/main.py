@@ -7,13 +7,14 @@ from sklearn.preprocessing import MinMaxScaler
 import db
 from configs import ONLY_SOURCE_CODE_METRICS, DATASETS, MODELS
 from date_utils import now
-from ml_utils import perform_under_sampling, save_model
+from ml_utils import perform_under_sampling, save_object
 from refactoring_models_decision_tree import run_decision_tree
 from refactoring_models_deep_learning import run_deep_learning
 from refactoring_models_logistic_regression import run_logistic_regression
 from refactoring_models_random_forest import run_random_forest
 from refactoring_models_svm import run_svm
 from refactoring_models_svm_non_linear import run_svm_non_linear
+
 
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
     for dataset in DATASETS:
@@ -108,7 +109,8 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                         print("Finished at %s\n" % now())
                         f.write("Finished at %s\n" % now())
 
-                        save_model(model, model_name, dataset, refactoring_name)
+                        save_object("model", model, model_name, dataset, refactoring_name)
+                        save_object("scaler", scaler, model_name, dataset, refactoring_name)
                         sys.stdout.flush()
                         f.flush()
                     except Exception as e:
