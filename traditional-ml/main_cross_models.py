@@ -15,7 +15,7 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
 
     for d1 in DATASETS: # d1 being the model we load
         for d2 in DATASETS: # d2 being the dataset we'll try to predict
-            if d1 == d2:
+            if d1 == d2 or d1 == '' or d2 == '':
                 continue
 
             for refactoring_name in counts["refactoring"].values:
