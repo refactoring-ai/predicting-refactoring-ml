@@ -149,10 +149,4 @@ build_model("class-level",
             db.get_non_refactored_classes)
 print("[DONE BUILDING CLASS-LEVEL MODELS]")
 
-print("[BUILDING FIELD-LEVEL MODELS]")
-build_model("field-level",
-            db.get_field_level_refactorings_count,
-            db.get_field_level_refactorings,
-            db.get_non_refactored_fields)
-print("[DONE BUILDING FIELD-LEVEL MODELS]")
 print("[DONE]")

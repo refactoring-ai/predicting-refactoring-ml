@@ -65,3 +65,12 @@ check_model_performance(f, "method-level",
             db.get_method_level_refactorings,
             db.get_non_refactored_methods)
 
+check_model_performance(f, "class-level",
+            db.get_class_level_refactorings_count,
+            db.get_class_level_refactorings,
+            db.get_non_refactored_classes)
+
+check_model_performance(f, "variable-level",
+            db.get_variable_level_refactorings_count,
+            db.get_variable_level_refactorings,
+            db.get_non_refactored_variables)
