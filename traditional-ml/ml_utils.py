@@ -21,8 +21,8 @@ def save_model(model, model_name, dataset, refactoring_name):
     save_object("model", model, model_name, dataset, refactoring_name)
 
 
-def save_object(type, obj, model_name, dataset, refactoring_name):
-    file_name = "results/" + type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
+def save_object(obj_descr_type, obj, model_name, dataset, refactoring_name):
+    file_name = "results/" + obj_descr_type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
     joblib.dump(obj, file_name)
 
 
