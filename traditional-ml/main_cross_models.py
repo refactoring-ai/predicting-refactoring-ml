@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
 
 import db
@@ -46,11 +46,12 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                 for model_name in MODELS:
                     print("Refactoring %s, model %s, dataset 1 %s, dataset 2 %s" % (refactoring_name, model_name, d1, d2))
                     model_under_eval = load_model("models/", model_name, d1, refactoring_name)
-                    y_score = model_under_eval.decision_function(balanced_x)
+                    y_predicted = model_under_eval.predict(balanced_x)
 
-                    results = precision_recall_fscore_support(balanced_y, y_score)
+                    results = metrics.classification_report(balanced_y, y_predicted,output_dict=True)
 
-                    f.write(d1 + "," + d2 + "," + refactoring_name + "," + model_name + "," + str(results["precision"]) + "," + str(results["recall"]))
+                    print(results)
+                    f.write(d1 + "," + d2 + "," + refactoring_name + "," + model_name + "," + str(results["macro avg"]["precision"]) + "," + str(results["macro avg"]["recall"]))
                     f.write("\n")
                     f.flush()
 
