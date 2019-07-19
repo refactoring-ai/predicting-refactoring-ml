@@ -57,6 +57,7 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
 
 file_name = "results/cross-validation.csv"
 f = open(file_name, "w+")
+f.write("dataset_loaded_model,dataset_test,refactoring,model,precision,recall\n")
 
 print("[COMPARING METHOD-LEVEL MODELS]")
 check_model_performance(f, "method-level",
