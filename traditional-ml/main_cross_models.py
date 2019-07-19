@@ -1,3 +1,5 @@
+import traceback
+
 import pandas as pd
 from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
@@ -44,16 +46,21 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                 balanced_x = scaler.fit_transform(balanced_x)
 
                 for model_name in MODELS:
-                    print("Refactoring %s, model %s, dataset 1 %s, dataset 2 %s" % (refactoring_name, model_name, d1, d2))
-                    model_under_eval = load_model("models/", model_name, d1, refactoring_name)
-                    y_predicted = model_under_eval.predict(balanced_x)
+                    try:
+                        print("Refactoring %s, model %s, dataset 1 %s, dataset 2 %s" % (refactoring_name, model_name, d1, d2))
+                        model_under_eval = load_model("models/", model_name, d1, refactoring_name)
+                        y_predicted = model_under_eval.predict(balanced_x)
 
-                    results = metrics.classification_report(balanced_y, y_predicted,output_dict=True)
+                        results = metrics.classification_report(balanced_y, y_predicted,output_dict=True)
 
-                    print(results)
-                    f.write(d1 + "," + d2 + "," + refactoring_name + "," + model_name + "," + str(results["macro avg"]["precision"]) + "," + str(results["macro avg"]["recall"]))
-                    f.write("\n")
-                    f.flush()
+                        print(results)
+                        f.write(d1 + "," + d2 + "," + refactoring_name + "," + model_name + "," + str(results["macro avg"]["precision"]) + "," + str(results["macro avg"]["recall"]))
+                        f.write("\n")
+                        f.flush()
+                    except Exception as e:
+                        print("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
+                        print(e)
+                        print(traceback.format_exc())
 
 
 file_name = "results/cross-validation.csv"
