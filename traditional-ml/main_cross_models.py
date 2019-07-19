@@ -44,7 +44,7 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                 balanced_x = scaler.fit_transform(balanced_x)
 
                 for model_name in MODELS:
-                    print("Refactoring %s, model %s, dataset 1 %s, dataset 2 %s" % refactoring_name, model_name, d1, d2)
+                    print("Refactoring %s, model %s, dataset 1 %s, dataset 2 %s" % (refactoring_name, model_name, d1, d2))
                     model_under_eval = load_model("models/", model_name, d1, refactoring_name)
                     y_score = model_under_eval.decision_function(balanced_x)
 
