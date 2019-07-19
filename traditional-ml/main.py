@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 import db
-from configs import ONLY_SOURCE_CODE_METRICS
+from configs import ONLY_SOURCE_CODE_METRICS, DATASETS, MODELS
 from date_utils import now
 from ml_utils import perform_under_sampling, save_model
 from refactoring_models_decision_tree import run_decision_tree
@@ -13,16 +13,10 @@ from refactoring_models_deep_learning import run_deep_learning
 from refactoring_models_logistic_regression import run_logistic_regression
 from refactoring_models_random_forest import run_random_forest
 from refactoring_models_svm import run_svm
-
-# all the models and datasets we have available
 from refactoring_models_svm_non_linear import run_svm_non_linear
 
-models = ['svm', 'decision-tree', 'random-forest','logistic-regression', 'svm-non-linear']
-datasets = ['', 'apache', 'github', 'fdroid']
-
-
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
-    for dataset in datasets:
+    for dataset in DATASETS:
 
         # testing in a single refactoring and model
         # if not dataset == '':
@@ -88,7 +82,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 scaler = MinMaxScaler()  # Default behavior is to scale to [0,1]
                 balanced_x = scaler.fit_transform(balanced_x)
 
-                for model_name in models:
+                for model_name in MODELS:
                     try:
                         f.write("\n\n- Model: %s\n\n" % model_name)
                         print("Model: %s" % model_name)

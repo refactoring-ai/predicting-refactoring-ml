@@ -1,100 +1,66 @@
-from joblib import load
-from configs import N_CV
-#from ml_utils import load_model #SEE BELOW
-from main import datasets, models
+import pandas as pd
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.preprocessing import MinMaxScaler
 
-#models = ['svm', 'decision-tree', 'random-forest','logistic-regression', 'svm-non-linear']
-#datasets = ['', 'apache', 'github', 'fdroid']
-
-def check_model_performance(dataset, refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
-    if is_not_blank(dataset) and dataset in datasets: 
-        #VALID DATASET, READY TO GO!
-        #LOAD MODEL BUILT FROM SPECIFIC DATASET
-        counts = counts_function(dataset)
-        #FOR EACH REFACTORING
-        for refactoring_name in counts["refactoring"].values:
-                print("Refactoring %s" % refactoring_name)
-                #EXTRACT REFACTORINGS FROM ALL OTHER DATASETS BUT THE ONE UNDER EXAMINATION
-                for d in [a_dataset for a_dataset in datasets if a_dataset not in ['', 'apache']]:
-                    #GET ALL REFACTORING EXAMPLES WE HAVE IN OUR DATASET
-                    refactored_instances = get_refactored_function(refactoring_name, d)
-                    #LOAD NON-REFACTORING EXAMPLES
-                    non_refactored_instances = get_non_refactored_function(d)
-
-                    #IF THERE' STILL A ROW WITH NAS, DROP IT AS IT'LL CAUSE A FAILURE LATER ON.
-                    refactored_instances = refactored_instances.dropna()
-                    non_refactored_instances = non_refactored_instances.dropna()
-
-                    #SET THE PREDICTION VARIABLE AS TRUE AND FALSE IN THE DATASETS
-                    refactored_instances["prediction"] = 1
-                    non_refactored_instances["prediction"] = 0
-
-                    #NOW, COMBINE BOTH DATASETS (WITH BOTH TRUE AND FALSE PREDICTIONS)
-                    merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
-
-                    #SEPARATE THE X FROM THE Y (AS REQUIRED BY THE SCIKIT-LEARN API)
-                    x = merged_dataset.drop("prediction", axis=1)
-                    y = merged_dataset["prediction"]
-
-                    #BALANCE THE DATASETS, AS WE HAVE WAY MORE 'NON REFACTORED EXAMPLES' RATHER THAN REFACTORING EXAMPLES
-                    #FOR NOW, WE BASICALLY PERFORM UNDER SAMPLING
-                    balanced_x, balanced_y = perform_under_sampling(x, y)
-                    assert balanced_x.shape[0] == balanced_y.shape[0], "Undersampling did not work"
-
-                    #APPLY SOME SCALING TO SPEED UP THE ALGORITHM
-                    scaler = MinMaxScaler()  # Default behavior is to scale to [0,1]
-                    balanced_x = scaler.fit_transform(balanced_x)
-
-                    for model_name in models:
-                        print("Model: %s" % model_name)
-
-                        model = None
-
-                        if model_name == 'svm':
-                            model_under_eval = load_model(model, 'svm', dataset, refactoring_name)
-                        elif model_name == 'random-forest':
-                            model_under_eval = load_model(model, 'random-forest', dataset, refactoring_name)
-                        elif model_name == 'decision-tree':
-                            model_under_eval = load_model(model, 'decision-tree', dataset, refactoring_name)
-                        elif model_name == 'logistic-regression':
-                            model_under_eval = load_model(model, 'logistic-regression', dataset, refactoring_name)
-                        elif model_name == 'svm-non-linear':
-                            model_under_eval = load_model(model, 'svm-non-linear', dataset, refactoring_name)
-
-                        result = cross_validate(model_under_eval, balanced_x, balanced_y, cv=N_CV, n_jobs=-1, 
-                                scoring=['precision', 'recall'], verbose=2)
-
-#THIS METHOD SHOULD PROBABLY BE MOVED TO ml_utils
-def load_model(model, model_name, dataset, refactoring_name):
-    file_name = "results/model-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
-    return load(file_name)
-
-def is_not_blank(s):
-    return bool(s and s.strip())
+import db
+from configs import DATASETS, MODELS
+from ml_utils import perform_under_sampling, load_model
 
 
-# COMPARING STUFF (FOR NOW, ONLY METHOD-LEVEL MODELS)...
+def check_model_performance(f, refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
+
+    print("Starting cross model analysis at " + refactoring_level)
+
+    counts = counts_function("")
+
+    for d1 in DATASETS: # d1 being the model we load
+        for d2 in DATASETS: # d2 being the dataset we'll try to predict
+            if d1 == d2:
+                continue
+
+            for refactoring_name in counts["refactoring"].values:
+                refactored_instances = get_refactored_function(refactoring_name, d2)
+                non_refactored_instances = get_non_refactored_function(d2)
+
+                # if there' still a row with NAs, drop it as it'll cause a failure later on.
+                refactored_instances = refactored_instances.dropna()
+                non_refactored_instances = non_refactored_instances.dropna()
+
+                # set the prediction variable as true and false in the datasets
+                refactored_instances["prediction"] = 1
+                non_refactored_instances["prediction"] = 0
+                merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
+
+                # separate the x from the y (as required by the scikit-learn API)
+                x = merged_dataset.drop("prediction", axis=1)
+                y = merged_dataset["prediction"]
+
+                # balance the datasets
+                balanced_x, balanced_y = perform_under_sampling(x, y)
+
+                # scale it (as in the training of the model)
+                # Default behavior is to scale to [0,1]
+                scaler = MinMaxScaler()
+                balanced_x = scaler.fit_transform(balanced_x)
+
+                for model_name in MODELS:
+                    print("Refactoring %s, model %s, dataset 1 %s, dataset 2 %s" % refactoring_name, model_name, d1, d2)
+                    model_under_eval = load_model("models/", model_name, d1, refactoring_name)
+                    y_score = model_under_eval.decision_function(balanced_x)
+
+                    results = precision_recall_fscore_support(balanced_y, y_score)
+
+                    f.write(d1 + "," + d2 + "," + refactoring_name + "," + model_name + "," + str(results["precision"]) + "," + str(results["recall"]))
+                    f.write("\n")
+                    f.flush()
+
+
+file_name = "results/cross-validation.csv"
+f = open(file_name, "w+")
+
 print("[COMPARING METHOD-LEVEL MODELS]")
-print("[COMPARING MODEL GENERATED FROM APACHE DATASET...]")
-check_model_performance('apache', "method-level",
+check_model_performance(f, "method-level",
             db.get_method_level_refactorings_count,
             db.get_method_level_refactorings,
             db.get_non_refactored_methods)
-print("[DONE COMPARING MODEL GENERATED FROM APACHE DATASET]")
-
-print("[COMPARING MODEL GENERATED FROM GITHUB DATASET...]")
-check_model_performance('github', "method-level",
-            db.get_method_level_refactorings_count,
-            db.get_method_level_refactorings,
-            db.get_non_refactored_methods)
-print("[DONE COMPARING MODEL GENERATED FROM GITHUB DATASET]")
-
-print("[COMPARING MODEL GENERATED FROM FDROID DATASET...]")
-check_model_performance('fdroid', "method-level",
-            db.get_method_level_refactorings_count,
-            db.get_method_level_refactorings,
-            db.get_non_refactored_methods)
-print("[DONE COMPARING MODEL GENERATED FROM FDROID DATASET]")
-print("[DONE COMPARING METHOD-LEVEL MODELS]")
-
 

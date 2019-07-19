@@ -4,11 +4,17 @@ import joblib
 from imblearn.under_sampling import RandomUnderSampler, ClusterCentroids, NearMiss
 import numpy as np
 import matplotlib.pyplot as plt
+from joblib import load
 
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 
 from configs import BALANCE_DATASET
+
+
+def load_model(root_folder, model_name, dataset, refactoring_name):
+    file_name = root_folder + "/model-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
+    return load(file_name)
 
 
 def save_model(model, model_name, dataset, refactoring_name):
