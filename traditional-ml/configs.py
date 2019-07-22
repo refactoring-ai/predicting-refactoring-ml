@@ -14,5 +14,6 @@ N_CV_SVM = 5
 BALANCE_DATASET = "random"
 
 # models and datasets we have available
+# MODELS options = ['svm', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes']
 MODELS = ['svm', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes']
 DATASETS = ['', 'apache', 'github', 'fdroid']
