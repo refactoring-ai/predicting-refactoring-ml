@@ -11,7 +11,7 @@ from file_utils import print_scores_2, print_best_parameters
 warnings.filterwarnings("ignore")
 
 
-def run_decision_tree(x, columns, y, f):
+def run_decision_tree(dataset, refactoring_name, model_name, x, columns, y, f):
     model = DecisionTreeClassifier(random_state=42)
 
     # search
@@ -43,6 +43,6 @@ def run_decision_tree(x, columns, y, f):
     scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'], verbose=2)
 
-    print_scores_2(search.best_estimator_, columns, f, scores)
+    print_scores_2(dataset, refactoring_name, model_name, search.best_estimator_, columns, f, scores)
 
     return search.best_estimator_

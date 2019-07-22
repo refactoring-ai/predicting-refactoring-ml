@@ -12,7 +12,7 @@ from file_utils import print_scores_1, print_best_parameters
 warnings.filterwarnings("ignore")
 
 
-def run_svm_non_linear(x, columns, y, f):
+def run_svm_non_linear(dataset, refactoring_name, model_name, x, columns, y, f):
     model = SVC(verbose=True)
 
     param_dist = {"C": [uniform(0.01, 10) for i in range(0, 10)],
@@ -40,6 +40,6 @@ def run_svm_non_linear(x, columns, y, f):
     scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'], verbose=2)
 
-    print_scores_1(scores, search.best_estimator_, columns, f)
+    print_scores_1(dataset, refactoring_name, model_name, scores, search.best_estimator_, columns, f)
 
     return search.best_estimator_

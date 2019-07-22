@@ -1,7 +1,7 @@
 import json
 
 
-def print_scores_1(scores, best_model, columns, f):
+def print_scores_1(dataset, refactoring_name, model_name, scores, best_model, columns, f):
     accuracy_str = "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
     print(accuracy_str)
 
@@ -24,8 +24,10 @@ def print_scores_1(scores, best_model, columns, f):
     f.write(recall_scores_str)
     f.write("\n")
 
+    f.write(f'CSV,{dataset},{refactoring_name},{model_name},{scores["test_precision"].mean():.2f},{scores["test_recall"].mean():.2f},{scores["test_accuracy"].mean()}\n')
 
-def print_scores_2(best_model, columns, f, scores):
+
+def print_scores_2(dataset, refactoring_name, model_name, best_model, columns, f, scores):
     print(scores)
     accuracy_str = "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
     print(accuracy_str)
@@ -48,6 +50,8 @@ def print_scores_2(best_model, columns, f, scores):
     f.write("\n")
     f.write(recall_scores_str)
     f.write("\n")
+
+    f.write(f'CSV,{dataset},{refactoring_name},{model_name},{scores["test_precision"].mean():.2f},{scores["test_recall"].mean():.2f},{scores["test_accuracy"].mean()}\n')
 
 
 def print_best_parameters(f, tuned_model):

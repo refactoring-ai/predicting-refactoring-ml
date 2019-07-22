@@ -96,19 +96,19 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                         f.write("Started at %s\n" % now())
 
                         if model_name == 'svm':
-                            model = run_svm(balanced_x, x.columns.values, balanced_y, f)
+                            model = run_svm(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'random-forest':
-                            model = run_random_forest(balanced_x, x.columns.values, balanced_y, f)
+                            model = run_random_forest(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'decision-tree':
-                            model = run_decision_tree(balanced_x, x.columns.values, balanced_y, f)
+                            model = run_decision_tree(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'deep-learning':
-                            model = run_deep_learning(balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                            model = run_deep_learning(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f, refactoring_name)
                         elif model_name == 'logistic-regression':
-                            model = run_logistic_regression(balanced_x, x.columns.values, balanced_y, f)
+                            model = run_logistic_regression(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'svm-non-linear':
-                            model = run_svm_non_linear(balanced_x, x.columns.values, balanced_y, f)
+                            model = run_svm_non_linear(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'naive-bayes':
-                            model = run_naive_bayes(balanced_x, x.columns.values, balanced_y, f)
+                            model = run_naive_bayes(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
 
                         print("Finished at %s\n" % now())
                         f.write("Finished at %s\n" % now())

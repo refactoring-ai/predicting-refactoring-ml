@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 import keras_metrics
 
 
-def run_deep_learning(x, columns, y, f, refactoring_name):
+def run_deep_learning(dataset, refactoring_name, model_name, x, columns, y, f):
 
     x_train, x_test, y_train, y_test = train_test_split (x, y, test_size=0.2,
                                                          random_state=42)
@@ -37,7 +37,6 @@ def run_deep_learning(x, columns, y, f, refactoring_name):
     # model.add(Activation('softmax'))
     # model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
 
-
     model.summary()
 
     # early stop
@@ -62,5 +61,7 @@ def run_deep_learning(x, columns, y, f, refactoring_name):
     recall = recall_score(y_test, y_pred)
     print("Recall: %0.2f" % (recall))
     f.write("Recall: %0.2f\n" % (recall))
+
+    f.write(f'CSV,{dataset},{refactoring_name},{model_name},{precision},{recall},{accuracy}\n')
 
     return model

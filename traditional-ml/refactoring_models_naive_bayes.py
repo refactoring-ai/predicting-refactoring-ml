@@ -1,7 +1,5 @@
-from random import uniform
 from warnings import simplefilter
 
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate, RandomizedSearchCV
 from sklearn.naive_bayes import GaussianNB
 
@@ -12,7 +10,7 @@ from file_utils import print_scores_1, print_best_parameters
 simplefilter(action='ignore', category=FutureWarning)
 
 
-def run_naive_bayes(x, columns, y, f):
+def run_naive_bayes(dataset, refactoring_name, model_name, x, columns, y, f):
     model = GaussianNB()
 
     # search
@@ -36,6 +34,6 @@ def run_naive_bayes(x, columns, y, f):
     scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'], verbose=2)
 
-    print_scores_1(scores, search.best_estimator_, columns, f)
+    print_scores_1(dataset, refactoring_name, model_name, scores, search.best_estimator_, columns, f)
 
     return search.best_estimator_
