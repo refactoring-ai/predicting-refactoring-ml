@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 import db
-from configs import ONLY_SOURCE_CODE_METRICS, DATASETS, MODELS
+from configs import DATASETS, MODELS
 from date_utils import now
 from ml_utils import perform_under_sampling, save_object
 from refactoring_models_decision_tree import run_decision_tree
