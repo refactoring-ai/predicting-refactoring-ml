@@ -70,7 +70,8 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 x = merged_dataset.drop("prediction", axis=1)
                 y = merged_dataset["prediction"]
 
-                if ONLY_SOURCE_CODE_METRICS:
+                # class level refactoring is the only one with process and ownership metrics
+                if not refactoring_level == 'class-level':
                     x = x.drop(["authorOwnership","bugFixCount","linesAdded","linesDeleted","qtyMajorAuthors",
                                 "qtyMinorAuthors","qtyOfAuthors","qtyOfCommits","refactoringsInvolved"], axis=1)
 
