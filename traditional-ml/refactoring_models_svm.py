@@ -5,7 +5,7 @@ from scipy.stats import randint
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 from sklearn.svm import SVC
 
-from configs import N_ITER, N_CV
+from configs import N_ITER, N_CV, N_ITER_SVM, N_CV_SVM
 from date_utils import now
 from file_utils import print_scores_1, print_best_parameters
 
@@ -22,7 +22,7 @@ def run_svm(x, columns, y, f):
                   "decision_function_shape": ["ovo", "ovr"]}
 
     search = RandomizedSearchCV(model, param_dist,
-                                n_iter=N_ITER, cv=N_CV, iid=False, n_jobs=-1, verbose=2)
+                                n_iter=N_ITER_SVM, cv=N_CV_SVM, iid=False, n_jobs=-1, verbose=2)
 
     print("Search started at %s\n" % now())
     f.write("Search started at %s\n" % now())
@@ -38,7 +38,7 @@ def run_svm(x, columns, y, f):
     print("Cross validation started at %s\n" % now())
     f.write("Cross validation started at %s\n" % now())
 
-    scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
+    scores = cross_validate(model_for_cv, x, y, cv=N_CV_SVM, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'], verbose=2)
 
     print_scores_1(scores, search.best_estimator_, columns, f)
