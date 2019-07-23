@@ -14,7 +14,7 @@ def run_naive_bayes(dataset, refactoring_name, model_name, x, columns, y, f):
     model = GaussianNB()
 
     # search
-    param_dist = {"var_smoothing": [1e-09, 1e-08, 1e-07, 1e-06, 1e-05]}
+    param_dist = {"var_smoothing": [1e-10, 1e-09, 1e-08, 1e-07, 1e-06, 1e-05]}
     search = RandomizedSearchCV(model, param_dist,
                                 n_iter=N_ITER, cv=N_CV, iid=False,
                                 n_jobs=-1, verbose=2)
@@ -26,7 +26,7 @@ def run_naive_bayes(dataset, refactoring_name, model_name, x, columns, y, f):
     print_best_parameters(f, search)
 
     # cv
-    model_for_cv = GaussianNB(var_smoothing=search.best_params_["var_smoothing"], verbose=2)
+    model_for_cv = GaussianNB(var_smoothing=search.best_params_["var_smoothing"])
 
     print("Cross validation started at %s\n" % now())
     f.write("Cross validation started at %s\n" % now())
