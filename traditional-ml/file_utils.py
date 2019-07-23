@@ -3,7 +3,6 @@ import json
 
 def print_scores_1(dataset, refactoring_name, model_name, scores, best_model, columns, f):
     accuracy_str = "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
-    print(accuracy_str)
 
     precision_scores_str = "Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']]))
     precision_scores_str += f'\n(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})'
@@ -12,17 +11,21 @@ def print_scores_1(dataset, refactoring_name, model_name, scores, best_model, co
     recall_scores_str += f'\n(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})'
     recall_scores_str += f'\nMean recall: {scores["test_recall"].mean():.2f}'
 
+    print(accuracy_str)
     f.write(accuracy_str)
-    f.write("\nFeatures:\n")
-    f.write(', '.join(str(e) for e in list(columns)))
-    f.write("\n")
-    f.write("Coefficients:\n")
-    f.write(''.join(str(e) for e in best_model.coef_.tolist()))
-    f.write("\n")
     f.write(precision_scores_str)
     f.write("\n")
     f.write(recall_scores_str)
     f.write("\n")
+
+    # feature importance
+    if hasattr(best_model, "coef_"):
+        f.write("\nFeatures:\n")
+        f.write(', '.join(str(e) for e in list(columns)))
+        f.write("\n")
+        f.write("Coefficients:\n")
+        f.write(''.join(str(e) for e in best_model.coef_.tolist()))
+        f.write("\n")
 
     f.write(f'CSV,{dataset},{refactoring_name},{model_name},{scores["test_precision"].mean():.2f},{scores["test_recall"].mean():.2f},{scores["test_accuracy"].mean()}\n')
 
