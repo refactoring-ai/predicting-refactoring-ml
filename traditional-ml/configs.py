@@ -3,10 +3,10 @@
 # number of iterations (hyperparameter tuning)
 # number of cross-validations
 # SVM has its own, given its slowliness
-N_ITER = 10
-N_ITER_SVM = 5
-
+N_ITER = 100
 N_CV = 10
+
+N_ITER_SVM = 10
 N_CV_SVM = 5
 
 # how to balance the dataset
