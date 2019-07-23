@@ -16,10 +16,7 @@ def run_svm(dataset, refactoring_name, model_name, x, columns, y, f):
     model = SVC(verbose=True)
 
     param_dist = {"C": [uniform(0.01, 10) for i in range(0, 10)],
-                  "kernel": ["linear"],  # , "poly", "rbf", "sigmoid"
-                  "degree": randint(2, 5),
-                  "gamma": [uniform(0.01, 10) for i in range(0, 10)],
-                  "decision_function_shape": ["ovo", "ovr"]}
+                  "kernel": ["linear"]}
 
     search = RandomizedSearchCV(model, param_dist,
                                 n_iter=N_ITER_SVM, cv=N_CV_SVM, iid=False, n_jobs=-1, verbose=2)
