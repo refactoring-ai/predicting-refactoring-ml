@@ -111,7 +111,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                         finish_hour = now()
                         print("Finished at %s\n" % finish_hour)
                         f.write("Finished at %s\n" % finish_hour)
-                        f.write("TIME,%s,%s,%s,%s,%s\n", dataset, refactoring_name, model_name, start_hour, finish_hour)
+                        f.write("TIME,%s,%s,%s,%s,%s\n" % (dataset, refactoring_name, model_name, start_hour, finish_hour))
 
                         save_object("model", model, model_name, dataset, refactoring_name)
                         save_object("scaler", scaler, model_name, dataset, refactoring_name)
