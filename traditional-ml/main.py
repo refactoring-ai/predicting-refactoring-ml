@@ -20,11 +20,7 @@ from refactoring_models_svm_non_linear import run_svm_non_linear
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
     for dataset in DATASETS:
 
-        # testing in a single refactoring and model
-        # if not dataset == '':
-        #     continue
-
-        file_name = "results/results-" + refactoring_level + "-" + ("all" if dataset == "" else dataset) + ".txt"
+        file_name = "results/results-" + refactoring_level + "-" + ("all" if not dataset else dataset) + ".txt"
         f = open(file_name, "w+")
         f.write(dataset + "\n\n")
 
@@ -92,8 +88,9 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
 
                         model = None
 
-                        print("Started at %s\n" % now())
-                        f.write("Started at %s\n" % now())
+                        start_hour = now()
+                        print("Started at %s\n" % start_hour)
+                        f.write("Started at %s\n" % start_hour)
 
                         if model_name == 'svm':
                             model = run_svm(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
@@ -110,8 +107,10 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                         elif model_name == 'naive-bayes':
                             model = run_naive_bayes(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
 
-                        print("Finished at %s\n" % now())
-                        f.write("Finished at %s\n" % now())
+                        finish_hour = now()
+                        print("Finished at %s\n" % finish_hour)
+                        f.write("Finished at %s\n" % finish_hour)
+                        f.write("TIME,%s,%s,%s,%s,%s\n", dataset, refactoring_name, model_name, start_hour, finish_hour)
 
                         save_object("model", model, model_name, dataset, refactoring_name)
                         save_object("scaler", scaler, model_name, dataset, refactoring_name)
