@@ -100,7 +100,7 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                         elif model_name == 'decision-tree':
                             model = run_decision_tree(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'deep-learning':
-                            model = run_deep_learning(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f, refactoring_name)
+                            model = run_deep_learning(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'logistic-regression':
                             model = run_logistic_regression(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'svm-non-linear':
