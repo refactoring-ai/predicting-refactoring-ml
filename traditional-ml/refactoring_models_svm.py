@@ -13,10 +13,12 @@ warnings.filterwarnings("ignore")
 
 
 def run_svm(dataset, refactoring_name, model_name, x, columns, y, f):
-    model = SVC(verbose=True)
+    model = SVC(verbose=True,shrinking=False)
 
     param_dist = {"C": [uniform(0.01, 10) for i in range(0, 10)],
-                  "kernel": ["linear"]}
+                  "kernel": ["linear"],
+                  "shrinking": [False]
+                  }
 
     search = RandomizedSearchCV(model, param_dist,
                                 n_iter=N_ITER_SVM, cv=N_CV_SVM, iid=False, n_jobs=-1, verbose=2)
@@ -28,7 +30,7 @@ def run_svm(dataset, refactoring_name, model_name, x, columns, y, f):
     print_best_parameters(f, search)
 
     # cv
-    model_for_cv = SVC(C=search.best_params_["C"], kernel=search.best_params_["kernel"],
+    model_for_cv = SVC(shrinking=False, C=search.best_params_["C"], kernel=search.best_params_["kernel"],
                        degree=search.best_params_["degree"], gamma=search.best_params_["gamma"],
                        decision_function_shape=search.best_params_["decision_function_shape"], verbose=True)
 
