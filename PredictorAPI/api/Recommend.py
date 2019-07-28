@@ -13,7 +13,9 @@ class Recommend(Resource):
                            '(i.e., Logistic Regression, Naive Bayes, SVM, Decision Trees, Random Forest, and Deep Neural Network) and ' \
                            'train them in a dataset of more than two million real-world refactorings that happened in 11,149 projects  from the Apache, F-Droid, and GitHub ecosystems. '
 
-        return jsonify({'About:': aboutInformation, 'How to use': 'For more information how to use this api, please visit www.refactoring.io.'})
+        authors = 'Anonymous authors'
+
+        return jsonify({'About:': aboutInformation, 'How to use': 'For more information how to use this api, please visit www.refactoring.io.', 'Authors': authors})
 
     def post(self):
         logger.debug("Inside the post method of Recommend")
