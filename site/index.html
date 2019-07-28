@@ -46,7 +46,7 @@
                 </ol>
 
                 <div class="top-search-box">
-                    <form class="form-inline search-form justify-content-center" action="" method="get">
+                    <form class="form-inline search-form justify-content-center" onsubmit="testing(event, form);">
 
                         <input type="text" placeholder="Search..." name="search" class="form-control search-input">
 
@@ -60,6 +60,9 @@
         </header>
         <!--//header-->
         <div class="doc-wrapper">
+
+
+
             <div class="container">
                 <div id="doc-header" class="doc-header text-center">
                     <h1 class="doc-title"><i class="icon fa fa-paper-plane"></i> Quick Start</h1>
@@ -447,6 +450,7 @@
     <script type="text/javascript" src="assets/plugins/jquery-scrollTo/jquery.scrollTo.min.js"></script>
     <script type="text/javascript" src="assets/plugins/stickyfill/dist/stickyfill.min.js"></script>
     <script type="text/javascript" src="assets/js/main.js"></script>
+    <script src="assets/js/axios.min.js" type="text/javascript"></script>
 
 </body>
 
