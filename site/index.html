@@ -100,11 +100,15 @@
                             <section id="tables-section" class="doc-section">
                                 <h2 class="section-title">Refactorings</h2>
                                 <div class="section-block">
+                                    <p>We explore how machine learning can be harnessed to support refactoring activities. 
+                                            The task of identifying (relevant) refactoring opportunities, 
+                                            which currently heavily rely on developers' expertise and gut feeling, 
+                                            should be supported by sophisticated prediction algorithms.</p>
                                     <p>The models are able to predict three different refactorings levels: <b>class-</b>, <b>method-</b>, and <b>variable-level</b>. The following table presents such refactorings.
                                     </p>
                                 </div>
                                 <div class="section-block">
-                                    <h6>The 20 refactoring operations that our models are able to predict.</h6>
+                                    <h6>Table 1 - The 20 refactoring operations that our models are able to predict.</h6>
                                     <div class="table-responsive">
                                         <table class="table table-striped">
                                             <thead>
@@ -263,10 +267,18 @@
                                     <p>We created an API to make easier to use our models to predict refactorings. Basically the user just need to call an URL and pass some informations.
                                     </p>
 
+                                    <p>
+                                            For general information about the API simply make a request with the <b>GET</b> method, for example:
+                                    </p>
+
+                            
+
                                     <div class="code-block">
                                         <h6>URL to call:</h6>
-                                        <p><code>GET ---&#x3E; http://0.0.0.0:5000/api/v1.0/recommend</code></p>
-                                        <p>Get information about how to use the models.</p>
+                                        <p><code>curl -X GET http://0.0.0.0:5000/api/v1.0/recommend
+                                                -H &#x22;Content-Type: application/json&#x22;</code></p>
+                                        <!-- <p><code>GET ---&#x3E; http://0.0.0.0:5000/api/v1.0/recommend</code></p> -->
+                                        <p>Get information about how to use the models. The ouput json is: </p>
                                         <div class="code-block">
                                             <h6>Output JSON</h6>
                                             <pre><code class="language-javascript"> {
@@ -275,14 +287,51 @@
   &#x22;How to use&#x22;: &#x22;For more information how to use this api, please visit www.refactoring.io.&#x22;
   }</code></pre>
                                         </div>
+
+                                        <p>
+                                                To use the prediction models simply make a simple request with the <b>POST</b> method for the same end-point passing a specific JSON with some metrics (according to the level of refactoring to be predicted). 
+                                                For example:
+                                        </p>
+                                        
                                         <!--//code-block-->
 
-                                        <p><code>POST ---&#x3E; http://0.0.0.0:5000/api/v1.0/recommend</code></p>
-                                        <p>Call a model to predict a refactoring. A JSON it is necessary to send into the body of this request. For instance, the JSON below represents that the model will predict the refactoring <b>Extract Class</b> using the algorithm <b>SVM</b> using as trained dataset <b>all</b> (<a href="https://github.com/apache?language=java">Apache</a>,
-                                            <a href="https://f-droid.org/en/">F-Droid</a>, and <a href="https://github.com/">GitHub</a>). Note that, in order to call the model a set of feature must be supplied.
+                                        <p><code>curl -X POST http://0.0.0.0:5000/api/v1.0/recommend
+                                                -H &#x22;Content-Type: application/json&#x22;</code></p>
+                                        
+                                    
+                                        <p>As stated before our models are able to predict three different refactorings levels: <b>class-</b>, <b>method-</b>, and <b>variable-level</b>. 
+                                            For each refactoring level a specific JSON needs to be passed along with the <b>POST</b> method. For instance, 
                                         </p>
+                                        
+                                        <div class="row">
+                                                <div class="col-12">
+                                                    <h6>JSON Attributes</h6>
+                                                    <ol class="list">
+                                                        <li>version: should be <b>icse19</b></li>
+                                                        <li>dataset: here it is possible to choose <b>all</b>, <a href="https://github.com/apache?language=java">Apache</a>,
+                                                            <a href="https://f-droid.org/en/">F-Droid</a>, or <a href="https://github.com/">GitHub</a></li>
+                                                        <li>refactoring: the refactoring to be predicted (see the 20 refactoring available in Table 1)</li>
+                                                        <li>model: here it is possible to use <b>random-forest</b>, <b>SVM</b>, <b>naive-bayes</b>, <b>logistic-regression</b>, <b>decision-tree</b>, or <b>neural-network</b></li>
+                                                        <li>features: metrics used by the models to predict the selected refactoring.</li>
+                                                        <ul>
+                                                                <li>Class-level refactorings: 47 metrics should be provided, where 38 code metrics + 5 process metrics + 4 ownership metrics.</li>
+                                                                <li>Method-level refactorings: 58 metrics should be provided, where 38 code metrics at class-level + 20 code metrics at method-level.</li>
+                                                                <li>Variable-level refactorings: 59 metrics should be provided, where 38 code metrics at class-level + 20 code metrics at method-level + 1 code metric at variable-level.</li>
+                                                        </ul>
+                                                    </ol>
+                                                </div>
+                                        </div>
 
-                                        <h6>Input JSON</h6>
+                                        <p>
+                                                The JSON below contains some mandatory attributes. represents that the model will predict the refactoring at class-level (i.e., <b>Extract Class</b> - see Table 1) 
+                                                using the algorithm <b>SVM</b> (here it is possible to use <b>random-forest</b>, <b>naive-bayes</b>, <b>logistic-regression</b>, <b>decision-tree</b>, or <b>neural-network</b>) 
+                                                using as trained dataset <b>all</b> (here it is possible to choose <b>all</b>, <a href="https://github.com/apache?language=java">Apache</a>,
+                                                <a href="https://f-droid.org/en/">F-Droid</a>, or <a href="https://github.com/">GitHub</a>). 
+                                                Note that, in order to call the model a set of feature must be supplied. I
+                                            </p>
+    
+                                        <h3 class="block-title" id="class-level-section">Class-level refactoring.</h3>
+                                        <h6>Input JSON to predict class-level refactorings</h6>
                                         <pre><code class="language-javascript">
 {
    &#x22;version&#x22;:&#x22;icse19&#x22;,
@@ -341,42 +390,201 @@
 }
 
                                         </code></pre>
-                                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
-                                        </p>
-                                        <div class="row">
-                                            <div class="col-md-6 col-12">
-                                                <h6>Un-ordered list example</h6>
-                                                <ul class="list">
-                                                    <li>Lorem ipsum dolor sit amet.</li>
-                                                    <li>Aliquam tincidunt mauris.</li>
-                                                    <li>Ultricies eget vel aliquam libero.
-                                                        <ul>
-                                                            <li>Turpis pulvinar</li>
-                                                            <li>Feugiat scelerisque</li>
-                                                            <li>Ut tincidunt</li>
-                                                        </ul>
-                                                    </li>
-                                                    <li>Pellentesque habitant morbi.</li>
-                                                    <li>Praesent dapibus, neque id.</li>
-                                                </ul>
+                                        
+                                        <p>After the model process the <b>POST</b> request a JSON is send as response. 
+                                            Note that, <code>"recommended"</code> is a boolean. Therefore, true means that our model recommend to apply the refactoring <b>Extract Class</b>.  
+                                        <div class="code-block">
+                                                <h6>Output JSON on success</h6>
+                                                <pre><code class="language-javascript"> 
+{
+    &#x22;recommended&#x22;: true
+    &#x22;status_code&#x22;: 200
+}</code></pre>
+
+<div class="code-block">
+        <h6>Output JSON on failure</h6>
+        <pre><code class="language-javascript"> 
+{
+&#x22;message&#x22;: &#x22;missing parameters&#x22;
+&#x22;status_code&#x22;: 400
+}</code></pre>
+
+<h3 class="block-title" id="method-level-section">Method-level refactoring.</h3>
+<h6>Input JSON to predict method-level refactorings</h6>
+<pre><code class="language-javascript">
+{
+    &#x22;version&#x22;: &#x22;icse19&#x22;,
+    &#x22;dataset&#x22;: &#x22;all&#x22;,
+    &#x22;refactoring&#x22;: &#x22;Inline Method&#x22;,
+    &#x22;model&#x22;: &#x22;SVM&#x22;,
+    &#x22;features&#x22;: {
+        &#x22;classAnonymousClassesQty&#x22;: 1,
+        &#x22;classAssignmentsQty&#x22;: 2,
+        &#x22;classCbo&#x22;: 3,
+        &#x22;classComparisonsQty&#x22;: 4,
+        &#x22;classLambdasQty&#x22;: 5,
+        &#x22;classLcom&#x22;: 6,
+        &#x22;classLoc&#x22;: 7,
+        &#x22;classLoopQty&#x22;: 8,
+        &#x22;classMathOperationsQty&#x22;: 9,
+        &#x22;classMaxNestedBlocks&#x22;: 10,
+        &#x22;classNosi&#x22;: 11,
+        &#x22;classNumberOfAbstractMethods&#x22;: 12,
+        &#x22;classNumberOfDefaultFields&#x22;: 13,
+        &#x22;classNumberOfDefaultMethods&#x22;: 14,
+        &#x22;classNumberOfFields&#x22;: 15,
+        &#x22;classNumberOfFinalFields&#x22;: 16,
+        &#x22;classNumberOfFinalMethods&#x22;: 17,
+        &#x22;classNumberOfMethods&#x22;: 18,
+        &#x22;classNumberOfPrivateFields&#x22;: 19,
+        &#x22;classNumberOfPrivateMethods&#x22;: 20,
+        &#x22;classNumberOfProtectedFields&#x22;: 21,
+        &#x22;classNumberOfProtectedMethods&#x22;: 22,
+        &#x22;classNumberOfPublicFields&#x22;: 23,
+        &#x22;classNumberOfPublicMethods&#x22;: 24,
+        &#x22;classNumberOfStaticFields&#x22;: 25,
+        &#x22;classNumberOfStaticMethods&#x22;: 26,
+        &#x22;classNumberOfSynchronizedFields&#x22;: 27,
+        &#x22;classNumberOfSynchronizedMethods&#x22;: 28,
+        &#x22;classNumbersQty&#x22;: 29,
+        &#x22;classParenthesizedExpsQty&#x22;: 30,
+        &#x22;classReturnQty&#x22;: 31,
+        &#x22;classRfc&#x22;: 32,
+        &#x22;classStringLiteralsQty&#x22;: 33,
+        &#x22;classSubClassesQty&#x22;: 34,
+        &#x22;classTryCatchQty&#x22;: 35,
+        &#x22;classUniqueWordsQty&#x22;: 36,
+        &#x22;classVariablesQty&#x22;: 37,
+        &#x22;classWmc&#x22;: 38,
+        &#x22;methodAnonymousClassesQty&#x22;: 39,
+        &#x22;methodAssignmentsQty&#x22;: 40,
+        &#x22;methodCbo&#x22;: 41,
+        &#x22;methodComparisonsQty&#x22;: 42,
+        &#x22;methodLambdasQty&#x22;: 43,
+        &#x22;methodLoc&#x22;: 44,
+        &#x22;methodLoopQty&#x22;: 45,
+        &#x22;methodMathOperationsQty&#x22;: 46,
+        &#x22;methodMaxNestedBlocks&#x22;: 47,
+        &#x22;methodNumbersQty&#x22;: 48,
+        &#x22;methodParametersQty&#x22;: 49,
+        &#x22;methodParenthesizedExpsQty&#x22;: 50,
+        &#x22;methodReturnQty&#x22;: 51,
+        &#x22;methodRfc&#x22;: 52,
+        &#x22;methodStringLiteralsQty&#x22;: 53,
+        &#x22;methodSubClassesQty&#x22;: 54,
+        &#x22;methodTryCatchQty&#x22;: 55,
+        &#x22;methodUniqueWordsQty&#x22;: 56,
+        &#x22;methodVariablesQty&#x22;: 57,
+        &#x22;methodWmc&#x22;: 58
+    }
+}
+</code></pre>
+
+<div class="code-block">
+        <h6>Output JSON on success</h6>
+        <pre><code class="language-javascript"> 
+{
+&#x22;recommended&#x22;: true
+&#x22;status_code&#x22;: 200
+}</code></pre>
+
+<div class="code-block">
+<h6>Output JSON on failure</h6>
+<pre><code class="language-javascript"> 
+{
+&#x22;message&#x22;: &#x22;missing parameters&#x22;
+&#x22;status_code&#x22;: 400
+}</code></pre>
+
+<h3 class="block-title" id="variable-level-section">Variable-level refactoring.</h3>
+<h6>Input JSON to predict variable-level refactorings</h6>
+<pre><code class="language-javascript">
+{
+    &#x22;version&#x22;: &#x22;icse19&#x22;,
+    &#x22;dataset&#x22;: &#x22;all&#x22;,
+    &#x22;refactoring&#x22;: &#x22;Parameterize Variable&#x22;,
+    &#x22;model&#x22;: &#x22;SVM&#x22;,
+    &#x22;features&#x22;: {
+        &#x22;classAnonymousClassesQty&#x22;: 1,
+        &#x22;classAssignmentsQty&#x22;: 2,
+        &#x22;classCbo&#x22;: 3,
+        &#x22;classComparisonsQty&#x22;: 4,
+        &#x22;classLambdasQty&#x22;: 5,
+        &#x22;classLcom&#x22;: 6,
+        &#x22;classLoc&#x22;: 7,
+        &#x22;classLoopQty&#x22;: 8,
+        &#x22;classMathOperationsQty&#x22;: 9,
+        &#x22;classMaxNestedBlocks&#x22;: 10,
+        &#x22;classNosi&#x22;: 11,
+        &#x22;classNumberOfAbstractMethods&#x22;: 12,
+        &#x22;classNumberOfDefaultFields&#x22;: 13,
+        &#x22;classNumberOfDefaultMethods&#x22;: 14,
+        &#x22;classNumberOfFields&#x22;: 15,
+        &#x22;classNumberOfFinalFields&#x22;: 16,
+        &#x22;classNumberOfFinalMethods&#x22;: 17,
+        &#x22;classNumberOfMethods&#x22;: 18,
+        &#x22;classNumberOfPrivateFields&#x22;: 19,
+        &#x22;classNumberOfPrivateMethods&#x22;: 20,
+        &#x22;classNumberOfProtectedFields&#x22;: 21,
+        &#x22;classNumberOfProtectedMethods&#x22;: 22,
+        &#x22;classNumberOfPublicFields&#x22;: 23,
+        &#x22;classNumberOfPublicMethods&#x22;: 24,
+        &#x22;classNumberOfStaticFields&#x22;: 25,
+        &#x22;classNumberOfStaticMethods&#x22;: 26,
+        &#x22;classNumberOfSynchronizedFields&#x22;: 27,
+        &#x22;classNumberOfSynchronizedMethods&#x22;: 28,
+        &#x22;classNumbersQty&#x22;: 29,
+        &#x22;classParenthesizedExpsQty&#x22;: 30,
+        &#x22;classReturnQty&#x22;: 31,
+        &#x22;classRfc&#x22;: 32,
+        &#x22;classStringLiteralsQty&#x22;: 33,
+        &#x22;classSubClassesQty&#x22;: 34,
+        &#x22;classTryCatchQty&#x22;: 35,
+        &#x22;classUniqueWordsQty&#x22;: 36,
+        &#x22;classVariablesQty&#x22;: 37,
+        &#x22;classWmc&#x22;: 38,
+        &#x22;methodAnonymousClassesQty&#x22;: 39,
+        &#x22;methodAssignmentsQty&#x22;: 40,
+        &#x22;methodCbo&#x22;: 41,
+        &#x22;methodComparisonsQty&#x22;: 42,
+        &#x22;methodLambdasQty&#x22;: 43,
+        &#x22;methodLoc&#x22;: 44,
+        &#x22;methodLoopQty&#x22;: 45,
+        &#x22;methodMathOperationsQty&#x22;: 46,
+        &#x22;methodMaxNestedBlocks&#x22;: 47,
+        &#x22;methodNumbersQty&#x22;: 48,
+        &#x22;methodParametersQty&#x22;: 49,
+        &#x22;methodParenthesizedExpsQty&#x22;: 50,
+        &#x22;methodReturnQty&#x22;: 51,
+        &#x22;methodRfc&#x22;: 52,
+        &#x22;methodStringLiteralsQty&#x22;: 53,
+        &#x22;methodSubClassesQty&#x22;: 54,
+        &#x22;methodTryCatchQty&#x22;: 55,
+        &#x22;methodUniqueWordsQty&#x22;: 56,
+        &#x22;methodVariablesQty&#x22;: 57,
+        &#x22;methodWmc&#x22;: 58
+        &#x22;variableAppearances&#x22;: 59
+    }
+}
+</code></pre>
+
+<div class="code-block">
+        <h6>Output JSON on success</h6>
+        <pre><code class="language-javascript"> 
+{
+&#x22;recommended&#x22;: true
+&#x22;status_code&#x22;: 200
+}</code></pre>
+
+<div class="code-block">
+<h6>Output JSON on failure</h6>
+<pre><code class="language-javascript"> 
+{
+&#x22;message&#x22;: &#x22;missing parameters&#x22;
+&#x22;status_code&#x22;: 400
+}</code></pre>
                                             </div>
-                                            <div class="col-md-6 col-12">
-                                                <h6>Ordered list example</h6>
-                                                <ol class="list">
-                                                    <li>Lorem ipsum dolor sit amet.</li>
-                                                    <li>Aliquam tincidunt mauris.</li>
-                                                    <li>Ultricies eget vel aliquam libero.
-                                                        <ul>
-                                                            <li>Turpis pulvinar</li>
-                                                            <li>Feugiat scelerisque</li>
-                                                            <li>Ut tincidunt</li>
-                                                        </ul>
-                                                    </li>
-                                                    <li>Pellentesque habitant morbi.</li>
-                                                    <li>Praesent dapibus, neque id.</li>
-                                                </ol>
-                                            </div>
-                                        </div>
+                                    
                                         <!--//row-->
                                     </div>
                                     <!--//code-block-->
@@ -385,6 +593,189 @@
 
                             </section>
                             <!--//doc-section-->
+
+                            <section id="features-section" class="doc-section">
+                                    <h2 class="section-title">Features/Metrics</h2>
+                                    <div id="step1" class="section-block">
+                                        <h3 class="block-title">Feature Extraction</h3>
+                                        <p>Our models use <b>source code</b>, <b>process</b>, and <b>ownership</b> metrics of each refactored and non-refactored instances. 
+                                                These three types of metrics have been proven useful in other prediction models in software
+                                                engineering.
+                                        </p>
+    
+                                        <div class="callout-block callout-info">
+                                                <div class="icon-holder">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </div><!--//icon-holder-->
+                                                <div class="content">
+                                                    <h4 class="callout-title">Source Code Metrics</h4>
+                                                    <p>Features in this category are derived from source code attributes.  
+                                                            Our models use CK metrics as they express the complexity of the element. 
+                                                            More specifically, CBO, WMC, RFC, and LCOM. We also collect several different attributes of the element, e.g., number of fields, number of loops, number of return statements.
+                                                            These metrics are collected at class (38 metrics), method (20 metrics), and variable levels (1 metric).</p>
+                                                    <!-- <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium <code>&lt;code&gt;</code> , Nemo enim ipsam voluptatem quia voluptas <a href="#">link example</a> sit aspernatur aut odit aut fugit.</p> -->
+                                                </div><!--//content-->
+                                         </div><!--//callout-block-->
+
+                                         <!-- <p>Class-level features (total of <b>48</b> features/metrics). -->
+                                            </p>
+                                            <div class="row">
+                                                <div class="col-md-6 col-12">
+                                                    <h6><code>Class-level Metrics Source code</code></h6>
+                                                    <ul class="list">
+                                                        <li>CBO (Coupling between objects): Counts the number of dependencies a class has.</li>
+                                                        <li>WMC (Weight Method Class) or McCabe's complexity. It counts the number of branch instructions in a class.</li>
+                                                        <li>RFC (Response for a Class): Counts the number of unique method invocations in a class.</li>
+                                                        <li>LCOM (Lack of Cohesion of Methods): Calculates LCOM metric.</li>
+                                                        <li>number of methods: Counts the number of methods.</li>
+                                                        <li>number of static methods: Counts the number of static methods.</li>
+                                                        <li>number of public methods: Counts the number of private methods.</li>
+                                                        <li>number of private methods: Counts the number of private methods.</li>
+                                                        <li>number of protected methods: Counts the number of protected methods.</li>
+                                                        <li>number of abstract methods: Counts the number of abstract methods.</li>
+                                                        <li>number of default methods: Counts the number of default methods.</li>
+                                                        <li>number of final methods: Counts the number of final methods.</li>
+                                                        <li>number of synchronized methods: Counts the number of synchronized methods.</li>
+                                                        <li>number of fields: Counts the number of fields.</li>
+                                                        <li>number of static fields: Counts the number of static fields.</li>
+                                                        <li>number of public fields: Counts the number of public fields.</li>
+                                                        <li>number of private fields: Counts the number of private fields.</li>
+                                                        <li>number of protected fields: Counts the number of protected fields.</li>
+                                                        <li>number of default fields: Counts the number of default fields.</li>
+                                                        <li>number of final fields: Counts the number of final fields.</li>
+                                                        <li>number of synchronized fields: Counts the number of synchronized fields.</li>
+                                                        <li>NOSI (number of static invocation):  Counts the number of invocations to static methods.</li>
+                                                        <li>LOC (lines of code): It counts the lines of count, ignoring empty lines.</li>
+                                                        <li>number of return statements: The number of return instructions..</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <h6>Cont.</h6>
+                                                    <ul class="list">
+                                                        <li>number of loops: The number of loops (i.e., for, while, do while, enhanced for).</li>
+                                                        <li>number of comparison expressions: Counts the number of comparison expression.</li>
+                                                        <li>number of try catches: The number of try/catches.</li>
+                                                        <li>number of expressions with parenthesis: The number of expressions inside parenthesis.</li>
+                                                        <li>number of string literals: The number of string literals (e.g., "John Doe"). Repeated strings count as many times as they appear.</li>
+                                                        <li>number of <i>number constants</i>: The number of <i>number constants</i>.</li>
+                                                        <li>number of assignments: The number of assignments.</li>
+                                                        <li>number of mathematical operators: The number of math operations (times, divide, remainder, plus, minus, left shit, right shift).</li>
+                                                        <li>number of declared variables: Number of declared variables.</li>
+                                                        <li>max number of nested blocks: The highest number of blocks nested together.</li>
+                                                        <li>number of anonymous classes: Quantity of Anonymous classes.</li>
+                                                        <li>number of sub classes: Quantity of sub classes.</li>
+                                                        <li>number of of lambda expressions: Quantity of lambda expressions.</li>
+                                                        <li>number of unique words.: Quantity of number of unique words..</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                    <div class="col-md-6 col-12">
+                                                        <h6><code>Metrics -- Source code</code> </h6>
+                                                        <ul class="list">
+                                                            <li>CBO (Coupling between objects): Counts the number of dependencies.</li>
+                                                            <li>WMC (Weight Method Class) or McCabe's complexity. It counts the number of branch instructions.</li>
+                                                            <li>RFC (Response for a Class): Counts the number of unique method invocations in a class.</li>
+                                                            <li>LOC (lines of code): It counts the lines of count, ignoring empty lines.</li>
+                                                            <li>number of return statements: The number of return instructions.</li>
+                                                            <li>number of variables: The number of variables.</li>
+                                                            <li>number of parameters: The number of parameters.</li>
+                                                            <li>number of loops: The number of loops.</li>
+                                                            <li>number of comparison operators: The number of comparison operators.</li>
+                                                            <li>number of try/catches: The number of try/catches.</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-md-6 col-12">
+                                                        <h6>Cont.</h6>
+                                                        <ul class="list">
+                                                          <li>number of expressions with parenthesis: The number of expressions with parenthesis.</li>  
+                                                          <li>number of string literals: The number of string literals.</li>
+                                                          <li>number of <i>number constants</i>: The number of 'number constants'.</li>
+                                                          <li>number of assignment: The number of assignment.</li>
+                                                          <li>number of mathematical operators: The number of mathematical operators.</li>
+                                                          <li>max number of nested blocks: The max number of nested blocks.</li>
+                                                          <li>number of anonymous classes: The number of anonymous classes.</li>
+                                                          <li>number of sub-classes: The number of sub-classes.</li>
+                                                          <li>number of lambda expressions: The number of lambda expressions.</li>
+                                                          <li>number of unique words: The number of unique words.</li>
+                                                        </ul>
+                                                    </div>
+                                            </div>
+
+                                            <div class="row">
+                                                    <div class="col-md-6 col-12">
+                                                        <h6><code>Variable-level Metrics -- Source code</code></h6>
+                                                        <ul class="list">
+                                                            <li>Number of times the variable is used: The number of times the variable is used</li>
+                                                        </ul>
+                                                    </div>
+                                            </div>
+
+                                            <div class="callout-block callout-warning">
+                                                    <div class="icon-holder">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </div><!--//icon-holder-->
+                                                    <div class="content">
+                                                        <h4 class="callout-title">Process Metrics</h4>
+                                                        <p>Process metrics have been proven useful in defect prediction algorithms.  
+                                                            Our models use 5 different process metrics. Please note that, these 5 metrics
+                                                            are only calculated at <b>class level refactorings</b>.
+                                                            
+                                                            <!-- <b>quantity of commits</b>, <b>the sum of lines added and removed</b>, 
+                                                            <b>number of bug fixes</b>, and <b>number of previous refactoring operations</b>. -->
+                                                        </p>
+                                                        <!-- <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium <code>&lt;code&gt;</code> , Nemo enim ipsam voluptatem quia voluptas <a href="#">link example</a> sit aspernatur aut odit aut fugit.</p> -->
+                                                    </div><!--//content-->
+                                             </div><!--//callout-block-->
+    
+                                             <div class="row">
+                                                    <div class="col-md-6 col-12">
+                                                        <h6><code>Process Metrics</code></h6>
+                                                        <ul class="list">
+                                                            <li>quantity of commits</li>
+                                                            <li>the sum of lines added and removed</li>
+                                                            <li>number of bug fixes</li>
+                                                            <li>number of previous refactoring operations</li>
+                                                        </ul>
+                                                    </div>
+                                            </div>
+                                
+                                            <div class="callout-block callout-danger">
+                                                    <div class="icon-holder">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </div><!--//icon-holder-->
+                                                    <div class="content">
+                                                        <h4 class="callout-title">Code Ownership Metrics</h4>
+                                                        <p>
+                                                                We adopt the suite of ownership metrics proposed by <a href="https://dl.acm.org/citation.cfm?id=2025119">Bird et al. (2011)</a>. 
+                                                                They have proposed 4 metrics.  Please note that, these 4 metrics are only calculated at <b>class level refactorings</b>.
+                                                            
+                                                            <!-- <b>quantity of commits</b>, <b>the sum of lines added and removed</b>, 
+                                                            <b>number of bug fixes</b>, and <b>number of previous refactoring operations</b>. -->
+                                                        </p>
+                                                        <!-- <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium <code>&lt;code&gt;</code> , Nemo enim ipsam voluptatem quia voluptas <a href="#">link example</a> sit aspernatur aut odit aut fugit.</p> -->
+                                                    </div><!--//content-->
+                                             </div><!--//callout-block-->
+
+                                             <div class="row">
+                                                    <div class="col-md-6 col-12">
+                                                        <h6><code>Code Ownership Metrics</code></h6>
+                                                        <ul class="list">
+                                                            <li>quantity of authors</li>
+                                                            <li>quantity of minor authors</li>
+                                                            <li>quantity of major authors</li>
+                                                            <li>author ownership</li>
+                                                        </ul>
+                                                    </div>
+                                            </div>
+
+                                    
+                                        <!--//code-block-->
+                                    </div>
+                                    <!--//section-block-->
+    
+                                </section>
 
                         </div>
                         <!--//content-inner-->
@@ -402,6 +793,12 @@
                                         <a class="nav-link scrollto" href="#step3">Step Three</a>
                                     </nav><!--//nav-->
                                 <a class="nav-link scrollto" href="#installation-section">How to use</a>
+                                <nav class="doc-sub-menu nav flex-column">
+                                        <a class="nav-link scrollto" href="#class-level-section">Class-level refactoring</a>
+                                        <a class="nav-link scrollto" href="#method-level-section">Method-level refactoring</a>
+                                        <a class="nav-link scrollto" href="#variable-level-section">Variable-level refactoring</a>
+                                    </nav>
+                                <a class="nav-link scrollto" href="#features-section">Features/Metrics used</a>
                                 <!-- <nav class="doc-sub-menu nav flex-column">
                                         <a class="nav-link scrollto" href="#html">HTML</a>
                                         <a class="nav-link scrollto" href="#css">CSS</a>
