@@ -30,9 +30,7 @@ def run_svm(dataset, refactoring_name, model_name, x, columns, y, f):
     print_best_parameters(f, search)
 
     # cv
-    model_for_cv = SVC(shrinking=False, C=search.best_params_["C"], kernel=search.best_params_["kernel"],
-                       degree=search.best_params_["degree"], gamma=search.best_params_["gamma"],
-                       decision_function_shape=search.best_params_["decision_function_shape"], verbose=True)
+    model_for_cv = SVC(shrinking=False, C=search.best_params_["C"], kernel=search.best_params_["kernel"],verbose=True)
 
     print("Cross validation started at %s\n" % now())
     f.write("Cross validation started at %s\n" % now())
