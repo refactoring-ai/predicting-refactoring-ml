@@ -1,33 +1,37 @@
+import logging as logger
+import os
+import numpy
 from flask import jsonify, request
 from flask_restful import Resource, reqparse, abort
-import logging as logger
-from ml_utils import load_model, load_scaler
+from joblib import load
 
 
 
 class Recommend(Resource):
 
-    def __init__(self, root_folder):
+    def __init__(self, root_path):
         self.predictors = {}
         self.scalers = {}
 
-        datasets = ["Apache", "F-Droid", "GitHub"]
-        models_name = [""] # fill with models
-        refactoring_name = [""] # refactorings depend on level...
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        root_path = curr_dir + "/" + root_path 
+        models_name = os.listdir(root_path + "/models")
+        scalers_name = os.listdir(root_path + "/scalers")
 
-        for d in datasets:
-            for m in models_name:
-                for r in refactoring_name:
-                    self.predictors["{}_{}_{}".format(m, d, r)] = load_model(root_folder, m, d, r)
-                    self.scalers["{}_{}_{}".format(m, d, r)] = load_scaler(root_folder, m, d, r)
+        for m in models_name:
+            if m != '.DS_Store':
+                self.predictors[m] = load(root_path + "/models/" + m)
+        for s in scalers_name:
+            if s != '.DS_Store':
+                self.scalers[s] = load(root_path + "/scalers/" + s)
 
 
-    def predict(self, model, dataset, refactoring_name, features):
-        # TODO: transform features into numpy array
-
-        features =  scalers["{}_{}_{}".format(model, dataset, refactoring_name)].transform(features)
+    def predict(self, model, dataset, refactoring_name, features, level):
+        key_model = "model-{}--{}.joblib".format(model, refactoring_name)
+        key_scaler = "scaler-{}--{}.joblib".format(model, refactoring_name)
+        features =  self.scalers[key_scaler].transform([features])
         
-        return self.predictors["{}_{}_{}".format(model, dataset, refactoring_name)].predict(features)
+        return self.predictors[key_model].predict(features)
 
 
     def get(self):
@@ -51,114 +55,10 @@ class Recommend(Resource):
         refactoring: string
         model: string
         features: dict
+        level: string
         """
 
         logger.debug("Validating sent data")
-
-        if 'version' in data:
-            version = data['version']
-            if 'dataset' in data:
-                dataset = data['dataset']
-                if 'refactoring' in data:
-                    refactoring = data['refactoring']
-                    if 'model' in data:
-                        model = data['model']
-                        if (refactoring in class_level_refactoring):
-                            if 'features' in data:
-                                features = data['features']
-                                if (len(features) == 47):
-                                    # aqui deve-se chamar o modelo para predizer a refatoracao de class_level
-                                    print('tem a quantidade de features correta.')
-                                    return version, dataset, refactoring, model, features
-                                else:
-                                    message = 'Missing features for class_level_variable. ' \
-                                              'Please visit www.refactoring.io '
-                                    status_code = 400
-                                    return jsonify({'message:': message, 'status_code:': status_code})
-                            else:
-                                message = 'Missing parameters: {}'.format('features')
-                                status_code = 400
-                                return jsonify({'message:': message, 'status_code:': status_code})
-
-                        elif (refactoring in method_level_refactoring):
-                            print('Esta no metodo  refactoring')
-                            if 'features' in data:
-                                features = data['features']
-                                if (len(features) == 58):
-                                    # aqui deve-se chamar o modelo para predizer a refatoracao de class_level
-                                    print('tem a quantidade de features correta.')
-                                    return version, dataset, refactoring, model, features
-                                else:
-                                    message = 'Missing features for method_level_variable. ' \
-                                              'Please visit www.refactoring.io '
-                                    status_code = 400
-                                    return jsonify({'message:': message, 'status_code:': status_code})
-                        elif (refactoring in variable_level_refactoring):
-                            if 'features' in data:
-                                features = data['features']
-                                if (len(features) == 59):
-                                    # aqui deve-se chamar o modelo para predizer a refatoracao de class_level
-                                    print('tem a quantidade de features correta.')
-                                    return version, dataset, refactoring, model, features
-                                else:
-                                    message = 'Missing features for variable_level_variable. ' \
-                                              'Please visit www.refactoring.io '
-                                    status_code = 400
-                                    return jsonify({'message:': message, 'status_code:': status_code})
-                        else:
-                            message = 'Misspelling the refactoring name it should be: {}'.format(all_refactoring)
-                            status_code = 400
-                            return jsonify({'message:': message, 'status_code:': status_code})
-
-
-                    else:
-                        message = 'Missing parameters: {}'.format('model')
-                        status_code = 400
-                        return jsonify({'message:': message, 'status_code:': status_code})
-                else:
-                    message = 'Missing parameters: {}'.format('refactoring')
-                    status_code = 400
-                    return jsonify({'message:': message, 'status_code:': status_code})
-            else:
-                message = 'Missing parameters: {}'.format('dataset')
-                status_code = 400
-                return jsonify({'message:': message, 'status_code:': status_code})
-
-        else:
-            message = 'Missing parameters: {}'.format('version')
-            status_code = 400
-            return jsonify({'message:' : message, 'status_code:' : status_code})
-
-    def predict(self, model, features):
-
-
-
-    def post(self):
-        logger.debug("Inside the post method of Recommend")
-
-        all_refactoring = ["for class_level_refactoring-->", ["Extract Class",
-            "Extract Subclass",
-            "Extract Super-class",
-            "Extract Interface",
-            "Move Class",
-            "Rename Class",
-            "Move and Rename Class"],
-        "for method_level_refactoring-->", ["Extract And Move Method",
-            "Extract Method",
-            "Inline Method",
-            "Move Method",
-            "Pull Up Method",
-            "Push Down Method",
-            "Rename Method"],
-        "for variable_level_refactoring-->", ["Extract Variable",
-            "Inline Variable",
-            "Parameterize Variable",
-            "Rename Variable",
-            "Rename Parameter",
-            "Replace Variable with Attribute",
-
-                           ]
-        ]
 
         class_level_refactoring = {
             "Extract Class": "Extract Class",
@@ -177,7 +77,7 @@ class Recommend(Resource):
             "Move Method": "Move Method",
             "Pull Up Method": "Pull Up Method",
             "Push Down Method": "Push Down Method",
-            "Rename Method": "Rename Method"
+            "RenameMethod": "Rename Method"
         }
 
         variable_level_refactoring = {
@@ -189,9 +89,109 @@ class Recommend(Resource):
             "Replace Variable with Attribute": "Replace Variable with Attribute",
         }
 
+        class_order = ["classAnonymousClassesQty", "classAssignmentsQty", "classCbo", "classComparisonsQty", "classLambdasQty", "classLcom", "classLoc", "classLoopQty", "classMathOperationsQty", "classMaxNestedBlocks", "classNosi", "classNumberOfAbstractMethods", "classNumberOfDefaultFields", "classNumberOfDefaultMethods", "classNumberOfFields", "classNumberOfFinalFields", "classNumberOfFinalMethods", "classNumberOfMethods", "classNumberOfPrivateFields", "classNumberOfPrivateMethods", "classNumberOfProtectedFields", "classNumberOfProtectedMethods", "classNumberOfPublicFields", "classNumberOfPublicMethods", "classNumberOfStaticFields", "classNumberOfStaticMethods", "classNumberOfSynchronizedFields", "classNumberOfSynchronizedMethods", "classNumbersQty", "classParenthesizedExpsQty", "classReturnQty", "classRfc", "classStringLiteralsQty", "classSubClassesQty", "classTryCatchQty", "classUniqueWordsQty", "classVariablesQty", "classWmc", "authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors", "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"]
+        method_order = ["classAnonymousClassesQty", "classAssignmentsQty", "classCbo", "classComparisonsQty", "classLambdasQty", "classLcom", "classLoc", "classLoopQty", "classMathOperationsQty", "classMaxNestedBlocks", "classNosi", "classNumberOfAbstractMethods", "classNumberOfDefaultFields", "classNumberOfDefaultMethods", "classNumberOfFields", "classNumberOfFinalFields", "classNumberOfFinalMethods", "classNumberOfMethods", "classNumberOfPrivateFields", "classNumberOfPrivateMethods", "classNumberOfProtectedFields", "classNumberOfProtectedMethods", "classNumberOfPublicFields", "classNumberOfPublicMethods", "classNumberOfStaticFields", "classNumberOfStaticMethods", "classNumberOfSynchronizedFields", "classNumberOfSynchronizedMethods", "classNumbersQty", "classParenthesizedExpsQty", "classReturnQty", "classRfc", "classStringLiteralsQty", "classSubClassesQty", "classTryCatchQty", "classUniqueWordsQty", "classVariablesQty", "classWmc", "methodAnonymousClassesQty", "methodAssignmentsQty", "methodCbo", "methodComparisonsQty", "methodLambdasQty", "methodLoc", "methodLoopQty", "methodMathOperationsQty", "methodMaxNestedBlocks", "methodNumbersQty", "methodParametersQty", "methodParenthesizedExpsQty", "methodReturnQty", "methodRfc", "methodStringLiteralsQty", "methodSubClassesQty", "methodTryCatchQty", "methodUniqueWordsQty", "methodVariablesQty", "methodWmc"]
+        variable_order = ["classAnonymousClassesQty", "classAssignmentsQty", "classCbo", "classComparisonsQty", "classLambdasQty", "classLcom", "classLoc", "classLoopQty", "classMathOperationsQty", "classMaxNestedBlocks", "classNosi", "classNumberOfAbstractMethods", "classNumberOfDefaultFields", "classNumberOfDefaultMethods", "classNumberOfFields", "classNumberOfFinalFields", "classNumberOfFinalMethods", "classNumberOfMethods", "classNumberOfPrivateFields", "classNumberOfPrivateMethods", "classNumberOfProtectedFields", "classNumberOfProtectedMethods", "classNumberOfPublicFields", "classNumberOfPublicMethods", "classNumberOfStaticFields", "classNumberOfStaticMethods", "classNumberOfSynchronizedFields", "classNumberOfSynchronizedMethods", "classNumbersQty", "classParenthesizedExpsQty", "classReturnQty", "classRfc", "classStringLiteralsQty", "classSubClassesQty", "classTryCatchQty", "classUniqueWordsQty", "classVariablesQty", "classWmc", "methodAnonymousClassesQty", "methodAssignmentsQty", "methodCbo", "methodComparisonsQty", "methodLambdasQty", "methodLoc", "methodLoopQty", "methodMathOperationsQty", "methodMaxNestedBlocks", "methodNumbersQty", "methodParametersQty", "methodParenthesizedExpsQty", "methodReturnQty", "methodRfc", "methodStringLiteralsQty", "methodSubClassesQty", "methodTryCatchQty", "methodUniqueWordsQty", "methodVariablesQty", "methodWmc", "variableAppearances"]
+        
+        features_list = []
+        missing_features = []
+
+        if 'version' in data:
+            version = data['version']
+            if 'dataset' in data:
+                dataset = data['dataset']
+                if 'refactoring' in data:
+                    refactoring = data['refactoring']
+                    if 'model' in data:
+                        model = data['model']
+                        if (refactoring in class_level_refactoring):
+                            if 'features' in data:
+                                features = data['features']
+                                for mo in class_order:
+                                    v = features.get(mo, None)
+                                    if v is None:
+                                        missing_features.append(mo)
+                                    else:
+                                        features_list.append(v)
+
+                                if len(missing_features) > 0:
+                                    message = 'Missing features: {}' \
+                                              ' Please visit www.refactoring.io '.format(', '.join(missing_features))
+                                    status_code = 400
+                                    return jsonify({'message:': message, 'status_code:': status_code})
+
+                                return [version, dataset, refactoring, model, numpy.asarray(features_list), "method"]
+                            else:
+                                message = 'Missing parameters: {}'.format('features')
+                                status_code = 400
+                                return jsonify({'message:': message, 'status_code:': status_code})
+
+                        elif (refactoring in method_level_refactoring):
+                            if 'features' in data:
+                                features = data['features']
+                                for mo in method_order:
+                                    v = features.get(mo, None)
+                                    if v is None:
+                                        missing_features.append(mo)
+                                    else:
+                                        features_list.append(v)
+
+                                if len(missing_features) > 0:
+                                    message = 'Missing features: {}' \
+                                              ' Please visit www.refactoring.io '.format(', '.join(missing_features))
+                                    status_code = 400
+                                    return jsonify({'message:': message, 'status_code:': status_code})
+
+                                return [version, dataset, refactoring, model, numpy.asarray(features_list), "method"]
+                        elif (refactoring in variable_level_refactoring):
+                            if 'features' in data:
+                                features = data['features']
+                                for mo in variable_order:
+                                    v = features.get(mo, None)
+                                    if v is None:
+                                        missing_features.append(mo)
+                                    else:
+                                        features_list.append(v)
+
+                                if len(missing_features) > 0:
+                                    message = 'Missing features: {}' \
+                                              ' Please visit www.refactoring.io '.format(', '.join(missing_features))
+                                    status_code = 400
+                                    return jsonify({'message:': message, 'status_code:': status_code})
+                                return [version, dataset, refactoring, model, numpy.asarray(features_list), "method"]
+                    else:
+                        message = 'Missing parameters: {}'.format('model')
+                        status_code = 400
+                        return jsonify({'message:': message, 'status_code:': status_code})
+                else:
+                    message = 'Missing parameters: {}'.format('refactoring')
+                    status_code = 400
+                    return jsonify({'message:': message, 'status_code:': status_code})
+            else:
+                message = 'Missing parameters: {}'.format('dataset')
+                status_code = 400
+                return jsonify({'message:': message, 'status_code:': status_code})
+
+        else:
+            message = 'Missing parameters: {}'.format('version')
+            status_code = 400
+            return jsonify({'message:' : message, 'status_code:' : status_code})
+
+
+    def post(self):
+        logger.debug("Inside the post method of Recommend")
+
         data = request.get_json(force=True)
 
-        version, dataset, refactoring, model, features = self.validate_data(data)
-        return self.predict(model, dataset, refactoring, features)
+        return_validation = self.validate_data(data)
+        if not isinstance(return_validation, list):
+            return return_validation
 
+        version, dataset, refactoring, model, features, level = return_validation
+        prediction = self.predict(model, dataset, refactoring, features, level)[0]
+
+        response = {"status_code": 200}
+        response["recommended"] = True if prediction == 1 else False
+
+        return response
         
