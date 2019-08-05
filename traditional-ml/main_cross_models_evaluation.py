@@ -37,6 +37,11 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                 x = merged_dataset.drop("prediction", axis=1)
                 y = merged_dataset["prediction"]
 
+                # drop process and ownership metrics, if not class level
+                if not refactoring_level == 'class-level':
+                    x = x.drop(["authorOwnership","bugFixCount","linesAdded","linesDeleted","qtyMajorAuthors",
+                                "qtyMinorAuthors","qtyOfAuthors","qtyOfCommits","refactoringsInvolved"], axis=1)
+
                 # balance the datasets
                 balanced_x, balanced_y = perform_under_sampling(x, y)
 
@@ -48,6 +53,7 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                         # this time, uses existing scaler
                         scaler = load_scaler("models/", model_name, d1, refactoring_name)
                         balanced_x = scaler.transform(balanced_x)
+
 
                         model_under_eval = load_model("models/", model_name, d1, refactoring_name)
 
