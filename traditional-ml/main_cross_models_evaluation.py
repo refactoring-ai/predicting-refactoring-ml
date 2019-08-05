@@ -40,14 +40,15 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                 # balance the datasets
                 balanced_x, balanced_y = perform_under_sampling(x, y)
 
-                # scale it (as in the training of the model)
-                # this time, uses existing scaler
-                scaler = load_scaler("models/", model_name, d1, refactoring_name)
-                balanced_x = scaler.transform(balanced_x)
-
                 for model_name in MODELS:
                     try:
                         print("Refactoring %s, model %s, dataset 1 %s, dataset 2 %s" % (refactoring_name, model_name, d1, d2))
+
+                        # scale it (as in the training of the model)
+                        # this time, uses existing scaler
+                        scaler = load_scaler("models/", model_name, d1, refactoring_name)
+                        balanced_x = scaler.transform(balanced_x)
+
                         model_under_eval = load_model("models/", model_name, d1, refactoring_name)
 
                         if model_name == 'deep-learning':
