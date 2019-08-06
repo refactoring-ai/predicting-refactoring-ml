@@ -51,11 +51,11 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
 
                         # scale it (as in the training of the model)
                         # this time, uses existing scaler
-                        scaler = load_scaler("models/", model_name, d1, refactoring_name)
+                        scaler = load_scaler("models", model_name, d1, refactoring_name)
                         balanced_x_2 = scaler.transform(balanced_x)
 
 
-                        model_under_eval = load_model("models/", model_name, d1, refactoring_name)
+                        model_under_eval = load_model("models", model_name, d1, refactoring_name)
 
                         if model_name == 'deep-learning':
                             y_predicted = model_under_eval.predict_classes(balanced_x_2)
