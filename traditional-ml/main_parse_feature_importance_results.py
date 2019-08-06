@@ -1,4 +1,5 @@
 # parses the feature importance results of all log files
+import os
 
 line_list_of_features = False
 line_coefficients = False
@@ -43,18 +44,30 @@ def print_csv(p):
     sorted_x = sorted(p.items(), key=lambda kv: kv[1], reverse=True)
 
     for x in sorted_x:
-        print(x[0] + "," + str(x[1]))
+        print(x[0] + "\t" + str(x[1]))
+
 
 
 # ---------
 # main
-base_dir = "/Users/mauricioaniche/Desktop/drive/discussion-only-code-metrics/"
-list_of_files_for_processing = [
-    "results-method-level-all.txt"
-]
+base_dir = "/Users/mauricioaniche/Desktop/drive2/rq1-raw-logs/"
+
+
+def find_files(base_dir, pattern):
+    files = []
+    for r, d, f in os.walk(base_dir):
+        for file in f:
+            if pattern in file:
+                files.append(os.path.join(r, file))
+
+    return files
+
+
+list_of_files_for_processing = find_files(base_dir, "variable-level")
 
 for file_name in list_of_files_for_processing:
-    f = open(base_dir + file_name, "r")
+    print("opening file " + file_name)
+    f = open(file_name, "r")
 
     for line in f:
 
@@ -103,7 +116,7 @@ for file_name in list_of_files_for_processing:
 
 print("-- top 1")
 print_csv(top1)
-print("top 5")
+print("-- top 5")
 print_csv(top5)
-print("top 10")
+print("-- top 10")
 print_csv(top10)
