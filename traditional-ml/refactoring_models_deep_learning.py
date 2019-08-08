@@ -57,7 +57,7 @@ def run_deep_learning(dataset, refactoring_name, model_name, x, columns, y, f):
                                    verbose=1, patience=50)
 
         # fit model
-        model.fit(x[train], y[train], epochs=1000, batch_size=1024, callbacks=[early_stop])
+        model.fit(x[train], y[train], epochs=1000, batch_size=128, callbacks=[early_stop])
 
         # evaluate
         y_pred = model.predict_classes(x[test])
