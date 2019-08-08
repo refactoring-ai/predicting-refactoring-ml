@@ -7,7 +7,7 @@ from keras.regularizers import l2
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import StratifiedKFold
 
-from configs import N_CV
+from configs import N_CV_DNN
 
 
 # Kfold example from: https://machinelearningmastery.com/evaluate-performance-deep-learning-models-keras/
@@ -15,7 +15,7 @@ def run_deep_learning(dataset, refactoring_name, model_name, x, columns, y, f):
     seed = 42
     numpy.random.seed(seed)
 
-    kfold = StratifiedKFold(n_splits=N_CV, shuffle=True, random_state=seed)
+    kfold = StratifiedKFold(n_splits=N_CV_DNN, shuffle=True, random_state=seed)
     accuracy_scores = []
     precision_scores = []
     recall_scores = []
@@ -53,11 +53,11 @@ def run_deep_learning(dataset, refactoring_name, model_name, x, columns, y, f):
         model.summary()
 
         # early stop
-        early_stop = EarlyStopping(monitor='val_loss', min_delta=0.001, mode='auto',
+        early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, mode='auto',
                                    verbose=1, patience=50)
 
         # fit model
-        model.fit(x[train], y[train], epochs=1000, batch_size=128, callbacks=[early_stop])
+        model.fit(x[train], y[train], epochs=1000, batch_size=1024, callbacks=[early_stop])
 
         # evaluate
         y_pred = model.predict_classes(x[test])

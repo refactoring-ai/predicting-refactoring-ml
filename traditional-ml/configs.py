@@ -9,6 +9,8 @@ N_CV = 10
 N_ITER_SVM = 10
 N_CV_SVM = 5
 
+N_CV_DNN = 5
+
 # how to balance the dataset
 # options = [random, cluster_centroids, nearmiss]
 BALANCE_DATASET = "random"
