@@ -83,6 +83,10 @@ def run_deep_learning(dataset, refactoring_name, model_name, x, columns, y, f):
     recall_mean = numpy.mean(recall_scores)
     accuracy_mean = numpy.mean(accuracy_scores)
 
+    precision_scores = [str(p) for p in precision_scores]
+    recall_scores = [str(p) for p in recall_scores]
+    accuracy_scores = [str(p) for p in accuracy_scores]
+    
     f.write("Precision: %s\n" % ", ".join(precision_scores))
     f.write("Recall: %s\n" % ", ".join(recall_scores))
     f.write("Accuracy: %s\n" % ", ".join(accuracy_scores))
