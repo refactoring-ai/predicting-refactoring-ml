@@ -19,3 +19,9 @@ BALANCE_DATASET = "random"
 # MODELS options = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes']
 MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes']
 DATASETS = ['', 'apache', 'github', 'fdroid']
+
+
+# exclude refactoring
+# a list of refactorings to exclude from the analysis
+# useful when running the tool in batches
+REFACTORING_TO_EXCLUDE = []

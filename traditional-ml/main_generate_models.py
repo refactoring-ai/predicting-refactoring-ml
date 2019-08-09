@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 import db
-from configs import DATASETS, MODELS
+from configs import DATASETS, MODELS, REFACTORING_TO_EXCLUDE
 from date_utils import now
 from ml_utils import perform_under_sampling, save_object
 from refactoring_models_decision_tree import run_decision_tree
@@ -27,6 +27,9 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
 
         counts = counts_function(dataset)
         for refactoring_name in counts["refactoring"].values:
+
+            if refactoring_name in REFACTORING_TO_EXCLUDE:
+                continue
 
             try:
                 f.write("\n\n**** %s\n\n" % refactoring_name)
