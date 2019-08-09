@@ -54,7 +54,7 @@ def run_deep_learning(dataset, refactoring_name, model_name, x, columns, y, f):
 
         # early stop
         early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, mode='auto',
-                                   verbose=1, patience=50)
+                                   verbose=1, patience=5)
 
         # fit model
         model.fit(x[train], y[train], epochs=1000, batch_size=128, callbacks=[early_stop])
