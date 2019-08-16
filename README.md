@@ -1,4 +1,17 @@
-# Predicting refactoring
+# Machine Learning for Software refactoring
+
+This repository contains all our exploration on the use
+of machine learning methods to recommend software refactoring.
+
+It currently contains the following projects:
+
+* `data-collection`:
+
+* `data-collection-scripts`:
+
+* `machine-learning`:
+
+* `web-api`:
 
 Notes (to be improved in this README):
 
