@@ -11,7 +11,7 @@ It currently contains the following projects:
 
 * `machine-learning`: The python scripts that train the different ML algorithms.
 
-Currently, work in progress:
+Work in progress:
 
 * `wip-web-api`: The RESTful API that consumes our models.
 
@@ -95,7 +95,13 @@ The generated output is a text file with a weak structure. A quick way to get re
 * `cat *.txt | grep "TIME"`: returns a CSV with how much time it took to train and test the model.
 
 
-Before running the pipeline, we suggest you to warm up the cache. The warming up basically executes all the required queries and cache them as CSV files. These queries can take a long time to run... and if you are like us, you will most likely re-execute your experiments many times! :) Thus, having them cached helps.
+Before running the pipeline, we suggest you to warm up the cache. The warming up basically executes all the required queries and cache them as CSV files. These queries can take a long time to run... and if you are like us, you will most likely re-execute your experiments many times! :) Thus, having them cached helps:
+
+```
+python3 warm_cache.py
+```
+
+If you need to clean up the cache, simply delete the `_cache` directory that is created under the `machine-learning` folder.
 
 
 ### Cross-domain validation
@@ -107,12 +113,6 @@ For this script to run, you need to create a `results/` folder inside the
 `machine-learning` folder. The final CSV will be stored there. The header of the
 CSV is clear.
 
-
-```
-python3 warm_cache.py
-```
-
-If you need to clean up the cache, simply delete the `_cache` directory that is created under the `machine-learning` folder.
 
 ### Other scripts
 
