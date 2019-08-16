@@ -18,6 +18,8 @@ BALANCE_DATASET = "random"
 # models and datasets we have available
 # MODELS options = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes']
 MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes']
+
+# Empty dataset means 'all datasets'
 DATASETS = ['', 'apache', 'github', 'fdroid']
 
 

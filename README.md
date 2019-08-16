@@ -5,24 +5,57 @@ of machine learning methods to recommend software refactoring.
 
 It currently contains the following projects:
 
-* `data-collection`:
+* `data-collection`: The java tool that collects refactoring and non-refactorings instances that are later used to train the ML algorithms.
 
-* `data-collection-scripts`:
+* `data-collection-scripts`: A bunch of bash scripts that we use to deploy our data collection tool in several machines at the same time. Probably not useful to other people, but us. 
 
-* `machine-learning`:
+* `machine-learning`: The python scripts that train the different ML algorithms.
 
-* `web-api`:
+Currently, work in progress:
 
-Notes (to be improved in this README):
+* `wip-web-api`: The RESTful API that consumes our models.
 
-* Arquivo que guardamos no before e after tem o mesmo nome do arquivo final. Em alguns casos, como Rename Class, significa que o código antigo da classe ficará salvo num arquivo com o "novo nome" da classe. Isso não influencia em nada o treinamento.
+* `wip-site`: The refactoring.ai website.
 
-* O CSV que geramos contém duplicações. Nós limpamos essas duplicações na mão e criamos PKs e FKs. O dump do banco que disponibilizaremos é o melhor a ser usado.
+* `wip-nlp`: Exploring NLP as a way to recommend software refactoring.
+
+## The data collection tool
+
+You can run the data collection by simply running the `App.java` class. This class contains a program that requires the following parameters, in this order:
+
+1. _The name dataset_: A hard-coded string with the name of the dataset (e.g., "apache", "fdroid"). This information appears in the generated data later on, so that you can use it as a filter.
+
+1. _The git URL_: The git url of the project to be analyzed. Your local machine must have all the permissions to clone it (i.e., _git clone url_ should work). Cloning will happen in a temporary directory.
+
+1. _Output path_: The directory where the tool is going to store the source code before and after the refactoring. This step is important if you plan to do later analysis on the refactored files. The directory structure basically contains the hash of the refactoring, as well as the file before and after. The name of the file also contains the refactoring it suffered, to facilitate parsing. For more details on the name of the file, see our implementation.
+
+1. _Database URL_: JDBC URL that points to your MySQL. The database must exist and be empty. The tool will create the required tables.
+
+1. _Database user_: Database user.
+
+1. _Database password_: Database password. 
+
+1. _K threshold_: Threshold used to determine non-refactoring instances.
+
+These parameters can be passed via command-line, if you exported a JAR file. 
+Example:
+
+```
+java -jar refactoring.jar <dataset> <git-url> <output-path> <database-url> <database-user> <database-password> <k-threshold>
+```
+
+### Configuring the tool
+
+Use Maven: `mvn clean compile`. Or just import it via IntelliJ; it will know what to do.
+
+If you want to export a jar file and run it somewhere else, just do `mvn clean package`. A .jar file will be created under the `target/` folder.
 
 
-## Data collection
+### Cleaning up the final database
 
-When running in scale, some projects might fail. Although the app tries to remove problematic rows, if the process dies, partially loaded projects will be in the database. Use the following queries to clean up half-baked projects:
+When running in scale, e.g., in thousands of projects, some projects will definitely fail (e.g., maybe the AST parser fails, etc etc). Although the app tries to remove problematic rows, if the process dies completely (maybe out of memory in your machine), partially loaded projects will be in the database. 
+
+We use the following queries to remove half-baked projects completely from our database:
 
 ```
 delete from yes where project_id in (select id from project where finishedDate is null);
@@ -30,10 +63,65 @@ delete from no where project_id in (select id from project where finishedDate is
 delete from project where finishedDate is null;
 ```
 
-## Traditional ML
+## The machine learning pipeline
+
+This project contains all the Python scripts that are responsible
+for the ML pipeline.
+
+### Installing and configuring the database.
+
+First, install all the dependencies:
 
 ```
 pip3 install --user -r requirements.txt
-python3 warm_cache.py
-python3 main.py
 ```
+
+Then, create a `config.ini` file, following the example structure in
+`config-example.ini`. In this file, you configure your database connection.
+
+### Training and testing models
+
+The main Python script that generates all the models and results is the
+`main_generate_models.py`. You run it by simply calling `python3 main_generate_models.py`.
+
+The script will follow the configurations in the `configs.py`. There, you can define which datasets to analyze, which models to build, which under sampling algorithms to use, and etc. Please, read the comments of this file.
+
+For this script to run, you need to create a `results/` folder inside the
+`machine-learning` folder. The results will be stored there.
+
+The generated output is a text file with a weak structure. A quick way to get results is by grepping:
+
+* `cat *.txt | grep "CSV"`: returns a CSV with all the models and their precision, recall, and accuracy.
+* `cat *.txt | grep "TIME"`: returns a CSV with how much time it took to train and test the model.
+
+
+Before running the pipeline, we suggest you to warm up the cache. The warming up basically executes all the required queries and cache them as CSV files. These queries can take a long time to run... and if you are like us, you will most likely re-execute your experiments many times! :) Thus, having them cached helps.
+
+
+### Cross-domain validation
+
+The `main_cross_models_evaluation.py` performs pairwise comparisons between
+two different datasets. In other words, it tests all models that were trained using a given dataset A in the data of a given dataset B. For example, it tests how Apache models behave in F-Droid models.
+
+For this script to run, you need to create a `results/` folder inside the
+`machine-learning` folder. The final CSV will be stored there. The header of the
+CSV is clear.
+
+
+```
+python3 warm_cache.py
+```
+
+If you need to clean up the cache, simply delete the `_cache` directory that is created under the `machine-learning` folder.
+
+### Other scripts
+
+The `main_parse_*` scripts help you in parsing the resulting text file, and extract the best hyper parameters, the feature importance, and the individual k-fold results. 
+
+## Authors
+
+This project was initially envisioned by Maurício Aniche, Erick Galante Maziero, Rafael Durelli, and Vinicius Durelli.
+
+## License
+
+This project is licensed under the MIT license.
