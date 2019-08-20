@@ -16,7 +16,7 @@ N_CV_DNN = 5
 BALANCE_DATASET = "random"
 
 # models and datasets we have available
-# MODELS options = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes']
+# MODELS options = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes', 'extra-trees']
 MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest','logistic-regression', 'deep-learning', 'naive-bayes','extra-trees']
 
 # Empty dataset means 'all datasets'
