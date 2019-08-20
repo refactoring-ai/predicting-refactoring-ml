@@ -33,6 +33,9 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                 non_refactored_instances["prediction"] = 0
                 merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
 
+                # shuffle the array
+                merged_dataset = sklearn.utils.shuffle(merged_dataset)
+
                 # separate the x from the y (as required by the scikit-learn API)
                 x = merged_dataset.drop("prediction", axis=1)
                 y = merged_dataset["prediction"]
