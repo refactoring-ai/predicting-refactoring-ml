@@ -1,4 +1,5 @@
 import random
+import sklearn
 import sys
 import traceback
 
@@ -62,6 +63,9 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                 assert non_refactored_instances.shape[1] == refactored_instances.shape[
                     1], "number of columns differ from both datasets"
                 merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
+
+                # shuffle the array
+                merged_dataset = sklearn.utils.shuffle(merged_dataset)
 
                 # separate the x from the y (as required by the scikit-learn API)
                 x = merged_dataset.drop("prediction", axis=1)
