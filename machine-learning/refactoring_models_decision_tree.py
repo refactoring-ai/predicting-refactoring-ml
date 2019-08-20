@@ -17,7 +17,7 @@ def run_decision_tree(dataset, refactoring_name, model_name, x, columns, y, f):
     # search
     param_dist = {"max_depth": [3, 6, 12, 24, None],
                   "max_features": ["auto", "sqrt", "log2", None],
-                  "min_samples_split": randint(2, 11),
+                  "min_samples_split": [2, 3, 5, 10, 11],
                   "splitter": ["best", "random"],
                   "criterion": ["gini", "entropy"]}
 
