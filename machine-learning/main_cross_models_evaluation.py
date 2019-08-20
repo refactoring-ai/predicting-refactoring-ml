@@ -1,8 +1,10 @@
+import sklearn
 import traceback
 
 import pandas as pd
 from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.utils import shuffle
 
 import db
 from configs import DATASETS, MODELS
@@ -34,7 +36,7 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                 merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
 
                 # shuffle the array
-                merged_dataset = sklearn.utils.shuffle(merged_dataset)
+                merged_dataset = shuffle(merged_dataset)
 
                 # separate the x from the y (as required by the scikit-learn API)
                 x = merged_dataset.drop("prediction", axis=1)
