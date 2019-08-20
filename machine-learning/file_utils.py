@@ -7,7 +7,7 @@ def print_scores_1(dataset, refactoring_name, model_name, scores, best_model, co
     precision_scores_str = "Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']]))
     precision_scores_str += f'\n(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})'
     precision_scores_str += f'\nMean precision: {scores["test_precision"].mean():.2f}'
-    recall_scores_str = "Recall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]]))
+    recall_scores_str = "\n\nRecall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]]))
     recall_scores_str += f'\n(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})'
     recall_scores_str += f'\nMean recall: {scores["test_recall"].mean():.2f}'
 
@@ -41,7 +41,7 @@ def print_scores_2(dataset, refactoring_name, model_name, best_model, columns, f
     precision_scores_str = "Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']]))
     precision_scores_str += f'\n(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})'
     precision_scores_str += f'\nMean precision: {scores["test_precision"].mean():.2f}'
-    recall_scores_str = "Recall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]]))
+    recall_scores_str = "\n\nRecall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]]))
     recall_scores_str += f'\n(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})'
     recall_scores_str += f'\nMean recall: {scores["test_recall"].mean():.2f}'
     # output results to file
