@@ -15,11 +15,11 @@ def run_random_forest(dataset, refactoring_name, model_name, x, columns, y, f):
     model = RandomForestClassifier(random_state=42, n_jobs=-1, verbose=2)
 
     param_dist = {"max_depth": [3, 6, 12, 24, None],
-                  "max_features": randint(1, 11),
-                  "min_samples_split": randint(2, 11),
+                  "max_features": ["auto", "sqrt", "log2", None],
+                  "min_samples_split": [2, 3, 4, 5, 10],
                   "bootstrap": [True, False],
                   "criterion": ["gini", "entropy"],
-                  "n_estimators": [10, 50, 100]}
+                  "n_estimators": [10, 50, 100, 150, 200]}
 
     search = RandomizedSearchCV(model, param_dist,
                                 n_iter=N_ITER, cv=N_CV, iid=False, n_jobs=-1, verbose=2)

@@ -12,6 +12,7 @@ from date_utils import now
 from ml_utils import perform_under_sampling, save_object
 from refactoring_models_decision_tree import run_decision_tree
 from refactoring_models_deep_learning import run_deep_learning
+from refactoring_models_extra_trees import run_extra_trees
 from refactoring_models_logistic_regression import run_logistic_regression
 from refactoring_models_naive_bayes import run_naive_bayes
 from refactoring_models_random_forest import run_random_forest
@@ -110,6 +111,8 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
                             model = run_svm_non_linear(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
                         elif model_name == 'naive-bayes':
                             model = run_naive_bayes(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
+                        elif model_name == 'extra-trees':
+                            model = run_extra_trees(dataset, refactoring_name, model_name, balanced_x, x.columns.values, balanced_y, f)
 
                         finish_hour = now()
                         print("Finished at %s\n" % finish_hour)
