@@ -1,6 +1,5 @@
 import warnings
 
-from scipy.stats import randint
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 
