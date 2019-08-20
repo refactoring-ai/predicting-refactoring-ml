@@ -23,7 +23,7 @@ from refactoring_models_svm_non_linear import run_svm_non_linear
 def build_model(refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
     for dataset in DATASETS:
 
-        file_name = "results/" + str(random.randint(1, 9999)) + "results-" + refactoring_level + "-" + ("all" if not dataset else dataset) + ".txt"
+        file_name = "results/" + str(random.randint(1, 999999)) + "results-" + refactoring_level + "-" + ("all" if not dataset else dataset) + ".txt"
         f = open(file_name, "w+")
         f.write(dataset + "\n\n")
 
