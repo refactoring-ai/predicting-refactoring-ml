@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 from configs import SCALE_DATASET
-from log import log
+from utils.log import log
 from ml.sampling import perform_under_sampling
 from refactoring import LowLevelRefactoring, ClassLevelRefactoring
 

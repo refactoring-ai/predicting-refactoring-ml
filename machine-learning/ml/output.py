@@ -1,6 +1,6 @@
 import json
 
-from log import log
+from utils.log import log
 
 
 def print_scores_1(dataset, refactoring_name, model_name, best_model, columns, scores):

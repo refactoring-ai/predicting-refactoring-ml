@@ -3,14 +3,14 @@ import traceback
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 
 from configs import N_ITER, N_CV, SEARCH
-from log import log
+from utils.log import log
 from ml.output import print_best_parameters
 from ml.preprocessing import retrieve_labelled_instances
 from utils.date_utils import now
 from utils.ml_utils import save_object
 
 
-class MLPipeline():
+class MLPipeline:
 
     def __init__(self, models_to_run, deep_models_to_run, refactorings, datasets):
         self.deep_models_to_run = deep_models_to_run

@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import StratifiedKFold
 
 from configs import N_CV_DNN
-from log import log
+from utils.log import log
 from ml.models.base import DeepMLRefactoringModel
 
 
