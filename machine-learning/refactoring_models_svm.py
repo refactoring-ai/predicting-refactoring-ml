@@ -1,13 +1,12 @@
 import warnings
 from random import uniform
 
-from scipy.stats import randint
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 from sklearn.svm import SVC
 
-from configs import N_ITER, N_CV, N_ITER_SVM, N_CV_SVM
-from date_utils import now
-from file_utils import print_scores_1, print_best_parameters
+from configs import N_ITER_SVM, N_CV_SVM
+from utils.date_utils import now
+from utils.file_utils import print_scores_1, print_best_parameters
 
 warnings.filterwarnings("ignore")
 

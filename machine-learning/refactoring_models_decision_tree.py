@@ -1,12 +1,11 @@
 import warnings
 
-from scipy.stats import randint
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 from sklearn.tree import DecisionTreeClassifier
 
 from configs import N_ITER, N_CV
-from date_utils import now
-from file_utils import print_scores_2, print_best_parameters
+from utils.date_utils import now
+from utils.file_utils import print_scores_2, print_best_parameters
 
 warnings.filterwarnings("ignore")
 

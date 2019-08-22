@@ -4,8 +4,8 @@ from sklearn.model_selection import cross_validate, RandomizedSearchCV
 from sklearn.naive_bayes import GaussianNB
 
 from configs import N_ITER, N_CV
-from date_utils import now
-from file_utils import print_scores_1, print_best_parameters
+from utils.date_utils import now
+from utils.file_utils import print_scores_1, print_best_parameters
 
 simplefilter(action='ignore', category=FutureWarning)
 

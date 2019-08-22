@@ -6,8 +6,8 @@ from sklearn.model_selection import RandomizedSearchCV, cross_validate
 from sklearn.svm import SVC
 
 from configs import N_ITER, N_CV
-from date_utils import now
-from file_utils import print_scores_1, print_best_parameters
+from utils.date_utils import now
+from utils.file_utils import print_scores_1
 
 warnings.filterwarnings("ignore")
 

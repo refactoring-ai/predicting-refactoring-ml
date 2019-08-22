@@ -1,4 +1,4 @@
-from db_utils import execute_query
+from db.db_utils import execute_query
 
 
 def get_refactoring_types(dataset = ""):

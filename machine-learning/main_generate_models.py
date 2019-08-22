@@ -6,10 +6,10 @@ import traceback
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
-import db
+from db import refactoringdb
 from configs import DATASETS, MODELS, REFACTORING_TO_EXCLUDE
-from date_utils import now
-from ml_utils import perform_under_sampling, save_object
+from utils.date_utils import now
+from utils.ml_utils import perform_under_sampling, save_object
 from refactoring_models_decision_tree import run_decision_tree
 from refactoring_models_deep_learning import run_deep_learning
 from refactoring_models_extra_trees import run_extra_trees
@@ -142,23 +142,23 @@ def build_model(refactoring_level, counts_function, get_refactored_function, get
 print("[STARTING...]")
 print("[BUILDING METHOD-LEVEL MODELS]")
 build_model("method-level",
-            db.get_method_level_refactorings_count,
-            db.get_method_level_refactorings,
-            db.get_non_refactored_methods)
+            refactoringdb.get_method_level_refactorings_count,
+            refactoringdb.get_method_level_refactorings,
+            refactoringdb.get_non_refactored_methods)
 print("[DONE BUILDING METHOD-LEVEL MODELS]")
 
 print("[BUILDING VARIABLE-LEVEL MODELS]")
 build_model("variable-level",
-            db.get_variable_level_refactorings_count,
-            db.get_variable_level_refactorings,
-            db.get_non_refactored_variables)
+            refactoringdb.get_variable_level_refactorings_count,
+            refactoringdb.get_variable_level_refactorings,
+            refactoringdb.get_non_refactored_variables)
 print("[DONE BUILDING VARIABLE-LEVEL MODELS]")
 
 print("[BUILDING CLASS-LEVEL MODELS]")
 build_model("class-level",
-            db.get_class_level_refactorings_count,
-            db.get_class_level_refactorings,
-            db.get_non_refactored_classes)
+            refactoringdb.get_class_level_refactorings_count,
+            refactoringdb.get_class_level_refactorings,
+            refactoringdb.get_non_refactored_classes)
 print("[DONE BUILDING CLASS-LEVEL MODELS]")
 
 print("[DONE]")

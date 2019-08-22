@@ -1,14 +1,12 @@
-import sklearn
 import traceback
 
 import pandas as pd
 from sklearn import metrics
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import shuffle
 
-import db
+from db import refactoringdb
 from configs import DATASETS, MODELS
-from ml_utils import perform_under_sampling, load_model, load_scaler
+from utils.ml_utils import perform_under_sampling, load_model, load_scaler
 
 
 def check_model_performance(f, refactoring_level, counts_function, get_refactored_function, get_non_refactored_function):
@@ -85,16 +83,16 @@ f.write("dataset_loaded_model,dataset_test,refactoring,model,precision,recall\n"
 
 print("[COMPARING METHOD-LEVEL MODELS]")
 check_model_performance(f, "method-level",
-            db.get_method_level_refactorings_count,
-            db.get_method_level_refactorings,
-            db.get_non_refactored_methods)
+                        refactoringdb.get_method_level_refactorings_count,
+                        refactoringdb.get_method_level_refactorings,
+                        refactoringdb.get_non_refactored_methods)
 
 check_model_performance(f, "class-level",
-            db.get_class_level_refactorings_count,
-            db.get_class_level_refactorings,
-            db.get_non_refactored_classes)
+                        refactoringdb.get_class_level_refactorings_count,
+                        refactoringdb.get_class_level_refactorings,
+                        refactoringdb.get_non_refactored_classes)
 
 check_model_performance(f, "variable-level",
-            db.get_variable_level_refactorings_count,
-            db.get_variable_level_refactorings,
-            db.get_non_refactored_variables)
+                        refactoringdb.get_variable_level_refactorings_count,
+                        refactoringdb.get_variable_level_refactorings,
+                        refactoringdb.get_non_refactored_variables)
