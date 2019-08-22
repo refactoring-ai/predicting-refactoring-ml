@@ -2,7 +2,7 @@ from sklearn.ensemble import ExtraTreesClassifier
 
 from configs import N_ITER, N_CV
 from utils.date_utils import now
-from utils.file_utils import print_best_parameters, print_scores_2
+from ml.output import print_best_parameters, print_scores_2
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 
 def run_extra_trees(dataset, refactoring_name, model_name, x, columns, y, f):

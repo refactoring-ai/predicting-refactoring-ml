@@ -7,7 +7,7 @@ from sklearn.svm import SVC
 
 from configs import N_ITER, N_CV
 from utils.date_utils import now
-from utils.file_utils import print_scores_1
+from ml.output import print_scores_1
 
 warnings.filterwarnings("ignore")
 

@@ -6,7 +6,7 @@ from sklearn.svm import SVC
 
 from configs import N_ITER_SVM, N_CV_SVM
 from utils.date_utils import now
-from utils.file_utils import print_scores_1, print_best_parameters
+from ml.output import print_scores_1, print_best_parameters
 
 warnings.filterwarnings("ignore")
 

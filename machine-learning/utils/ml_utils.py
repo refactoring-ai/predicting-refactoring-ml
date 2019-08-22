@@ -1,18 +1,13 @@
 import os
 
 import joblib
-from imblearn.under_sampling import RandomUnderSampler, ClusterCentroids, NearMiss
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from joblib import load
 from keras.models import load_model as keras_load_model
-
+from keras_metrics import binary_precision, binary_recall
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
-
-from keras_metrics import binary_precision, binary_recall
-
-from configs import BALANCE_DATASET
 
 
 def load_object(root_folder, obj_descr_type, model_name, dataset, refactoring_name):
@@ -44,24 +39,6 @@ def save_object(obj_descr_type, obj, model_name, dataset, refactoring_name):
     else:
         file_name = "results/" + obj_descr_type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
         joblib.dump(obj, file_name)
-
-
-# more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html
-def perform_under_sampling(x, y):
-
-    if BALANCE_DATASET == 'random':
-        rus = RandomUnderSampler(random_state=42)  # 42 is a random number, just to ensure our results are reproducible
-        return rus.fit_resample(x, y)
-
-    if BALANCE_DATASET == 'cluster_centroids':
-        rus = ClusterCentroids(random_state=42)
-        return rus.fit_resample(x, y)
-
-    if BALANCE_DATASET == 'nearmiss':
-        rus = NearMiss(version=1)
-        return rus.fit_resample(x, y)
-
-    raise Exception("algorithm not found")
 
 
 def create_persistence_file_name(f, m_refactoring):
