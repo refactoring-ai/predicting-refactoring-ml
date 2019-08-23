@@ -64,3 +64,14 @@ VARIABLE_LEVEL_REFACTORINGS = ["Extract Variable",
 "Rename Parameter",
 "Rename Variable",
 "Replace Variable With Attribute"]
+
+
+# DO NOT CHANGE FROM HERE ON
+if TEST:
+    N_ITER = 2
+    N_CV = 1
+
+    N_ITER_SVM = 2
+    N_CV_SVM = 1
+
+    N_CV_DNN = 1
