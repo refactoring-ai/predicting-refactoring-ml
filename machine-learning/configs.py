@@ -19,10 +19,11 @@ DB_AVALIABLE = True
 # --------------------------------
 # Dataset balancing
 # --------------------------------
+BALANCE_DATASET = True
 
 # how to balance the dataset
 # options = [random, cluster_centroids, nearmiss]
-BALANCE_DATASET = "random"
+BALANCE_DATASET_STRATEGY = "random"
 
 # --------------------------------
 # Dataset scaling

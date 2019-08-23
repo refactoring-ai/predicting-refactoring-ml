@@ -1,7 +1,7 @@
 import pandas as pd
 import sklearn
 
-from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION
+from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET
 from ml.preprocessing.feature_reduction import perform_feature_reduction
 from ml.preprocessing.sampling import perform_under_sampling
 from ml.preprocessing.scaling import perform_scaling
@@ -57,16 +57,17 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
-    balanced_x, balanced_y = perform_under_sampling(x, y)
-    assert balanced_x.shape[0] == balanced_y.shape[0], "Undersampling did not work"
+    if BALANCE_DATASET:
+        x, y = perform_under_sampling(x, y)
+        assert x.shape[0] == y.shape[0], "Undersampling did not work"
 
     # apply some scaling to speed up the algorithm
     scaler = None
     if SCALE_DATASET:
-        balanced_x = perform_scaling(balanced_x)
+        x = perform_scaling(x)
 
     # let's reduce the number of features in the set
     if FEATURE_REDUCTION:
-        balanced_x = perform_feature_reduction(balanced_x, balanced_y)
+        x = perform_feature_reduction(x, y)
 
-    return balanced_x.columns.values, balanced_x, balanced_y, scaler
+    return x.columns.values, x, y, scaler
