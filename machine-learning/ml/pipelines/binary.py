@@ -66,7 +66,6 @@ class BinaryClassificationPipeline(MLPipeline):
 
         # cross-validation
         model_for_cv = model_def.model(search.best_params_)
-        print("Cross validation started at %s\n" % now())
         log("Cross validation started at %s\n" % now())
         scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
                                 scoring=['accuracy', 'precision', 'recall'])
