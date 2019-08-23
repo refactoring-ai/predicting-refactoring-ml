@@ -2,7 +2,7 @@ import traceback
 
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 
-from configs import SEARCH
+from configs import SEARCH, N_CV, N_ITER
 from ml.output import print_best_parameters
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing import retrieve_labelled_instances
