@@ -43,7 +43,7 @@ def _run_single_model(dataset, model, refactoring_name, scaler, x, y):
 class BinaryClassificationPipeline(MLPipeline):
 
     def __init__(self, models_to_run, deep_models_to_run, refactorings, datasets):
-        super(models_to_run, deep_models_to_run, refactorings, datasets)
+        super().__init__(models_to_run, deep_models_to_run, refactorings, datasets)
 
     def run(self):
 
