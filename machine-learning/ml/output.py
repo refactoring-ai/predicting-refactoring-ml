@@ -53,7 +53,7 @@ def print_scores_2(dataset, refactoring_name, model_name, best_model, columns, s
     log(f'CSV,{dataset},{refactoring_name},{model_name},{scores["test_precision"].mean():.2f},{scores["test_recall"].mean():.2f},{scores["test_accuracy"].mean()}')
 
 
-def print_best_parameters(f, tuned_model):
+def print_best_parameters(tuned_model):
     best_parameters = tuned_model.best_params_
     log("Hyperparametrization:")
     log(json.dumps(best_parameters, indent=2))

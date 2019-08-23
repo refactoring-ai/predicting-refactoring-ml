@@ -101,7 +101,7 @@ class BinaryClassificationPipeline(MLPipeline):
 
         log("Search started at %s\n" % now())
         search.fit(x, y)
-        print_best_parameters(self.log, search)
+        print_best_parameters(search)
 
         # cross-validation
         model_for_cv = model.model(search.best_params_)
