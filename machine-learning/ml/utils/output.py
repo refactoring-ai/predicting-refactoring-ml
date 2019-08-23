@@ -13,6 +13,8 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
     results += f'\n(Min and max: {recall_scores.min():.2f} and {recall_scores.max():.2f})'
     results += f'\nMean recall: {recall_scores.mean():.2f}'
 
+    # some models have the 'coef_' attribute, and others have the 'feature_importances_
+    # (do not ask me why...)
     if hasattr(best_model, "coef_"):
         results += "\nFeatures:"
         results += (', '.join(str(e) for e in list(features)))
