@@ -14,7 +14,7 @@ class LogisticRegressionRefactoringModel(SupervisedMLRefactoringModel):
 
     def model(self, best_params=None):
         if best_params is not None:
-            return LogisticRegression(solver='lbfgs', max_iter=best_params["max_iter"], C=best_params["C"], verbose=2)
+            return LogisticRegression(solver='lbfgs', max_iter=best_params["max_iter"], C=best_params["C"])
 
         return LogisticRegression(solver='lbfgs')
 
