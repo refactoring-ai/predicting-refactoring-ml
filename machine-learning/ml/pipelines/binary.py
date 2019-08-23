@@ -11,8 +11,11 @@ from utils.log import log
 from utils.ml_utils import save_object
 
 
-def _run_single_model(dataset, model_def, refactoring_name, features, x, y, scaler):
+def _run_single_model(dataset, model_def, refactoring, features, x, y, scaler):
     model = model_def.model()
+
+    refactoring_name = refactoring.name()
+    model_name = model_def.name()
 
     # start the search
     param_dist = model_def.params_to_tune()
@@ -34,12 +37,12 @@ def _run_single_model(dataset, model_def, refactoring_name, features, x, y, scal
                             scoring=['accuracy', 'precision', 'recall'])
 
     # output (both results and models)
-    log(format_results(dataset, refactoring_name, model_def.name, scores, best_estimator, features))
+    log(format_results(dataset, refactoring_name, model_name, scores, best_estimator, features))
 
     # we save the best estimator we had during the search
     model_to_save = best_estimator
-    save_object("model", model_to_save, model_def.name, dataset, refactoring_name)
-    save_object("scaler", scaler, model_def.name, dataset, refactoring_name)
+    save_object("model", model_to_save, model_name, dataset, refactoring_name)
+    save_object("scaler", scaler, model_name, dataset, refactoring_name)
 
 
 class BinaryClassificationPipeline(MLPipeline):
@@ -53,18 +56,19 @@ class BinaryClassificationPipeline(MLPipeline):
             log("Dataset {}".format(dataset))
 
             for refactoring in self._refactorings:
-                log("Refactoring %s" % refactoring.name)
+                refactoring_name = refactoring.name()
+                log("Refactoring %s" % refactoring_name)
 
                 features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
 
                 for model in self._models_to_run:
                     try:
-                        log("Model {}".format(model.name))
+                        log("Model {}".format(model.name()))
                         self._start_time()
-                        _run_single_model(dataset, model, refactoring.name, features, x, y, scaler)
+                        _run_single_model(dataset, model, refactoring, features, x, y, scaler)
                         self._finish_time(dataset, model, refactoring)
                     except Exception as e:
-                        print("An error occurred while working on refactoring " + refactoring.name + " model " + model.name)
+                        print("An error occurred while working on refactoring " + refactoring_name + " model " + model.name())
                         print(e)
                         print(traceback.format_exc())
 
@@ -72,12 +76,17 @@ class BinaryClassificationPipeline(MLPipeline):
                 # TODO: can we merge both pipelines somehow?
                 for model in self._deep_models_to_run:
 
+                    model_name = model.name()
                     try:
-                        log("Model {}".format(model.name))
+                        log("Model {}".format(model_name))
                         self._start_time()
-                        model.run(dataset, model, refactoring.name, scaler, x, y)
+                        best_model = model.run(dataset, model, refactoring_name, scaler, x, y)
+
+                        save_object("model", best_model, model_name, dataset, refactoring_name)
+                        save_object("scaler", scaler, model_name, dataset, refactoring_name)
+
                         self._finish_time(dataset, model, refactoring)
                     except Exception as e:
-                        log("An error occurred while working on refactoring " + refactoring.name + " model " + model.name)
+                        log("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
                         log(str(e))
                         log(str(traceback.format_exc()))
