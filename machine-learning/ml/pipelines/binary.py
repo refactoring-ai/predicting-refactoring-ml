@@ -11,6 +11,35 @@ from utils.log import log
 from utils.ml_utils import save_object
 
 
+def _run_single_model(dataset, model, refactoring_name, scaler, x, y):
+    model = model.model()
+
+    # start the search
+    param_dist = model.params_to_tune()
+    search = None
+
+    if SEARCH == 'randomized':
+        search = RandomizedSearchCV(model, param_dist, n_iter=N_ITER, cv=N_CV, iid=False, n_jobs=-1)
+
+    log("Search started at %s\n" % now())
+    search.fit(x, y)
+    print_best_parameters(search)
+
+    # cross-validation
+    model_for_cv = model.model(search.best_params_)
+    print("Cross validation started at %s\n" % now())
+    log("Cross validation started at %s\n" % now())
+    scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
+                            scoring=['accuracy', 'precision', 'recall'])
+
+    # output (both results and models)
+    model_name = type(model).__name__
+    model.output_function(dataset, refactoring_name, model_name, search.best_estimator_,
+                          x.columns.values, scores)
+    save_object("model", model, model_name, dataset, refactoring_name)
+    save_object("scaler", scaler, model_name, dataset, refactoring_name)
+
+
 class BinaryClassificationPipeline(MLPipeline):
 
     def __init__(self, models_to_run, deep_models_to_run, refactorings, datasets):
@@ -33,7 +62,7 @@ class BinaryClassificationPipeline(MLPipeline):
                     try:
                         log("Model {}".format(model_name))
                         self._start_time()
-                        self._run_single_model(dataset, model, refactoring_name, scaler, x, y)
+                        _run_single_model(dataset, model, refactoring_name, scaler, x, y)
                         self._finish_time(dataset, model_name, refactoring_name)
                     except Exception as e:
                         print("An error occurred while working on refactoring " + refactoring_name + " model " + model)
@@ -55,31 +84,3 @@ class BinaryClassificationPipeline(MLPipeline):
                         log("An error occurred while working on refactoring " + refactoring_name + " model " + model)
                         log(str(e))
                         log(str(traceback.format_exc()))
-
-    def _run_single_model(self, dataset, model, refactoring_name, scaler, x, y):
-        model = model.model()
-
-        # start the search
-        param_dist = model.params_to_tune()
-        search = None
-
-        if SEARCH == 'randomized':
-            search = RandomizedSearchCV(model, param_dist, n_iter=N_ITER, cv=N_CV, iid=False, n_jobs=-1)
-
-        log("Search started at %s\n" % now())
-        search.fit(x, y)
-        print_best_parameters(search)
-
-        # cross-validation
-        model_for_cv = model.model(search.best_params_)
-        print("Cross validation started at %s\n" % now())
-        log("Cross validation started at %s\n" % now())
-        scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
-                                scoring=['accuracy', 'precision', 'recall'])
-
-        # output (both results and models)
-        model_name = type(model).__name__
-        model.output_function(dataset, refactoring_name, model_name, search.best_estimator_,
-                              x.columns.values, scores)
-        save_object("model", model, model_name, dataset, refactoring_name)
-        save_object("scaler", scaler, model_name, dataset, refactoring_name)
