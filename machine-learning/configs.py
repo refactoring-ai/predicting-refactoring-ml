@@ -1,5 +1,9 @@
 # global configs
 
+# is it a test run?
+# test runs reduce the dataset to 100 instances only
+TEST = False
+
 # number of iterations (hyperparameter tuning)
 # number of cross-validations
 # SVM has its own, given its slowliness

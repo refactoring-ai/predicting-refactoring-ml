@@ -4,7 +4,7 @@ import pandas as pd
 
 from sklearn.preprocessing import MinMaxScaler
 
-from configs import SCALE_DATASET
+from configs import SCALE_DATASET, TEST
 from utils.log import log
 from ml.sampling import perform_under_sampling
 from refactoring import LowLevelRefactoring, ClassLevelRefactoring
@@ -33,6 +33,11 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     # set the prediction variable as true and false in the datasets
     refactored_instances["prediction"] = 1
     non_refactored_instances["prediction"] = 0
+
+    # if it's a test run, we reduce the sample randomly
+    if TEST:
+        refactored_instances = refactored_instances.sample(n=100)
+        non_refactored_instances = non_refactored_instances.sample(n=100)
 
     # now, combine both datasets (with both TRUE and FALSE predictions)
     assert non_refactored_instances.shape[1] == refactored_instances.shape[
