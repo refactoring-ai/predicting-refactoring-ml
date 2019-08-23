@@ -2,7 +2,7 @@ results/*
 results-*.txt
 
 _cache/*
-config.ini
+dbconfig.ini
 
 .idea/*
 
