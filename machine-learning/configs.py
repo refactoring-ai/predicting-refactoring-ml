@@ -4,6 +4,12 @@
 # test runs reduce the dataset to 100 instances only
 TEST = False
 
+# do we use the cached results? True=yes, False=no, go always to the db
+USE_CACHE = True
+
+# is the db available? sometimes it's not, but you have all the cache
+DB_AVALIABLE = True
+
 # number of iterations (hyperparameter tuning)
 # number of cross-validations
 # SVM has its own, given its slowliness
