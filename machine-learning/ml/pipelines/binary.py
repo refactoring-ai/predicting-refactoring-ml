@@ -1,8 +1,9 @@
 import traceback
 
-from sklearn.model_selection import RandomizedSearchCV, cross_validate
+from sklearn.model_selection import RandomizedSearchCV, cross_validate, StratifiedKFold, GridSearchCV
 
-from configs import SEARCH, N_CV, N_ITER
+from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
+from ml.feature_reduction import perform_feature_reduction
 from ml.output import format_results, format_best_parameters
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing import retrieve_labelled_instances
@@ -25,6 +26,9 @@ class BinaryClassificationPipeline(MLPipeline):
                 log("Refactoring %s" % refactoring_name)
 
                 features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
+
+                # let's reduce the number of features in the set
+                x = perform_feature_reduction(x, y)
 
                 for model in self._models_to_run:
                     model_name = model.name()
@@ -57,7 +61,9 @@ class BinaryClassificationPipeline(MLPipeline):
         search = None
 
         if SEARCH == 'randomized':
-            search = RandomizedSearchCV(model, param_dist, n_iter=N_ITER, cv=N_CV, iid=False, n_jobs=-1)
+            search = RandomizedSearchCV(model, param_dist, n_iter=N_ITER_RANDOM_SEARCH, cv=StratifiedKFold(n_splits=N_CV_SEARCH, shuffle=True), iid=False, n_jobs=-1)
+        elif SEARCH == 'grid':
+            search = GridSearchCV(model, param_dist, cv=StratifiedKFold(n_splits=N_CV_SEARCH, shuffle=True), iid=False, n_jobs=-1)
 
         log("Search started at %s\n" % now())
         search.fit(x, y)
