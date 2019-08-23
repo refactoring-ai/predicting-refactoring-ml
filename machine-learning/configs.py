@@ -68,10 +68,10 @@ VARIABLE_LEVEL_REFACTORINGS = ["Extract Variable",
 
 # Let's change some parameters (i.e., make them smaller) if this is a test run
 if TEST:
-    N_ITER = 2
-    N_CV = 1
+    N_ITER = 1
+    N_CV = 2
 
-    N_ITER_SVM = 2
-    N_CV_SVM = 1
+    N_ITER_SVM = 1
+    N_CV_SVM = 2
 
-    N_CV_DNN = 1
+    N_CV_DNN = 2
