@@ -32,9 +32,7 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
 def format_best_parameters(tuned_model):
     best_parameters = tuned_model.best_params_
 
-    results = ""
-
-    results +="Hyperparametrization:\n"
+    results = "Hyperparametrization:\n"
     results += json.dumps(best_parameters, indent=2)
 
     best_result = tuned_model.best_score_
