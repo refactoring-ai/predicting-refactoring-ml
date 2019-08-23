@@ -46,6 +46,7 @@ def execute_query(sql_query):
     if USE_CACHE and os.path.exists(file_path):
         # print("DEBUG: query is cached")
         df_raw = pd.read_csv(file_path)
+        return df_raw
     else:
         if DB_AVALIABLE:
             try:
