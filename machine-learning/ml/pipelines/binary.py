@@ -34,7 +34,7 @@ def _run_single_model(dataset, model_def, refactoring_name, features, x, y, scal
 
     # output (both results and models)
     model_name = type(model_def).__name__
-    model_def.output_function(dataset, refactoring_name, model_name, search.best_estimator_,
+    model_def.output_function()(dataset, refactoring_name, model_name, search.best_estimator_,
                           features, scores)
 
     # we save the best estimator we had during the search
