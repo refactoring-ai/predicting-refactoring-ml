@@ -1,13 +1,11 @@
-import sklearn
-
 import pandas as pd
-
+import sklearn
 from sklearn.preprocessing import MinMaxScaler
 
 from configs import SCALE_DATASET, TEST
-from utils.log import log
 from ml.sampling import perform_under_sampling
-from refactoring import LowLevelRefactoring, ClassLevelRefactoring
+from refactoring import LowLevelRefactoring
+from utils.log import log
 
 
 def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
