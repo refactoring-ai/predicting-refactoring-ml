@@ -3,10 +3,9 @@ import traceback
 from sklearn.model_selection import RandomizedSearchCV, cross_validate, StratifiedKFold, GridSearchCV
 
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
-from ml.feature_reduction import perform_feature_reduction
-from ml.output import format_results, format_best_parameters
 from ml.pipelines.pipelines import MLPipeline
-from ml.preprocessing import retrieve_labelled_instances
+from ml.preprocessing.preprocessing import retrieve_labelled_instances
+from ml.utils.output import format_results, format_best_parameters
 from utils.date_utils import now
 from utils.log import log
 
@@ -26,9 +25,6 @@ class BinaryClassificationPipeline(MLPipeline):
                 log("Refactoring %s" % refactoring_name)
 
                 features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
-
-                # let's reduce the number of features in the set
-                x = perform_feature_reduction(x, y)
 
                 for model in self._models_to_run:
                     model_name = model.name()

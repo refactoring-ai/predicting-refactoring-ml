@@ -39,14 +39,21 @@ SCALE_DATASET = True
 # number of folds in the search for best parameters
 N_CV_SEARCH = 5
 
-# number of folds for feature reduction
-N_CV_FEATURE_REDUCTION = 5
-
 # number of folds for the final evaluation
 N_CV = 10
 
 # number of folds for the DNN
 N_CV_DNN = 5
+
+# --------------------------------
+# Feature reduction
+# --------------------------------
+
+# perform feature reduction?
+FEATURE_REDUCTION = True
+
+# number of folds for feature reduction
+N_CV_FEATURE_REDUCTION = 5
 
 
 # --------------------------------

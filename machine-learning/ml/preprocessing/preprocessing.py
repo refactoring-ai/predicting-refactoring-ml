@@ -1,15 +1,15 @@
 import pandas as pd
 import sklearn
-from sklearn.preprocessing import MinMaxScaler
 
-from configs import SCALE_DATASET, TEST
-from ml.sampling import perform_under_sampling
+from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION
+from ml.preprocessing.feature_reduction import perform_feature_reduction
+from ml.preprocessing.sampling import perform_under_sampling
+from ml.preprocessing.scaling import perform_scaling
 from refactoring import LowLevelRefactoring
 from utils.log import log
 
 
 def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
-
     # get all refactoring examples we have in our dataset
     refactored_instances = refactoring.get_refactored_instances(dataset)
 
@@ -63,7 +63,10 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     # apply some scaling to speed up the algorithm
     scaler = None
     if SCALE_DATASET:
-        scaler = MinMaxScaler()  # Default behavior is to scale to [0,1]
-        balanced_x = scaler.fit_transform(balanced_x)
+        balanced_x = perform_scaling(balanced_x)
 
-    return x.columns.values, balanced_x, balanced_y, scaler
+    # let's reduce the number of features in the set
+    if FEATURE_REDUCTION:
+        balanced_x = perform_feature_reduction(balanced_x, balanced_y)
+
+    return balanced_x.columns.values, balanced_x, balanced_y, scaler

@@ -10,7 +10,9 @@ def perform_feature_reduction(x, y):
     selector = RFECV(estimator, step=1, cv=N_CV_FEATURE_REDUCTION)
 
     log("Features before reduction (total of {}): {}".format(len(x.columns.values), ', '.join(x.columns.values)))
-    x = selector.fit_transform(x, y)
+    selector.fit(x, y)
+    x = x[x.columns[selector.get_support(indices=True)]] # keeping the column names
+
     log("Features after reduction (total of {}): {}".format(len(x.columns.values), ', '.join(x.columns.values)))
 
     return x
