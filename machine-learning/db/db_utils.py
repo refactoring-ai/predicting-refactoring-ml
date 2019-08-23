@@ -7,7 +7,7 @@ import configparser
 
 
 config = configparser.ConfigParser()
-config.read(os.path.join(os.getcwd(),'config.ini'))
+config.read(os.path.join(os.getcwd(),'dbconfig.ini'))
 
 mydb = mysql.connector.connect(
   host=config['db']["ip"],
