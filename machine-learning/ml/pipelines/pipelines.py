@@ -5,7 +5,7 @@ from utils.log import log
 class MLPipeline:
 
     def __init__(self, models_to_run, deep_models_to_run, refactorings, datasets):
-        self.deep_models_to_run = deep_models_to_run
+        self._deep_models_to_run = deep_models_to_run
         self._models_to_run = models_to_run
         self._refactorings = refactorings
         self._datasets = datasets
