@@ -41,10 +41,6 @@ def save_object(obj_descr_type, obj, model_name, dataset, refactoring_name):
         joblib.dump(obj, file_name)
 
 
-def create_persistence_file_name(f, m_refactoring):
-    return os.path.splitext(f.name)[0] + '--' + m_refactoring.lower().replace(' ', '-')
-
-
 def plot_confusion_matrix(y_true, y_pred, classes,
                           normalize=False,
                           title=None,
