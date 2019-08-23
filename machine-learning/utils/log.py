@@ -9,6 +9,10 @@ _f = None
 
 def print_config():
     global _f
+
+    log("--------------")
+    log("Configuration:")
+
     log(f"Test: {TEST}")
     log(f"Use cache? {USE_CACHE} DB available? {DB_AVAILABLE}")
     log(f"Balance dataset? {BALANCE_DATASET} {BALANCE_DATASET_STRATEGY}")
@@ -22,11 +26,20 @@ def print_config():
     log(f"Class-level refactorings: {CLASS_LEVEL_REFACTORINGS}")
     log(f"Method-level refactorings: {METHOD_LEVEL_REFACTORINGS}")
     log(f"Variable-level refactorings: {VARIABLE_LEVEL_REFACTORINGS}")
+    log("--------------")
 
 
 def log_init():
     global _f
     _f = open("results/{}-result.txt".format(random.randint(1, 999999)), "w+")
+
+    log(r"  __  __ _      _ _    ___      __         _           _           ")
+    log(r" |  \/  | |    | | |  | _ \___ / _|__ _ __| |_ ___ _ _(_)_ _  __ _ ")
+    log(r" | |\/| | |__  |_  _| |   / -_)  _/ _` / _|  _/ _ \ '_| | ' \/ _` |")
+    log(r" |_|  |_|____|   |_|  |_|_\___|_| \__,_\__|\__\___/_| |_|_||_\__, |")
+    log(r"                                                             |___/ ")
+    log("")
+
     print_config()
 
 
