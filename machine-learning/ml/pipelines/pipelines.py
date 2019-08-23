@@ -18,7 +18,7 @@ class MLPipeline:
         finish_hour = now()
         log("Finished at %s" % finish_hour)
         log(
-            ("TIME,%s,%s,%s,%s,%s" % (dataset, refactoring.name, model.name, self._start_hour, finish_hour)))
+            ("TIME,%s,%s,%s,%s,%s" % (dataset, refactoring.name(), model.name(), self._start_hour, finish_hour)))
 
     def _start_time(self):
         self._count_execution()
