@@ -13,7 +13,7 @@ TEST = False
 USE_CACHE = True
 
 # is the db available? sometimes it's not, but you have all the cache
-DB_AVALIABLE = True
+DB_AVAILABLE = True
 
 
 # --------------------------------
@@ -25,6 +25,7 @@ BALANCE_DATASET = True
 # options = [random, cluster_centroids, nearmiss]
 BALANCE_DATASET_STRATEGY = "random"
 
+
 # --------------------------------
 # Dataset scaling
 # --------------------------------
@@ -32,19 +33,6 @@ BALANCE_DATASET_STRATEGY = "random"
 # scale using MinMaxScaler?
 SCALE_DATASET = True
 
-
-# --------------------------------
-# Cross-validation configuration
-# --------------------------------
-
-# number of folds in the search for best parameters
-N_CV_SEARCH = 5
-
-# number of folds for the final evaluation
-N_CV = 10
-
-# number of folds for the DNN
-N_CV_DNN = 5
 
 # --------------------------------
 # Feature reduction
@@ -67,6 +55,20 @@ SEARCH = "grid"
 
 # number of iterations (if Randomized strategy is chosen)
 N_ITER_RANDOM_SEARCH = 100
+
+# number of folds in the search for best parameters
+N_CV_SEARCH = 5
+
+
+# --------------------------------
+# Evaluation: Cross-validation configuration
+# --------------------------------
+
+# number of folds for the final evaluation
+N_CV = 10
+
+# number of folds for the DNN
+N_CV_DNN = 5
 
 
 # --------------------------------

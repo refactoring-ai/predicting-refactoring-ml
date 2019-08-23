@@ -3,6 +3,11 @@ from utils.log import log
 
 
 class MLPipeline:
+    """
+    Represents a generic pipeline.
+
+    The `run` method is the one that does the magic. Other methods mostly support logging.
+    """
 
     def __init__(self, models_to_run, refactorings, datasets):
         self._models_to_run = models_to_run

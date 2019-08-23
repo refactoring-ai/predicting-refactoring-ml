@@ -10,6 +10,14 @@ class MLModel(object):
 
 
 class SupervisedMLRefactoringModel(MLModel):
+    """
+    Represents all supervised ML models.
+
+    They all must have 3 features:
+    - params_to_tune: A dictionary with the list of parameters and values for the hyperparameter search.
+    - model: Returns a new model. If params is passed, with the configured params.
+    - persist: Persists the best found estimator as well as the final model.
+    """
 
     def params_to_tune(self):
         pass
@@ -26,6 +34,10 @@ class SupervisedMLRefactoringModel(MLModel):
 
 
 class DeepMLRefactoringModel(MLModel):
+    """
+    Represents all deep learning supervised ML models.
+    We are still designing this class.
+    """
 
     def run(self, x, y):
         pass

@@ -5,14 +5,14 @@ import os.path
 
 import configparser
 
-from configs import USE_CACHE, DB_AVALIABLE
+from configs import USE_CACHE, DB_AVAILABLE
 
 config = configparser.ConfigParser()
 config.read(os.path.join(os.getcwd(),'dbconfig.ini'))
 
 mydb = None
 
-if DB_AVALIABLE:
+if DB_AVAILABLE:
     mydb = mysql.connector.connect(
       host=config['db']["ip"],
       user=config['db']["user"],
@@ -48,7 +48,7 @@ def execute_query(sql_query):
         df_raw = pd.read_csv(file_path)
         return df_raw
     else:
-        if DB_AVALIABLE:
+        if DB_AVAILABLE:
             try:
                 df_raw = pd.read_sql(sql_query, con=mydb)
             except (KeyboardInterrupt, SystemExit):

@@ -11,11 +11,23 @@ from utils.log import log
 
 
 class BinaryClassificationPipeline(MLPipeline):
+    """
+    Train models for binary classification
+    """
 
     def __init__(self, models_to_run, refactorings, datasets):
         super().__init__(models_to_run, refactorings, datasets)
 
     def run(self):
+        """
+        The main method of this pipeline.
+
+        For each combination of dataset, refactoring, and model, it:
+        1) Retrieved the labelled instances
+        2) Performs the hyper parameter search
+        3) Performs k-fold cross-validation
+        4) Persists evaluation results and the best model
+        """
 
         for dataset in self._datasets:
             log("Dataset {}".format(dataset))
@@ -52,7 +64,7 @@ class BinaryClassificationPipeline(MLPipeline):
     def _run_single_model(self, dataset, model_def, refactoring, features, x, y, scaler):
         model = model_def.model()
 
-        # start the search
+        # perform the search for the best hyper parameters
         param_dist = model_def.params_to_tune()
         search = None
 
@@ -72,6 +84,7 @@ class BinaryClassificationPipeline(MLPipeline):
         scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
                                 scoring=['accuracy', 'precision', 'recall'])
 
+        # return the scores and the best estimator
         return scores["test_precision"], scores["test_recall"], scores['test_accuracy'], best_estimator
 
 
@@ -80,7 +93,7 @@ class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
         super().__init__(models_to_run, refactorings, datasets)
 
     def _run_single_model(self, dataset, model_def, refactoring, features, x, y, scaler):
-        return model_def.run(dataset, model_def, refactoring, features, x, y, scaler)
+        return model_def.run(x, y)
 
 
 

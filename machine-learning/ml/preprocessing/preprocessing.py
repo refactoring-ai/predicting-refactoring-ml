@@ -10,6 +10,26 @@ from utils.log import log
 
 
 def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
+    """
+    This method retrieves all the labelled instances for a given refactoring and dataset.
+    It performs the following pipeline:
+      1. Get all refactored and non refactored instances from the db.
+      2. Merge them into a single dataset, having 1=true and 0=false, as labels.
+      3. Removes possible NAs (the data collection process is tough; bad data might had make it through)
+      4. Shuffles the dataset (good practice)
+      5. Balances the dataset (if configured)
+      6. Scales the features values (if configured)
+      7. Performs feature reduction (if configured)
+
+    :param dataset: a string containing the name of the dataset to be retrieved
+    :param refactoring: the refactoring object, containing the refactoring to be retrieved
+    :return:
+        features: an array with the features of the instances
+        x: a dataframe with the feature values
+        y: the label (1=true, a refactoring has happened, 0=false, no refactoring has happened)
+        scaler: the scaler object used in the scaling process.
+    """
+
     # get all refactoring examples we have in our dataset
     refactored_instances = refactoring.get_refactored_instances(dataset)
 

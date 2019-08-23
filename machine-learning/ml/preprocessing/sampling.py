@@ -6,7 +6,12 @@ from configs import BALANCE_DATASET_STRATEGY
 
 
 def perform_under_sampling(x, y):
-    rus = None
+    """
+    Performs under/over sampling, according to the number of true and false instances of the x, y dataset.
+    :param x: feature values
+    :param y: labels
+    :return: a balanced x, y
+    """
     if BALANCE_DATASET_STRATEGY == 'random':
         rus = RandomUnderSampler(random_state=42)  # 42 is a random number, just to ensure our results are reproducible
     elif BALANCE_DATASET_STRATEGY == 'cluster_centroids':

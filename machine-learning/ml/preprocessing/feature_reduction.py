@@ -6,6 +6,16 @@ from utils.log import log
 
 
 def perform_feature_reduction(x, y):
+    """
+    Performs feature reduction in the x, y
+
+    For now, it uses linear SVR as estimator, and removes feature by feature.
+
+    :param x: feature values
+    :param y: labels
+    :return: x, y, where x only contain the relevant features.
+    """
+
     estimator = SVR(kernel="linear")
     selector = RFECV(estimator, step=1, cv=N_CV_FEATURE_REDUCTION)
 
