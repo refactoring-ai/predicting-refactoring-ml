@@ -8,12 +8,11 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import StratifiedKFold
 
 from configs import N_CV_DNN
-from utils.log import log
 from ml.models.base import DeepMLRefactoringModel
 
 
 class NeuralNetworkDeepRefactoringModel(DeepMLRefactoringModel):
-    def run(self,dataset, model, refactoring_name, scaler, x, y):
+    def run(self, x, y):
         seed = 42
         numpy.random.seed(seed)
 
@@ -80,20 +79,5 @@ class NeuralNetworkDeepRefactoringModel(DeepMLRefactoringModel):
                 best_model = model
                 best_model_accuracy = accuracy
 
-        # calculating the mean of all recall, precision, and accuracy
-        precision_mean = numpy.mean(precision_scores)
-        recall_mean = numpy.mean(recall_scores)
-        accuracy_mean = numpy.mean(accuracy_scores)
-
-        precision_scores = [str(p) for p in precision_scores]
-        recall_scores = [str(p) for p in recall_scores]
-        accuracy_scores = [str(p) for p in accuracy_scores]
-
-        log("Precision: %s" % ", ".join(precision_scores))
-        log("Recall: %s" % ", ".join(recall_scores))
-        log("Accuracy: %s" % ", ".join(accuracy_scores))
-
-        log(f'CSV,{dataset},{refactoring_name},{model_name},{precision_mean},{recall_mean},{accuracy_mean}\n')
-
-        return best_model
+        return precision_scores, recall_scores, accuracy_scores, best_model
 

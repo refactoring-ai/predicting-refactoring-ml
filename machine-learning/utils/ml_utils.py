@@ -1,13 +1,7 @@
-import os
-
 import joblib
-import matplotlib.pyplot as plt
-import numpy as np
 from joblib import load
 from keras.models import load_model as keras_load_model
 from keras_metrics import binary_precision, binary_recall
-from sklearn.metrics import confusion_matrix
-from sklearn.utils.multiclass import unique_labels
 
 
 def load_object(root_folder, obj_descr_type, model_name, dataset, refactoring_name):
@@ -28,17 +22,6 @@ def load_scaler(root_folder, model_name, dataset, refactoring_name):
     return load_object(root_folder, "scaler", model_name, dataset, refactoring_name)
 
 
-def save_model(model, model_name, dataset, refactoring_name):
-    save_object("model", model, model_name, dataset, refactoring_name)
-
-
-def save_object(obj_descr_type, obj, model_name, dataset, refactoring_name):
-    if model_name == 'deep-learning' and obj_descr_type == 'model':
-        file_name = "results/" + obj_descr_type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".h5"
-        obj.save(file_name)
-    else:
-        file_name = "results/" + obj_descr_type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
-        joblib.dump(obj, file_name)
 
 
 # def plot_confusion_matrix(y_true, y_pred, classes,

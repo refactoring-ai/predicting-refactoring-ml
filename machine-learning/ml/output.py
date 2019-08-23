@@ -1,17 +1,17 @@
 import json
 
 
-def format_results(dataset, refactoring_name, model_name, scores, best_model, features):
+def format_results(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, best_model, features):
     results = ""
 
-    results += "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
+    results += "Accuracy: %0.2f (+/- %0.2f)" % (accuracy_scores.mean(), accuracy_scores.std() * 2)
 
-    results += "\nPrecision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']]))
-    results += f'\n(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})'
-    results += f'\nMean precision: {scores["test_precision"].mean():.2f}'
-    results += "\nRecall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]]))
-    results += f'\n(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})'
-    results += f'\nMean recall: {scores["test_recall"].mean():.2f}'
+    results += "\nPrecision scores: " + ', '.join(list([f"{e:.2f}" for e in precision_scores]))
+    results += f'\n(Min and max: {precision_scores.min():.2f} and {precision_scores.max():.2f})'
+    results += f'\nMean precision: {precision_scores.mean():.2f}'
+    results += "\nRecall scores: " + ', '.join(list([f"{e:.2f}" for e in recall_scores]))
+    results += f'\n(Min and max: {recall_scores.min():.2f} and {recall_scores.max():.2f})'
+    results += f'\nMean recall: {recall_scores.mean():.2f}'
 
     if hasattr(best_model, "coef_"):
         results += "\nFeatures:"
@@ -25,7 +25,7 @@ def format_results(dataset, refactoring_name, model_name, scores, best_model, fe
     else:
         results += "(Not possible to collect feature importances)"
 
-    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{scores["test_precision"].mean():.2f},{scores["test_recall"].mean():.2f},{scores["test_accuracy"].mean()}'
+    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision_scores.mean():.2f},{recall_scores.mean():.2f},{accuracy_scores.mean()}'
     return results
 
 
