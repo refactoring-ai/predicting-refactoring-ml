@@ -65,7 +65,7 @@ class BinaryClassificationPipeline(MLPipeline):
                         _run_single_model(dataset, model, refactoring_name, scaler, x, y)
                         self._finish_time(dataset, model_name, refactoring_name)
                     except Exception as e:
-                        print("An error occurred while working on refactoring " + refactoring_name + " model " + model)
+                        print("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
                         print(e)
                         print(traceback.format_exc())
 
@@ -81,6 +81,6 @@ class BinaryClassificationPipeline(MLPipeline):
                         model.run(dataset, model, refactoring_name, scaler, x, y)
                         self._finish_time()
                     except Exception as e:
-                        log("An error occurred while working on refactoring " + refactoring_name + " model " + model)
+                        log("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
                         log(str(e))
                         log(str(traceback.format_exc()))
