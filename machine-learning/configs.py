@@ -68,7 +68,7 @@ N_CV_SEARCH = 5
 N_CV = 10
 
 # number of folds for the DNN
-N_CV_DNN = 5
+N_CV_DNN = 10
 
 
 # --------------------------------
