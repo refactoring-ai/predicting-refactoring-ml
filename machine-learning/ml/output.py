@@ -18,10 +18,12 @@ def format_results(dataset, refactoring_name, model_name, scores, best_model, fe
         results += (', '.join(str(e) for e in list(features)))
         results += "\nCoefficients:"
         results += "\n" + ''.join(str(e) for e in best_model.coef_.tolist())
-    else:
+    elif hasattr(best_model, "feature_importances_"):
         results += ("Feature Importances: \n" + ''.join(
             ["%-33s: %-5.4f\n" % (feature, importance) for feature, importance in
              zip(features, best_model.feature_importances_)]))
+    else:
+        results += "(Not possible to collect feature importances)"
 
     results += f'\nCSV,{dataset},{refactoring_name},{model_name},{scores["test_precision"].mean():.2f},{scores["test_recall"].mean():.2f},{scores["test_accuracy"].mean()}'
     return results
