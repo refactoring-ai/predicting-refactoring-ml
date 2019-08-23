@@ -1,5 +1,3 @@
-# global configs
-
 # is it a test run?
 # test runs reduce the dataset to 100 instances only
 TEST = False
@@ -67,6 +65,8 @@ VARIABLE_LEVEL_REFACTORINGS = ["Extract Variable",
 
 
 # DO NOT CHANGE FROM HERE ON
+
+# Let's change some parameters (i.e., make them smaller) if this is a test run
 if TEST:
     N_ITER = 2
     N_CV = 1

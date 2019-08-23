@@ -3,7 +3,6 @@ from random import uniform
 from sklearn.linear_model import LogisticRegression
 
 from ml.models.base import SupervisedMLRefactoringModel
-from ml.output import print_scores_1
 
 
 class LogisticRegressionRefactoringModel(SupervisedMLRefactoringModel):
@@ -17,7 +16,4 @@ class LogisticRegressionRefactoringModel(SupervisedMLRefactoringModel):
             return LogisticRegression(solver='lbfgs', max_iter=best_params["max_iter"], C=best_params["C"])
 
         return LogisticRegression(solver='lbfgs')
-
-    def output_function(self):
-        return print_scores_1
 

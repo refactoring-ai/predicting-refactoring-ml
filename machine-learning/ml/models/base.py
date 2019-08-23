@@ -6,12 +6,11 @@ class SupervisedMLRefactoringModel(object):
     def model(self, best_params=None):
         pass
 
-    def output_function(self):
-        pass
+    def name(self):
+        return type(self).__name__
 
 
 class DeepMLRefactoringModel(object):
 
-    def run(self,dataset, model, refactoring_name, scaler, x, y):
+    def run(self, dataset, model, refactoring_name, scaler, x, y):
         pass
-

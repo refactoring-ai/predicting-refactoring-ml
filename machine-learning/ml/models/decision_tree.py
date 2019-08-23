@@ -1,7 +1,6 @@
 from sklearn.tree import DecisionTreeClassifier
 
 from ml.models.base import SupervisedMLRefactoringModel
-from ml.output import print_scores_2
 
 
 class DecisionTreeRefactoringModel(SupervisedMLRefactoringModel):
@@ -21,7 +20,4 @@ class DecisionTreeRefactoringModel(SupervisedMLRefactoringModel):
                                    criterion=best_params["criterion"])
 
         return DecisionTreeClassifier(random_state=42)
-
-    def output_function(self):
-        return print_scores_2
 

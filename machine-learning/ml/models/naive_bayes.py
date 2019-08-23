@@ -1,7 +1,6 @@
 from sklearn.naive_bayes import GaussianNB
 
 from ml.models.base import SupervisedMLRefactoringModel
-from ml.output import print_scores_1
 
 
 class GaussianNaiveBayesRefactoringModel(SupervisedMLRefactoringModel):
@@ -14,6 +13,4 @@ class GaussianNaiveBayesRefactoringModel(SupervisedMLRefactoringModel):
 
         return GaussianNB()
 
-    def output_function(self):
-        return print_scores_1
 

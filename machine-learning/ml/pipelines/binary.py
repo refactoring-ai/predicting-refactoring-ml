@@ -3,7 +3,7 @@ import traceback
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 
 from configs import SEARCH, N_CV, N_ITER
-from ml.output import print_best_parameters
+from ml.output import format_results, format_best_parameters
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing import retrieve_labelled_instances
 from utils.date_utils import now
@@ -23,7 +23,8 @@ def _run_single_model(dataset, model_def, refactoring_name, features, x, y, scal
 
     log("Search started at %s\n" % now())
     search.fit(x, y)
-    print_best_parameters(search)
+    log(format_best_parameters(search))
+    best_estimator = search.best_estimator_
 
     # cross-validation
     model_for_cv = model_def.model(search.best_params_)
@@ -33,14 +34,12 @@ def _run_single_model(dataset, model_def, refactoring_name, features, x, y, scal
                             scoring=['accuracy', 'precision', 'recall'])
 
     # output (both results and models)
-    model_name = type(model_def).__name__
-    model_def.output_function()(dataset, refactoring_name, model_name, search.best_estimator_,
-                          features, scores)
+    log(format_results(dataset, refactoring_name, model_def.name, scores, best_estimator, features))
 
     # we save the best estimator we had during the search
-    model_to_save = search.best_estimator_
-    save_object("model", model_to_save, model_name, dataset, refactoring_name)
-    save_object("scaler", scaler, model_name, dataset, refactoring_name)
+    model_to_save = best_estimator
+    save_object("model", model_to_save, model_def.name, dataset, refactoring_name)
+    save_object("scaler", scaler, model_def.name, dataset, refactoring_name)
 
 
 class BinaryClassificationPipeline(MLPipeline):
@@ -54,21 +53,18 @@ class BinaryClassificationPipeline(MLPipeline):
             log("Dataset {}".format(dataset))
 
             for refactoring in self._refactorings:
-                refactoring_name = refactoring.name
-                log("Refactoring %s" % refactoring_name)
+                log("Refactoring %s" % refactoring.name)
 
                 features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
 
                 for model in self._models_to_run:
-                    model_name = type(model).__name__
-
                     try:
-                        log("Model {}".format(model_name))
+                        log("Model {}".format(model.name))
                         self._start_time()
-                        _run_single_model(dataset, model, refactoring_name, features, x, y, scaler)
-                        self._finish_time(dataset, model_name, refactoring_name)
+                        _run_single_model(dataset, model, refactoring.name, features, x, y, scaler)
+                        self._finish_time(dataset, model, refactoring)
                     except Exception as e:
-                        print("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
+                        print("An error occurred while working on refactoring " + refactoring.name + " model " + model.name)
                         print(e)
                         print(traceback.format_exc())
 
@@ -76,14 +72,12 @@ class BinaryClassificationPipeline(MLPipeline):
                 # TODO: can we merge both pipelines somehow?
                 for model in self._deep_models_to_run:
 
-                    model_name = type(model).__name__
-
                     try:
-                        log("Model {}".format(model_name))
+                        log("Model {}".format(model.name))
                         self._start_time()
-                        model.run(dataset, model, refactoring_name, scaler, x, y)
-                        self._finish_time()
+                        model.run(dataset, model, refactoring.name, scaler, x, y)
+                        self._finish_time(dataset, model, refactoring)
                     except Exception as e:
-                        log("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
+                        log("An error occurred while working on refactoring " + refactoring.name + " model " + model.name)
                         log(str(e))
                         log(str(traceback.format_exc()))

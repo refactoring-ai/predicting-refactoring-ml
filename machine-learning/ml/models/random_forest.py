@@ -1,7 +1,6 @@
 from sklearn.ensemble import RandomForestClassifier
 
 from ml.models.base import SupervisedMLRefactoringModel
-from ml.output import print_scores_2
 
 
 class RandomForestRefactoringModel(SupervisedMLRefactoringModel):
@@ -25,6 +24,4 @@ class RandomForestRefactoringModel(SupervisedMLRefactoringModel):
 
         return RandomForestClassifier(random_state=42)
 
-    def output_function(self):
-        return print_scores_2
 

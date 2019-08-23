@@ -1,7 +1,6 @@
 from sklearn.ensemble import ExtraTreesClassifier
 
 from ml.models.base import SupervisedMLRefactoringModel
-from ml.output import print_scores_2
 
 
 class ExtraTreeRefactoringModel(SupervisedMLRefactoringModel):
@@ -28,7 +27,4 @@ class ExtraTreeRefactoringModel(SupervisedMLRefactoringModel):
                                         n_estimators=best_params["n_estimators"])
 
         return ExtraTreesClassifier(random_state=42)
-
-    def output_function(self):
-        return print_scores_2
 

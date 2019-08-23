@@ -3,7 +3,6 @@ from random import uniform
 from sklearn.svm import SVC
 
 from ml.models.base import SupervisedMLRefactoringModel
-from ml.output import print_scores_1
 
 
 class LinearSVMRefactoringModel(SupervisedMLRefactoringModel):
@@ -19,8 +18,6 @@ class LinearSVMRefactoringModel(SupervisedMLRefactoringModel):
 
         return SVC(shrinking=False)
 
-    def output_function(self):
-        return print_scores_1
 
 
 class NonLinearSVMRefactoringModel(SupervisedMLRefactoringModel):
@@ -39,6 +36,4 @@ class NonLinearSVMRefactoringModel(SupervisedMLRefactoringModel):
 
         return SVC(shrinking=False)
 
-    def output_function(self):
-        return print_scores_1
 
