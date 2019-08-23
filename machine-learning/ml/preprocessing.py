@@ -34,8 +34,8 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # if it's a test run, we reduce the sample randomly
     if TEST:
-        refactored_instances = refactored_instances.sample(frac=0.01)
-        non_refactored_instances = non_refactored_instances.sample(frac=0.01)
+        refactored_instances = refactored_instances.sample(frac=0.1)
+        non_refactored_instances = non_refactored_instances.sample(frac=0.1)
 
     # now, combine both datasets (with both TRUE and FALSE predictions)
     assert non_refactored_instances.shape[1] == refactored_instances.shape[
