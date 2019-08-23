@@ -17,6 +17,8 @@ class SupervisedMLRefactoringModel(MLModel):
     - params_to_tune: A dictionary with the list of parameters and values for the hyperparameter search.
     - model: Returns a new model. If params is passed, with the configured params.
     - persist: Persists the best found estimator as well as the final model.
+
+    Note: Whenever you create a new model, do not forget to add it to `builder.py`.
     """
 
     def params_to_tune(self):

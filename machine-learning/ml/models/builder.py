@@ -9,23 +9,17 @@ from ml.models.svm import LinearSVMRefactoringModel, NonLinearSVMRefactoringMode
 
 
 def build_models():
-    models = []
-    for model_name in MODELS:
-        if model_name == 'svm':
-            models.append(LinearSVMRefactoringModel())
-        elif model_name == 'random-forest':
-            models.append(RandomForestRefactoringModel())
-        elif model_name == 'decision-tree':
-            models.append(DecisionTreeRefactoringModel())
-        elif model_name == 'logistic-regression':
-            models.append(LogisticRegressionRefactoringModel())
-        elif model_name == 'svm-non-linear':
-            models.append(NonLinearSVMRefactoringModel())
-        elif model_name == 'naive-bayes':
-            models.append(GaussianNaiveBayesRefactoringModel())
-        elif model_name == 'extra-trees':
-            models.append(ExtraTreeRefactoringModel())
-    return models
+    all_available_models = {
+        "svm": LinearSVMRefactoringModel(),
+        "random-forest": RandomForestRefactoringModel(),
+        "decision-tree": DecisionTreeRefactoringModel(),
+        "logistic-regression": LogisticRegressionRefactoringModel(),
+        "svm-non-linear": NonLinearSVMRefactoringModel(),
+        "naive-bayes": GaussianNaiveBayesRefactoringModel(),
+        "extra-trees": ExtraTreeRefactoringModel()
+    }
+
+    return [all_available_models[model] for model in MODELS]
 
 
 def build_deep_models():
