@@ -4,10 +4,10 @@ from db.refactoringdb import get_method_level_refactorings, get_non_refactored_m
 
 
 class LowLevelRefactoring():
-    name = ""
+    _name = ""
 
     def __init__(self, name):
-        self.name = name
+        self._name = name
 
     def get_refactored_instances(self, dataset):
         pass
@@ -17,6 +17,9 @@ class LowLevelRefactoring():
 
     def refactoring_level(self):
         pass
+
+    def name(self):
+        return self._name
 
 
 class MethodLevelRefactoring(LowLevelRefactoring):
