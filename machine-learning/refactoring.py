@@ -15,6 +15,9 @@ class LowLevelRefactoring():
     def get_non_refactored_instances(self, dataset):
         pass
 
+    def refactoring_level(self):
+        pass
+
 
 class MethodLevelRefactoring(LowLevelRefactoring):
 
@@ -26,6 +29,9 @@ class MethodLevelRefactoring(LowLevelRefactoring):
 
     def get_non_refactored_instances(self, dataset):
         return get_non_refactored_methods(dataset)
+
+    def refactoring_level(self):
+        return "method"
 
 
 class ClassLevelRefactoring(LowLevelRefactoring):
@@ -39,6 +45,9 @@ class ClassLevelRefactoring(LowLevelRefactoring):
     def get_non_refactored_instances(self, dataset):
         return get_non_refactored_classes(dataset)
 
+    def refactoring_level(self):
+        return "class"
+
 
 class VariableLevelRefactoring(LowLevelRefactoring):
 
@@ -50,6 +59,9 @@ class VariableLevelRefactoring(LowLevelRefactoring):
 
     def get_non_refactored_instances(self, dataset):
         return get_non_refactored_variables(dataset)
+
+    def refactoring_level(self):
+        return "variable"
 
 
 def build_refactorings():

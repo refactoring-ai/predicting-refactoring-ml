@@ -53,7 +53,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # class level refactoring is the only one with process and ownership metrics
     # TODO: best way would be to remove these fields from the queries
-    if not isinstance(refactoring, ClassLevelRefactoring):
+    if not refactoring.refactoring_level() == 'class':
         x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
 
