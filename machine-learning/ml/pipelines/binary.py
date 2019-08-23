@@ -11,7 +11,7 @@ from utils.log import log
 from utils.ml_utils import save_object
 
 
-def _run_single_model(dataset, model_def, refactoring_name, scaler, x, y):
+def _run_single_model(dataset, model_def, refactoring_name, features, x, y, scaler):
     model = model_def.model()
 
     # start the search
@@ -35,7 +35,7 @@ def _run_single_model(dataset, model_def, refactoring_name, scaler, x, y):
     # output (both results and models)
     model_name = type(model_def).__name__
     model_def.output_function(dataset, refactoring_name, model_name, search.best_estimator_,
-                          x.columns.values, scores)
+                          features, scores)
 
     # we save the best estimator we had during the search
     model_to_save = search.best_estimator_
@@ -57,7 +57,7 @@ class BinaryClassificationPipeline(MLPipeline):
                 refactoring_name = refactoring.name
                 log("Refactoring %s" % refactoring_name)
 
-                x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
+                features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
 
                 for model in self._models_to_run:
                     model_name = type(model).__name__
@@ -65,7 +65,7 @@ class BinaryClassificationPipeline(MLPipeline):
                     try:
                         log("Model {}".format(model_name))
                         self._start_time()
-                        _run_single_model(dataset, model, refactoring_name, scaler, x, y)
+                        _run_single_model(dataset, model, refactoring_name, features, x, y, scaler)
                         self._finish_time(dataset, model_name, refactoring_name)
                     except Exception as e:
                         print("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)

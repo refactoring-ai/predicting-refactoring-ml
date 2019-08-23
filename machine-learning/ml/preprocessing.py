@@ -66,4 +66,4 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
         scaler = MinMaxScaler()  # Default behavior is to scale to [0,1]
         balanced_x = scaler.fit_transform(balanced_x)
 
-    return balanced_x, balanced_y, scaler
+    return x.columns.values, balanced_x, balanced_y, scaler
