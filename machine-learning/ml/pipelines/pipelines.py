@@ -4,8 +4,7 @@ from utils.log import log
 
 class MLPipeline:
 
-    def __init__(self, models_to_run, deep_models_to_run, refactorings, datasets):
-        self._deep_models_to_run = deep_models_to_run
+    def __init__(self, models_to_run, refactorings, datasets):
         self._models_to_run = models_to_run
         self._refactorings = refactorings
         self._datasets = datasets
@@ -27,7 +26,7 @@ class MLPipeline:
         log("Started at %s" % self._start_hour)
 
     def _total_number_of_executions(self):
-        return len(self._models_to_run)*len(self._refactorings)*len(self._datasets)+len(self._deep_models_to_run) * len(self._refactorings) * len(self._datasets)
+        return len(self._models_to_run)*len(self._refactorings)*len(self._datasets)
 
     def _count_execution(self):
         self._current_execution_number = self._current_execution_number+1

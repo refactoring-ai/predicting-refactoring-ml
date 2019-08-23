@@ -1,4 +1,9 @@
-class SupervisedMLRefactoringModel(object):
+class MLModel(object):
+    def name(self):
+        return type(self).__name__
+
+
+class SupervisedMLRefactoringModel(MLModel):
 
     def params_to_tune(self):
         pass
@@ -6,11 +11,8 @@ class SupervisedMLRefactoringModel(object):
     def model(self, best_params=None):
         pass
 
-    def name(self):
-        return type(self).__name__
 
-
-class DeepMLRefactoringModel(object):
+class DeepMLRefactoringModel(MLModel):
 
     def run(self, dataset, model, refactoring_name, scaler, x, y):
         pass

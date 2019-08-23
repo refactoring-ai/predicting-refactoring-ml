@@ -9,8 +9,11 @@ log("ML4Refactoring: Binary classification")
 
 refactorings = build_refactorings()
 models = build_models()
-deep_models = build_deep_models()
 
-pipeline = BinaryClassificationPipeline(models, deep_models, refactorings, DATASETS)
+pipeline = BinaryClassificationPipeline(models, refactorings, DATASETS)
 pipeline.run()
+
+
+# deep_models = build_deep_models()
+
 log_close()

@@ -47,8 +47,8 @@ def _run_single_model(dataset, model_def, refactoring, features, x, y, scaler):
 
 class BinaryClassificationPipeline(MLPipeline):
 
-    def __init__(self, models_to_run, deep_models_to_run, refactorings, datasets):
-        super().__init__(models_to_run, deep_models_to_run, refactorings, datasets)
+    def __init__(self, models_to_run, refactorings, datasets):
+        super().__init__(models_to_run, refactorings, datasets)
 
     def run(self):
 
@@ -72,21 +72,3 @@ class BinaryClassificationPipeline(MLPipeline):
                         print(e)
                         print(traceback.format_exc())
 
-                # the pipeline for deep learning is different for now.
-                # TODO: can we merge both pipelines somehow?
-                for model in self._deep_models_to_run:
-
-                    model_name = model.name()
-                    try:
-                        log("Model {}".format(model_name))
-                        self._start_time()
-                        best_model = model.run(dataset, model, refactoring_name, scaler, x, y)
-
-                        save_object("model", best_model, model_name, dataset, refactoring_name)
-                        save_object("scaler", scaler, model_name, dataset, refactoring_name)
-
-                        self._finish_time(dataset, model, refactoring)
-                    except Exception as e:
-                        log("An error occurred while working on refactoring " + refactoring_name + " model " + model_name)
-                        log(str(e))
-                        log(str(traceback.format_exc()))
