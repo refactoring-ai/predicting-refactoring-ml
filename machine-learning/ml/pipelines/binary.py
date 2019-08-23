@@ -49,7 +49,7 @@ class BinaryClassificationPipeline(MLPipeline):
                         log(str(e))
                         log(str(traceback.format_exc()))
 
-    def _run_single_model(self,dataset, model_def, refactoring, features, x, y, scaler):
+    def _run_single_model(self, dataset, model_def, refactoring, features, x, y, scaler):
         model = model_def.model()
 
         # start the search
