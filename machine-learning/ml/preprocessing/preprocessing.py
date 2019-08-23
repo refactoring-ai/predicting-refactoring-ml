@@ -36,15 +36,15 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     # load non-refactoring examples
     non_refactored_instances = refactoring.get_non_refactored_instances(dataset)
 
-    log("refactoring instances: {}".format(refactored_instances.shape[0]))
-    log("not refactoring instances: {}".format(non_refactored_instances.shape[0]))
+    log("raw number of refactoring instances: {}".format(refactored_instances.shape[0]))
+    log("raw number of not refactoring instances: {}".format(non_refactored_instances.shape[0]))
 
     # if there' still a row with NAs, drop it as it'll cause a failure later on.
     refactored_instances = refactored_instances.dropna()
     non_refactored_instances = non_refactored_instances.dropna()
 
-    log("refactoring instance(after dropping NA)s: {}".format(refactored_instances.shape[0]))
-    log("not refactoring instances: {}".format(non_refactored_instances.shape[0]))
+    log("refactoring instance (after dropping NA)s: {}".format(refactored_instances.shape[0]))
+    log("not refactoring instances (after dropping NA)s: {}".format(non_refactored_instances.shape[0]))
 
     assert refactored_instances.shape[0] > 0, "No refactorings found"
 
@@ -58,8 +58,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
         non_refactored_instances = non_refactored_instances.sample(frac=0.1)
 
     # now, combine both datasets (with both TRUE and FALSE predictions)
-    assert non_refactored_instances.shape[1] == refactored_instances.shape[
-        1], "number of columns differ from both datasets"
+    assert non_refactored_instances.shape[1] == refactored_instances.shape[1], "number of columns differ from both datasets"
     merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
 
     # shuffle the array
@@ -80,6 +79,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     if BALANCE_DATASET:
         x, y = perform_under_sampling(x, y)
         assert x.shape[0] == y.shape[0], "Undersampling did not work"
+        log("instances after under/over sampling: ri {} nri {}".format(x.shape[0],y.shape[0]))
 
     # apply some scaling to speed up the algorithm
     scaler = None
