@@ -30,6 +30,7 @@ class MLPipeline:
             ("TIME,%s,%s,%s,%s,%s" % (dataset, refactoring_name, model_name, self._start_hour, finish_hour)))
 
     def _start_time(self):
+        self._count_execution()
         self._start_hour = now()
         log("Started at %s" % self._start_hour)
 
@@ -60,7 +61,6 @@ class BinaryClassificationPipeline(MLPipeline):
                 x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
 
                 for model in self._models_to_run:
-                    self._count_execution()
                     model_name = type(model).__name__
 
                     try:
@@ -76,7 +76,6 @@ class BinaryClassificationPipeline(MLPipeline):
                 # the pipeline for deep learning is different for now.
                 # TODO: can we merge both pipelines somehow?
                 for model in self._deep_models_to_run:
-                    self._count_execution()
 
                     model_name = type(model).__name__
 
