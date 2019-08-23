@@ -11,6 +11,6 @@ refactorings = build_refactorings()
 models = build_models()
 deep_models = build_deep_models()
 
-pipeline = BinaryClassificationPipeline(refactorings, models, deep_models, DATASETS)
+pipeline = BinaryClassificationPipeline(models, deep_models, refactorings, DATASETS)
 pipeline.run()
 log_close()
