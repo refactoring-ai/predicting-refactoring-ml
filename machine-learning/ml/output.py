@@ -4,19 +4,14 @@ from utils.log import log
 
 
 def print_scores_1(dataset, refactoring_name, model_name, best_model, columns, scores):
-    accuracy_str = "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
+    log("Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2))
 
-    precision_scores_str = "Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']]))
-    precision_scores_str += f'(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})'
-    precision_scores_str += f'Mean precision: {scores["test_precision"].mean():.2f}'
-    recall_scores_str = "Recall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]]))
-    recall_scores_str += f'(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})'
-    recall_scores_str += f'Mean recall: {scores["test_recall"].mean():.2f}'
-
-    print(accuracy_str)
-    log(accuracy_str)
-    log(precision_scores_str)
-    log(recall_scores_str)
+    log("Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']])))
+    log(f'(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})')
+    log(f'Mean precision: {scores["test_precision"].mean():.2f}')
+    log("Recall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]])))
+    log(f'(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})')
+    log(f'Mean recall: {scores["test_recall"].mean():.2f}')
 
     # feature importance
     if hasattr(best_model, "coef_"):
@@ -29,27 +24,21 @@ def print_scores_1(dataset, refactoring_name, model_name, best_model, columns, s
 
 
 def print_scores_2(dataset, refactoring_name, model_name, best_model, columns, scores):
-    print(scores)
-    accuracy_str = "Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2)
-    print(accuracy_str)
+    log("Accuracy: %0.2f (+/- %0.2f)" % (scores['test_accuracy'].mean(), scores['test_accuracy'].std() * 2))
 
     # show feature importances
-    feature_importances_str = "Feature Importances: \n" + ''.join(
+    log("Feature Importances: \n" + ''.join(
         ["%-33s: %-5.4f\n" % (feature, importance) for feature, importance in
-         zip(columns, best_model.feature_importances_)])
-    precision_scores_str = "Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']]))
-    precision_scores_str += f'(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})'
-    precision_scores_str += f'Mean precision: {scores["test_precision"].mean():.2f}'
-    recall_scores_str = "Recall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]]))
-    recall_scores_str += f'(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})'
-    recall_scores_str += f'Mean recall: {scores["test_recall"].mean():.2f}'
+         zip(columns, best_model.feature_importances_)]))
+
+    log("Precision scores: " + ', '.join(list([f"{e:.2f}" for e in scores['test_precision']])))
+    log(f'(Min and max: {scores["test_precision"].min():.2f} and {scores["test_precision"].max():.2f})')
+    log(f'Mean precision: {scores["test_precision"].mean():.2f}')
+    log("Recall scores: " + ', '.join(list([f"{e:.2f}" for e in scores["test_recall"]])))
+    log(f'(Min and max: {scores["test_recall"].min():.2f} and {scores["test_recall"].max():.2f})')
+    log(f'Mean recall: {scores["test_recall"].mean():.2f}')
 
     # output results to file
-    log(accuracy_str)
-    log(feature_importances_str)
-    log(precision_scores_str)
-    log(recall_scores_str)
-
     log(f'CSV,{dataset},{refactoring_name},{model_name},{scores["test_precision"].mean():.2f},{scores["test_recall"].mean():.2f},{scores["test_accuracy"].mean()}')
 
 
