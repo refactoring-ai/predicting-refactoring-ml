@@ -11,11 +11,11 @@ from utils.log import log
 from utils.ml_utils import save_object
 
 
-def _run_single_model(dataset, model, refactoring_name, scaler, x, y):
-    model = model.model()
+def _run_single_model(dataset, model_def, refactoring_name, scaler, x, y):
+    model = model_def.model()
 
     # start the search
-    param_dist = model.params_to_tune()
+    param_dist = model_def.params_to_tune()
     search = None
 
     if SEARCH == 'randomized':
@@ -26,17 +26,20 @@ def _run_single_model(dataset, model, refactoring_name, scaler, x, y):
     print_best_parameters(search)
 
     # cross-validation
-    model_for_cv = model.model(search.best_params_)
+    model_for_cv = model_def.model(search.best_params_)
     print("Cross validation started at %s\n" % now())
     log("Cross validation started at %s\n" % now())
     scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
                             scoring=['accuracy', 'precision', 'recall'])
 
     # output (both results and models)
-    model_name = type(model).__name__
-    model.output_function(dataset, refactoring_name, model_name, search.best_estimator_,
+    model_name = type(model_def).__name__
+    model_def.output_function(dataset, refactoring_name, model_name, search.best_estimator_,
                           x.columns.values, scores)
-    save_object("model", model, model_name, dataset, refactoring_name)
+
+    # we save the best estimator we had during the search
+    model_to_save = search.best_estimator_
+    save_object("model", model_to_save, model_name, dataset, refactoring_name)
     save_object("scaler", scaler, model_name, dataset, refactoring_name)
 
 
