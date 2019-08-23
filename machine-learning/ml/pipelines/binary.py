@@ -2,46 +2,13 @@ import traceback
 
 from sklearn.model_selection import RandomizedSearchCV, cross_validate
 
-from configs import N_ITER, N_CV, SEARCH
-from utils.log import log
+from configs import SEARCH
 from ml.output import print_best_parameters
+from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing import retrieve_labelled_instances
 from utils.date_utils import now
+from utils.log import log
 from utils.ml_utils import save_object
-
-
-class MLPipeline:
-
-    def __init__(self, models_to_run, deep_models_to_run, refactorings, datasets):
-        self.deep_models_to_run = deep_models_to_run
-        self._models_to_run = models_to_run
-        self._refactorings = refactorings
-        self._datasets = datasets
-        self._start_hour = None
-        self._current_execution_number = 0
-
-    def run(self):
-        pass
-
-    def _finish_time(self, dataset, model_name, refactoring_name):
-        finish_hour = now()
-        log("Finished at %s" % finish_hour)
-        log(
-            ("TIME,%s,%s,%s,%s,%s" % (dataset, refactoring_name, model_name, self._start_hour, finish_hour)))
-
-    def _start_time(self):
-        self._count_execution()
-        self._start_hour = now()
-        log("Started at %s" % self._start_hour)
-
-    def _total_number_of_executions(self):
-        return len(self._models_to_run)*len(self._refactorings)*len(self._datasets)+len(self.deep_models_to_run) * len(self._refactorings) * len(self._datasets)
-
-    def _count_execution(self):
-        self._current_execution_number = self._current_execution_number+1
-        log("Execution: {}/{}".format(self._current_execution_number, self._total_number_of_executions()))
-        pass
-
 
 
 class BinaryClassificationPipeline(MLPipeline):

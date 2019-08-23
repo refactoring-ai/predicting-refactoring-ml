@@ -1,6 +1,6 @@
 from configs import DATASETS
 from ml.models.base import build_models, build_deep_models
-from ml.pipelines import BinaryClassificationPipeline
+from ml.pipelines.binary import BinaryClassificationPipeline
 from refactoring import build_refactorings
 from utils.log import log_init, log_close
 
