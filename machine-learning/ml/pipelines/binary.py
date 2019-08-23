@@ -68,6 +68,7 @@ class BinaryClassificationPipeline(MLPipeline):
         param_dist = model_def.params_to_tune()
         search = None
 
+        # choose which search to apply
         if SEARCH == 'randomized':
             search = RandomizedSearchCV(model, param_dist, n_iter=N_ITER_RANDOM_SEARCH, cv=StratifiedKFold(n_splits=N_CV_SEARCH, shuffle=True), iid=False, n_jobs=-1)
         elif SEARCH == 'grid':
