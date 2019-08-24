@@ -11,7 +11,6 @@ import refactoringml.App;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import refactoringml.db.Project;
-import refactoringml.db.Yes;
 
 import java.io.File;
 import java.io.IOException;
