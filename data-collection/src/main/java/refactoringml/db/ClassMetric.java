@@ -92,4 +92,48 @@ public class ClassMetric {
 		this.classLambdasQty = classLambdasQty;
 		this.classUniqueWordsQty = classUniqueWordsQty;
 	}
+
+	@Override
+	public String toString() {
+		return "ClassMetric{" +
+				"classCbo=" + classCbo +
+				", classWmc=" + classWmc +
+				", classRfc=" + classRfc +
+				", classLcom=" + classLcom +
+				", classNumberOfMethods=" + classNumberOfMethods +
+				", classNumberOfStaticMethods=" + classNumberOfStaticMethods +
+				", classNumberOfPublicMethods=" + classNumberOfPublicMethods +
+				", classNumberOfPrivateMethods=" + classNumberOfPrivateMethods +
+				", classNumberOfProtectedMethods=" + classNumberOfProtectedMethods +
+				", classNumberOfDefaultMethods=" + classNumberOfDefaultMethods +
+				", classNumberOfAbstractMethods=" + classNumberOfAbstractMethods +
+				", classNumberOfFinalMethods=" + classNumberOfFinalMethods +
+				", classNumberOfSynchronizedMethods=" + classNumberOfSynchronizedMethods +
+				", classNumberOfFields=" + classNumberOfFields +
+				", classNumberOfStaticFields=" + classNumberOfStaticFields +
+				", classNumberOfPublicFields=" + classNumberOfPublicFields +
+				", classNumberOfPrivateFields=" + classNumberOfPrivateFields +
+				", classNumberOfProtectedFields=" + classNumberOfProtectedFields +
+				", classNumberOfDefaultFields=" + classNumberOfDefaultFields +
+				", classNumberOfFinalFields=" + classNumberOfFinalFields +
+				", classNumberOfSynchronizedFields=" + classNumberOfSynchronizedFields +
+				", classNosi=" + classNosi +
+				", classLoc=" + classLoc +
+				", classReturnQty=" + classReturnQty +
+				", classLoopQty=" + classLoopQty +
+				", classComparisonsQty=" + classComparisonsQty +
+				", classTryCatchQty=" + classTryCatchQty +
+				", classParenthesizedExpsQty=" + classParenthesizedExpsQty +
+				", classStringLiteralsQty=" + classStringLiteralsQty +
+				", classNumbersQty=" + classNumbersQty +
+				", classAssignmentsQty=" + classAssignmentsQty +
+				", classMathOperationsQty=" + classMathOperationsQty +
+				", classVariablesQty=" + classVariablesQty +
+				", classMaxNestedBlocks=" + classMaxNestedBlocks +
+				", classAnonymousClassesQty=" + classAnonymousClassesQty +
+				", classSubClassesQty=" + classSubClassesQty +
+				", classLambdasQty=" + classLambdasQty +
+				", classUniqueWordsQty=" + classUniqueWordsQty +
+				'}';
+	}
 }

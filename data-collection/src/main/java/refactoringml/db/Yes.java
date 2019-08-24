@@ -91,4 +91,24 @@ public class Yes {
 	public FieldMetric getFieldMetrics() {
 		return fieldMetrics;
 	}
+
+	@Override
+	public String toString() {
+		return "Yes{" +
+				"id=" + id +
+				", project=" + project +
+				", refactorCommit='" + refactorCommit + '\'' +
+				", parentCommit='" + parentCommit + '\'' +
+				", refactoringDate=" + refactoringDate +
+				", filePath='" + filePath + '\'' +
+				", className='" + className + '\'' +
+				", refactoring='" + refactoring + '\'' +
+				", refactoringType=" + refactoringType +
+				", classMetrics=" + classMetrics +
+				", methodMetrics=" + methodMetrics +
+				", variableMetrics=" + variableMetrics +
+				", fieldMetrics=" + fieldMetrics +
+				", processMetrics=" + processMetrics +
+				'}';
+	}
 }

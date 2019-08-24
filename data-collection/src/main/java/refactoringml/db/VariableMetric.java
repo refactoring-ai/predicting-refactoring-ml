@@ -20,4 +20,12 @@ public class VariableMetric {
 	public String getVariableName() {
 		return variableName;
 	}
+
+	@Override
+	public String toString() {
+		return "VariableMetric{" +
+				"variableName='" + variableName + '\'' +
+				", variableAppearances=" + variableAppearances +
+				'}';
+	}
 }

@@ -31,4 +31,19 @@ public class ProcessMetrics {
 		this.bugFixCount = bugFixCount;
 		this.refactoringsInvolved = refactoringsInvolved;
 	}
+
+	@Override
+	public String toString() {
+		return "ProcessMetrics{" +
+				"qtyOfCommits=" + qtyOfCommits +
+				", linesAdded=" + linesAdded +
+				", linesDeleted=" + linesDeleted +
+				", qtyOfAuthors=" + qtyOfAuthors +
+				", qtyMinorAuthors=" + qtyMinorAuthors +
+				", qtyMajorAuthors=" + qtyMajorAuthors +
+				", authorOwnership=" + authorOwnership +
+				", bugFixCount=" + bugFixCount +
+				", refactoringsInvolved=" + refactoringsInvolved +
+				'}';
+	}
 }

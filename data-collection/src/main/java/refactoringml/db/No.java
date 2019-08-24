@@ -60,4 +60,20 @@ public class No {
 		this.processMetrics = processMetrics;
 	}
 
+	@Override
+	public String toString() {
+		return "No{" +
+				"id=" + id +
+				", project=" + project +
+				", commit='" + commit + '\'' +
+				", filePath='" + filePath + '\'' +
+				", className='" + className + '\'' +
+				", classMetrics=" + classMetrics +
+				", methodMetrics=" + methodMetrics +
+				", variableMetrics=" + variableMetrics +
+				", fieldMetrics=" + fieldMetrics +
+				", processMetrics=" + processMetrics +
+				", type=" + type +
+				'}';
+	}
 }

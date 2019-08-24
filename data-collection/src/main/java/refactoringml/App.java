@@ -35,6 +35,7 @@ public class App {
 	private String gitUrl;
 	private String filesStoragePath;
 	private Database db;
+	private String lastCommitToProcess;
 
 	private static final Logger log = Logger.getLogger(App.class);
 	private String datasetName;
@@ -50,6 +51,16 @@ public class App {
 	            String filesStoragePath,
 	            int threshold,
 	            Database db) {
+		this(datasetName, clonePath, gitUrl, filesStoragePath, threshold, db, null);
+
+	}
+	public App (String datasetName,
+	            String clonePath,
+	            String gitUrl,
+	            String filesStoragePath,
+	            int threshold,
+	            Database db,
+	            String lastCommitToProcess) {
 
 		this.datasetName = datasetName;
 		this.clonePath = clonePath;
@@ -57,6 +68,7 @@ public class App {
 		this.filesStoragePath = filesStoragePath;
 		this.threshold = threshold;
 		this.db = db;
+		this.lastCommitToProcess = lastCommitToProcess;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -101,7 +113,7 @@ public class App {
 		}
 
 		String newTmpDir = Files.createTempDir().getAbsolutePath();
-		String clonePath = !gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(newTmpDir) + "repo";
+		String clonePath = (!gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
 		String filesStoragePath = highLevelOutputPath; // No need for the name of the project, as the run.sh creates a folder for it already
 		new File(filesStoragePath).mkdirs();
 
@@ -169,15 +181,22 @@ public class App {
 		db.commit();
 
 
-		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, commitThreshold, filesStoragePath);
+		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, commitThreshold, filesStoragePath, lastCommitToProcess);
 		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath);
 
 		// get all commits in the repo, and to each commit with a refactoring, extract the metrics
 		Iterator<RevCommit> it = getAllCommits(repo);
 		RefactoringHandler handler = getRefactoringHandler(git, refactoringAnalyzer);
 
-		while(it.hasNext()) {
+		boolean endFound = false;
+		while(it.hasNext() && !endFound) {
 			RevCommit currentCommit = it.next();
+
+			// did we find the last commit to process?
+			// if so, process it and then stop
+			if(currentCommit.equals(lastCommitToProcess))
+				endFound = true;
+
 			String commitHash = currentCommit.getId().getName();
 
 			log.debug("Invoking refactoringminer for commit " + commitHash);

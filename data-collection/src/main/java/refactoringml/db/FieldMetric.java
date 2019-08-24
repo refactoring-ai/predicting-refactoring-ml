@@ -23,4 +23,11 @@ public class FieldMetric {
 		return fieldName;
 	}
 
+	@Override
+	public String toString() {
+		return "FieldMetric{" +
+				"fieldName='" + fieldName + '\'' +
+				", fieldAppearances=" + fieldAppearances +
+				'}';
+	}
 }

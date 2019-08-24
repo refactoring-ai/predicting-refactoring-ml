@@ -59,4 +59,21 @@ public class Project {
 		return id;
 	}
 
+	@Override
+	public String toString() {
+		return "Project{" +
+				"id=" + id +
+				", datasetName='" + datasetName + '\'' +
+				", gitUrl='" + gitUrl + '\'' +
+				", projectName='" + projectName + '\'' +
+				", dateOfProcessing=" + dateOfProcessing +
+				", finishedDate=" + finishedDate +
+				", commits=" + commits +
+				", threshold=" + threshold +
+				", javaLoc=" + javaLoc +
+				", exceptionsCount=" + exceptionsCount +
+				", cleanedRows=" + cleanedRows +
+				", lastCommitHash='" + lastCommitHash + '\'' +
+				'}';
+	}
 }

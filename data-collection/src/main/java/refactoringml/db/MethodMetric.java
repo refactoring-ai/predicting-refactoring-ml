@@ -70,4 +70,33 @@ public class MethodMetric {
 	public String getShortMethodName() {
 		return shortMethodName == null ? "" : shortMethodName;
 	}
+
+	@Override
+	public String toString() {
+		return "MethodMetric{" +
+				"fullMethodName='" + fullMethodName + '\'' +
+				", shortMethodName='" + shortMethodName + '\'' +
+				", startLine=" + startLine +
+				", methodCbo=" + methodCbo +
+				", methodWmc=" + methodWmc +
+				", methodRfc=" + methodRfc +
+				", methodLoc=" + methodLoc +
+				", methodReturnQty=" + methodReturnQty +
+				", methodVariablesQty=" + methodVariablesQty +
+				", methodParametersQty=" + methodParametersQty +
+				", methodLoopQty=" + methodLoopQty +
+				", methodComparisonsQty=" + methodComparisonsQty +
+				", methodTryCatchQty=" + methodTryCatchQty +
+				", methodParenthesizedExpsQty=" + methodParenthesizedExpsQty +
+				", methodStringLiteralsQty=" + methodStringLiteralsQty +
+				", methodNumbersQty=" + methodNumbersQty +
+				", methodAssignmentsQty=" + methodAssignmentsQty +
+				", methodMathOperationsQty=" + methodMathOperationsQty +
+				", methodMaxNestedBlocks=" + methodMaxNestedBlocks +
+				", methodAnonymousClassesQty=" + methodAnonymousClassesQty +
+				", methodSubClassesQty=" + methodSubClassesQty +
+				", methodLambdasQty=" + methodLambdasQty +
+				", methodUniqueWordsQty=" + methodUniqueWordsQty +
+				'}';
+	}
 }

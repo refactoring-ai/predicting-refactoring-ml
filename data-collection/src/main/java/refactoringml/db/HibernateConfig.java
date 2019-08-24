@@ -13,6 +13,10 @@ public class HibernateConfig {
 	private static SessionFactory sessionFactory;
 
 	public SessionFactory getSessionFactory(String url, String user, String pwd) {
+		return getSessionFactory(url, user, pwd, false);
+	}
+
+	public SessionFactory getSessionFactory(String url, String user, String pwd, boolean drop) {
 		if(sessionFactory == null) {
 			Configuration configuration = new Configuration();
 
@@ -23,7 +27,11 @@ public class HibernateConfig {
 			settings.put(Environment.PASS, pwd);
 			settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5InnoDBDialect");
 			settings.put(Environment.SHOW_SQL, "false");
-			settings.put(Environment.HBM2DDL_AUTO, "update");
+
+			if(drop)
+				settings.put(Environment.HBM2DDL_AUTO, "create-drop");
+			else
+				settings.put(Environment.HBM2DDL_AUTO, "update");
 
 			settings.put("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
 			settings.put("hibernate.c3p0.acquire_increment", 1);

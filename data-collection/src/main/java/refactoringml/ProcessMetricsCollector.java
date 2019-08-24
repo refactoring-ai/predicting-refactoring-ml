@@ -37,6 +37,7 @@ public class ProcessMetricsCollector {
 	private Database db;
 	private Repository repository;
 	private String fileStoragePath;
+	private String lastCommitToProcess;
 
 	private PMDatabase pmDatabase;
 
@@ -44,12 +45,13 @@ public class ProcessMetricsCollector {
 	private String branch;
 
 	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch, int commitThreshold,
-	                               String fileStoragePath) {
+	                               String fileStoragePath, String lastCommitToProcess) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
+		this.lastCommitToProcess = lastCommitToProcess;
 		todo = new HashMap<>();
 		pmDatabase = new PMDatabase(commitThreshold);
 		this.tempDir = FilePathUtils.lastSlashDir(Files.createTempDir().getAbsolutePath());
@@ -71,7 +73,13 @@ public class ProcessMetricsCollector {
 
 		RevCommit commit = walk.next();
 
-		while(commit!=null) {
+		boolean lastFound = false;
+		while(commit!=null && !lastFound) {
+
+			// did we find the commit to stop?
+			// if so, process it, and then stop
+			if(commit.getName().equals(lastCommitToProcess))
+				lastFound = true;
 
 			if(commit.getParentCount() <= 1) {
 
