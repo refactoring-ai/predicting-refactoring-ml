@@ -50,7 +50,7 @@ class BinaryClassificationPipeline(MLPipeline):
                         log(format_results(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, model_to_save, features))
 
                         # we save the best estimator we had during the search
-                        model.persist(dataset, refactoring_name, model_to_save, scaler)
+                        model.persist(dataset, refactoring_name, features, model_to_save, scaler)
 
                         self._finish_time(dataset, model, refactoring)
                     except Exception as e:

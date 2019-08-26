@@ -45,6 +45,8 @@ def check_model_performance(f, refactoring_level, counts_function, get_refactore
                     x = x.drop(["authorOwnership","bugFixCount","linesAdded","linesDeleted","qtyMajorAuthors",
                                 "qtyMinorAuthors","qtyOfAuthors","qtyOfCommits","refactoringsInvolved"], axis=1)
 
+                # TODO: Open the feature file and drop features that are not used in the model
+
                 # balance the datasets
                 balanced_x, balanced_y = perform_under_sampling(x, y)
 

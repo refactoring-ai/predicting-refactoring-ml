@@ -5,8 +5,18 @@ class MLModel(object):
     def name(self):
         return type(self).__name__
 
-    def persist(self, dataset, refactoring_name, model_obj, scaler_obj):
+    def persist(self, dataset, refactoring_name, features, model_obj, scaler_obj):
         pass
+
+    def _save_scaler(self, dataset, refactoring_name, scaler_obj):
+        file_name = "results/scaler-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
+        joblib.dump(scaler_obj, file_name)
+
+    def _save_features(self, dataset, refactoring_name, features):
+        file_name = "results/features-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".csv"
+        # TODO: persist features as a txt file or something
+
+
 
 
 class SupervisedMLRefactoringModel(MLModel):
@@ -27,12 +37,14 @@ class SupervisedMLRefactoringModel(MLModel):
     def model(self, best_params=None):
         pass
 
-    def persist(self,dataset,refactoring_name,model_obj, scaler_obj):
+    def persist(self,dataset,refactoring_name,features, model_obj, scaler_obj):
         file_name = "results/model-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
         joblib.dump(model_obj, file_name)
 
-        file_name = "results/scaler-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
-        joblib.dump(scaler_obj, file_name)
+        self._save_scaler(dataset, refactoring_name, scaler_obj)
+        self._save_features(dataset, refactoring_name, features)
+
+
 
 
 class DeepMLRefactoringModel(MLModel):
@@ -44,9 +56,10 @@ class DeepMLRefactoringModel(MLModel):
     def run(self, x, y):
         pass
 
-    def persist(self,dataset,refactoring_name,model_obj, scaler_obj):
+    def persist(self,dataset,refactoring_name,features, model_obj, scaler_obj):
         file_name = "results/model-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".hg"
         model_obj.save(file_name)
 
-        file_name = "results/scaler-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
-        joblib.dump(scaler_obj, file_name)
+        self._save_scaler(dataset, refactoring_name, scaler_obj)
+        self._save_features(dataset, refactoring_name, features)
+
