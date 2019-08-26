@@ -25,12 +25,12 @@ for file_name in list_of_files_for_processing:
     dataset = parts_of_file_name[3].replace(".txt", "")
 
     for line in f:
-        if line.startswith("****"):
-            current_refactoring = line[5:].strip()
+        if line.startswith("**** Refactoring "):
+            current_refactoring = line[18:].strip()
             # print(current_refactoring)
 
-        if line.startswith("- Model:"):
-            current_model = line[9:].strip()
+        if line.startswith("Model "):
+            current_model = line[7:].strip()
             # print(current_model)
 
         if line.startswith("Best parameters:"):

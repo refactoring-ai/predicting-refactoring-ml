@@ -34,7 +34,7 @@ class BinaryClassificationPipeline(MLPipeline):
 
             for refactoring in self._refactorings:
                 refactoring_name = refactoring.name()
-                log("Refactoring %s" % refactoring_name)
+                log("**** Refactoring %s" % refactoring_name)
 
                 features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
 
