@@ -13,10 +13,8 @@ class MLModel(object):
         joblib.dump(scaler_obj, file_name)
 
     def _save_features(self, dataset, refactoring_name, features):
-        file_name = "results/features-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".csv"
-        # TODO: persist features as a txt file or something
-
-
+        file_name = "results/features-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".pkl"
+        features.to_pickle(file_name)
 
 
 class SupervisedMLRefactoringModel(MLModel):
