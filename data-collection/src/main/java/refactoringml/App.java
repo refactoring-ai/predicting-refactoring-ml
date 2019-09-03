@@ -97,8 +97,8 @@ public class App {
 			FILTERS.bTestFilesOnly = false;
 
 		} else {
-			if (args == null || args.length < 7) {
-				System.out.println("7 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold)");
+			if (args == null || args.length < 8) {
+				System.out.println("8 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold) (true|false: Test files only)");
 				System.exit(-1);
 			}
 
@@ -115,14 +115,7 @@ public class App {
 			//For now we can either parse test files or regular files. 
 			//Default: Regular files
 			//
-			if(args.length >=8)
-			{
-				FILTERS.bTestFilesOnly = Boolean.parseBoolean(args[7]);				
-			}
-			else
-			{
-				FILTERS.bTestFilesOnly = false;				
-			}
+			FILTERS.bTestFilesOnly = Boolean.parseBoolean(args[7]);
 			System.out.println("Parse 'Test Files' only: " + FILTERS.bTestFilesOnly);
 		}
 
