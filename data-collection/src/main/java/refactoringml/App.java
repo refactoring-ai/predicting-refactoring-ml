@@ -97,7 +97,7 @@ public class App {
 			FILTERS.bTestFilesOnly = false;
 
 		} else {
-			if (args == null || args.length < 8) {
+			if (args == null || args.length != 8) {
 				System.out.println("8 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold) (true|false: Test files only)");
 				System.exit(-1);
 			}
