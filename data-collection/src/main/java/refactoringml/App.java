@@ -83,8 +83,7 @@ public class App {
 		String url;
 		String user;
 		String pwd;
-		int threshold;
-
+		int threshold;		
 
 		if(test) {
 			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
@@ -95,9 +94,10 @@ public class App {
 			user = "root";
 			pwd = "";
 			threshold = 50;
+			FILTERS.bTestFilesOnly = false;
 
 		} else {
-			if (args == null || args.length != 7) {
+			if (args == null || args.length < 7) {
 				System.out.println("7 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold)");
 				System.exit(-1);
 			}
@@ -110,6 +110,20 @@ public class App {
 			user = args[4];
 			pwd = args[5];
 			threshold = Integer.parseInt(args[6]);
+			
+			//
+			//For now we can either parse test files or regular files. 
+			//Default: Regular files
+			//
+			if(args.length >=8)
+			{
+				FILTERS.bTestFilesOnly = Boolean.parseBoolean(args[7]);				
+			}
+			else
+			{
+				FILTERS.bTestFilesOnly = false;				
+			}
+			System.out.println("Parse 'Test Files' only: " + FILTERS.bTestFilesOnly);
 		}
 
 		String newTmpDir = Files.createTempDir().getAbsolutePath();
