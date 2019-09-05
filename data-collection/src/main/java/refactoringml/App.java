@@ -36,11 +36,13 @@ public class App {
 	private String filesStoragePath;
 	private Database db;
 	private String lastCommitToProcess;
-
+	private boolean bTestFilesOnly = false;
+	
 	private static final Logger log = Logger.getLogger(App.class);
 	private String datasetName;
 	private int exceptionsCount = 0;
 
+	
 	RevCommit commitDataToProcess;
 	List<Refactoring> refactoringsToProcess;
 	private int threshold;
@@ -50,8 +52,9 @@ public class App {
 	            String gitUrl,
 	            String filesStoragePath,
 	            int threshold,
-	            Database db) {
-		this(datasetName, clonePath, gitUrl, filesStoragePath, threshold, db, null);
+	            Database db, 
+	            boolean _bTestFilesOnly) {
+		this(datasetName, clonePath, gitUrl, filesStoragePath, threshold, db, null, _bTestFilesOnly);
 
 	}
 	public App (String datasetName,
@@ -60,7 +63,8 @@ public class App {
 	            String filesStoragePath,
 	            int threshold,
 	            Database db,
-	            String lastCommitToProcess) {
+	            String lastCommitToProcess,
+	            boolean _bTestFilesOnly) {
 
 		this.datasetName = datasetName;
 		this.clonePath = clonePath;
@@ -69,6 +73,7 @@ public class App {
 		this.threshold = threshold;
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
+		this.bTestFilesOnly = _bTestFilesOnly;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -83,7 +88,8 @@ public class App {
 		String url;
 		String user;
 		String pwd;
-		int threshold;		
+		int threshold;
+		boolean bTestFilesOnly;
 
 		if(test) {
 			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
@@ -94,7 +100,7 @@ public class App {
 			user = "root";
 			pwd = "";
 			threshold = 50;
-			FILTERS.bTestFilesOnly = false;
+			bTestFilesOnly = false;
 
 		} else {
 			if (args == null || args.length != 8) {
@@ -115,8 +121,8 @@ public class App {
 			//For now we can either parse test files or regular files. 
 			//Default: Regular files
 			//
-			FILTERS.bTestFilesOnly = Boolean.parseBoolean(args[7]);
-			System.out.println("Parse 'Test Files' only: " + FILTERS.bTestFilesOnly);
+			bTestFilesOnly = Boolean.parseBoolean(args[7]);
+			System.out.println("Parse 'Test Files' only: " + bTestFilesOnly);
 		}
 
 		String newTmpDir = Files.createTempDir().getAbsolutePath();
@@ -139,13 +145,14 @@ public class App {
 
 		try {
 			new App(datasetName, clonePath, gitUrl,
-					filesStoragePath, threshold, db).run();
+					filesStoragePath, threshold, db, bTestFilesOnly).run();
 		} finally {
 			cleanTmpDir(newTmpDir);
 		}
 
     }
 
+	
 	private static void cleanTmpDir(String newTmpDir) {
 		try {
 			FileUtils.deleteDirectory(new File(newTmpDir));
@@ -189,7 +196,7 @@ public class App {
 
 
 		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, commitThreshold, filesStoragePath, lastCommitToProcess);
-		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath);
+		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, bTestFilesOnly);
 
 		// get all commits in the repo, and to each commit with a refactoring, extract the metrics
 		Iterator<RevCommit> it = getAllCommits(repo);

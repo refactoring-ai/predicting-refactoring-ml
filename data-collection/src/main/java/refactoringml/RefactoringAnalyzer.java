@@ -33,10 +33,11 @@ public class RefactoringAnalyzer {
 	private Repository repository;
 	private ProcessMetricsCollector processMetrics;
 	private String fileStorageDir;
-
+	private boolean bTestFilesOnly;
+	
 	private static final Logger log = Logger.getLogger(RefactoringAnalyzer.class);
 
-	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir) {
+	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir, boolean _bTestFilesOnly) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
@@ -44,7 +45,7 @@ public class RefactoringAnalyzer {
 
 		this.tempDir = "";
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
-
+		this.bTestFilesOnly = _bTestFilesOnly;
 	}
 
 	public void collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
@@ -105,7 +106,7 @@ public class RefactoringAnalyzer {
 			//Either the test file or regular file based on the filter value.
 			//*We can do it better but for now let's get the results first.*    
 			//
-			if(refactoringIsInATestFile == FILTERS.bTestFilesOnly)
+			if(refactoringIsInATestFile == bTestFilesOnly)
 			{	
 				String fileBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
 				String fileAfter = SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName));
