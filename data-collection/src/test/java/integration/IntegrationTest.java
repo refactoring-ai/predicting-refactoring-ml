@@ -51,7 +51,8 @@ public class IntegrationTest {
 				outputDir,
 				10,
 				db,
-				"b9ccc94008c78a59695f0c77ebe4ecf284370956");
+				"b9ccc94008c78a59695f0c77ebe4ecf284370956", 
+				false);
 
 		app.run();
 
