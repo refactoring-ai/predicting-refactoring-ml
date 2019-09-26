@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import refactoringml.App;
 import refactoringml.db.Database;
@@ -41,7 +42,7 @@ public class IntegrationTest {
 		FileUtils.deleteDirectory(new File(outputDir));
 	}
 
-	@Test
+	@Test @Ignore
 	public void t1() throws Exception {
 		String repo1 = "git@github.com:apache/commons-cli.git";
 
