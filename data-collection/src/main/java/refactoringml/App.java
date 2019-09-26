@@ -185,7 +185,7 @@ public class App {
 
 		String lastCommitHash = getHead(git);
 
-		int loc = LOCUtils.countJavaFiles(clonePath);
+		long loc = LOCUtils.countJavaFiles(clonePath);
 
 		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
 				numberOfCommits, commitThreshold, loc, lastCommitHash);

@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class LOCUtils {
-	public static int countJavaFiles(String clonePath) throws IOException {
-		String command = String.format("cloc %s --csv --quiet | grep \"Java\"", clonePath);
+	public static long countJavaFiles(String clonePath) throws IOException {
+		String command = String.format("cloc %s --csv --quiet | grep \"Java,\"", clonePath);
 
 		String[] cmd = {
 				"/bin/sh",
@@ -25,7 +25,7 @@ public class LOCUtils {
 			result.append(s);
 		}
 
-		int totalLoc = Integer.parseInt(result.toString().trim().split(",")[4]);
+		long totalLoc = Long.parseLong(result.toString().trim().split(",")[4]);
 		return totalLoc;
 	}
 }
