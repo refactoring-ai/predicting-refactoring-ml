@@ -74,6 +74,10 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
         x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
 
+    # number of default fields and methods is always 0
+    # so, remove it from the data
+    x = x.drop(["classNumberOfDefaultFields", "classNumberOfDefaultMethods"])
+
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
     if BALANCE_DATASET:
