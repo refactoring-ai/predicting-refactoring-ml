@@ -1,4 +1,5 @@
 import joblib
+import numpy as np
 
 
 class MLModel(object):
@@ -13,8 +14,8 @@ class MLModel(object):
         joblib.dump(scaler_obj, file_name)
 
     def _save_features(self, dataset, refactoring_name, features):
-        file_name = "results/features-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".pkl"
-        features.to_pickle(file_name)
+        file_name = "results/features-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".csv"
+        np.savetxt(file_name, features)
 
 
 class SupervisedMLRefactoringModel(MLModel):
@@ -35,14 +36,12 @@ class SupervisedMLRefactoringModel(MLModel):
     def model(self, best_params=None):
         pass
 
-    def persist(self,dataset,refactoring_name,features, model_obj, scaler_obj):
+    def persist(self, dataset, refactoring_name, features, model_obj, scaler_obj):
         file_name = "results/model-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
         joblib.dump(model_obj, file_name)
 
         self._save_scaler(dataset, refactoring_name, scaler_obj)
         self._save_features(dataset, refactoring_name, features)
-
-
 
 
 class DeepMLRefactoringModel(MLModel):
@@ -54,10 +53,9 @@ class DeepMLRefactoringModel(MLModel):
     def run(self, x, y):
         pass
 
-    def persist(self,dataset,refactoring_name,features, model_obj, scaler_obj):
+    def persist(self, dataset, refactoring_name, features, model_obj, scaler_obj):
         file_name = "results/model-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".hg"
         model_obj.save(file_name)
 
         self._save_scaler(dataset, refactoring_name, scaler_obj)
         self._save_features(dataset, refactoring_name, features)
-
