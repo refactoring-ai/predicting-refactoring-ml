@@ -15,7 +15,8 @@ class MLModel(object):
 
     def _save_features(self, dataset, refactoring_name, features):
         file_name = "results/features-" + self.name() + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".csv"
-        np.savetxt(file_name, features)
+        with open(file_name, "w") as f:
+            f.write("\n".join(str(item) for item in features))
 
 
 class SupervisedMLRefactoringModel(MLModel):
