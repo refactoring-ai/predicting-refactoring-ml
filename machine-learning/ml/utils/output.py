@@ -5,15 +5,15 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
     results = ""
 
     accuracy_scores_str = ', '.join(list([f"{e:.2f}" for e in accuracy_scores]))
-    results += "\nAccuracy scores: " + accuracy_scores_str
-    results += "\nMeAN Accuracy: %0.2f" % accuracy_scores.mean()
+    results += "Accuracy scores: " + accuracy_scores_str
+    results += "\nMean Accuracy: %0.2f" % accuracy_scores.mean()
 
     precision_scores_str = ', '.join(list([f"{e:.2f}" for e in precision_scores]))
     results += "\nPrecision scores: " + precision_scores_str
     results += f'\nMean precision: {precision_scores.mean():.2f}'
     recall_scores_str = ', '.join(list([f"{e:.2f}" for e in recall_scores]))
     results += "\nRecall scores: " + recall_scores_str
-    results += f'\nMean recall: {recall_scores.mean():.2f}'
+    results += f'\nMean recall: {recall_scores.mean():.2f}\n'
 
     # some models have the 'coef_' attribute, and others have the 'feature_importances_
     # (do not ask me why...)
@@ -23,11 +23,11 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
         results += "\nCoefficients:"
         results += "\n" + ''.join(str(e) for e in best_model.coef_.tolist())
     elif hasattr(best_model, "feature_importances_"):
-        results += ("Feature Importances: \n" + ''.join(
+        results += ("\nFeature Importances: \n" + ''.join(
             ["%-33s: %-5.4f\n" % (feature, importance) for feature, importance in
              zip(features, best_model.feature_importances_)]))
     else:
-        results += "(Not possible to collect feature importances)"
+        results += "\n(Not possible to collect feature importances)"
 
     results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision_scores.mean():.2f},{recall_scores.mean():.2f},{accuracy_scores.mean()}'
     results += f'\nCSV2,{dataset},{refactoring_name},{model_name},precision,{precision_scores_str}'
@@ -43,7 +43,7 @@ def format_best_parameters(tuned_model):
     results += json.dumps(best_parameters, indent=2)
 
     best_result = tuned_model.best_score_
-    results += "\nBest result:\n"
+    results += "\nBest result: "
     results += str(best_result)
 
     return results
