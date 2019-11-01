@@ -76,7 +76,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # number of default fields and methods is always 0
     # so, remove it from the data
-    x = x.drop(["classNumberOfDefaultFields", "classNumberOfDefaultMethods"])
+    x = x.drop(["classNumberOfDefaultFields", "classNumberOfDefaultMethods"], axis=1)
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
