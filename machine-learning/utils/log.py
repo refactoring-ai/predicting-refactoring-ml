@@ -14,7 +14,7 @@ def print_config():
     log("Configuration:")
 
     log(f"Test: {TEST}")
-    log(f"Use cache? {USE_CACHE} DB available? {DB_AVAILABLE}")
+    log(f"Use cache? {USE_CACHE}, DB available? {DB_AVAILABLE}")
     log(f"Balance dataset? {BALANCE_DATASET} {BALANCE_DATASET_STRATEGY}")
     log(f"Scale dataset? {SCALE_DATASET}")
     log(f"Feature reduction? {FEATURE_REDUCTION} {N_CV_FEATURE_REDUCTION}")
