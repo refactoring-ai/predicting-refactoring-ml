@@ -1,3 +1,5 @@
+from collections import Counter
+
 import pandas as pd
 import sklearn
 
@@ -82,8 +84,8 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     # for now, we basically perform under sampling
     if BALANCE_DATASET:
         x, y = perform_under_sampling(x, y)
-        assert x.shape[0] == y.shape[0], "Undersampling did not work"
-        log("instances after under/over sampling: ri {} nri {}".format(x.shape[0],y.shape[0]))
+        assert x.shape[0] == y.shape[0], "Undersampling did not work, x and y have different shapes."
+        log("instances after under/over sampling: {}".format(Counter(y)))
 
     # apply some scaling to speed up the algorithm
     scaler = None
