@@ -3,7 +3,7 @@ from collections import Counter
 import pandas as pd
 import sklearn
 
-from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET
+from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, USE_PROCESS_AND_AUTHORSHIP_METRICS
 from ml.preprocessing.feature_reduction import perform_feature_reduction
 from ml.preprocessing.sampling import perform_under_sampling
 from ml.preprocessing.scaling import perform_scaling
@@ -71,8 +71,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     y = merged_dataset["prediction"]
 
     # class level refactoring is the only one with process and ownership metrics
-    # TODO: best way would be to remove these fields from the queries
-    if not refactoring.refactoring_level() == 'class':
+    if USE_PROCESS_AND_AUTHORSHIP_METRICS and not refactoring.refactoring_level() == 'class':
         x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
 

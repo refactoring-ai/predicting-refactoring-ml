@@ -38,6 +38,9 @@ SCALE_DATASET = True
 # Feature reduction
 # --------------------------------
 
+# use (or drop) process and authorship metrics
+USE_PROCESS_AND_AUTHORSHIP_METRICS = True
+
 # perform feature reduction?
 FEATURE_REDUCTION = True
 
