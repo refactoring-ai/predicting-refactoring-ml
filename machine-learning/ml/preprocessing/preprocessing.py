@@ -83,6 +83,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
     if BALANCE_DATASET:
+        log("instances before under/over sampling: {}".format(Counter(y)))
         x, y = perform_under_sampling(x, y)
         assert x.shape[0] == y.shape[0], "Undersampling did not work, x and y have different shapes."
         log("instances after under/over sampling: {}".format(Counter(y)))
