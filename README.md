@@ -11,6 +11,7 @@ It currently contains the following projects:
 
 * `machine-learning`: The python scripts that train the different ML algorithms.
 
+The raw dataset can be found here: https://zenodo.org/record/3547639#.XfpGAi2ZPUI
 
 ## The data collection tool
 
