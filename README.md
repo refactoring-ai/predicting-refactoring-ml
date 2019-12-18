@@ -11,13 +11,6 @@ It currently contains the following projects:
 
 * `machine-learning`: The python scripts that train the different ML algorithms.
 
-Work in progress:
-
-* `wip-web-api`: The RESTful API that consumes our models.
-
-* `wip-site`: The refactoring.ai website.
-
-* `wip-nlp`: Exploring NLP as a way to recommend software refactoring.
 
 ## The data collection tool
 
