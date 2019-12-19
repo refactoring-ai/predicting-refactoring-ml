@@ -115,7 +115,7 @@ CSV is clear.
 
 ### Other scripts
 
-The `main_parse_*` scripts help you in parsing the resulting text file, and extract the best hyper parameters, the feature importance, and the individual k-fold results. 
+The `main_parse_*` scripts help you in parsing the resulting text file, and extract the best hyper parameters, the feature importance, and the individual k-fold results. (These are always in maintenance, as they are highly sensitive to the format that the main tool generates logs.)
 
 ## Authors
 
