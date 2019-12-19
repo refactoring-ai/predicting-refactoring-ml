@@ -11,7 +11,12 @@ It currently contains the following projects:
 
 * `machine-learning`: The python scripts that train the different ML algorithms.
 
-The raw dataset can be found here: https://zenodo.org/record/3547639#.XfpGAi2ZPUI
+## Paper and appendix 
+
+* The raw dataset can be found here: https://zenodo.org/record/3547639
+* The appendix with our full results can be found here: https://zenodo.org/record/3583980
+* The paper can be found here: TODO 
+
 
 ## The data collection tool
 
