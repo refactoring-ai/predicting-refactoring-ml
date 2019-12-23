@@ -83,7 +83,6 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
         log("Search started at %s\n" % now())
         search.fit(x_train, y_train)
         log(format_best_parameters(search))
-        best_estimator = search.best_estimator_
 
         log("Training again started at %s\n" % now())
         final_model = model_def.model(search.best_params_)
