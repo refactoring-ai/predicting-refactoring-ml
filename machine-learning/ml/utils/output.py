@@ -39,9 +39,9 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
 def format_results_single_run(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, best_model, features):
     results = ""
 
-    results += "Precision: %0.2f" % precision_scores
-    results += "Recall: %0.2f" % recall_scores
-    results += "Accuracy: %0.2f" % accuracy_scores
+    results += "\nPrecision: %0.2f" % precision_scores
+    results += "\nRecall: %0.2f" % recall_scores
+    results += "\nAccuracy: %0.2f" % accuracy_scores
 
     # some models have the 'coef_' attribute, and others have the 'feature_importances_
     # (do not ask me why...)
