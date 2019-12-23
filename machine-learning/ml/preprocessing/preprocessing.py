@@ -172,8 +172,8 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
     if SCALE_DATASET:
         r_x, scaler = perform_scaling(r_x)
 
-    r_x_train, r_x_test, r_y_train, r_y_test = train_test_split(r_x, r_y, test_size=ORDERED_DATA_TEST_SPLIT,
-                                                                shuffle=False)
+    r_x_train, r_x_test = pd.np.split(r_x, int(((1.0 - ORDERED_DATA_TEST_SPLIT) * len(r_x))))
+    r_y_train, r_y_test = pd.np.split(r_y, int(((1.0 - ORDERED_DATA_TEST_SPLIT) * len(r_y))))
 
     # now for the non refactored data
     nr_x = non_refactored_instances.drop("prediction", axis=1)
@@ -182,8 +182,8 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
     if SCALE_DATASET:
         nr_x = scaler.transform(nr_x)
 
-    nr_x_train, nr_x_test, nr_y_train, nr_y_test = train_test_split(nr_x, nr_y, test_size=ORDERED_DATA_TEST_SPLIT,
-                                                                shuffle=False)
+    nr_x_train, nr_x_test = pd.np.split(nr_x, int(((1.0 - ORDERED_DATA_TEST_SPLIT) * len(nr_x))))
+    nr_y_train, nr_y_test = pd.np.split(nr_y, int(((1.0 - ORDERED_DATA_TEST_SPLIT) * len(nr_y))))
 
     # combine refactoring and non refactoring data now
     merged_x_train = pd.concat([r_x_train, nr_x_train])
