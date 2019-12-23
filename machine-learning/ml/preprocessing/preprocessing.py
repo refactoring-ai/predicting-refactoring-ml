@@ -219,10 +219,6 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
             0], "Undersampling did not work, x and y have different shapes."
         log("test instances after under/over sampling: {}".format(Counter(merged_y_test)))
 
-    log("Final information about the dataset:")
-    log("- Train: {}".format(Counter(merged_y_train)))
-    log("- Test: {}".format(Counter(merged_y_test)))
-
     # TODO: let's reduce the number of features in the set
     # if FEATURE_REDUCTION:
     #     x = perform_feature_reduction(x, y)

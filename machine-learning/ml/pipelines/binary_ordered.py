@@ -1,4 +1,5 @@
 import traceback
+from collections import Counter
 
 from sklearn.model_selection import RandomizedSearchCV, cross_validate, StratifiedKFold, GridSearchCV
 
@@ -37,6 +38,10 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
                 log("**** Refactoring %s" % refactoring_name)
 
                 features, x_train, y_train, x_test, y_test, scaler = retrieve_ordered_labelled_instances(dataset, refactoring)
+
+                log("Final information about the dataset:")
+                log("- Train: {}".format(Counter(y_train)))
+                log("- Test: {}".format(Counter(y_test)))
 
                 for model in self._models_to_run:
                     model_name = model.name()
@@ -80,16 +85,20 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
         log(format_best_parameters(search))
         best_estimator = search.best_estimator_
 
-        # cross-validation
+        log("Training again started at %s\n" % now())
+        final_model = model_def.model(search.best_params_)
+        final_model.fit(x_train, y_train)
+
+        # what's the accuracy of the model?
         log("Test started at %s\n" % now())
-        y_pred = best_estimator.predict(x_test)
+        y_pred = final_model.predict(x_test)
 
         accuracy = metrics.accuracy_score(y_test, y_pred)
         precision = metrics.precision_score(y_test, y_pred)
         recall = metrics.recall_score(y_test, y_pred)
 
-        # return the scores and the best estimator
-        return precision, recall, accuracy, best_estimator
+        # return the scores and the final model
+        return precision, recall, accuracy, final_model
 
 
 
