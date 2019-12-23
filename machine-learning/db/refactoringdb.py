@@ -126,10 +126,13 @@ def get_method_level_refactorings(m_refactoring, dataset = ""):
         " " +
         "from yes " +
         "where refactoring = '" + m_refactoring + "'"
+
     )
 
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
+
+    sql = sql + " order by refactoringDate"
 
     df = execute_query(sql)
     return df
@@ -215,6 +218,8 @@ def get_all_method_level_refactorings(type, dataset = ""):
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
 
+    sql = sql + " order by refactoringDate"
+
     df = execute_query(sql)
     return df
 
@@ -278,6 +283,8 @@ def get_class_level_refactorings(m_refactoring, dataset = ""):
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
 
+    sql = sql + " order by refactoringDate"
+
     df = execute_query(sql)
     return df
 
@@ -340,6 +347,8 @@ def get_all_class_level_refactorings(type, dataset = ""):
 
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
+
+    sql = sql + " order by refactoringDate"
 
     df = execute_query(sql)
     return df
@@ -427,6 +436,8 @@ def get_variable_level_refactorings(m_refactoring, dataset = ""):
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
 
+    sql = sql + " order by refactoringDate"
+
     df = execute_query(sql)
     return df
 
@@ -513,6 +524,8 @@ def get_all_variable_level_refactorings(type, dataset = ""):
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
 
+    sql = sql + " order by refactoringDate"
+
     df = execute_query(sql)
     return df
 
@@ -578,6 +591,8 @@ def get_field_level_refactorings(m_refactoring, dataset = ""):
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
 
+    sql = sql + " order by refactoringDate"
+
     df = execute_query(sql)
     return df
 
@@ -642,6 +657,8 @@ def get_all_field_level_refactorings(type, dataset = ""):
 
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
+
+    sql = sql + " order by refactoringDate"
 
     df = execute_query(sql)
     return df
@@ -730,6 +747,8 @@ def get_non_refactored_methods(dataset = ""):
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
 
+    sql = sql + " order by refactoringDate"
+
     df = execute_query(sql)
     return df
 
@@ -816,6 +835,8 @@ def get_non_refactored_variables(dataset = ""):
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
 
+    sql = sql + " order by refactoringDate"
+
     df = execute_query(sql)
     return df
 
@@ -881,6 +902,8 @@ def get_non_refactored_classes(dataset = ""):
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
 
+    sql = sql + " order by refactoringDate"
+
     df = execute_query(sql)
     return df
 
@@ -945,6 +968,8 @@ def get_non_refactored_fields(dataset = ""):
 
     if not dataset == "":
         sql = sql + " and project_id in (select id from project where datasetName = '" + dataset + "')"
+
+    sql = sql + " order by refactoringDate"
 
     df = execute_query(sql)
     return df

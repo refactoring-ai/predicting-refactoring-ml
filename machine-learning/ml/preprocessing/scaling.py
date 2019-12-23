@@ -15,4 +15,4 @@ def perform_scaling(x):
     x = scaler.fit_transform(x)
     x = pd.DataFrame(x, columns=columns) # keeping the column names
 
-    return x
+    return x, scaler

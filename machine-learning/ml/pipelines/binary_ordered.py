@@ -4,13 +4,13 @@ from sklearn.model_selection import RandomizedSearchCV, cross_validate, Stratifi
 
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
 from ml.pipelines.pipelines import MLPipeline
-from ml.preprocessing.preprocessing import retrieve_labelled_instances
+from ml.preprocessing.preprocessing import retrieve_labelled_instances, retrieve_ordered_labelled_instances
 from ml.utils.output import format_results, format_best_parameters
 from utils.date_utils import now
 from utils.log import log
 from sklearn import metrics
 
-class BinaryClassificationPipeline(MLPipeline):
+class BinaryOrderedClassificationPipeline(MLPipeline):
     """
     Train models for binary classification
     """
@@ -36,7 +36,7 @@ class BinaryClassificationPipeline(MLPipeline):
                 refactoring_name = refactoring.name()
                 log("**** Refactoring %s" % refactoring_name)
 
-                features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
+                features, x_train, y_train, x_test, y_test, scaler = retrieve_ordered_labelled_instances(dataset, refactoring)
 
                 for model in self._models_to_run:
                     model_name = model.name()
@@ -44,7 +44,7 @@ class BinaryClassificationPipeline(MLPipeline):
                     try:
                         log("Model {}".format(model.name()))
                         self._start_time()
-                        precision_scores, recall_scores, accuracy_scores, model_to_save = self._run_single_model(dataset, model, refactoring, features, x, y, scaler)
+                        precision_scores, recall_scores, accuracy_scores, model_to_save = self._run_ordered(model, x_train, y_train, x_test, y_test, scaler)
 
                         # log the results
                         log(format_results(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, model_to_save, features))
@@ -62,7 +62,7 @@ class BinaryClassificationPipeline(MLPipeline):
                         log(str(traceback.format_exc()))
 
 
-    def _run_single_model(self, dataset, model_def, refactoring, features, x, y, scaler):
+    def _run_ordered(self, model_def, x_train, y_train, x_test, y_test):
         model = model_def.model()
 
         # perform the search for the best hyper parameters
@@ -76,26 +76,20 @@ class BinaryClassificationPipeline(MLPipeline):
             search = GridSearchCV(model, param_dist, cv=StratifiedKFold(n_splits=N_CV_SEARCH, shuffle=True), iid=False, n_jobs=-1)
 
         log("Search started at %s\n" % now())
-        search.fit(x, y)
+        search.fit(x_train, y_train)
         log(format_best_parameters(search))
         best_estimator = search.best_estimator_
 
         # cross-validation
-        model_for_cv = model_def.model(search.best_params_)
-        log("Cross validation started at %s\n" % now())
-        scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
-                                scoring=['accuracy', 'precision', 'recall'])
+        log("Test started at %s\n" % now())
+        y_pred = best_estimator.predict(x_test)
+
+        accuracy = metrics.accuracy_score(y_test, y_pred)
+        precision = metrics.precision_score(y_test, y_pred)
+        recall = metrics.recall_score(y_test, y_pred)
 
         # return the scores and the best estimator
-        return scores["test_precision"], scores["test_recall"], scores['test_accuracy'], best_estimator
-
-
-class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
-    def __init__(self, models_to_run, refactorings, datasets):
-        super().__init__(models_to_run, refactorings, datasets)
-
-    def _run_single_model(self, dataset, model_def, refactoring, features, x, y, scaler):
-        return model_def.run(x, y)
+        return precision, recall, accuracy, best_estimator
 
 
 
