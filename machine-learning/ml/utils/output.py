@@ -36,6 +36,31 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
     return results
 
 
+def format_results_single_run(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, best_model, features):
+    results = ""
+
+    results += "Precision: %0.2f" % precision_scores
+    results += "Recall: %0.2f" % recall_scores
+    results += "Accuracy: %0.2f" % accuracy_scores
+
+    # some models have the 'coef_' attribute, and others have the 'feature_importances_
+    # (do not ask me why...)
+    if hasattr(best_model, "coef_"):
+        results += "\nFeatures:"
+        results += (', '.join(str(e) for e in list(features)))
+        results += "\nCoefficients:"
+        results += "\n" + ''.join(str(e) for e in best_model.coef_.tolist())
+    elif hasattr(best_model, "feature_importances_"):
+        results += ("\nFeature Importances: \n" + ''.join(
+            ["%-33s: %-5.4f\n" % (feature, importance) for feature, importance in
+             zip(features, best_model.feature_importances_)]))
+    else:
+        results += "\n(Not possible to collect feature importances)"
+
+    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision_scores},{recall_scores},{accuracy_scores}'
+    return results
+
+
 def format_best_parameters(tuned_model):
     best_parameters = tuned_model.best_params_
 

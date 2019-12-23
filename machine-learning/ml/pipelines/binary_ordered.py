@@ -5,7 +5,7 @@ from sklearn.model_selection import RandomizedSearchCV, cross_validate, Stratifi
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances, retrieve_ordered_labelled_instances
-from ml.utils.output import format_results, format_best_parameters
+from ml.utils.output import format_results, format_best_parameters, format_results_single_run
 from utils.date_utils import now
 from utils.log import log
 from sklearn import metrics
@@ -47,7 +47,7 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
                         precision_scores, recall_scores, accuracy_scores, model_to_save = self._run_ordered(model, x_train, y_train, x_test, y_test)
 
                         # log the results
-                        log(format_results(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, model_to_save, features))
+                        log(format_results_single_run(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, model_to_save, features))
 
                         # we save the best estimator we had during the search
                         model.persist(dataset, refactoring_name, features, model_to_save, scaler)
