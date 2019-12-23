@@ -173,10 +173,10 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
         r_x, scaler = perform_scaling(r_x)
 
     split_line = int(((1.0 - ORDERED_DATA_TEST_SPLIT) * len(r_x)))
-    r_x_train = r_x.iloc[:, :split_line]
-    r_x_test = r_x.iloc[:, split_line:]
-    r_y_train = r_y.iloc[:, :split_line]
-    r_y_test = r_y.iloc[:, split_line:]
+    r_x_train = r_x.iloc[:split_line]
+    r_x_test = r_x.iloc[split_line:]
+    r_y_train = r_y.iloc[:split_line]
+    r_y_test = r_y.iloc[split_line:]
 
     # now for the non refactored data
     nr_x = non_refactored_instances.drop("prediction", axis=1)
@@ -186,10 +186,10 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
         nr_x = scaler.transform(nr_x)
 
     split_line_rn = int(((1.0 - ORDERED_DATA_TEST_SPLIT) * len(nr_x)))
-    nr_x_train = nr_x.iloc[:, :split_line_rn]
-    nr_x_test = nr_x.iloc[:, split_line_rn:]
-    nr_y_train = nr_y.iloc[:, :split_line_rn]
-    nr_y_test = nr_y.iloc[:, split_line_rn:]
+    nr_x_train = nr_x.iloc[:split_line_rn]
+    nr_x_test = nr_x.iloc[split_line_rn:]
+    nr_y_train = nr_y.iloc[:split_line_rn]
+    nr_y_test = nr_y.iloc[split_line_rn:]
 
     # combine refactoring and non refactoring data now
     merged_x_train = pd.concat([r_x_train, nr_x_train])
