@@ -214,8 +214,8 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
         log("instances after under/over sampling: {}".format(Counter(merged_y_train)))
 
     log("Final information about the dataset:")
-    log("- Train: " + Counter(merged_y_train))
-    log("- Test: " + Counter(merged_y_test))
+    log("- Train: {}".format(Counter(merged_y_train)))
+    log("- Test: {}".format(Counter(merged_y_test)))
 
     # TODO: let's reduce the number of features in the set
     # if FEATURE_REDUCTION:
