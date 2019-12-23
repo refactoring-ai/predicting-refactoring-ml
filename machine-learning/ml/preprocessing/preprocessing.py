@@ -183,7 +183,7 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
     nr_y = non_refactored_instances["prediction"]
 
     if SCALE_DATASET:
-        nr_x = scaler.transform(nr_x)
+        nr_x = pd.DataFrame(scaler.transform(nr_x), columns=nr_x.columns)
 
     split_line_rn = int(((1.0 - ORDERED_DATA_TEST_SPLIT) * len(nr_x)))
     nr_x_train = nr_x.iloc[:split_line_rn]
