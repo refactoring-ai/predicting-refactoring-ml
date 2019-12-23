@@ -44,7 +44,7 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
                     try:
                         log("Model {}".format(model.name()))
                         self._start_time()
-                        precision_scores, recall_scores, accuracy_scores, model_to_save = self._run_ordered(model, x_train, y_train, x_test, y_test, scaler)
+                        precision_scores, recall_scores, accuracy_scores, model_to_save = self._run_ordered(model, x_train, y_train, x_test, y_test)
 
                         # log the results
                         log(format_results(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, model_to_save, features))
