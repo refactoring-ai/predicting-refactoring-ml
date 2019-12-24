@@ -111,8 +111,13 @@ class BinaryClassificationPipeline(MLPipeline):
                                 n_jobs=-1,
                                 scoring=scoring)
 
+        # now, train a final model with all the data, so that we can use it
+        # for the comparison among the datasets
+        super_model = model_def.model(search.best_params_)
+        super_model.fit(x, y)
+
         # return the scores and the best estimator
-        return scores["test_precision"], scores["test_recall"], scores['test_accuracy'], scores['test_tn'], scores['test_fp'], scores['test_fn'], scores['test_tp'], best_estimator
+        return scores["test_precision"], scores["test_recall"], scores['test_accuracy'], scores['test_tn'], scores['test_fp'], scores['test_fn'], scores['test_tp'], super_model
 
 
 class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
