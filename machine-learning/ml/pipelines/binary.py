@@ -2,7 +2,8 @@ import traceback
 from collections import Counter
 
 from sklearn import metrics
-from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV
+from sklearn.metrics import confusion_matrix, make_scorer, accuracy_score, precision_score, recall_score
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, cross_validate
 
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
 from ml.pipelines.pipelines import MLPipeline
@@ -85,52 +86,32 @@ class BinaryClassificationPipeline(MLPipeline):
         # cross-validation
         log("Cross validation started at %s\n" % now())
 
-        accuracy_scores = []
-        precision_scores = []
-        recall_scores = []
-        tn_scores = []
-        fp_scores = []
-        fn_scores = []
-        tp_scores = []
+        def tp(y_true, y_pred):
+            return confusion_matrix(y_true, y_pred)[0, 0]
 
-        skf = StratifiedKFold(n_splits=N_CV, shuffle=True)
-        cv_iter = skf.split(x, y)
+        def tn(y_true, y_pred):
+            return confusion_matrix(y_true, y_pred)[1, 1]
 
-        fold_n = 1
-        for train, test in cv_iter:
-            log("Fold {} out of {}".format(fold_n, N_CV))
+        def fp(y_true, y_pred):
+            return confusion_matrix(y_true, y_pred)[1, 0]
 
-            x_train, x_test = x.iloc[train, :], x.iloc[test, :]
-            y_train, y_test = y[train], y[test]
+        def fn(y_true, y_pred):
+            return confusion_matrix(y_true, y_pred)[0, 1]
 
-            clf = model_def.model(search.best_params_)
-            clf.fit(x_train, y_train)
+        scoring = {'tp': make_scorer(tp), 'tn': make_scorer(tn),
+                   'fp': make_scorer(fp), 'fn': make_scorer(fn),
+                   'accuracy': make_scorer(accuracy_score),
+                   'precision': make_scorer(precision_score),
+                   'recall': make_scorer(recall_score)}
 
-            log("- Train: {}".format(Counter(y_train)))
-            log("- Test: {}".format(Counter(y_test)))
-
-            y_pred = clf.predict(x_test)
-
-            log("- Pred: {}".format(Counter(y_pred)))
-
-            accuracy = metrics.accuracy_score(y_test, y_pred)
-            precision = metrics.precision_score(y_test, y_pred)
-            recall = metrics.recall_score(y_test, y_pred)
-            tn, fp, fn, tp = metrics.confusion_matrix(y_test, y_pred).ravel()
-
-            log("Fold {}: accuracy={}, precision={}, recall={}, tn={}, fp-{}, fn={}, tp={}".format(fold_n, accuracy, precision, recall, tn, fp, fn, tp))
-            accuracy_scores.append(accuracy)
-            precision_scores.append(precision)
-            recall_scores.append(recall)
-            tn_scores.append(tn)
-            fp_scores.append(fp)
-            fn_scores.append(fn)
-            tp_scores.append(tp)
-
-            fold_n = fold_n + 1
+        scores = cross_validate(model_def.model(search.best_params_),
+                                x, y,
+                                cv=StratifiedKFold(n_splits=N_CV,shuffle=True),
+                                n_jobs=-1,
+                                scoring=scoring)
 
         # return the scores and the best estimator
-        return precision_scores, recall_scores, accuracy_scores, tn_scores, fp_scores, fn_scores, tp_scores, best_estimator
+        return scores["precision"], scores["recall"], scores['accuracy'], scores['tn'], scores['fp'], scores['fn'], scores['tp'], best_estimator
 
 
 class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
