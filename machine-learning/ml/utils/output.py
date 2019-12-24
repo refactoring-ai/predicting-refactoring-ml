@@ -52,7 +52,7 @@ def format_results_single_run(dataset, refactoring_name, model_name, precision, 
     results += "\nPrecision: %0.2f" % precision
     results += "\nRecall: %0.2f" % recall
     results += "\nAccuracy: %0.2f" % accuracy
-    results += "\nConfusion Matrix: tn=%0.2f, fp=%0.2f, fn=%0.2f, tp=%0.2f" % accuracy, tn, fp, fn, tp
+    results += "\nConfusion Matrix: tn=%0.2f, fp=%0.2f, fn=%0.2f, tp=%0.2f" % (accuracy, tn, fp, fn, tp)
 
     # some models have the 'coef_' attribute, and others have the 'feature_importances_
     # (do not ask me why...)
