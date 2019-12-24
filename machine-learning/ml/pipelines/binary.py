@@ -101,7 +101,7 @@ class BinaryClassificationPipeline(MLPipeline):
             log("Fold {} out of {}".format(fold_n, N_CV))
 
             x_train, x_test = x.iloc[train, :], x.iloc[test, :]
-            y_train, y_test = y.iloc[train], y.iloc[test]
+            y_train, y_test = y[train], y[test]
 
             clf = model_def.model(search.best_params_)
             clf.fit(x_train, y_train, n_jobs=-1)
