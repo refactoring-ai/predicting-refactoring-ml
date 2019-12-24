@@ -111,7 +111,7 @@ class BinaryClassificationPipeline(MLPipeline):
                                 scoring=scoring)
 
         # return the scores and the best estimator
-        return scores["precision"], scores["recall"], scores['accuracy'], scores['tn'], scores['fp'], scores['fn'], scores['tp'], best_estimator
+        return scores["test_precision"], scores["test_recall"], scores['test_accuracy'], scores['test_tn'], scores['test_fp'], scores['test_fn'], scores['test_tp'], best_estimator
 
 
 class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
