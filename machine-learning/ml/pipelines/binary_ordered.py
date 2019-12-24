@@ -43,6 +43,12 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
                 log("- Train: {}".format(Counter(y_train)))
                 log("- Test: {}".format(Counter(y_test)))
 
+                # for debugging purposes, let's save them
+                x_train.to_csv("results/xtrain-{}-{}.csv".format(refactoring_name, dataset))
+                y_train.to_csv("results/ytrain-{}-{}.csv".format(refactoring_name, dataset))
+                x_test.to_csv("results/xtest-{}-{}.csv".format(refactoring_name, dataset))
+                y_test.to_csv("results/ytest-{}-{}.csv".format(refactoring_name, dataset))
+
                 for model in self._models_to_run:
                     model_name = model.name()
 

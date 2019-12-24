@@ -104,11 +104,11 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     """
     This method retrieves all the labelled instances for a given refactoring and dataset.
-    It performs the same pipeline as above, but train happens always before test:
+    It performs the same pipeline as above, but train happens always before test,
+    by ORDERED_DATA_TEST_SPLIT%:
 
     :param dataset: a string containing the name of the dataset to be retrieved
     :param refactoring: the refactoring object, containing the refactoring to be retrieved
-    :param split: number from [0.1, 0.99] that splits the train and test
     :return:
         features: an array with the features of the instances
         x_train: a dataframe with the feature values
