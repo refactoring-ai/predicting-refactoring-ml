@@ -104,9 +104,21 @@ class BinaryClassificationPipeline(MLPipeline):
                    'precision': make_scorer(precision_score),
                    'recall': make_scorer(recall_score)}
 
+
+        class DebugStratifiedKFold(StratifiedKFold):
+            def split(self, X, y, groups=None):
+                iter = super(StratifiedKFold, self).split(X, y, groups)
+                for train, test in iter:
+                    y_train, y_test = y[train], y[test]
+
+                    log("- Train: {}".format(Counter(y_train)))
+                    log("- Test: {}".format(Counter(y_test)))
+
+                return iter
+
         scores = cross_validate(model_def.model(search.best_params_),
                                 x, y,
-                                cv=StratifiedKFold(n_splits=N_CV,shuffle=True),
+                                cv=DebugStratifiedKFold(n_splits=N_CV,shuffle=True),
                                 n_jobs=-1,
                                 scoring=scoring)
 
