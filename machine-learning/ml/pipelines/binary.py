@@ -1,13 +1,12 @@
 import traceback
-from collections import Counter
 
-from sklearn import metrics
-from sklearn.metrics import confusion_matrix, make_scorer, accuracy_score, precision_score, recall_score
+from sklearn.metrics import make_scorer
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, cross_validate
 
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances
+from ml.utils.cm import tp, tn, fn, fp
 from ml.utils.output import format_results, format_best_parameters
 from utils.date_utils import now
 from utils.log import log
@@ -86,24 +85,11 @@ class BinaryClassificationPipeline(MLPipeline):
         # cross-validation
         log("Cross validation started at %s\n" % now())
 
-        def tn(y_true, y_pred):
-            return confusion_matrix(y_true, y_pred)[0, 0]
-
-        def fp(y_true, y_pred):
-            return confusion_matrix(y_true, y_pred)[0, 1]
-
-        def fn(y_true, y_pred):
-            return confusion_matrix(y_true, y_pred)[1, 0]
-
-        def tp(y_true, y_pred):
-            return confusion_matrix(y_true, y_pred)[1, 1]
-
         scoring = {'tp': make_scorer(tp), 'tn': make_scorer(tn),
                    'fp': make_scorer(fp), 'fn': make_scorer(fn),
                    'accuracy': 'accuracy',
                    'precision': 'precision',
                    'recall': 'recall'}
-
 
         scores = cross_validate(model_def.model(search.best_params_),
                                 x, y,
