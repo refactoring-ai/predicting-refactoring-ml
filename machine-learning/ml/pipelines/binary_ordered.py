@@ -45,11 +45,11 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
                 log("- Test: {}".format(Counter(y_test)))
 
                 # for debugging purposes, let's save them
-                export_train = pd.concat([x_train, pd.DataFrame(y_train)], axis=1)
-                export_train.to_csv("results/train-{}-{}.csv".format(refactoring_name.replace(" ", ""), dataset))
+                #export_train = pd.concat([x_train, pd.DataFrame(y_train)], axis=1)
+                #export_train.to_csv("results/train-{}-{}.csv".format(refactoring_name.replace(" ", ""), dataset))
 
-                export_test = pd.concat([x_test, pd.DataFrame(y_test)], axis=1)
-                export_test.to_csv("results/test-{}-{}.csv".format(refactoring_name.replace(" ", ""), dataset))
+                #export_test = pd.concat([x_test, pd.DataFrame(y_test)], axis=1)
+                #export_test.to_csv("results/test-{}-{}.csv".format(refactoring_name.replace(" ", ""), dataset))
 
                 for model in self._models_to_run:
                     model_name = model.name()
