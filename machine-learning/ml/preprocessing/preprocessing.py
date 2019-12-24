@@ -65,9 +65,6 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     assert non_refactored_instances.shape[1] == refactored_instances.shape[1], "number of columns differ from both datasets"
     merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
 
-    # shuffle the array
-    merged_dataset = sklearn.utils.shuffle(merged_dataset)
-
     # separate the x from the y (as required by the scikit-learn API)
     x = merged_dataset.drop("prediction", axis=1)
     y = merged_dataset["prediction"]
@@ -193,17 +190,9 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
 
     # combine refactoring and non refactoring data now
     merged_x_train = pd.concat([r_x_train, nr_x_train])
-    merged_x_train = sklearn.utils.shuffle(merged_x_train)
-
     merged_y_train = pd.concat([r_y_train, nr_y_train])
-    merged_y_train = sklearn.utils.shuffle(merged_y_train)
-
     merged_x_test = pd.concat([r_x_test, nr_x_test])
-    merged_x_test = sklearn.utils.shuffle(merged_x_test)
-
     merged_y_test = pd.concat([r_y_test, nr_y_test])
-    merged_y_test = sklearn.utils.shuffle(merged_y_test)
-
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
