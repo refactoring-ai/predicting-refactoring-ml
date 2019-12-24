@@ -1,4 +1,5 @@
 import traceback
+from collections import Counter
 
 from sklearn import metrics
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV
@@ -97,18 +98,23 @@ class BinaryClassificationPipeline(MLPipeline):
 
         fold_n = 1
         for train, test in cv_iter:
-            log(("Fold %d out of %d" % fold_n, N_CV))
+            log("Fold {} out of {}".format(fold_n, N_CV))
             clf = model_def.model(search.best_params_)
             clf.fit(x[train,], y[train], n_jobs=-1)
 
+            log("- Train: {}".format(Counter(x[train,])))
+            log("- Test: {}".format(Counter(x[test,])))
+
             y_pred = clf.predict(x[test])
+
+            log("- Pred: {}".format(Counter(y_pred)))
 
             accuracy = metrics.accuracy_score(y[test], y_pred)
             precision = metrics.precision_score(y[test], y_pred)
             recall = metrics.recall_score(y[test], y_pred)
             tn, fp, fn, tp = metrics.confusion_matrix(y[test], y_pred).ravel()
 
-            log(("Fold %d: accuracy=%.2f, precision=%.2f, recall=%.2f, tn=%d, fp-%d, fn=%d, tp=%d" % accuracy, precision, recall, tn, fp, fn, tp))
+            log("Fold {}: accuracy={}, precision={}, recall={}, tn={}, fp-{}, fn={}, tp={}".format(accuracy, precision, recall, tn, fp, fn, tp))
             accuracy_scores.append(accuracy)
             precision_scores.append(precision)
             recall_scores.append(recall)
