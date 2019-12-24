@@ -1,7 +1,7 @@
 import traceback
 
-from sklearn.metrics import make_scorer, confusion_matrix
-from sklearn.model_selection import RandomizedSearchCV, cross_validate, StratifiedKFold, GridSearchCV
+from sklearn import metrics
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV
 
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
 from ml.pipelines.pipelines import MLPipeline
@@ -9,7 +9,7 @@ from ml.preprocessing.preprocessing import retrieve_labelled_instances
 from ml.utils.output import format_results, format_best_parameters
 from utils.date_utils import now
 from utils.log import log
-from sklearn import metrics
+
 
 class BinaryClassificationPipeline(MLPipeline):
     """
@@ -97,7 +97,7 @@ class BinaryClassificationPipeline(MLPipeline):
 
         fold_n = 1
         for train, test in cv_iter:
-            log("Fold %d out of %d" % fold_n, N_CV)
+            log(("Fold %d out of %d" % fold_n, N_CV))
             clf = model_def.model(search.best_params_)
             clf.fit(x[train,], y[train], n_jobs=-1)
 
@@ -108,7 +108,7 @@ class BinaryClassificationPipeline(MLPipeline):
             recall = metrics.recall_score(y[test], y_pred)
             tn, fp, fn, tp = metrics.confusion_matrix(y[test], y_pred).ravel()
 
-            log("Fold %d: accuracy=%.2f, precision=%.2f, recall=%.2f, tn=%d, fp-%d, fn=%d, tp=%d" % accuracy, precision, recall, tn, fp, fn, tp)
+            log(("Fold %d: accuracy=%.2f, precision=%.2f, recall=%.2f, tn=%d, fp-%d, fn=%d, tp=%d" % accuracy, precision, recall, tn, fp, fn, tp))
             accuracy_scores.append(accuracy)
             precision_scores.append(precision)
             recall_scores.append(recall)
