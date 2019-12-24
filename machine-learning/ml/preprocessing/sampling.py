@@ -1,11 +1,12 @@
-# more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html
+
 import pandas as pd
+from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler, ClusterCentroids, NearMiss
 
 from configs import BALANCE_DATASET_STRATEGY
 
 
-def perform_under_sampling(x, y):
+def perform_balancing(x, y):
     """
     Performs under/over sampling, according to the number of true and false instances of the x, y dataset.
     :param x: feature values
@@ -13,7 +14,10 @@ def perform_under_sampling(x, y):
     :return: a balanced x, y
     """
     if BALANCE_DATASET_STRATEGY == 'random':
+        # more info: https://imbalanced-learn.readthedocs.io/en/stable/under_sampling.html
         rus = RandomUnderSampler(random_state=42)  # 42 is a random number, just to ensure our results are reproducible
+    elif BALANCE_DATASET_STRATEGY == 'oversampling':
+        rus = RandomOverSampler(random_state=42)
     elif BALANCE_DATASET_STRATEGY == 'cluster_centroids':
         rus = ClusterCentroids(random_state=42)
     elif BALANCE_DATASET_STRATEGY == 'nearmiss':

@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, USE_PROCESS_AND_AUTHORSHIP_METRICS, \
     ORDERED_DATA_TEST_SPLIT
 from ml.preprocessing.feature_reduction import perform_feature_reduction
-from ml.preprocessing.sampling import perform_under_sampling
+from ml.preprocessing.sampling import perform_balancing
 from ml.preprocessing.scaling import perform_scaling
 from refactoring import LowLevelRefactoring
 from utils.log import log
@@ -85,7 +85,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     # for now, we basically perform under sampling
     if BALANCE_DATASET:
         log("instances before under/over sampling: {}".format(Counter(y)))
-        x, y = perform_under_sampling(x, y)
+        x, y = perform_balancing(x, y)
         assert x.shape[0] == y.shape[0], "Undersampling did not work, x and y have different shapes."
         log("instances after under/over sampling: {}".format(Counter(y)))
 
@@ -209,12 +209,12 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
     # for now, we basically perform under sampling
     if BALANCE_DATASET:
         log("train instances before under/over sampling: {}".format(Counter(merged_y_train)))
-        merged_x_train, merged_y_train = perform_under_sampling(merged_x_train, merged_y_train)
+        merged_x_train, merged_y_train = perform_balancing(merged_x_train, merged_y_train)
         assert merged_x_train.shape[0] == merged_y_train.shape[0], "Undersampling did not work, x and y have different shapes."
         log("train instances after under/over sampling: {}".format(Counter(merged_y_train)))
 
         log("test instances before under/over sampling: {}".format(Counter(merged_y_test)))
-        merged_x_test, merged_y_test = perform_under_sampling(merged_x_test, merged_y_test)
+        merged_x_test, merged_y_test = perform_balancing(merged_x_test, merged_y_test)
         assert merged_x_test.shape[0] == merged_y_test.shape[
             0], "Undersampling did not work, x and y have different shapes."
         log("test instances after under/over sampling: {}".format(Counter(merged_y_test)))
