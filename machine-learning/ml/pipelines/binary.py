@@ -93,26 +93,30 @@ class BinaryClassificationPipeline(MLPipeline):
         fn_scores = []
         tp_scores = []
 
-        skf = StratifiedKFold(n_splits=N_CV)
+        skf = StratifiedKFold(n_splits=N_CV, shuffle=True)
         cv_iter = skf.split(x, y)
 
         fold_n = 1
         for train, test in cv_iter:
             log("Fold {} out of {}".format(fold_n, N_CV))
+
+            x_train, x_test = x.iloc[train, :], x.iloc[test, :]
+            y_train, y_test = y.iloc[train], y.iloc[test]
+
             clf = model_def.model(search.best_params_)
-            clf.fit(x[train], y[train], n_jobs=-1)
+            clf.fit(x_train, y_train, n_jobs=-1)
 
-            log("- Train: {}".format(Counter(x[train])))
-            log("- Test: {}".format(Counter(x[test])))
+            log("- Train: {}".format(Counter(x_train)))
+            log("- Test: {}".format(Counter(x_test)))
 
-            y_pred = clf.predict(x[test])
+            y_pred = clf.predict(x_test)
 
             log("- Pred: {}".format(Counter(y_pred)))
 
-            accuracy = metrics.accuracy_score(y[test], y_pred)
-            precision = metrics.precision_score(y[test], y_pred)
-            recall = metrics.recall_score(y[test], y_pred)
-            tn, fp, fn, tp = metrics.confusion_matrix(y[test], y_pred).ravel()
+            accuracy = metrics.accuracy_score(y_test, y_pred)
+            precision = metrics.precision_score(y_test, y_pred)
+            recall = metrics.recall_score(y_test, y_pred)
+            tn, fp, fn, tp = metrics.confusion_matrix(y_test, y_pred).ravel()
 
             log("Fold {}: accuracy={}, precision={}, recall={}, tn={}, fp-{}, fn={}, tp={}".format(accuracy, precision, recall, tn, fp, fn, tp))
             accuracy_scores.append(accuracy)
