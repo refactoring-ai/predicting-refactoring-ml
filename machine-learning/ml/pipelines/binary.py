@@ -100,10 +100,10 @@ class BinaryClassificationPipeline(MLPipeline):
         for train, test in cv_iter:
             log("Fold {} out of {}".format(fold_n, N_CV))
             clf = model_def.model(search.best_params_)
-            clf.fit(x[train,], y[train], n_jobs=-1)
+            clf.fit(x[train], y[train], n_jobs=-1)
 
-            log("- Train: {}".format(Counter(x[train,])))
-            log("- Test: {}".format(Counter(x[test,])))
+            log("- Train: {}".format(Counter(x[train])))
+            log("- Test: {}".format(Counter(x[test])))
 
             y_pred = clf.predict(x[test])
 
