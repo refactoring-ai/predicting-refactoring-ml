@@ -86,23 +86,23 @@ class BinaryClassificationPipeline(MLPipeline):
         # cross-validation
         log("Cross validation started at %s\n" % now())
 
-        def tp(y_true, y_pred):
+        def tn(y_true, y_pred):
             return confusion_matrix(y_true, y_pred)[0, 0]
 
-        def tn(y_true, y_pred):
-            return confusion_matrix(y_true, y_pred)[1, 1]
-
         def fp(y_true, y_pred):
-            return confusion_matrix(y_true, y_pred)[1, 0]
+            return confusion_matrix(y_true, y_pred)[0, 1]
 
         def fn(y_true, y_pred):
-            return confusion_matrix(y_true, y_pred)[0, 1]
+            return confusion_matrix(y_true, y_pred)[1, 0]
+
+        def tp(y_true, y_pred):
+            return confusion_matrix(y_true, y_pred)[1, 1]
 
         scoring = {'tp': make_scorer(tp), 'tn': make_scorer(tn),
                    'fp': make_scorer(fp), 'fn': make_scorer(fn),
-                   'accuracy': make_scorer(accuracy_score),
-                   'precision': make_scorer(precision_score),
-                   'recall': make_scorer(recall_score)}
+                   'accuracy': 'accuracy',
+                   'precision': 'precision',
+                   'recall': 'recall'}
 
 
         class DebugStratifiedKFold(StratifiedKFold):
