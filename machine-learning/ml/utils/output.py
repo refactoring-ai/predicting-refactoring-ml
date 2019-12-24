@@ -1,7 +1,8 @@
 import json
 
 
-def format_results(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, best_model, features):
+def format_results(dataset, refactoring_name, model_name, precision_scores, recall_scores,
+                   accuracy_scores, tn, fp, fn, tp, best_model, features):
     results = ""
 
     accuracy_scores_str = ', '.join(list([f"{e:.2f}" for e in accuracy_scores]))
@@ -15,6 +16,15 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
     results += "\nRecall scores: " + recall_scores_str
     results += f'\nMean recall: {recall_scores.mean():.2f}\n'
 
+    # summing up the results of the confusion matrix
+    total_tn = sum(tn)
+    total_fp = sum(fp)
+    total_fn = sum(fn)
+    total_tp = sum(tp)
+
+    # TODO: print number by number of the confusion matrix
+    # (for debugging purposes, we print it in the log already)
+
     # some models have the 'coef_' attribute, and others have the 'feature_importances_
     # (do not ask me why...)
     if hasattr(best_model, "coef_"):
@@ -29,19 +39,20 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
     else:
         results += "\n(Not possible to collect feature importances)"
 
-    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision_scores.mean():.2f},{recall_scores.mean():.2f},{accuracy_scores.mean()}'
+    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision_scores.mean():.2f},{recall_scores.mean():.2f},{accuracy_scores.mean()},{total_tn},{total_fp},{total_fn},{total_tp}'
     results += f'\nCSV2,{dataset},{refactoring_name},{model_name},precision,{precision_scores_str}'
     results += f'\nCSV2,{dataset},{refactoring_name},{model_name},recall,{recall_scores_str}'
     results += f'\nCSV2,{dataset},{refactoring_name},{model_name},accuracy,{accuracy_scores_str}'
     return results
 
 
-def format_results_single_run(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, best_model, features):
+def format_results_single_run(dataset, refactoring_name, model_name, precision, recall, accuracy, tn, fp, fn, tp, best_model, features):
     results = ""
 
-    results += "\nPrecision: %0.2f" % precision_scores
-    results += "\nRecall: %0.2f" % recall_scores
-    results += "\nAccuracy: %0.2f" % accuracy_scores
+    results += "\nPrecision: %0.2f" % precision
+    results += "\nRecall: %0.2f" % recall
+    results += "\nAccuracy: %0.2f" % accuracy
+    results += "\nConfusion Matrix: tn=%0.2f, fp=%0.2f, fn=%0.2f, tp=%0.2f" % accuracy, tn, fp, fn, tp
 
     # some models have the 'coef_' attribute, and others have the 'feature_importances_
     # (do not ask me why...)
@@ -57,7 +68,7 @@ def format_results_single_run(dataset, refactoring_name, model_name, precision_s
     else:
         results += "\n(Not possible to collect feature importances)"
 
-    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision_scores},{recall_scores},{accuracy_scores}'
+    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision},{recall},{accuracy},{tn},{fp},{fn},{tp}'
     return results
 
 

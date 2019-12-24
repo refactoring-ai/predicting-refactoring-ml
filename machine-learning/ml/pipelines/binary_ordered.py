@@ -49,10 +49,10 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
                     try:
                         log("Model {}".format(model.name()))
                         self._start_time()
-                        precision_scores, recall_scores, accuracy_scores, model_to_save = self._run_ordered(model, x_train, y_train, x_test, y_test)
+                        precision, recall, accuracy, tn, fp, fn, tp, model_to_save = self._run_ordered(model, x_train, y_train, x_test, y_test)
 
                         # log the results
-                        log(format_results_single_run(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, model_to_save, features))
+                        log(format_results_single_run(dataset, refactoring_name, model_name, precision, recall, accuracy, tn, fp, fn, tp, model_to_save, features))
 
                         # we save the best estimator we had during the search
                         model.persist(dataset, refactoring_name, features, model_to_save, scaler)
@@ -95,9 +95,10 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
         accuracy = metrics.accuracy_score(y_test, y_pred)
         precision = metrics.precision_score(y_test, y_pred)
         recall = metrics.recall_score(y_test, y_pred)
+        tn, fp, fn, tp = metrics.confusion_matrix(y_test, y_pred).ravel()
 
         # return the scores and the final model
-        return precision, recall, accuracy, final_model
+        return precision, recall, accuracy, tn, fp, fn, tp, final_model
 
 
 

@@ -1,5 +1,6 @@
 import traceback
 
+from sklearn.metrics import make_scorer, confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, cross_validate, StratifiedKFold, GridSearchCV
 
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
@@ -44,10 +45,10 @@ class BinaryClassificationPipeline(MLPipeline):
                     try:
                         log("Model {}".format(model.name()))
                         self._start_time()
-                        precision_scores, recall_scores, accuracy_scores, model_to_save = self._run_single_model(dataset, model, refactoring, features, x, y, scaler)
+                        precision, recall, accuracy, tn, fp, fn, tp, model_to_save = self._run_single_model(model, x, y)
 
                         # log the results
-                        log(format_results(dataset, refactoring_name, model_name, precision_scores, recall_scores, accuracy_scores, model_to_save, features))
+                        log(format_results(dataset, refactoring_name, model_name, precision, recall, accuracy, tn, fp, fn, tp, model_to_save, features))
 
                         # we save the best estimator we had during the search
                         model.persist(dataset, refactoring_name, features, model_to_save, scaler)
@@ -62,7 +63,7 @@ class BinaryClassificationPipeline(MLPipeline):
                         log(str(traceback.format_exc()))
 
 
-    def _run_single_model(self, dataset, model_def, refactoring, features, x, y, scaler):
+    def _run_single_model(self, model_def, x, y):
         model = model_def.model()
 
         # perform the search for the best hyper parameters
@@ -81,20 +82,52 @@ class BinaryClassificationPipeline(MLPipeline):
         best_estimator = search.best_estimator_
 
         # cross-validation
-        model_for_cv = model_def.model(search.best_params_)
         log("Cross validation started at %s\n" % now())
-        scores = cross_validate(model_for_cv, x, y, cv=N_CV, n_jobs=-1,
-                                scoring=['accuracy', 'precision', 'recall'])
+
+        accuracy_scores = []
+        precision_scores = []
+        recall_scores = []
+        tn_scores = []
+        fp_scores = []
+        fn_scores = []
+        tp_scores = []
+
+        skf = StratifiedKFold(n_splits=N_CV)
+        cv_iter = skf.split(x, y)
+
+        fold_n = 1
+        for train, test in cv_iter:
+            log("Fold %d out of %d" % fold_n, N_CV)
+            clf = model_def.model(search.best_params_)
+            clf.fit(x[train,], y[train], n_jobs=-1)
+
+            y_pred = clf.predict(x[test])
+
+            accuracy = metrics.accuracy_score(y[test], y_pred)
+            precision = metrics.precision_score(y[test], y_pred)
+            recall = metrics.recall_score(y[test], y_pred)
+            tn, fp, fn, tp = metrics.confusion_matrix(y[test], y_pred).ravel()
+
+            log("Fold %d: accuracy=%.2f, precision=%.2f, recall=%.2f, tn=%d, fp-%d, fn=%d, tp=%d" % accuracy, precision, recall, tn, fp, fn, tp)
+            accuracy_scores.append(accuracy)
+            precision_scores.append(precision)
+            recall_scores.append(recall)
+            tn_scores.append(tn)
+            fp_scores.append(fp)
+            fn_scores.append(fn)
+            tp_scores.append(tp)
+
+            fold_n = fold_n + 1
 
         # return the scores and the best estimator
-        return scores["test_precision"], scores["test_recall"], scores['test_accuracy'], best_estimator
+        return precision_scores, recall_scores, accuracy_scores, tn_scores, fp_scores, fn_scores, tp_scores, best_estimator
 
 
 class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
     def __init__(self, models_to_run, refactorings, datasets):
         super().__init__(models_to_run, refactorings, datasets)
 
-    def _run_single_model(self, dataset, model_def, refactoring, features, x, y, scaler):
+    def _run_single_model(self, model_def, x, y):
         return model_def.run(x, y)
 
 
