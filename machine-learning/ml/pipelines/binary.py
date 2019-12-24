@@ -106,8 +106,8 @@ class BinaryClassificationPipeline(MLPipeline):
             clf = model_def.model(search.best_params_)
             clf.fit(x_train, y_train)
 
-            log("- Train: {}".format(Counter(x_train)))
-            log("- Test: {}".format(Counter(x_test)))
+            log("- Train: {}".format(Counter(y_train)))
+            log("- Test: {}".format(Counter(y_test)))
 
             y_pred = clf.predict(x_test)
 
@@ -118,7 +118,7 @@ class BinaryClassificationPipeline(MLPipeline):
             recall = metrics.recall_score(y_test, y_pred)
             tn, fp, fn, tp = metrics.confusion_matrix(y_test, y_pred).ravel()
 
-            log("Fold {}: accuracy={}, precision={}, recall={}, tn={}, fp-{}, fn={}, tp={}".format(accuracy, precision, recall, tn, fp, fn, tp))
+            log("Fold {}: accuracy={}, precision={}, recall={}, tn={}, fp-{}, fn={}, tp={}".format(fold_n, accuracy, precision, recall, tn, fp, fn, tp))
             accuracy_scores.append(accuracy)
             precision_scores.append(precision)
             recall_scores.append(recall)
