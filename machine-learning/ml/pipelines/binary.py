@@ -1,3 +1,4 @@
+import pandas as pd
 import traceback
 
 from sklearn.metrics import make_scorer
@@ -42,6 +43,9 @@ class BinaryClassificationPipeline(MLPipeline):
 
                 for model in self._models_to_run:
                     model_name = model.name()
+
+                    # reset the seed
+                    pd.np.random.seed(42)
 
                     try:
                         log("Model {}".format(model.name()))

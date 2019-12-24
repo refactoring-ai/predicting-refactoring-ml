@@ -54,6 +54,9 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
                 for model in self._models_to_run:
                     model_name = model.name()
 
+                    # reset the seed
+                    pd.np.random.seed(42)
+
                     try:
                         log("Model {}".format(model.name()))
                         self._start_time()
