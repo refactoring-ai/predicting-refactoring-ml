@@ -104,7 +104,7 @@ class BinaryClassificationPipeline(MLPipeline):
             y_train, y_test = y[train], y[test]
 
             clf = model_def.model(search.best_params_)
-            clf.fit(x_train, y_train, n_jobs=-1)
+            clf.fit(x_train, y_train)
 
             log("- Train: {}".format(Counter(x_train)))
             log("- Test: {}".format(Counter(x_test)))
