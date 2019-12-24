@@ -84,10 +84,10 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
     if BALANCE_DATASET:
-        log("instances before under/over sampling: {}".format(Counter(y)))
+        log("instances before balancing: {}".format(Counter(y)))
         x, y = perform_balancing(x, y)
-        assert x.shape[0] == y.shape[0], "Undersampling did not work, x and y have different shapes."
-        log("instances after under/over sampling: {}".format(Counter(y)))
+        assert x.shape[0] == y.shape[0], "Balancing did not work, x and y have different shapes."
+        log("instances after balancing: {}".format(Counter(y)))
 
     # apply some scaling to speed up the algorithm
     scaler = None
@@ -216,8 +216,8 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
         log("test instances before balancing: {}".format(Counter(merged_y_test)))
         merged_x_test, merged_y_test = perform_balancing(merged_x_test, merged_y_test)
         assert merged_x_test.shape[0] == merged_y_test.shape[
-            0], "Undersampling did not work, x and y have different shapes."
-        log("test instances after under/over sampling: {}".format(Counter(merged_y_test)))
+            0], "Balancing did not work, x and y have different shapes."
+        log("test instances after balancing: {}".format(Counter(merged_y_test)))
 
     # TODO: let's reduce the number of features in the set
     # if FEATURE_REDUCTION:
