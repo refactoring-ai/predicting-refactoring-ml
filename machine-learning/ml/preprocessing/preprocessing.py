@@ -208,12 +208,12 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
     if BALANCE_DATASET:
-        log("train instances before under/over sampling: {}".format(Counter(merged_y_train)))
+        log("train instances before balancing: {}".format(Counter(merged_y_train)))
         merged_x_train, merged_y_train = perform_balancing(merged_x_train, merged_y_train)
         assert merged_x_train.shape[0] == merged_y_train.shape[0], "Undersampling did not work, x and y have different shapes."
-        log("train instances after under/over sampling: {}".format(Counter(merged_y_train)))
+        log("train instances after balancing: {}".format(Counter(merged_y_train)))
 
-        log("test instances before under/over sampling: {}".format(Counter(merged_y_test)))
+        log("test instances before balancing: {}".format(Counter(merged_y_test)))
         merged_x_test, merged_y_test = perform_balancing(merged_x_test, merged_y_test)
         assert merged_x_test.shape[0] == merged_y_test.shape[
             0], "Undersampling did not work, x and y have different shapes."
