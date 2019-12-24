@@ -213,8 +213,9 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
         assert merged_x_train.shape[0] == merged_y_train.shape[0], "Undersampling did not work, x and y have different shapes."
         log("train instances after balancing: {}".format(Counter(merged_y_train)))
 
+        # for the test, we always apply under sampling
         log("test instances before balancing: {}".format(Counter(merged_y_test)))
-        merged_x_test, merged_y_test = perform_balancing(merged_x_test, merged_y_test)
+        merged_x_test, merged_y_test = perform_balancing(merged_x_test, merged_y_test, "random")
         assert merged_x_test.shape[0] == merged_y_test.shape[
             0], "Balancing did not work, x and y have different shapes."
         log("test instances after balancing: {}".format(Counter(merged_y_test)))
