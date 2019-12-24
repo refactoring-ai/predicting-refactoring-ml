@@ -1,3 +1,4 @@
+import pandas as pd
 import traceback
 from collections import Counter
 
@@ -44,10 +45,11 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
                 log("- Test: {}".format(Counter(y_test)))
 
                 # for debugging purposes, let's save them
-                x_train.to_csv("results/xtrain-{}-{}.csv".format(refactoring_name, dataset))
-                y_train.to_csv("results/ytrain-{}-{}.csv".format(refactoring_name, dataset))
-                x_test.to_csv("results/xtest-{}-{}.csv".format(refactoring_name, dataset))
-                y_test.to_csv("results/ytest-{}-{}.csv".format(refactoring_name, dataset))
+                export_train = pd.concat([x_train, pd.DataFrame(y_train)], axis=1)
+                export_train.to_csv("results/train-{}-{}.csv".format(refactoring_name, dataset))
+
+                export_test = pd.concat([x_test, pd.DataFrame(y_test)], axis=1)
+                export_test.to_csv("results/test-{}-{}.csv".format(refactoring_name, dataset))
 
                 for model in self._models_to_run:
                     model_name = model.name()
