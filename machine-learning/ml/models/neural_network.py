@@ -1,5 +1,5 @@
 import keras_metrics
-import numpy
+import numpy as np
 from keras import Sequential
 from keras.callbacks import EarlyStopping
 from keras.layers import Dense, Dropout
@@ -84,5 +84,5 @@ class NeuralNetworkDeepRefactoringModel(DeepMLRefactoringModel):
         early_stop, super_model = build_model_architecture(x.shape[1])
         super_model.fit(x, y, epochs=N_EPOCHS, batch_size=128, callbacks=[early_stop])
 
-        return precision_scores, recall_scores, accuracy_scores, \
-               tn_scores, fp_scores, fn_scores, tp_scores, super_model
+        return np.asarray(precision_scores), np.asarray(recall_scores), np.asarray(accuracy_scores), \
+               np.asarray(tn_scores), np.asarray(fp_scores), np.asarray(fn_scores), np.asarray(tp_scores), super_model
