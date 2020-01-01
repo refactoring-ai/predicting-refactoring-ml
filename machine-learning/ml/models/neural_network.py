@@ -27,7 +27,7 @@ def build_model_architecture(x_shape):
                            keras_metrics.precision(),
                            keras_metrics.recall()])
     model.summary()
-    
+
     # early stop
     early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, mode='auto',
                                verbose=1, patience=5)

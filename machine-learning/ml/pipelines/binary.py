@@ -32,6 +32,10 @@ class BinaryClassificationPipeline(MLPipeline):
         4) Persists evaluation results and the best model
         """
 
+        # if there is no datasets, refactorings, and models to run, just stop
+        if not self._datasets or not self._refactorings or not self._models_to_run:
+            return
+
         for dataset in self._datasets:
             log("Dataset {}".format(dataset))
 
