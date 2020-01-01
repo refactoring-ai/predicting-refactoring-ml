@@ -8,7 +8,7 @@ from sklearn import metrics
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import StratifiedKFold
 
-from configs import N_CV_DNN
+from configs import N_CV_DNN, TEST
 from ml.models.base import DeepMLRefactoringModel
 
 
@@ -49,6 +49,10 @@ class NeuralNetworkDeepRefactoringModel(DeepMLRefactoringModel):
         fn_scores = []
         tp_scores = []
 
+        N_EPOCHS = 1000
+        if TEST:
+            N_EPOCHS = 10
+
         for train, test in kfold.split(x, y):
 
             x_train, x_test = x.iloc[train, :], x.iloc[test, :]
@@ -56,7 +60,7 @@ class NeuralNetworkDeepRefactoringModel(DeepMLRefactoringModel):
 
             # fit model
             early_stop, model = build_model_architecture(x.shape[1])
-            model.fit(x_train, y_train, epochs=1000, batch_size=128, callbacks=[early_stop])
+            model.fit(x_train, y_train, epochs=N_EPOCHS, batch_size=128, callbacks=[early_stop])
 
             # evaluate
             y_pred = model.predict_classes(x_test)
@@ -78,7 +82,7 @@ class NeuralNetworkDeepRefactoringModel(DeepMLRefactoringModel):
 
         # now, train the model with all the data
         early_stop, super_model = build_model_architecture(x.shape[1])
-        super_model.fit(x, y, epochs=1000, batch_size=128, callbacks=[early_stop])
+        super_model.fit(x, y, epochs=N_EPOCHS, batch_size=128, callbacks=[early_stop])
 
         return precision_scores, recall_scores, accuracy_scores, \
                tn_scores, fp_scores, fn_scores, tp_scores, super_model
