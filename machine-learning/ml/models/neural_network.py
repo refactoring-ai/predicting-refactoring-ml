@@ -38,7 +38,7 @@ def build_model_architecture(x_shape):
 class NeuralNetworkDeepRefactoringModel(DeepMLRefactoringModel):
     def run(self, x, y):
         seed = 42
-        numpy.random.seed(seed)
+        np.random.seed(seed)
 
         kfold = StratifiedKFold(n_splits=N_CV_DNN, shuffle=True, random_state=seed)
         accuracy_scores = []
