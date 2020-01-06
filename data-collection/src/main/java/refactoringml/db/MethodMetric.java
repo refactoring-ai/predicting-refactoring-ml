@@ -71,6 +71,10 @@ public class MethodMetric {
 		return shortMethodName == null ? "" : shortMethodName;
 	}
 
+	public String getFullMethodName() {
+		return fullMethodName == null ? "" : fullMethodName;
+	}
+
 	@Override
 	public String toString() {
 		return "MethodMetric{" +
@@ -98,5 +102,29 @@ public class MethodMetric {
 				", methodLambdasQty=" + methodLambdasQty +
 				", methodUniqueWordsQty=" + methodUniqueWordsQty +
 				'}';
+	}
+
+	public int getMethodWmc() {
+		return methodWmc;
+	}
+
+	public int getMethodLoc() {
+		return methodLoc;
+	}
+
+	public int getMethodTryCatchQty() {
+		return methodTryCatchQty;
+	}
+
+	public int getMethodReturnQty() {
+		return methodReturnQty;
+	}
+
+	public int getMethodVariablesQty() {
+		return methodVariablesQty;
+	}
+
+	public int getMethodMaxNestedBlocks() {
+		return methodMaxNestedBlocks;
 	}
 }

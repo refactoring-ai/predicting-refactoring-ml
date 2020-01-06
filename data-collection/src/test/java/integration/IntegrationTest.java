@@ -4,14 +4,12 @@ import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import refactoringml.App;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import refactoringml.db.Project;
+import refactoringml.db.Yes;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +26,7 @@ public class IntegrationTest {
 
 	@Before
 	public void before() {
-		sf = new HibernateConfig().getSessionFactory("jdbc:mysql://localhost/ml4se-tests?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "", true);
+		sf = new HibernateConfig().getSessionFactory("jdbc:mysql://localhost/refactoringtest?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "", true);
 		db = new Database(sf);
 		outputDir = Files.createTempDir().getAbsolutePath();
 		tmpDir = Files.createTempDir().getAbsolutePath();
@@ -42,7 +40,7 @@ public class IntegrationTest {
 		FileUtils.deleteDirectory(new File(outputDir));
 	}
 
-	@Test @Ignore
+	@Test
 	public void t1() throws Exception {
 		String repo1 = "git@github.com:apache/commons-cli.git";
 
@@ -59,7 +57,27 @@ public class IntegrationTest {
 
 		Session session = sf.openSession();
 		List<Project> projects = session.createQuery("from Project").list();
-		System.out.println(projects);
+		Assert.assertEquals(1, projects.size());
+
+		// manually verified
+		Yes instance1 = (Yes) session.createQuery("from Yes where refactoring = :refactoring and methodMetrics.fullMethodName = :method and refactorCommit = :refactorCommit")
+				.setParameter("refactoring", "Extract Method")
+				.setParameter("method", "getParsedOptionValue/1[String]")
+				.setParameter("refactorCommit", "269eae18a911f792895d0402f5dd4e7913410523")
+				.uniqueResult();
+
+		Assert.assertNotNull(instance1);
+		System.out.println(instance1);
+		Assert.assertEquals("getParsedOptionValue/1[String]", instance1.getMethodMetrics().getFullMethodName());
+		Assert.assertEquals(2, instance1.getMethodMetrics().getMethodVariablesQty());
+		Assert.assertEquals(1, instance1.getMethodMetrics().getMethodMaxNestedBlocks());
+		Assert.assertEquals(2, instance1.getMethodMetrics().getMethodReturnQty());
+		Assert.assertEquals(0, instance1.getMethodMetrics().getMethodTryCatchQty());
+
+
+
+
+
 
 
 	}
