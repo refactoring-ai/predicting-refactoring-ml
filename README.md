@@ -13,9 +13,9 @@ It currently contains the following projects:
 
 ## Paper and appendix 
 
+* The paper can be found here: https://arxiv.org/abs/2001.03338
 * The raw dataset can be found here: https://zenodo.org/record/3547639
-* The appendix with our full results can be found here: https://zenodo.org/record/3583980
-* The paper can be found here: TODO 
+* The appendix with our full results can be found here: https://zenodo.org/record/3583980 
 
 
 ## The data collection tool
