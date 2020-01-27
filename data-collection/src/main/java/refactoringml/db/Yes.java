@@ -111,4 +111,8 @@ public class Yes {
 				", processMetrics=" + processMetrics +
 				'}';
 	}
+
+	public String getRefactorCommit() {
+		return refactorCommit;
+	}
 }

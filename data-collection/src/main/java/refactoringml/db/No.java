@@ -76,4 +76,8 @@ public class No {
 				", type=" + type +
 				'}';
 	}
+
+	public String getCommit() {
+		return commit;
+	}
 }
