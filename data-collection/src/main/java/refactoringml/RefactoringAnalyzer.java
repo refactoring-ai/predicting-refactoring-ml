@@ -43,7 +43,7 @@ public class RefactoringAnalyzer {
 		this.repository = repository;
 		this.processMetrics = processMetrics;
 
-		this.tempDir = "";
+		this.tempDir = null;
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 		this.bTestFilesOnly = _bTestFilesOnly;
 	}
@@ -112,7 +112,8 @@ public class RefactoringAnalyzer {
 				String fileAfter = SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName));
 	
 				// save the current file in a temp dir to execute the CK tool
-				cleanTmpDir();
+				createTmpDir();
+
 				createAllDirs(tempDir, currentFileName);
 				try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + currentFileName))) {
 					out.print(fileBefore);
@@ -136,6 +137,8 @@ public class RefactoringAnalyzer {
 					// this is to facilitate the deep learning process
 					cleanSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
 				}//end if
+
+				cleanTmpDir();
 			}//end if
 		}//end try
     }
@@ -351,7 +354,13 @@ public class RefactoringAnalyzer {
 	}
 
 	private void cleanTmpDir() throws IOException {
-		FileUtils.deleteDirectory(new File(tempDir));
+		if(tempDir != null) {
+			FileUtils.deleteDirectory(new File(tempDir));
+			tempDir = null;
+		}
+	}
+
+	private void createTmpDir() {
 		tempDir = lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
 	}
 

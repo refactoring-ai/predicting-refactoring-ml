@@ -54,7 +54,6 @@ public class ProcessMetricsCollector {
 		this.lastCommitToProcess = lastCommitToProcess;
 		todo = new HashMap<>();
 		pmDatabase = new PMDatabase(commitThreshold);
-		this.tempDir = FilePathUtils.lastSlashDir(Files.createTempDir().getAbsolutePath());
 	}
 
 	public void addToList (RevCommit commitData, Yes yes) {
@@ -272,6 +271,10 @@ public class ProcessMetricsCollector {
 		}
 
 		try {
+
+			// create a temp dir to store the source code files and run CK there
+			createTempDir();
+
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
 			List<No> nos = codeMetrics(commitHashBackThen, commitDate);
 
@@ -280,6 +283,8 @@ public class ProcessMetricsCollector {
 			storeProcessMetric(clazz.getFileName(), nos);
 		} catch(Exception e) {
 			log.error("Failing when calculating metrics", e);
+		} finally {
+			cleanTmpDir();
 		}
 
 	}
@@ -448,16 +453,22 @@ public class ProcessMetricsCollector {
 		ps.close();
 
 		// ... as well as in the temp one, so that we can calculate the CK metrics
-		cleanTmpDir();
+
 		new File(tempDir + FilePathUtils.dirsOnly(fileName)).mkdirs();
 		ps = new PrintStream(tempDir + fileName);
 		ps.print(sourceCodeBackThen);
 		ps.close();
 	}
 
+	private void createTempDir() {
+		tempDir = FilePathUtils.lastSlashDir(Files.createTempDir().getAbsolutePath());
+	}
+
 	private void cleanTmpDir () throws IOException {
-		FileUtils.deleteDirectory(new File(tempDir));
-		tempDir = FilePathUtils.lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
+		if(tempDir!=null) {
+			FileUtils.deleteDirectory(new File(tempDir));
+			tempDir = null;
+		}
 	}
 
 }
