@@ -20,6 +20,7 @@ public class ApacheCommonsCliIntegrationTest {
 	private static String outputDir;
 	private static SessionFactory sf;
 	private static String tmpDir;
+	private static Project project;
 
 	@BeforeClass
 	public static void before() throws Exception {
@@ -32,7 +33,7 @@ public class ApacheCommonsCliIntegrationTest {
 		String repo1 = "git@github.com:apache/commons-cli.git";
 
 		Session session = sf.openSession();
-		List list = session.createQuery("from Project where gitUrl = :gitUrl").setParameter("gitUrl", repo1).list();
+		List<Project> list = session.createQuery("from Project where gitUrl = :gitUrl").setParameter("gitUrl", repo1).list();
 		if(list.isEmpty()) {
 			App app = new App("integration-test",
 					lastSlashDir(tmpDir) + "repo",
@@ -43,7 +44,9 @@ public class ApacheCommonsCliIntegrationTest {
 					"b9ccc94008c78a59695f0c77ebe4ecf284370956",
 					false);
 
-			app.run();
+			project = app.run();
+		} else {
+			project = list.get(0);
 		}
 
 	}
@@ -63,14 +66,13 @@ public class ApacheCommonsCliIntegrationTest {
 
 
 		Session session = sf.openSession();
-		List<Project> projects = session.createQuery("from Project").list();
-		Assert.assertEquals(1, projects.size());
 
 		// manually verified
-		Yes instance1 = (Yes) session.createQuery("from Yes where refactoring = :refactoring and methodMetrics.fullMethodName = :method and refactorCommit = :refactorCommit")
+		Yes instance1 = (Yes) session.createQuery("from Yes where refactoring = :refactoring and methodMetrics.fullMethodName = :method and refactorCommit = :refactorCommit and project = :project")
 				.setParameter("refactoring", "Extract Method")
 				.setParameter("method", "getParsedOptionValue/1[String]")
 				.setParameter("refactorCommit", "269eae18a911f792895d0402f5dd4e7913410523")
+				.setParameter("project", project)
 				.uniqueResult();
 
 		Assert.assertNotNull(instance1);
@@ -94,13 +96,15 @@ public class ApacheCommonsCliIntegrationTest {
 	public void t2() {
 		Session session = sf.openSession();
 
-		List<No> noList = session.createQuery("From No where type = 1 and filePath = :filePath")
+		List<No> noList = session.createQuery("From No where type = 1 and filePath = :filePath and project = :project")
 				.setParameter("filePath", "src/java/org/apache/commons/cli/Option.java")
+				.setParameter("project", project)
 				.list();
 		Assert.assertEquals(3, noList.size());
 
-		List<Yes> yesList = session.createQuery("From Yes where filePath = :filePath order by refactoringDate desc")
+		List<Yes> yesList = session.createQuery("From Yes where filePath = :filePath and project = :project order by refactoringDate desc")
 				.setParameter("filePath", "src/java/org/apache/commons/cli/Option.java")
+				.setParameter("project", project)
 				.list();
 		Assert.assertEquals(5, yesList.size());
 
@@ -118,5 +122,28 @@ public class ApacheCommonsCliIntegrationTest {
 		Assert.assertEquals("b0e1b80b6d4a10a9c9f46539bc4c7a3cce55886e", noList.get(2).getCommit());
 
 		session.close();
+	}
+
+	// check the number of test and production files as well as their LOC
+	@Test
+	public void t3() {
+
+		// the next two assertions come directly from a 'cloc .' in the project
+		Assert.assertEquals(7070L, project.getJavaLoc());
+		Assert.assertEquals(52L, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
+
+		// find . -name "*.java" | grep "/test/" | wc
+		Assert.assertEquals(29, project.getNumberOfTestFiles());
+
+		// 52 - 29
+		Assert.assertEquals(23, project.getNumberOfProductionFiles());
+
+		// cloc . --by-file | grep "/test/"
+		Assert.assertEquals(4280, project.getTestLoc());
+
+		// 7070 - 4280
+		Assert.assertEquals(2790, project.getProductionLoc());
+
+
 	}
 }

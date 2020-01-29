@@ -18,7 +18,8 @@ import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import refactoringml.db.Project;
-import refactoringml.util.LOCUtils;
+import refactoringml.util.Counter;
+import refactoringml.util.Counter.CounterResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -161,7 +162,7 @@ public class App {
 		}
 	}
 
-	public void run () throws Exception {
+	public Project run () throws Exception {
 
 		long start = System.currentTimeMillis();
 
@@ -177,25 +178,20 @@ public class App {
 		String mainBranch = discoverMainBranch(git);
 		log.debug("main branch: " + mainBranch);
 
-		// we define the threshold to consider a file as a non-refactored data point,
-		// if it is changed by 10% of the commits without being refactored.
-		// NEW CHANGE: Fixing the threshold in 50 commits
-		int numberOfCommits = numberOfCommits(git);
-		int commitThreshold = threshold; //(int) (numberOfCommits * 0.01);
-
 		String lastCommitHash = getHead(git);
 
-		long loc = LOCUtils.countJavaFiles(clonePath);
+		CounterResult counterResult = Counter.countProductionAndTestFiles(clonePath);
+		int numberOfCommits = numberOfCommits(git);
 
 		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
-				numberOfCommits, commitThreshold, loc, lastCommitHash);
+				numberOfCommits, threshold, lastCommitHash, counterResult);
 
 		db.openSession();
 		db.persist(project);
 		db.commit();
 
 
-		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, commitThreshold, filesStoragePath, lastCommitToProcess);
+		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
 		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, bTestFilesOnly);
 
 		// get all commits in the repo, and to each commit with a refactoring, extract the metrics
@@ -266,6 +262,8 @@ public class App {
 		db.openSession();
 		db.cleanProject(project);
 		db.commit();
+
+		return project;
 	}
 
 	private String getHead(Git git) throws IOException {
