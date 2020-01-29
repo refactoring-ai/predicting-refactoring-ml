@@ -76,7 +76,7 @@ public class ApacheCommonsCliIntegrationTest {
 				.uniqueResult();
 
 		Assert.assertNotNull(instance1);
-		System.out.println(instance1);
+
 		Assert.assertEquals("getParsedOptionValue/1[String]", instance1.getMethodMetrics().getFullMethodName());
 		Assert.assertEquals(2, instance1.getMethodMetrics().getMethodVariablesQty());
 		Assert.assertEquals(1, instance1.getMethodMetrics().getMethodMaxNestedBlocks());
@@ -144,6 +144,8 @@ public class ApacheCommonsCliIntegrationTest {
 		// 7070 - 4280
 		Assert.assertEquals(2790, project.getProductionLoc());
 
+		// Mac OS says 3,728,952, but the difference is small to what we get here...
+		Assert.assertEquals(3715265L, project.getProjectSizeInBytes());
 
 	}
 }

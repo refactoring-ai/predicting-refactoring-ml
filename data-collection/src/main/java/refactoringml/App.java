@@ -181,10 +181,11 @@ public class App {
 		String lastCommitHash = getHead(git);
 
 		CounterResult counterResult = Counter.countProductionAndTestFiles(clonePath);
+		long projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
 		int numberOfCommits = numberOfCommits(git);
 
 		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
-				numberOfCommits, threshold, lastCommitHash, counterResult);
+				numberOfCommits, threshold, lastCommitHash, counterResult, projectSize);
 
 		db.openSession();
 		db.persist(project);

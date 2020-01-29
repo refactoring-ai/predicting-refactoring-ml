@@ -31,6 +31,7 @@ public class Project {
 	private long numberOfTestFiles;
 	private long productionLoc;
 	private long testLoc;
+	private long projectSizeInBytes;
 
 	private int exceptionsCount;
 	private int cleanedRows;
@@ -40,7 +41,7 @@ public class Project {
 	@Deprecated // hibernate purposes
 	public Project() {}
 
-	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, int threshold, String lastCommitHash, CounterResult c) {
+	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, int threshold, String lastCommitHash, CounterResult c, long projectSizeInBytes) {
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.projectName = projectName;
@@ -53,6 +54,7 @@ public class Project {
 		this.numberOfTestFiles = c.getQtyOfTestFiles();
 		this.productionLoc = c.getLocProductionFiles();
 		this.testLoc = c.getLocTestFiles();
+		this.projectSizeInBytes = projectSizeInBytes;
 		this.javaLoc = this.productionLoc + this.testLoc;
 
 	}
@@ -91,6 +93,10 @@ public class Project {
 
 	public long getTestLoc() {
 		return testLoc;
+	}
+
+	public long getProjectSizeInBytes() {
+		return projectSizeInBytes;
 	}
 
 	@Override
