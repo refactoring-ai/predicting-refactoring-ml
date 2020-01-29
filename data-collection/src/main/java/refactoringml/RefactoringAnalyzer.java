@@ -32,16 +32,18 @@ public class RefactoringAnalyzer {
 	private Database db;
 	private Repository repository;
 	private ProcessMetricsCollector processMetrics;
+	private boolean storeFullSourceCode;
 	private String fileStorageDir;
 	private boolean bTestFilesOnly;
 	
 	private static final Logger log = Logger.getLogger(RefactoringAnalyzer.class);
 
-	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir, boolean _bTestFilesOnly) {
+	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir, boolean _bTestFilesOnly, boolean storeFullSourceCode) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.processMetrics = processMetrics;
+		this.storeFullSourceCode = storeFullSourceCode;
 
 		this.tempDir = null;
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
@@ -127,15 +129,17 @@ public class RefactoringAnalyzer {
 				if(yes!=null) {
 					// mark it as To Do for the process metrics tool
 					processMetrics.addToList(commit, yes);
-	
-					// store the before and after versions for the deep learning training
-					// note that we save the file before with the same name of the current file name,
-					// as to help in finding it (from the SQL query to the file)
-					saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
-	
-					// save also a cleaned version of the source code (using astc)
-					// this is to facilitate the deep learning process
-					cleanSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
+
+					if(storeFullSourceCode) {
+						// store the before and after versions for the deep learning training
+						// note that we save the file before with the same name of the current file name,
+						// as to help in finding it (from the SQL query to the file)
+						saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
+
+						// save also a cleaned version of the source code (using astc)
+						// this is to facilitate the deep learning process
+						cleanSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
+					}
 				}//end if
 
 				cleanTmpDir();

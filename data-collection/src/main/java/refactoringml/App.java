@@ -38,7 +38,8 @@ public class App {
 	private Database db;
 	private String lastCommitToProcess;
 	private boolean bTestFilesOnly = false;
-	
+	private boolean storeFullSourceCode;
+
 	private static final Logger log = Logger.getLogger(App.class);
 	private String datasetName;
 	private int exceptionsCount = 0;
@@ -54,8 +55,9 @@ public class App {
 	            String filesStoragePath,
 	            int threshold,
 	            Database db, 
-	            boolean _bTestFilesOnly) {
-		this(datasetName, clonePath, gitUrl, filesStoragePath, threshold, db, null, _bTestFilesOnly);
+	            boolean _bTestFilesOnly,
+	            boolean storeFullSourceCode) {
+		this(datasetName, clonePath, gitUrl, filesStoragePath, threshold, db, null, _bTestFilesOnly, storeFullSourceCode);
 
 	}
 	public App (String datasetName,
@@ -65,7 +67,9 @@ public class App {
 	            int threshold,
 	            Database db,
 	            String lastCommitToProcess,
-	            boolean _bTestFilesOnly) {
+	            boolean _bTestFilesOnly,
+	            boolean storeFullSourceCode
+	            ) {
 
 		this.datasetName = datasetName;
 		this.clonePath = clonePath;
@@ -75,6 +79,7 @@ public class App {
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
 		this.bTestFilesOnly = _bTestFilesOnly;
+		this.storeFullSourceCode = storeFullSourceCode;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -91,6 +96,7 @@ public class App {
 		String pwd;
 		int threshold;
 		boolean bTestFilesOnly;
+		boolean storeFullSourceCode;
 
 		if(test) {
 			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
@@ -102,10 +108,11 @@ public class App {
 			pwd = "";
 			threshold = 50;
 			bTestFilesOnly = false;
+			storeFullSourceCode = true;
 
 		} else {
-			if (args == null || args.length != 8) {
-				System.out.println("8 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold) (true|false: Test files only)");
+			if (args == null || args.length != 9) {
+				System.out.println("9 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold) (true|false: Test files only) (true|false: store full source code?)");
 				System.exit(-1);
 			}
 
@@ -124,6 +131,11 @@ public class App {
 			//
 			bTestFilesOnly = Boolean.parseBoolean(args[7]);
 			System.out.println("Parse 'Test Files' only: " + bTestFilesOnly);
+
+			// store full analysed source code?
+			storeFullSourceCode = Boolean.parseBoolean(args[8]);
+			System.out.println("Store full source code? " + storeFullSourceCode);
+
 		}
 
 		String newTmpDir = Files.createTempDir().getAbsolutePath();
@@ -146,7 +158,7 @@ public class App {
 
 		try {
 			new App(datasetName, clonePath, gitUrl,
-					filesStoragePath, threshold, db, bTestFilesOnly).run();
+					filesStoragePath, threshold, db, bTestFilesOnly, storeFullSourceCode).run();
 		} finally {
 			cleanTmpDir(newTmpDir);
 		}
@@ -193,7 +205,7 @@ public class App {
 
 
 		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
-		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, bTestFilesOnly);
+		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, bTestFilesOnly, storeFullSourceCode);
 
 		// get all commits in the repo, and to each commit with a refactoring, extract the metrics
 		Iterator<RevCommit> it = getAllCommits(repo);
