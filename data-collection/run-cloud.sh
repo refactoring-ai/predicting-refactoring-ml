@@ -10,20 +10,20 @@ fi
 CLASS="refactoringml.App"
 JAR_PATH=target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 REFACTORINGMINER_JAR_PATH=lib/RefactoringMiner-20190430.jar
-OUTPUT_PATH=output
-PROJECTS_CSV_PATH=$1
-BEGIN=$2
-END=$3
-URL=$4
-USER=$5
-PWD=$6
-STORAGE_MACHINE=$7
-THRESHOLD=$8
-TEST=$9
-STORE_FILES=${10}
+#OUTPUT_PATH=output
+#PROJECTS_CSV_PATH=$1
+#BEGIN=$2
+#END=$3
+#URL=$4
+#USER=$5
+#PWD=$6
+#STORAGE_MACHINE=$7
+#THRESHOLD=$8
+#TEST=$9
+#STORE_FILES=${10}
 
 
-mkdir $OUTPUT_PATH
+#mkdir $OUTPUT_PATH
 
 echo ""
 i=0
