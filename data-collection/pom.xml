@@ -32,6 +32,14 @@
 		  <version>0.3.1</version>
 	  </dependency>
 
+	  <!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
+	  <dependency>
+		  <groupId>com.rabbitmq</groupId>
+		  <artifactId>amqp-client</artifactId>
+		  <version>5.8.0</version>
+	  </dependency>
+
+
 
 	  <!-- https://mvnrepository.com/artifact/junit/junit -->
 	  <dependency>

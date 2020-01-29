@@ -4,15 +4,16 @@ import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import refactoringml.App;
 import refactoringml.db.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import static refactoringml.util.FilePathUtils.lastSlashDir;
 
 public class ApacheCommonsCliIntegrationTest {
 
@@ -29,14 +30,12 @@ public class ApacheCommonsCliIntegrationTest {
 		outputDir = Files.createTempDir().getAbsolutePath();
 		tmpDir = Files.createTempDir().getAbsolutePath();
 
-
 		String repo1 = "git@github.com:apache/commons-cli.git";
 
 		Session session = sf.openSession();
 		List<Project> list = session.createQuery("from Project where gitUrl = :gitUrl").setParameter("gitUrl", repo1).list();
 		if(list.isEmpty()) {
 			App app = new App("integration-test",
-					lastSlashDir(tmpDir) + "repo",
 					repo1,
 					outputDir,
 					10,

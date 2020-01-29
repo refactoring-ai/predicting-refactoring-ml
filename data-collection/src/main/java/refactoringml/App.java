@@ -16,7 +16,6 @@ import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.db.Database;
-import refactoringml.db.HibernateConfig;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
@@ -28,11 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import static refactoringml.util.FilePathUtils.lastSlashDir;
-import static refactoringml.util.JGitUtils.*;
+import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public class App {
 
-	private String clonePath;
 	private String gitUrl;
 	private String filesStoragePath;
 	private Database db;
@@ -50,18 +48,16 @@ public class App {
 	private int threshold;
 
 	public App (String datasetName,
-	            String clonePath,
 	            String gitUrl,
 	            String filesStoragePath,
 	            int threshold,
 	            Database db, 
 	            boolean _bTestFilesOnly,
 	            boolean storeFullSourceCode) {
-		this(datasetName, clonePath, gitUrl, filesStoragePath, threshold, db, null, _bTestFilesOnly, storeFullSourceCode);
+		this(datasetName, gitUrl, filesStoragePath, threshold, db, null, _bTestFilesOnly, storeFullSourceCode);
 
 	}
 	public App (String datasetName,
-	            String clonePath,
 	            String gitUrl,
 	            String filesStoragePath,
 	            int threshold,
@@ -72,106 +68,13 @@ public class App {
 	            ) {
 
 		this.datasetName = datasetName;
-		this.clonePath = clonePath;
 		this.gitUrl = gitUrl;
-		this.filesStoragePath = filesStoragePath;
+		this.filesStoragePath = filesStoragePath + extractProjectNameFromGitUrl(gitUrl); // add project as subfolder
 		this.threshold = threshold;
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
 		this.bTestFilesOnly = _bTestFilesOnly;
 		this.storeFullSourceCode = storeFullSourceCode;
-	}
-
-	public static void main(String[] args) throws Exception {
-
-		// do we want to get data from the vars or not?
-		// i.e., is this a local IDE test?
-		boolean test = (args == null || args.length == 0);
-
-		String gitUrl;
-		String highLevelOutputPath;
-		String datasetName;
-		String url;
-		String user;
-		String pwd;
-		int threshold;
-		boolean bTestFilesOnly;
-		boolean storeFullSourceCode;
-
-		if(test) {
-			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
-			highLevelOutputPath = "/Users/mauricioaniche/Desktop/results/";
-			datasetName = "test";
-
-			url = "jdbc:mysql://localhost:3306/refactoring2?useSSL=false";
-			user = "root";
-			pwd = "";
-			threshold = 50;
-			bTestFilesOnly = false;
-			storeFullSourceCode = true;
-
-		} else {
-			if (args == null || args.length != 9) {
-				System.out.println("9 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold) (true|false: Test files only) (true|false: store full source code?)");
-				System.exit(-1);
-			}
-
-			datasetName = args[0].trim();
-			gitUrl = args[1].trim();
-			highLevelOutputPath = lastSlashDir(args[2].trim());
-
-			url = args[3] + "?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; // our servers config.
-			user = args[4];
-			pwd = args[5];
-			threshold = Integer.parseInt(args[6]);
-			
-			//
-			//For now we can either parse test files or regular files. 
-			//Default: Regular files
-			//
-			bTestFilesOnly = Boolean.parseBoolean(args[7]);
-			System.out.println("Parse 'Test Files' only: " + bTestFilesOnly);
-
-			// store full analysed source code?
-			storeFullSourceCode = Boolean.parseBoolean(args[8]);
-			System.out.println("Store full source code? " + storeFullSourceCode);
-
-		}
-
-		String newTmpDir = Files.createTempDir().getAbsolutePath();
-		String clonePath = (!gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
-		String filesStoragePath = highLevelOutputPath; // No need for the name of the project, as the run.sh creates a folder for it already
-		new File(filesStoragePath).mkdirs();
-
-		Database db = null;
-		try {
-			db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
-
-			// do not run if the project is already in the database
-			if (db.projectExists(gitUrl)) {
-				System.out.println(String.format("Project %s already in the database", gitUrl));
-				System.exit(-1);
-			}
-		}catch(Exception e) {
-			log.error("Error when connecting to the db", e);
-		}
-
-		try {
-			new App(datasetName, clonePath, gitUrl,
-					filesStoragePath, threshold, db, bTestFilesOnly, storeFullSourceCode).run();
-		} finally {
-			cleanTmpDir(newTmpDir);
-		}
-
-    }
-
-	
-	private static void cleanTmpDir(String newTmpDir) {
-		try {
-			FileUtils.deleteDirectory(new File(newTmpDir));
-		} catch(Exception e) {
-			log.error("Failed to delete tmp dir");
-		}
 	}
 
 	public Project run () throws Exception {
@@ -181,102 +84,117 @@ public class App {
 		GitService gitService = new GitServiceImpl();
 		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
 
-		log.info("Refactoring analyzer");
-		log.info("Starting project " + gitUrl + "(clone at " + clonePath + ")");
-		final Repository repo = gitService.cloneIfNotExists(clonePath, gitUrl);
-		final Git git = Git.open(new File(lastSlashDir(clonePath) + ".git"));
+		// creates a temp dir to store the project
+		String newTmpDir = Files.createTempDir().getAbsolutePath();
+		String clonePath = (!gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
 
-		// identifies the main branch of that repo
-		String mainBranch = discoverMainBranch(git);
-		log.debug("main branch: " + mainBranch);
+		try {
 
-		String lastCommitHash = getHead(git);
-
-		CounterResult counterResult = Counter.countProductionAndTestFiles(clonePath);
-		long projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
-		int numberOfCommits = numberOfCommits(git);
-
-		Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
-				numberOfCommits, threshold, lastCommitHash, counterResult, projectSize);
-
-		db.openSession();
-		db.persist(project);
-		db.commit();
-
-
-		final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
-		final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, bTestFilesOnly, storeFullSourceCode);
-
-		// get all commits in the repo, and to each commit with a refactoring, extract the metrics
-		Iterator<RevCommit> it = getAllCommits(repo);
-		RefactoringHandler handler = getRefactoringHandler(git, refactoringAnalyzer);
-
-		boolean endFound = false;
-		while(it.hasNext() && !endFound) {
-			RevCommit currentCommit = it.next();
-
-			// did we find the last commit to process?
-			// if so, process it and then stop
-			if(currentCommit.equals(lastCommitToProcess))
-				endFound = true;
-
-			String commitHash = currentCommit.getId().getName();
-
-			log.debug("Invoking refactoringminer for commit " + commitHash);
-
-			refactoringsToProcess = null;
-			commitDataToProcess = null;
-
-			// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
-			miner.detectAtCommit(repo, null, commitHash, handler, 20);
-
-			// if timeout has happened, refactoringsToProcess and commitDataToProcess will be null
-			boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitDataToProcess != null;
-			if(thereIsRefactoringToProcess) {
-				for (Refactoring ref : refactoringsToProcess) {
-					try {
-						db.openSession();
-						refactoringAnalyzer.collectCommitData(commitDataToProcess, ref);
-						db.commit();
-					} catch (Exception e) {
-						exceptionsCount++;
-						log.error("Error when collecting commit data", e);
-						db.rollback();
-					} finally {
-						db.close();
-					}
-				}
-			} else {
-				// timeout happened, so count it as an exception
-				exceptionsCount++;
+			// creates the directory in the storage
+			if(storeFullSourceCode) {
+				new File(filesStoragePath).mkdirs();
 			}
+
+			log.info("Refactoring analyzer");
+			log.info("Starting project " + gitUrl + "(clone at " + clonePath + ")");
+			final Repository repo = gitService.cloneIfNotExists(clonePath, gitUrl);
+			final Git git = Git.open(new File(lastSlashDir(clonePath) + ".git"));
+
+			// identifies the main branch of that repo
+			String mainBranch = discoverMainBranch(git);
+			log.debug("main branch: " + mainBranch);
+
+			String lastCommitHash = getHead(git);
+
+			CounterResult counterResult = Counter.countProductionAndTestFiles(clonePath);
+			long projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
+			int numberOfCommits = numberOfCommits(git);
+
+			Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
+					numberOfCommits, threshold, lastCommitHash, counterResult, projectSize);
+
+			db.openSession();
+			db.persist(project);
+			db.commit();
+
+
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
+			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, bTestFilesOnly, storeFullSourceCode);
+
+			// get all commits in the repo, and to each commit with a refactoring, extract the metrics
+			Iterator<RevCommit> it = getAllCommits(repo);
+			RefactoringHandler handler = getRefactoringHandler(git, refactoringAnalyzer);
+
+			boolean endFound = false;
+			while (it.hasNext() && !endFound) {
+				RevCommit currentCommit = it.next();
+
+				// did we find the last commit to process?
+				// if so, process it and then stop
+				if (currentCommit.equals(lastCommitToProcess))
+					endFound = true;
+
+				String commitHash = currentCommit.getId().getName();
+
+				log.debug("Invoking refactoringminer for commit " + commitHash);
+
+				refactoringsToProcess = null;
+				commitDataToProcess = null;
+
+				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
+				miner.detectAtCommit(repo, null, commitHash, handler, 20);
+
+				// if timeout has happened, refactoringsToProcess and commitDataToProcess will be null
+				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitDataToProcess != null;
+				if (thereIsRefactoringToProcess) {
+					for (Refactoring ref : refactoringsToProcess) {
+						try {
+							db.openSession();
+							refactoringAnalyzer.collectCommitData(commitDataToProcess, ref);
+							db.commit();
+						} catch (Exception e) {
+							exceptionsCount++;
+							log.error("Error when collecting commit data", e);
+							db.rollback();
+						} finally {
+							db.close();
+						}
+					}
+				} else {
+					// timeout happened, so count it as an exception
+					exceptionsCount++;
+				}
+			}
+
+			// all refactorings were detected, now we start the second phase:
+			// collecting process metrics and examples of non-refatored code
+			log.info("Starting the collection of the process metrics and the non-refactored classes");
+			processMetrics.collect();
+
+			long end = System.currentTimeMillis();
+			log.info(String.format("Finished in %.2f minutes", ( ( end - start ) / 1000.0 / 60.0 )));
+
+			// set finished data
+			// note that if this process crashes, finisheddate will be equals to null in the database
+			// these projects must be deleted manually afterwards....
+			db.openSession();
+			project.setFinishedDate(Calendar.getInstance());
+			project.setExceptions(exceptionsCount);
+			db.update(project);
+			db.commit();
+
+			// we may have collected data from refactorings and non refactorings, but not able to collect
+			// their process metric. We thus delete these data points as we can't really use them in training.
+			// we also delete variable usages that was equals to -1 (which means, we failed to detect it for some reason)
+			db.openSession();
+			db.cleanProject(project);
+			db.commit();
+
+			return project;
+		} finally {
+			// delete the tmp dir that stores the project
+			FileUtils.deleteDirectory(new File(newTmpDir));
 		}
-
-		// all refactorings were detected, now we start the second phase:
-		// collecting process metrics and examples of non-refatored code
-		log.info("Starting the collection of the process metrics and the non-refactored classes");
-		processMetrics.collect();
-
-		long end = System.currentTimeMillis();
-		log.info(String.format("Finished in %.2f minutes", ((end-start)/1000.0/60.0)));
-
-		// set finished data
-		// note that if this process crashes, finisheddate will be equals to null in the database
-		// these projects must be deleted manually afterwards....
-		db.openSession();
-		project.setFinishedDate(Calendar.getInstance());
-		project.setExceptions(exceptionsCount);
-		db.update(project);
-		db.commit();
-
-		// we may have collected data from refactorings and non refactorings, but not able to collect
-		// their process metric. We thus delete these data points as we can't really use them in training.
-		// we also delete variable usages that was equals to -1 (which means, we failed to detect it for some reason)
-		db.openSession();
-		db.cleanProject(project);
-		db.commit();
-
-		return project;
 	}
 
 	private String getHead(Git git) throws IOException {

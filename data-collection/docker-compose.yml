@@ -1,0 +1,43 @@
+version: '3'
+services:
+  queue:
+    image: rabbitmq:3.8-rc-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: refactoring
+      MYSQL_USER: refactoring
+      MYSQL_PASSWORD: refactoring
+    ports:
+      - "3308:3306"
+    command: --default-authentication-plugin=mysql_native_password
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+  runner:
+    build: .
+    volumes:
+      - .:/data-collection
+      - ./storage:/storage
+    environment:
+      - QUEUE_HOST=localhost
+      - STORAGE_PATH=/storage
+      - REF_URL=
+      - REF_USER=
+      - REF_DBPWD=
+      - THRESHOLD=50
+      - TEST_ONLY=true
+      - STORE_FILES=false
+    depends_on:
+      - db
+      - queue
