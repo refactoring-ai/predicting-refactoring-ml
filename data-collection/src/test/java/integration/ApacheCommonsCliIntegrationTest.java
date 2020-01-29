@@ -42,7 +42,7 @@ public class ApacheCommonsCliIntegrationTest {
 					10,
 					db,
 					"b9ccc94008c78a59695f0c77ebe4ecf284370956",
-					false);
+					false, false);
 
 			project = app.run();
 		} else {
