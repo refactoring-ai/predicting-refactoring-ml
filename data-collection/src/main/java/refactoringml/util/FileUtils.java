@@ -42,17 +42,4 @@ public class FileUtils {
 
 	}
 
-	public static String[] getAllJars(String path) {
-
-		try {
-			return Files.walk(Paths.get(path))
-					.filter(Files::isRegularFile)
-					.filter(x -> !x.toAbsolutePath().toString().contains(".git"))
-					.filter(x -> x.toAbsolutePath().toString().toLowerCase().endsWith("jar"))
-					.map(x -> x.toAbsolutePath().toString())
-					.toArray(String[]::new);
-		} catch(Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 }
