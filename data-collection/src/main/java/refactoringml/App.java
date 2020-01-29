@@ -230,7 +230,7 @@ public class App {
 			// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
 			miner.detectAtCommit(repo, null, commitHash, handler, 20);
 
-			// if no timeout happened
+			// if timeout has happened, refactoringsToProcess and commitDataToProcess will be null
 			boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitDataToProcess != null;
 			if(thereIsRefactoringToProcess) {
 				for (Refactoring ref : refactoringsToProcess) {
