@@ -2,14 +2,14 @@
 
 export IFS=","
 
-if [ "$#" -ne 8 ]; then
+if [ "$#" -ne 10 ]; then
   echo "wrong usage" >&2
   exit 1
 fi
 
 CLASS="refactoringml.App"
-JAR_PATH=predicting-refactoring-ml/data-collection/target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-REFACTORINGMINER_JAR_PATH=predicting-refactoring-ml/data-collection/lib/RefactoringMiner-20190430.jar
+JAR_PATH=target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+REFACTORINGMINER_JAR_PATH=lib/RefactoringMiner-20190430.jar
 OUTPUT_PATH=output
 PROJECTS_CSV_PATH=$1
 BEGIN=$2
@@ -19,6 +19,8 @@ USER=$5
 PWD=$6
 STORAGE_MACHINE=$7
 THRESHOLD=$8
+TEST=$9
+STORE_FILES=${10}
 
 
 mkdir $OUTPUT_PATH
@@ -41,15 +43,18 @@ cat $PROJECTS_CSV_PATH | while
 
 		echo "Running refactoring analyzer"
 
-		java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD $THRESHOLD >> log.txt 2>> error.txt
-		if [ $? -eq 0 ]
+		java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $CLASS $DATASET $REPO $STORAGE_PATH $URL $USER $PWD $THRESHOLD $TEST_ONLY $STORE_FILES >> log.txt 2>> error.txt
+		if [[ $? -eq 0 ]];
 		then
-			echo "Packing the java files"
-			mv log.txt $OUTPUT_PROJECT_PATH
-			mv error.txt $OUTPUT_PROJECT_PATH
-			zip -q -r $DATASET-$PROJECT.zip $OUTPUT_PROJECT_PATH/*
-			scp $DATASET-$PROJECT.zip $STORAGE_MACHINE/$DATASET-$PROJECT.zip
-			rm $DATASET-$PROJECT.zip
+		    if [[ "$STORE_FILES" == "true" ]];
+		    then
+                echo "Packing the java files"
+                mv log.txt $OUTPUT_PROJECT_PATH
+                mv error.txt $OUTPUT_PROJECT_PATH
+                zip -q -r $DATASET-$PROJECT.zip $OUTPUT_PROJECT_PATH/*
+                scp $DATASET-$PROJECT.zip $STORAGE_MACHINE/$DATASET-$PROJECT.zip
+                rm $DATASET-$PROJECT.zip
+            fi
 		fi
 
 		echo "Deleting folder"
