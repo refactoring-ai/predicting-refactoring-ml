@@ -55,7 +55,6 @@ cat $PROJECTS_CSV_PATH | while
 		echo "Deleting folder"
 		rm -rf $OUTPUT_PROJECT_PATH
 		rm error.txt log.txt nohup.out
-		rm -rf /tmp/15*
 
 		echo ""
 		echo "#####################"
