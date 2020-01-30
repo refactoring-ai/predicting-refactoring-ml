@@ -25,12 +25,12 @@ public class ApacheCommonsCliIntegrationTest {
 
 	@BeforeClass
 	public static void before() throws Exception {
-		sf = new HibernateConfig().getSessionFactory("jdbc:mysql://localhost/refactoringtest?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "", false);
+		sf = new HibernateConfig().getSessionFactory("jdbc:mysql://localhost/refactoringtest?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", DataBaseInfo.pass, false);
 		db = new Database(sf);
 		outputDir = Files.createTempDir().getAbsolutePath();
 		tmpDir = Files.createTempDir().getAbsolutePath();
 
-		String repo1 = "git@github.com:apache/commons-cli.git";
+		String repo1 = "https://github.com/apache/commons-cli.git";
 
 		Session session = sf.openSession();
 		List<Project> list = session.createQuery("from Project where gitUrl = :gitUrl").setParameter("gitUrl", repo1).list();
