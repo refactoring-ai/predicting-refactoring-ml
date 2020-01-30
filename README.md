@@ -71,6 +71,9 @@ Configurations can be changed in the `docker-compose.yml` file. The current conf
 * The list of projects to be processed is in `projects-final.csv`. You can change it under `import->environment->FILE_TO_IMPORT`.
 * All the data is stored in a containerized MySQL database. You can directly access it via localhost:3308, root, refactoringdb. You can change it under `db` and `worker->environment->REF_URL`, `REF_USER`, and `REF_PWD`.
 * The MySQL database, the RabbitMQ queue, and the storage are all stored under the `/volumes` folder. Feel free to change where the volumes are stored.
+* The configurations of the workers (basically the same as defined in the manual execution) can be defined in `worker->environment`.
+
+Feel free to start as many workers as you want and/or your infrastructure enables you!
 
 
 ### Cleaning up the final database
