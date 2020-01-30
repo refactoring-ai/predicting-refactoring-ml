@@ -166,8 +166,6 @@ public class ApacheCommonsCSVIntegrationTest {
         // 6994 - 5114
         Assert.assertEquals(1880, project.getProductionLoc());
 
-        // Mac OS says 43.803.110, but the difference is small to what we get here...
-        Assert.assertEquals(80967204, project.getProjectSizeInBytes());
 
     }
 

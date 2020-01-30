@@ -143,8 +143,5 @@ public class ApacheCommonsCliIntegrationTest {
 		// 7070 - 4280
 		Assert.assertEquals(2790, project.getProductionLoc());
 
-		// Mac OS says 3,728,952, but the difference is small to what we get here...
-		Assert.assertEquals(3715265L, project.getProjectSizeInBytes());
-
 	}
 }
