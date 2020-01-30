@@ -13,15 +13,17 @@ import java.util.concurrent.TimeoutException;
 public class RunImport {
 
 
-	public static void main(String[] args) throws IOException, TimeoutException {
+	public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
 
-		String host = "localhost";
-		String file = "projects-final.csv";
+		// we gotta wait 2 minutes before the queue is up...
+		// Docker stuff...
+		Thread.sleep(1000 * 60 * 1);
 
-		if(args!=null && args.length > 0){
-			host = args[0];
-			file = args[1];
-		}
+		String host = System.getenv("QUEUE_HOST");
+		String file = System.getenv("FILE_TO_IMPORT");
+
+		System.out.println("Host: " + host);
+		System.out.println("File: " + file);
 
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(host);

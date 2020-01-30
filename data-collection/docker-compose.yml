@@ -7,16 +7,16 @@ services:
       - "5672:5672"
 
   db:
-    image: mysql
+    image: mariadb:10.4
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: refactoring
-      MYSQL_USER: refactoring
-      MYSQL_PASSWORD: refactoring
+      MYSQL_ROOT_PASSWORD: refactoring
+      MYSQL_DATABASE: refactoringdb
     ports:
       - "3308:3306"
-    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./mysql:/var/lib/mysql
+
 
   adminer:
     image: adminer
@@ -24,17 +24,27 @@ services:
     ports:
       - "8080:8080"
 
-  runner:
+  import:
+    build: .
+    volumes:
+      - .:/data-collection
+    environment:
+      - TASK=import
+      - FILE_TO_IMPORT=projects-final.csv
+      - QUEUE_HOST=queue
+
+  worker:
     build: .
     volumes:
       - .:/data-collection
       - ./storage:/storage
     environment:
-      - QUEUE_HOST=localhost
+      - TASK=worker
+      - QUEUE_HOST=queue
       - STORAGE_PATH=/storage
-      - REF_URL=
-      - REF_USER=
-      - REF_DBPWD=
+      - REF_URL=jdbc:mysql://db/refactoringdb?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
+      - REF_USER=root
+      - REF_DBPWD=refactoring
       - THRESHOLD=50
       - TEST_ONLY=true
       - STORE_FILES=false

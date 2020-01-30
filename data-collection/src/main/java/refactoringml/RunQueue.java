@@ -36,6 +36,11 @@ public class RunQueue {
 
 	public static void main(String[] args) throws Exception {
 
+		// we gotta wait 3 minutes before the queue is up and the db is up...
+		// Docker stuf...
+		Thread.sleep(1000 * 60 * 3);
+
+
 		String queueHost = "localhost";
 		String url = "jdbc:mysql://localhost:3306/refactoringtest?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
 		String user = "root";
@@ -47,14 +52,14 @@ public class RunQueue {
 
 		boolean test = true;
 		if(!test) {
-			queueHost = System.getProperty("QUEUE_HOST");
-			url = System.getProperty("REF_URL");
-			user = System.getProperty("REF_USER");
-			pwd = System.getProperty("REF_DBPWD");
-			threshold = Integer.parseInt(System.getProperty("THRESHOLD"));
-			bTestFilesOnly = Boolean.parseBoolean(System.getProperty("TEST_ONLY"));
-			storeFullSourceCode = Boolean.parseBoolean(System.getProperty("STORE_FILES"));
-			storagePath = System.getProperty("STORAGE_PATH");
+			queueHost = System.getenv("QUEUE_HOST");
+			url = System.getenv("REF_URL");
+			user = System.getenv("REF_USER");
+			pwd = System.getenv("REF_DBPWD");
+			threshold = Integer.parseInt(System.getenv("THRESHOLD"));
+			bTestFilesOnly = Boolean.parseBoolean(System.getenv("TEST_ONLY"));
+			storeFullSourceCode = Boolean.parseBoolean(System.getenv("STORE_FILES"));
+			storagePath = System.getenv("STORAGE_PATH");
 		}
 
 		new RunQueue(queueHost, url, user, pwd, storagePath, threshold, bTestFilesOnly, storeFullSourceCode).run();
