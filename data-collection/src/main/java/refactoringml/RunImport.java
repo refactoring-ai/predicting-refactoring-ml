@@ -1,5 +1,6 @@
 package refactoringml;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -31,7 +32,8 @@ public class RunImport {
 		try (Connection connection = factory.newConnection();
 		     Channel channel = connection.createChannel()) {
 
-			channel.queueDeclare(RunQueue.QUEUE_NAME, false, false, false, null);
+			// the first true makes the queue durable, i.e., it survives even if rabbitmq restarts
+			channel.queueDeclare(RunQueue.QUEUE_NAME, true, false, false, null);
 
 			List<String> lines = FileUtils.readLines(new File(file));
 			for(String line : lines) {
