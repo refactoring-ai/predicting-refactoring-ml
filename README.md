@@ -72,7 +72,7 @@ Configurations can be changed in the `docker-compose.yml` file. The current conf
 * All the data is stored in a containerized MySQL database. You can directly access it via localhost:3308, root, refactoringdb. You can change it under `db` and `worker->environment->REF_URL`, `REF_USER`, and `REF_PWD`.
 * The MySQL database, the RabbitMQ queue, and the storage are all stored under the `/volumes` folder. Feel free to change where the volumes are stored.
 * The configurations of the workers (basically the same as defined in the manual execution) can be defined in `worker->environment`.
-
+* `http://localhost:15672` takes you to the RabbitMQ admin (user: guest, pwd:guest) and `localhost:8080` takes you to adminer, a simple DB interface.
 Feel free to start as many workers as you want and/or your infrastructure enables you!
 
 
