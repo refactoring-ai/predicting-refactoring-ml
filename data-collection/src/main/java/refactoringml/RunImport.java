@@ -1,9 +1,6 @@
 package refactoringml;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.*;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -16,7 +13,7 @@ public class RunImport {
 
 	public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
 
-		// we gotta wait 2 minutes before the queue is up...
+		// we gotta wait a few minutes before the queue is up...
 		// Docker stuff...
 		Thread.sleep(1000 * 60 * 1);
 
@@ -25,6 +22,11 @@ public class RunImport {
 
 		System.out.println("Host: " + host);
 		System.out.println("File: " + file);
+
+		if(file.trim().isEmpty()) {
+			System.out.println("No files to import");
+			System.exit(0);
+		}
 
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(host);
@@ -38,7 +40,7 @@ public class RunImport {
 			List<String> lines = FileUtils.readLines(new File(file));
 			for(String line : lines) {
 				String message = line;
-				channel.basicPublish("", RunQueue.QUEUE_NAME, null, message.getBytes());
+				channel.basicPublish("", RunQueue.QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
 				System.out.println(" [x] Sent '" + message + "'");
 			}
 

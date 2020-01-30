@@ -10,12 +10,12 @@ REFACTORINGMINER_JAR_PATH=lib/RefactoringMiner-20190430.jar
 if [ "$TASK" = "worker" ]
 then
 
-echo "Starting the worker in 3 minutes"
+echo "Starting the worker soon"
 java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $QUEUE_CLASS
 
 else
 
-echo "Starting the import in 2 minutes"
+echo "Starting the import soon"
 java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $IMPORT_CLASS
 
 fi

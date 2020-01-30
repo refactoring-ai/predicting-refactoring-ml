@@ -32,7 +32,7 @@ services:
       - .:/data-collection
     environment:
       - TASK=import
-      - FILE_TO_IMPORT=projects-final.csv
+      - FILE_TO_IMPORT=
       - QUEUE_HOST=queue
     depends_on:
       - queue
@@ -55,3 +55,4 @@ services:
     depends_on:
       - db
       - queue
+      - import

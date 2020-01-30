@@ -63,7 +63,8 @@ git clone https://github.com/mauricioaniche/predicting-refactoring-ml.git
 cd predicting-refactoring-ml/data-collection
 mvn clean compile package
 docker-compose build
-docker-compose up
+docker-compose up <-- single worker
+docker-compose up --scale worker=N <-- N workers
 ```
 
 Configurations can be changed in the `docker-compose.yml` file. The current configurations are:
@@ -75,6 +76,7 @@ Configurations can be changed in the `docker-compose.yml` file. The current conf
 * `http://localhost:15672` takes you to the RabbitMQ admin (user: guest, pwd:guest) and `localhost:8080` takes you to adminer, a simple DB interface.
 Feel free to start as many workers as you want and/or your infrastructure enables you!
 
+_Tip:_ If you are restarting everything, make sure to not import the projects again. Otherwise, you will have duplicated entries. Simply leave the file name blank in `import -> environment -> FILE_TO_IMPORT`.
 
 ### Cleaning up the final database
 
