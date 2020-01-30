@@ -25,7 +25,7 @@ public class ApacheCommonsCliIntegrationTest {
 
 	@BeforeClass
 	public static void before() throws Exception {
-		sf = new HibernateConfig().getSessionFactory("jdbc:mysql://localhost/refactoringtest?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", DataBaseInfo.pass, false);
+		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, false);
 		db = new Database(sf);
 		outputDir = Files.createTempDir().getAbsolutePath();
 		tmpDir = Files.createTempDir().getAbsolutePath();
