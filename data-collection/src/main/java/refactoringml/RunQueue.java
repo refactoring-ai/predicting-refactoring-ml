@@ -38,7 +38,7 @@ public class RunQueue {
 
 		// we gotta wait 3 minutes before the queue is up and the db is up...
 		// Docker stuf...
-		Thread.sleep(1000 * 60 * 3);
+		Thread.sleep(1000 * 60 * 2);
 
 
 		String queueHost = "localhost";
@@ -50,7 +50,7 @@ public class RunQueue {
 		boolean storeFullSourceCode = true;
 		String storagePath = "/Users/mauricioaniche/Desktop/results/";
 
-		boolean test = true;
+		boolean test = false;
 		if(!test) {
 			queueHost = System.getenv("QUEUE_HOST");
 			url = System.getenv("REF_URL");
@@ -61,6 +61,14 @@ public class RunQueue {
 			storeFullSourceCode = Boolean.parseBoolean(System.getenv("STORE_FILES"));
 			storagePath = System.getenv("STORAGE_PATH");
 		}
+
+		log.info("Queue host: " + queueHost);
+		log.info("URL: " + url);
+		log.info("User: " + user);
+		log.info("Threshold: " + threshold);
+		log.info("Test files only?: " + bTestFilesOnly);
+		log.info("Store full code?: " + storeFullSourceCode);
+		log.info("Storage path: " + storagePath);
 
 		new RunQueue(queueHost, url, user, pwd, storagePath, threshold, bTestFilesOnly, storeFullSourceCode).run();
 

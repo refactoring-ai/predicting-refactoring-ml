@@ -5,6 +5,8 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
+    volumes:
+      - ./volumes/rabbitmq:/var/lib/rabbitmq
 
   db:
     image: mariadb:10.4
@@ -15,7 +17,7 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./volumes/mysql:/var/lib/mysql
 
 
   adminer:
@@ -37,12 +39,12 @@ services:
     build: .
     volumes:
       - .:/data-collection
-      - ./storage:/storage
+      - ./volumes/storage:/storage
     environment:
       - TASK=worker
       - QUEUE_HOST=queue
       - STORAGE_PATH=/storage
-      - REF_URL=jdbc:mysql://db/refactoringdb?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
+      - REF_URL=jdbc:mysql://db:3306/refactoringdb?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
       - REF_USER=root
       - REF_DBPWD=refactoring
       - THRESHOLD=50
