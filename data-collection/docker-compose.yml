@@ -34,6 +34,8 @@ services:
       - TASK=import
       - FILE_TO_IMPORT=projects-final.csv
       - QUEUE_HOST=queue
+    depends_on:
+      - queue
 
   worker:
     build: .
