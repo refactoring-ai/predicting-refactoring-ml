@@ -15,6 +15,8 @@ public class CKUtilsTest {
 	public void methodAlreadyClean() {
 		Assert.assertEquals("method/2[int]", CKUtils.simplifyFullName("method/2[int]"));
 		Assert.assertEquals("method/2[int,double]", CKUtils.simplifyFullName("method/2[int,double]"));
+
+		Assert.assertEquals("CSVRecord/5[String,Map,String,long,long]", CKUtils.simplifyFullName("CSVRecord/5[String,Map,String,long,long]"));
 	}
 
 	@Test
@@ -31,7 +33,7 @@ public class CKUtilsTest {
 	}
 
 	@Test
-	public void exampleFromCommonsCsv() {
+	public void mixOfArraysAndGenerics_exampleFromCommonsCsv() {
 		String simplified = CKUtils.simplifyFullName("CSVRecord/5[java.lang.String[],java.util.Map<java.lang.String,java.lang.Integer>,java.lang.String,long,long]");
 		Assert.assertEquals("CSVRecord/5[String,Map,String,long,long]", simplified);
 	}
