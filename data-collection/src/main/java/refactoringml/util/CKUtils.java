@@ -16,7 +16,6 @@ public class CKUtils {
 		String rightPart = fullName.substring(fullName.indexOf("[") + 1, fullName.length()-1);
 
 		rightPart = cleanGenerics(rightPart);
-		rightPart = rightPart.replace("[]", ""); // RefactoringMiner misses arrays sometimes
 
 		String[] parameters = rightPart.split(",");
 		String cleanParams = Arrays.stream(parameters).map(p -> {

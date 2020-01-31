@@ -98,7 +98,13 @@ public class RefactoringUtils {
 
 		int parameterCount  = parameters.size();
 		List<String> parameterTypes = new ArrayList<>();
-		parameters.forEach(param -> parameterTypes.add(param.getClassType()));
+		parameters.forEach(param -> {
+			String type = param.getClassType();
+			for(int i = 0; i < param.getArrayDimension(); ++i) {
+				type +="[]";
+			}
+
+			parameterTypes.add(type); });
 
 		return String.format("%s/%d%s%s%s",
 				methodName,
