@@ -43,7 +43,7 @@ public class App {
 	private int exceptionsCount = 0;
 
 	
-	RevCommit commitDataToProcess;
+	String commitIdToProcess;
 	List<Refactoring> refactoringsToProcess;
 	private int threshold;
 
@@ -139,18 +139,18 @@ public class App {
 				log.debug("Invoking refactoringminer for commit " + commitHash);
 
 				refactoringsToProcess = null;
-				commitDataToProcess = null;
+				commitIdToProcess = null;
 
 				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
-				miner.detectAtCommit(repo, null, commitHash, handler, 20);
+				miner.detectAtCommit(repo, commitHash, handler, 20);
 
-				// if timeout has happened, refactoringsToProcess and commitDataToProcess will be null
-				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitDataToProcess != null;
+				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
+				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
 				if (thereIsRefactoringToProcess) {
 					for (Refactoring ref : refactoringsToProcess) {
 						try {
 							db.openSession();
-							refactoringAnalyzer.collectCommitData(commitDataToProcess, ref);
+							refactoringAnalyzer.collectCommitData(currentCommit, ref);
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
@@ -204,8 +204,8 @@ public class App {
 	private RefactoringHandler getRefactoringHandler(Git git, RefactoringAnalyzer refactoringAnalyzer) {
 		return new RefactoringHandler() {
 				@Override
-				public void handle(RevCommit commitData, List<Refactoring> refactorings) {
-					commitDataToProcess = commitData;
+				public void handle(String commitId, List<Refactoring> refactorings) {
+					commitIdToProcess = commitId;
 					refactoringsToProcess = refactorings;
 				}
 

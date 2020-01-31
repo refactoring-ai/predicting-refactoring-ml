@@ -19,7 +19,10 @@ import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Optional;
 
 import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
@@ -101,6 +104,11 @@ public class RefactoringAnalyzer {
 			String oldFileName = entry.getOldPath();
 			String currentFileName = entry.getNewPath();
 
+			if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
+					log.info("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
+			}
+
+
 			boolean refactoringIsInATestFile = isTestFile(oldFileName) || isTestFile(currentFileName);
 			
 			//
@@ -124,8 +132,14 @@ public class RefactoringAnalyzer {
 				// generate metric for the refactored class
 				Calendar commitTime = JGitUtils.getGregorianCalendar(commit);
 	
-				Yes yes = calculateCkMetrics(commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
-	
+				Yes yes = calculateCkMetrics(refactoredClass, commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
+
+				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
+					if(yes==null) {
+						log.info("[TRACK] YES instance not created!");
+					}
+
+				}
 				if(yes!=null) {
 					// mark it as To Do for the process metrics tool
 					processMetrics.addToList(commit, yes);
@@ -215,12 +229,12 @@ public class RefactoringAnalyzer {
 		after.close();
 	}
 
-	private Yes calculateCkMetrics(String refactorCommit, Calendar refactoringDate, Refactoring refactoring, String parentCommit) {
+	private Yes calculateCkMetrics(String refactoredClass, String refactorCommit, Calendar refactoringDate, Refactoring refactoring, String parentCommit) {
 		final List<Yes> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 
-			if(ck.isError())
-				throw new RuntimeException("CK failed in " + ck.getFile() + ": " + ck.getErrorMessage());
+			if(!ck.getClassName().equals(refactoredClass))
+				return;
 
 			// collect the class level metrics
 			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
@@ -275,6 +289,10 @@ public class RefactoringAnalyzer {
 
 				if(!ckMethod.isPresent()) {
 					// for some reason we did not find the method, let's remove it from the list.
+					log.error("CK did not find the refactored method: " + fullRefactoredMethod);
+
+					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
+					log.error("All methods in CK: " + methods);
 					return;
 				} else {
 

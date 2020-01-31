@@ -120,10 +120,10 @@ public class RefactoringUtils {
 			return convertedRefactoring.getOriginalOperation();
 		}
 
-		if(refactoring instanceof ExtractAndMoveOperationRefactoring) {
-			ExtractAndMoveOperationRefactoring convertedRefactoring = (ExtractAndMoveOperationRefactoring) refactoring;
-			return convertedRefactoring.getExtractedOperation();
-		}
+//		if(refactoring instanceof ExtractAndMoveOperationRefactoring) {
+//			ExtractAndMoveOperationRefactoring convertedRefactoring = (ExtractAndMoveOperationRefactoring) refactoring;
+//			return convertedRefactoring.getExtractedOperation();
+//		}
 
 		if(refactoring instanceof ExtractOperationRefactoring) {
 			ExtractOperationRefactoring convertedRefactoring = (ExtractOperationRefactoring) refactoring;

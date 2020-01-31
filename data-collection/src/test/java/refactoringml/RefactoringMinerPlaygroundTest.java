@@ -25,7 +25,7 @@ public class RefactoringMinerPlaygroundTest {
 		Git git = Git.open(new File("/Users/mauricioaniche/Desktop/commons-lang"));
 
 
-		miner.detectAtCommit(git.getRepository(), null, commit, new RefactoringHandler() {
+		miner.detectAtCommit(git.getRepository(), commit, new RefactoringHandler() {
 			@Override
 			public boolean skipCommit(String commitId) {
 				return super.skipCommit(commitId);

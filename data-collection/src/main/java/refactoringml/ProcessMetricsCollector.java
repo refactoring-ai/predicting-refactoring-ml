@@ -132,6 +132,11 @@ public class ProcessMetricsCollector {
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
 		for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
+
+			if(TrackDebugMode.ACTIVE && pm.getFileName().equals(TrackDebugMode.FILE_TO_TRACK)) {
+				log.info("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
+			}
+
 			outputNonRefactoredClass(pm);
 
 			// we then reset the counter, and start again.
@@ -152,9 +157,15 @@ public class ProcessMetricsCollector {
 			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
 				String fileName = entry.getPath(null);
 
+				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
+					log.info("[TRACK] File was changed in commit " + commit.getId().getName() + ", updating process metrics");
+				}
+
+
+				// TODO: future optimization: we can only store either tests or production here
+				// as to reduce memory consumption
 				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
-				boolean isATestFile = RefactoringUtils.isTestFile(fileName);
-				if (!isAJavaFile || isATestFile) {
+				if (!isAJavaFile) {
 					continue;
 				}
 
@@ -189,6 +200,11 @@ public class ProcessMetricsCollector {
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
 				currentClazz.increaseCounter();
+
+				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
+					log.info("[TRACK] Counter increased to " + currentClazz.counter());
+				}
+
 			}
 		}
 	}
@@ -203,6 +219,10 @@ public class ProcessMetricsCollector {
 			Yes yes = db.findYes(yesId);
 
 			String fileName = yes.getFilePath();
+
+			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
+				log.info("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName());
+			}
 
 			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
 			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
@@ -225,6 +245,11 @@ public class ProcessMetricsCollector {
 			currentProcessMetrics.resetCounter(commit.getName(), JGitUtils.getGregorianCalendar(commit));
 
 			refactoredClasses.add(fileName);
+
+			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
+				log.info("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved() + " and counter resetted");
+			}
+
 		}
 
 		return refactoredClasses;
@@ -294,11 +319,6 @@ public class ProcessMetricsCollector {
 		List<No> nos = new ArrayList<>();
 
 		new CK().calculate(tempDir, ck -> {
-
-			if(ck.isError()) {
-				log.error("CK failed: " + ck.getClassName());
-				throw new RuntimeException("CK failed: " + ck.getFile());
-			}
 
 			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
 					ck.getWmc(),

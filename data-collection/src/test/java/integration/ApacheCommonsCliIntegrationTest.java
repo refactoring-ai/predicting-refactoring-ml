@@ -25,28 +25,22 @@ public class ApacheCommonsCliIntegrationTest {
 
 	@BeforeClass
 	public static void before() throws Exception {
-		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, false);
+		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, true);
 		db = new Database(sf);
 		outputDir = Files.createTempDir().getAbsolutePath();
 		tmpDir = Files.createTempDir().getAbsolutePath();
 
 		String repo1 = "https://github.com/apache/commons-cli.git";
 
-		Session session = sf.openSession();
-		List<Project> list = session.createQuery("from Project where gitUrl = :gitUrl").setParameter("gitUrl", repo1).list();
-		if(list.isEmpty()) {
-			App app = new App("integration-test",
-					repo1,
-					outputDir,
-					10,
-					db,
-					"b9ccc94008c78a59695f0c77ebe4ecf284370956",
-					false, false);
+		App app = new App("integration-test",
+				repo1,
+				outputDir,
+				10,
+				db,
+				"b9ccc94008c78a59695f0c77ebe4ecf284370956",
+				false, false);
 
-			project = app.run();
-		} else {
-			project = list.get(0);
-		}
+		project = app.run();
 
 	}
 

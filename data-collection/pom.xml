@@ -29,7 +29,7 @@
 	  <dependency>
 		  <groupId>com.github.mauricioaniche</groupId>
 		  <artifactId>ck</artifactId>
-		  <version>0.3.1</version>
+		  <version>0.4.4</version>
 	  </dependency>
 
 	  <!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
@@ -55,7 +55,7 @@
 		  <artifactId>refactoringminer</artifactId>
 		  <version>1.0</version>
 		  <scope>system</scope>
-		  <systemPath>${project.basedir}/lib/RefactoringMiner-20190430.jar</systemPath>
+		  <systemPath>${project.basedir}/lib/RefactoringMiner-20200131.jar</systemPath>
 	  </dependency>
 
 
@@ -173,9 +173,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>9</source>
-					<target>9</target>
-					<release>10</release>
+					<source>11</source>
+					<target>11</target>
+					<release>11</release>
 				</configuration>
 			</plugin>
 			<plugin>

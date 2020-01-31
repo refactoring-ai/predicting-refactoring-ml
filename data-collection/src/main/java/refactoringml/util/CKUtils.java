@@ -15,8 +15,12 @@ public class CKUtils {
 		String leftPart = fullName.substring(0, fullName.indexOf("["));
 		String rightPart = fullName.substring(fullName.indexOf("[") + 1, fullName.length()-1);
 
+		rightPart = cleanGenerics(rightPart);
+		rightPart = rightPart.replace("[]", ""); // RefactoringMiner misses arrays sometimes
+
 		String[] parameters = rightPart.split(",");
 		String cleanParams = Arrays.stream(parameters).map(p -> {
+
 			if (!p.contains("."))
 				return p;
 			String[] splitted = p.split("\\.");
@@ -28,5 +32,13 @@ public class CKUtils {
 				parameters.length > 0 ? cleanParams : "",
 				parameters.length > 0 ? "]" : "");
 
+	}
+
+	// we replace the $ that appears in the name of a class when there is a subclass, e.g., A$B becomes A.B
+	// we remove generics, e.g., A<B, C> becomes A
+	// Why? Because the way JDT resolves (and stringuifies) class names in TypeDeclarations
+	// is different from the way it resolves (and stringuifies) in MethodBinding...
+	private static String cleanGenerics(String clazzName) {
+		return clazzName.replaceAll("\\$", "\\.").replaceAll("<.*>", "").trim();
 	}
 }

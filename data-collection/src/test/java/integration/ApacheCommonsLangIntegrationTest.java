@@ -25,28 +25,22 @@ public class ApacheCommonsLangIntegrationTest {
 
     @BeforeClass
     public static void before() throws Exception {
-        sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, false);
+        sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, true);
         db = new Database(sf);
         outputDir = Files.createTempDir().getAbsolutePath();
         tmpDir = Files.createTempDir().getAbsolutePath();
 
         String repo1 = "https://www.github.com/apache/commons-lang.git";
 
-        Session session = sf.openSession();
-        List<Project> list = session.createQuery("from Project where gitUrl = :gitUrl").setParameter("gitUrl", repo1).list();
-        if(list.isEmpty()) {
-            App app = new App("integration-test",
-                    repo1,
-                    outputDir,
-                    10,
-                    db,
-                    "2ea44b2adae8da8e3e7f55cc226479f9431feda9",
-                    false, false);
+        App app = new App("integration-test",
+                repo1,
+                outputDir,
+                10,
+                db,
+                "2ea44b2adae8da8e3e7f55cc226479f9431feda9",
+                false, false);
 
-            project = app.run();
-        } else {
-            project = list.get(0);
-        }
+        project = app.run();
 
     }
 
