@@ -91,6 +91,8 @@ public class RefactoringUtils {
 				isVariableLevelRefactoring(refactoring);
 	}
 
+	// TODO: maybe in here we can find a way to add the full qualified names of types
+	// one needs to explore this 'UMLOperation' object a bit more
 	public static String fullMethodName(UMLOperation operation) {
 
 		String methodName = operation.getName();
