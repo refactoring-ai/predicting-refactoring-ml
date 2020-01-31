@@ -118,7 +118,7 @@ public class App {
 			db.commit();
 
 
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess, bTestFilesOnly);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, bTestFilesOnly, storeFullSourceCode);
 
 			// get all commits in the repo, and to each commit with a refactoring, extract the metrics

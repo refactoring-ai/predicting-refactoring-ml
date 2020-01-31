@@ -38,6 +38,7 @@ public class ProcessMetricsCollector {
 	private Repository repository;
 	private String fileStoragePath;
 	private String lastCommitToProcess;
+	private boolean bTestFilesOnly;
 
 	private PMDatabase pmDatabase;
 
@@ -45,13 +46,14 @@ public class ProcessMetricsCollector {
 	private String branch;
 
 	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch, int commitThreshold,
-	                               String fileStoragePath, String lastCommitToProcess) {
+	                               String fileStoragePath, String lastCommitToProcess, boolean bTestFilesOnly) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		this.lastCommitToProcess = lastCommitToProcess;
+		this.bTestFilesOnly = bTestFilesOnly;
 		todo = new HashMap<>();
 		pmDatabase = new PMDatabase(commitThreshold);
 	}
@@ -162,10 +164,11 @@ public class ProcessMetricsCollector {
 				}
 
 
-				// TODO: future optimization: we can only store either tests or production here
-				// as to reduce memory consumption
+				// do not collect these numbers if not a java file
+				// and if not either test or production (according to the user choice)
 				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
-				if (!isAJavaFile) {
+				boolean testOrProduction = (RefactoringUtils.isTestFile(fileName) == bTestFilesOnly);
+				if (!isAJavaFile || !testOrProduction) {
 					continue;
 				}
 

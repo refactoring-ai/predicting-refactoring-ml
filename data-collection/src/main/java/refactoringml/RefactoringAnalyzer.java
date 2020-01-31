@@ -134,12 +134,6 @@ public class RefactoringAnalyzer {
 	
 				Yes yes = calculateCkMetrics(refactoredClass, commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
 
-				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-					if(yes==null) {
-						log.info("[TRACK] YES instance not created!");
-					}
-
-				}
 				if(yes!=null) {
 					// mark it as To Do for the process metrics tool
 					processMetrics.addToList(commit, yes);
@@ -154,7 +148,13 @@ public class RefactoringAnalyzer {
 						// this is to facilitate the deep learning process
 						cleanSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
 					}
-				}//end if
+				} else {
+					log.error("YES was not created. CK did not find the class, maybe?");
+
+					if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
+						log.info("[TRACK] YES instance not created!");
+					}
+				}
 
 				cleanTmpDir();
 			}//end if
