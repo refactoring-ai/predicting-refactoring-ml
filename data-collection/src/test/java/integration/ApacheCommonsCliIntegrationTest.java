@@ -4,10 +4,7 @@ import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import refactoringml.App;
 import refactoringml.db.*;
 
@@ -15,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+@Ignore
 public class ApacheCommonsCliIntegrationTest {
 
 	private static Database db;
