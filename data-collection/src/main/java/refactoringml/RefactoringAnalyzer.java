@@ -284,7 +284,7 @@ public class RefactoringAnalyzer {
 			if(isMethodLevelRefactoring(refactoring) || isVariableLevelRefactoring(refactoring)) {
 				String fullRefactoredMethod = RefactoringUtils.fullMethodName(getRefactoredMethod(refactoring));
 
-				Optional<CKMethodResult> ckMethod = ck.getMethods().stream().filter(x -> CKUtils.simplifyFullName(x.getMethodName()).equals(fullRefactoredMethod))
+				Optional<CKMethodResult> ckMethod = ck.getMethods().stream().filter(x -> CKUtils.simplifyFullName(x.getMethodName().toLowerCase()).equals(fullRefactoredMethod.toLowerCase()))
 						.findFirst();
 
 				if(!ckMethod.isPresent()) {
