@@ -36,7 +36,7 @@ public class ApacheCommonsLangIntegrationTest {
                 10,
                 db,
                 "2ea44b2adae8da8e3e7f55cc226479f9431feda9",
-                false, false);
+                false);
 
         project = app.run();
 

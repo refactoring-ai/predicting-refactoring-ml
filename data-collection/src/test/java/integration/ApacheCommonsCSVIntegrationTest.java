@@ -41,7 +41,7 @@ public class ApacheCommonsCSVIntegrationTest {
                 50,
                 db,
                 "70092bb303af69b09bf3978b24c1faa87c909e3c",
-                false, false);
+                false);
 
         project = app.run();
 
