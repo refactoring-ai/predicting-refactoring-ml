@@ -1,10 +1,12 @@
 package refactoringml.db;
 
+import refactoringml.util.RefactoringUtils;
+
 import javax.persistence.*;
 import java.util.Calendar;
 
 @Entity
-@Table(name = "no", indexes = {@Index(columnList = "project_id"), @Index(columnList = "type")})
+@Table(name = "no", indexes = {@Index(columnList = "project_id"), @Index(columnList = "type"), @Index(columnList = "isTest")})
 public class No {
 
 	@Id
@@ -21,6 +23,8 @@ public class No {
 
 	private String filePath;
 	private String className;
+	private boolean isTest;
+
 
 	@Embedded
 	private ClassMetric classMetrics;
@@ -54,6 +58,8 @@ public class No {
 		this.variableMetrics = variableMetrics;
 		this.fieldMetrics = fieldMetrics;
 		this.type = type;
+
+		this.isTest = RefactoringUtils.isTestFile(this.filePath);
 	}
 
 	public void setProcessMetrics(ProcessMetrics processMetrics) {

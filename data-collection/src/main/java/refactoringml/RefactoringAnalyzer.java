@@ -37,11 +37,10 @@ public class RefactoringAnalyzer {
 	private ProcessMetricsCollector processMetrics;
 	private boolean storeFullSourceCode;
 	private String fileStorageDir;
-	private boolean bTestFilesOnly;
-	
+
 	private static final Logger log = Logger.getLogger(RefactoringAnalyzer.class);
 
-	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir, boolean _bTestFilesOnly, boolean storeFullSourceCode) {
+	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir, boolean storeFullSourceCode) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
@@ -50,7 +49,6 @@ public class RefactoringAnalyzer {
 
 		this.tempDir = null;
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
-		this.bTestFilesOnly = _bTestFilesOnly;
 	}
 
 	public void collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
@@ -109,56 +107,51 @@ public class RefactoringAnalyzer {
 			}
 
 
-			boolean refactoringIsInATestFile = isTestFile(oldFileName) || isTestFile(currentFileName);
-			
 			//
 			//Match filter 
 			//Either the test file or regular file based on the filter value.
 			//*We can do it better but for now let's get the results first.*    
 			//
-			if(refactoringIsInATestFile == bTestFilesOnly)
-			{	
-				String fileBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
-				String fileAfter = SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName));
-	
-				// save the current file in a temp dir to execute the CK tool
-				createTmpDir();
+			String fileBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
+			String fileAfter = SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName));
 
-				createAllDirs(tempDir, currentFileName);
-				try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + currentFileName))) {
-					out.print(fileBefore);
+			// save the current file in a temp dir to execute the CK tool
+			createTmpDir();
+
+			createAllDirs(tempDir, currentFileName);
+			try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + currentFileName))) {
+				out.print(fileBefore);
+			}
+
+			// generate metric for the refactored class
+			Calendar commitTime = JGitUtils.getGregorianCalendar(commit);
+
+			Yes yes = calculateCkMetrics(refactoredClass, commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
+
+			if(yes!=null) {
+				// mark it as To Do for the process metrics tool
+				processMetrics.addToList(commit, yes);
+
+				if(storeFullSourceCode) {
+					// store the before and after versions for the deep learning training
+					// note that we save the file before with the same name of the current file name,
+					// as to help in finding it (from the SQL query to the file)
+					saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
+
+					// save also a cleaned version of the source code (using astc)
+					// this is to facilitate the deep learning process
+					cleanSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
 				}
-	
-				// generate metric for the refactored class
-				Calendar commitTime = JGitUtils.getGregorianCalendar(commit);
-	
-				Yes yes = calculateCkMetrics(refactoredClass, commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
+			} else {
+				log.error("YES was not created. CK did not find the class, maybe?");
 
-				if(yes!=null) {
-					// mark it as To Do for the process metrics tool
-					processMetrics.addToList(commit, yes);
-
-					if(storeFullSourceCode) {
-						// store the before and after versions for the deep learning training
-						// note that we save the file before with the same name of the current file name,
-						// as to help in finding it (from the SQL query to the file)
-						saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
-
-						// save also a cleaned version of the source code (using astc)
-						// this is to facilitate the deep learning process
-						cleanSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
-					}
-				} else {
-					log.error("YES was not created. CK did not find the class, maybe?");
-
-					if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-						log.info("[TRACK] YES instance not created!");
-					}
+				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
+					log.info("[TRACK] YES instance not created!");
 				}
+			}
 
-				cleanTmpDir();
-			}//end if
-		}//end try
+			cleanTmpDir();
+		}//end if
     }
 
 	

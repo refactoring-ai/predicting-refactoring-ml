@@ -35,7 +35,6 @@ public class App {
 	private String filesStoragePath;
 	private Database db;
 	private String lastCommitToProcess;
-	private boolean bTestFilesOnly = false;
 	private boolean storeFullSourceCode;
 
 	private static final Logger log = Logger.getLogger(App.class);
@@ -52,9 +51,8 @@ public class App {
 	            String filesStoragePath,
 	            int threshold,
 	            Database db, 
-	            boolean _bTestFilesOnly,
 	            boolean storeFullSourceCode) {
-		this(datasetName, gitUrl, filesStoragePath, threshold, db, null, _bTestFilesOnly, storeFullSourceCode);
+		this(datasetName, gitUrl, filesStoragePath, threshold, db, null, storeFullSourceCode);
 
 	}
 	public App (String datasetName,
@@ -63,7 +61,6 @@ public class App {
 	            int threshold,
 	            Database db,
 	            String lastCommitToProcess,
-	            boolean _bTestFilesOnly,
 	            boolean storeFullSourceCode
 	            ) {
 
@@ -73,7 +70,6 @@ public class App {
 		this.threshold = threshold;
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
-		this.bTestFilesOnly = _bTestFilesOnly;
 		this.storeFullSourceCode = storeFullSourceCode;
 	}
 
@@ -118,8 +114,8 @@ public class App {
 			db.commit();
 
 
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess, bTestFilesOnly);
-			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, bTestFilesOnly, storeFullSourceCode);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
+			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, storeFullSourceCode);
 
 			// get all commits in the repo, and to each commit with a refactoring, extract the metrics
 			Iterator<RevCommit> it = getAllCommits(repo);
