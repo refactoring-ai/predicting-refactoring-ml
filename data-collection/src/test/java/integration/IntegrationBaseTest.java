@@ -78,15 +78,19 @@ public abstract class IntegrationBaseTest {
 		try {
 			Session session = sf.openSession();
 			session.beginTransaction();
-			session.createQuery("delete from Yes where project.gitUrl = :gitUrl")
-					.setParameter("gitUrl", repo1)
+
+			List<Project> projects = (List<Project>) session.createQuery("from Project p where p.gitUrl = :gitUrl")
+					.setParameter("gitUrl", repo1).list();
+
+			session.createQuery("delete from Yes y where project in :project")
+					.setParameter("project", projects)
 					.executeUpdate();
-			session.createQuery("delete from No where project.gitUrl = :gitUrl")
-					.setParameter("gitUrl", repo1)
+			session.createQuery("delete from No where project in :project")
+					.setParameter("project", projects)
 					.executeUpdate();
-			session.createQuery("delete from Project where project.gitUrl = :gitUrl")
-					.setParameter("gitUrl", repo1)
-					.executeUpdate();
+
+			projects.stream().forEach(x -> session.delete(x));
+
 			session.getTransaction().commit();
 			session.close();
 		} catch(Exception e) {
