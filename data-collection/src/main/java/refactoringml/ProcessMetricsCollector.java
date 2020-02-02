@@ -11,7 +11,6 @@ import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import refactoringml.db.*;
@@ -66,9 +65,7 @@ public class ProcessMetricsCollector {
 
 	public void collect() throws IOException {
 
-		RevWalk walk = new RevWalk(repository);
-		walk.markStart(walk.parseCommit(repository.resolve(branch)));
-		walk.sort( RevSort.REVERSE);
+		RevWalk walk = JGitUtils.getReverseWalk(repository, branch);
 
 		RevCommit commit = walk.next();
 

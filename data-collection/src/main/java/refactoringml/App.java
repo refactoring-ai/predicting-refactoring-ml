@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.refactoringminer.api.GitHistoryRefactoringMiner;
 import org.refactoringminer.api.GitService;
 import org.refactoringminer.api.Refactoring;
@@ -19,6 +20,7 @@ import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
+import refactoringml.util.JGitUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,13 +119,16 @@ public class App {
 			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, storeFullSourceCode);
 
-			// get all commits in the repo, and to each commit with a refactoring, extract the metrics
-			Iterator<RevCommit> it = getAllCommits(repo);
 			RefactoringHandler handler = getRefactoringHandler(git, refactoringAnalyzer);
 
+			// get all commits in the repo, and to each commit with a refactoring, extract the metrics
+			RevWalk walk = JGitUtils.getReverseWalk(repo, mainBranch);
+			RevCommit currentCommit = walk.next();
+
 			boolean endFound = false;
-			while (it.hasNext() && !endFound) {
-				RevCommit currentCommit = it.next();
+			while (currentCommit!=null && !endFound) {
+
+				log.debug("Visiting commit " + currentCommit.getId().getName());
 
 				// did we find the last commit to process?
 				// if so, process it and then stop
@@ -160,7 +165,11 @@ public class App {
 					// timeout happened, so count it as an exception
 					exceptionsCount++;
 				}
+
+				currentCommit = walk.next();
 			}
+
+			walk.close();
 
 			// all refactorings were detected, now we start the second phase:
 			// collecting process metrics and examples of non-refatored code

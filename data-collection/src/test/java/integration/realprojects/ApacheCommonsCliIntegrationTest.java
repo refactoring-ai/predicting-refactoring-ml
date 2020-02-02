@@ -1,6 +1,7 @@
-package integration;
+package integration.realprojects;
 
 import com.google.common.io.Files;
+import integration.DataBaseInfo;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

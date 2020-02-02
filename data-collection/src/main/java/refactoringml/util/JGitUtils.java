@@ -6,6 +6,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -52,6 +53,14 @@ public class JGitUtils {
 		commitTime.setTimeZone(commit.getAuthorIdent().getTimeZone());
 		return commitTime;
 	}
+
+	public static RevWalk getReverseWalk(Repository repo, String mainBranch) throws IOException {
+		RevWalk walk = new RevWalk(repo);
+		walk.markStart(walk.parseCommit(repo.resolve(mainBranch)));
+		walk.sort(RevSort.REVERSE);
+		return walk;
+	}
+
 
 
 }
