@@ -89,7 +89,7 @@ public abstract class IntegrationBaseTest {
 					.setParameter("project", projects)
 					.executeUpdate();
 
-			projects.stream().forEach(x -> session.delete(x));
+			projects.stream().forEach(session::delete);
 
 			session.getTransaction().commit();
 			session.close();
