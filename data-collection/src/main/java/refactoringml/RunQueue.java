@@ -22,14 +22,12 @@ public class RunQueue {
 	private String storagePath;
 	private String host;
 	private final int threshold;
-	private final boolean testFilesOnly;
 	private final boolean storeFullSourceCode;
 
-	public RunQueue(String host, String url, String user, String pwd, String storagePath, int threshold, boolean testFilesOnly, boolean storeFullSourceCode) {
+	public RunQueue(String host, String url, String user, String pwd, String storagePath, int threshold, boolean storeFullSourceCode) {
 		this.host = host;
 		this.storagePath = storagePath;
 		this.threshold = threshold;
-		this.testFilesOnly = testFilesOnly;
 		this.storeFullSourceCode = storeFullSourceCode;
 		db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
 	}
@@ -46,7 +44,6 @@ public class RunQueue {
 		String user = "root";
 		String pwd = "";
 		int threshold = 50;
-		boolean bTestFilesOnly = false;
 		boolean storeFullSourceCode = true;
 		String storagePath = "/Users/mauricioaniche/Desktop/results/";
 
@@ -57,7 +54,6 @@ public class RunQueue {
 			user = System.getenv("REF_USER");
 			pwd = System.getenv("REF_DBPWD");
 			threshold = Integer.parseInt(System.getenv("THRESHOLD"));
-			bTestFilesOnly = Boolean.parseBoolean(System.getenv("TEST_ONLY"));
 			storeFullSourceCode = Boolean.parseBoolean(System.getenv("STORE_FILES"));
 			storagePath = System.getenv("STORAGE_PATH");
 		}
@@ -66,11 +62,10 @@ public class RunQueue {
 		log.info("URL: " + url);
 		log.info("User: " + user);
 		log.info("Threshold: " + threshold);
-		log.info("Test files only?: " + bTestFilesOnly);
 		log.info("Store full code?: " + storeFullSourceCode);
 		log.info("Storage path: " + storagePath);
 
-		new RunQueue(queueHost, url, user, pwd, storagePath, threshold, bTestFilesOnly, storeFullSourceCode).run();
+		new RunQueue(queueHost, url, user, pwd, storagePath, threshold, storeFullSourceCode).run();
 
 	}
 
@@ -110,7 +105,7 @@ public class RunQueue {
 			System.out.println(String.format("Project %s already in the database", gitUrl));
 		} else {
 			try {
-				new App(dataset, gitUrl, storagePath, threshold, db, testFilesOnly, storeFullSourceCode).run();
+				new App(dataset, gitUrl, storagePath, threshold, db, storeFullSourceCode).run();
 			} catch(Exception e) {
 				log.error("Error while processing " + gitUrl, e);
 			}

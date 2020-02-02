@@ -23,7 +23,6 @@ public class RunSingleProject {
 		String user;
 		String pwd;
 		int threshold;
-		boolean bTestFilesOnly;
 		boolean storeFullSourceCode;
 
 		if(test) {
@@ -35,12 +34,11 @@ public class RunSingleProject {
 			user = "root";
 			pwd = "";
 			threshold = 50;
-			bTestFilesOnly = false;
 			storeFullSourceCode = true;
 
 		} else {
-			if (args == null || args.length != 9) {
-				System.out.println("9 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold) (true|false: Test files only) (true|false: store full source code?)");
+			if (args == null || args.length != 8) {
+				System.out.println("8 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold) (true|false: store full source code?)");
 				System.exit(-1);
 			}
 
@@ -53,15 +51,8 @@ public class RunSingleProject {
 			pwd = args[5];
 			threshold = Integer.parseInt(args[6]);
 
-			//
-			//For now we can either parse test files or regular files.
-			//Default: Regular files
-			//
-			bTestFilesOnly = Boolean.parseBoolean(args[7]);
-			System.out.println("Parse 'Test Files' only: " + bTestFilesOnly);
-
 			// store full analysed source code?
-			storeFullSourceCode = Boolean.parseBoolean(args[8]);
+			storeFullSourceCode = Boolean.parseBoolean(args[7]);
 			System.out.println("Store full source code? " + storeFullSourceCode);
 
 		}
@@ -80,7 +71,7 @@ public class RunSingleProject {
 			System.exit(-1);
 		}
 
-		new App(datasetName, gitUrl, storagePath, threshold, db, bTestFilesOnly, storeFullSourceCode).run();
+		new App(datasetName, gitUrl, storagePath, threshold, db, storeFullSourceCode).run();
 
 	}
 

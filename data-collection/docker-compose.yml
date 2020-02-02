@@ -50,7 +50,6 @@ services:
       - REF_USER=root
       - REF_DBPWD=refactoring
       - THRESHOLD=50
-      - TEST_ONLY=true
       - STORE_FILES=false
     depends_on:
       - db
