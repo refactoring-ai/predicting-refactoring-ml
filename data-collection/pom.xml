@@ -55,7 +55,7 @@
 		  <artifactId>refactoringminer</artifactId>
 		  <version>1.0</version>
 		  <scope>system</scope>
-		  <systemPath>${project.basedir}/lib/RefactoringMiner-20200131.jar</systemPath>
+		  <systemPath>${project.basedir}/lib/RefactoringMiner-20200202.jar</systemPath>
 	  </dependency>
 
 

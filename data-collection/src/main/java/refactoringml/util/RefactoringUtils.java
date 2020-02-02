@@ -156,12 +156,12 @@ public class RefactoringUtils {
 		// now, if it's a variable refactoring, it happens inside of a method, which we get it
 		if(refactoring instanceof ExtractVariableRefactoring) {
 			ExtractVariableRefactoring convertedRefactoring = (ExtractVariableRefactoring) refactoring;
-			return convertedRefactoring.getOperation();
+			return convertedRefactoring.getOperationBefore();
 		}
 
 		if(refactoring instanceof InlineVariableRefactoring) {
 			InlineVariableRefactoring convertedRefactoring = (InlineVariableRefactoring) refactoring;
-			return convertedRefactoring.getOperation();
+			return convertedRefactoring.getOperationBefore();
 		}
 
 		if(refactoring instanceof RenameVariableRefactoring) {
