@@ -2,8 +2,6 @@ package integration.realprojects;
 
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
