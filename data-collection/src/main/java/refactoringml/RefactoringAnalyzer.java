@@ -65,6 +65,10 @@ public class RefactoringAnalyzer {
 
 		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoring.toString().trim() + "]");
 
+		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
+			log.info("[TRACK] Commit " + commit.getId().getName());
+		}
+
 		RevCommit commitParent = commit.getParent(0);
 
 		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
@@ -152,6 +156,10 @@ public class RefactoringAnalyzer {
 
 			cleanTmpDir();
 		}//end if
+
+		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
+			log.info("[TRACK] End commit " + commit.getId().getName());
+		}
     }
 
 	

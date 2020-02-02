@@ -1,8 +1,9 @@
 package integration.toyprojects;
 
 import integration.IntegrationBaseTest;
-import org.hibernate.Session;
 import org.junit.Assert;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
@@ -19,14 +20,7 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
-	public void t1() {
-
-		Session session = sf.openSession();
-
-		List<No> noList = session.createQuery("From No where project = :project")
-				.setParameter("project", project)
-				.list();
-		Assert.assertEquals(0, noList.size());
+	public void yes() {
 
 		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
 				.setParameter("project", project)
@@ -37,6 +31,14 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals("Rename Variable", yesList.stream().filter(x -> x.getRefactorCommit().equals("04ae2289e4f788c9d53594f85262c0715b3e257b")).findFirst().get().getRefactoring());
 		Assert.assertEquals("Inline Method", yesList.stream().filter(x -> x.getRefactorCommit().equals("21151bf7e36da52b9305d99755eb6f0b7616e620")).findFirst().get().getRefactoring());
 
+	}
 
+	@Test
+	public void no() {
+		// there are no instances of no variables, as the repo is too small
+		List<No> noList = session.createQuery("From No where project = :project")
+				.setParameter("project", project)
+				.list();
+		Assert.assertEquals(0, noList.size());
 	}
 }

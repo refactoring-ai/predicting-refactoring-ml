@@ -190,7 +190,7 @@ public class App {
 
 			// we may have collected data from refactorings and non refactorings, but not able to collect
 			// their process metric. We thus delete these data points as we can't really use them in training.
-			// we also delete variable usages that was equals to -1 (which means, we failed to detect it for some reason)
+			// we also delete variable usages that were equals to -1 (which means, we failed to detect it for some reason)
 			db.openSession();
 			db.cleanProject(project);
 			db.commit();

@@ -91,6 +91,7 @@ public class ProcessMetricsCollector {
 						refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
 						db.commit();
 					} catch (Exception e) {
+						log.error("Error when collecting process metrics", e);
 						db.rollback();
 					} finally {
 						db.close();

@@ -64,16 +64,16 @@ public class Database {
 
 	public void cleanProject(Project project) {
 
-		BigInteger countYes = (BigInteger) session.createSQLQuery("select count(*) from yes where project_id = " + project.getId() + " and (authorOwnership is null or variableAppearances < 0)")
+		BigInteger countYes = (BigInteger) session.createSQLQuery("select count(*) from yes where project_id = " + project.getId() + " and (authorOwnership is null)")
 				.uniqueResult();
 
-		session.createSQLQuery("delete from yes where project_id = " + project.getId() + " and (authorOwnership is null or variableAppearances < 0)")
+		session.createSQLQuery("delete from yes where project_id = " + project.getId() + " and (authorOwnership is null)")
 				.executeUpdate();
 
-		BigInteger countNo = (BigInteger) session.createSQLQuery("select count(*) from no where project_id = " + project.getId()  + " and (authorOwnership is null or variableAppearances < 0)")
+		BigInteger countNo = (BigInteger) session.createSQLQuery("select count(*) from no where project_id = " + project.getId()  + " and (authorOwnership is null)")
 				.uniqueResult();
 
-		session.createSQLQuery("delete from no where project_id = " + project.getId() + " and (authorOwnership is null or variableAppearances < 0)")
+		session.createSQLQuery("delete from no where project_id = " + project.getId() + " and (authorOwnership is null)")
 				.executeUpdate();
 
 		project.setCleanedRows(countYes.intValue() + countNo.intValue());

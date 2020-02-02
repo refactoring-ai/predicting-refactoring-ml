@@ -1,54 +1,32 @@
 package integration.realprojects;
 
-import com.google.common.io.Files;
-import integration.DataBaseInfo;
-import org.apache.commons.io.FileUtils;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.junit.*;
-import refactoringml.App;
-import refactoringml.db.*;
+import integration.IntegrationBaseTest;
+import org.junit.Assert;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import refactoringml.db.No;
+import refactoringml.db.Yes;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-@Ignore
-public class ApacheCommonsCliIntegrationTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
-	private static Database db;
-	private static String outputDir;
-	private static SessionFactory sf;
-	private static String tmpDir;
-	private static Project project;
-
-	@BeforeClass
-	public static void before() throws Exception {
-		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, true);
-		db = new Database(sf);
-		outputDir = Files.createTempDir().getAbsolutePath();
-		tmpDir = Files.createTempDir().getAbsolutePath();
-
-		String repo1 = "https://github.com/apache/commons-cli.git";
-
-		App app = new App("integration-test",
-				repo1,
-				outputDir,
-				10,
-				db,
-				"b9ccc94008c78a59695f0c77ebe4ecf284370956",
-				false);
-
-		project = app.run();
-
+	@Override
+	protected String getLastCommit() {
+		return "b9ccc94008c78a59695f0c77ebe4ecf284370956";
 	}
 
-	@AfterClass
-	public static void after() throws IOException {
-		db.close();
-		sf.close();
-		FileUtils.deleteDirectory(new File(tmpDir));
-		FileUtils.deleteDirectory(new File(outputDir));
+	@Override
+	protected String getRepo() {
+		return "https://github.com/apache/commons-cli.git";
+	}
+
+	@Override
+	protected String track() {
+		return "src/java/org/apache/commons/cli/Option.java";
 	}
 
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
@@ -56,8 +34,6 @@ public class ApacheCommonsCliIntegrationTest {
 	@Test
 	public void t1() {
 
-
-		Session session = sf.openSession();
 
 		// manually verified
 		Yes instance1 = (Yes) session.createQuery("from Yes where refactoring = :refactoring and methodMetrics.fullMethodName = :method and refactorCommit = :refactorCommit and project = :project")
@@ -75,45 +51,37 @@ public class ApacheCommonsCliIntegrationTest {
 		Assert.assertEquals(2, instance1.getMethodMetrics().getMethodReturnQty());
 		Assert.assertEquals(0, instance1.getMethodMetrics().getMethodTryCatchQty());
 
-		session.close();
-
 	}
 
 	// this test follows the src/java/org/apache/commons/cli/Option.java file
-	// this class was committed 41 times:
-	// was introduced on commit aae50c585ec3ac33c6a9af792e80378904a73195 (commit 1)
-	// was refactored on commit 347bbeb8f98a49744501ac50850457ba8751d545 (commit 16)
-	// was refactored on commit 5470bcaa9d75d73fb9c687fa13e12d642c75984f (commit 18)
+	// This test helped us to understand that we should not delete
+	// YES where variableAppearances = -1, as this happens in newly introduced variables.
 	@Test
 	public void t2() {
-		Session session = sf.openSession();
 
-		List<No> noList = session.createQuery("From No where type = 1 and filePath = :filePath and project = :project")
+		List<No> noList = session.createQuery("From No where filePath = :filePath and project = :project")
 				.setParameter("filePath", "src/java/org/apache/commons/cli/Option.java")
 				.setParameter("project", project)
 				.list();
-		Assert.assertEquals(3, noList.size());
 
+		// it has been through 9 different refactorings
 		List<Yes> yesList = session.createQuery("From Yes where filePath = :filePath and project = :project order by refactoringDate desc")
 				.setParameter("filePath", "src/java/org/apache/commons/cli/Option.java")
 				.setParameter("project", project)
 				.list();
-		Assert.assertEquals(5, yesList.size());
 
-		// the file stayed 15 commits without a refactoring, so that's an example for the no
-		Assert.assertEquals("aae50c585ec3ac33c6a9af792e80378904a73195", noList.get(0).getCommit());
+		Assert.assertEquals(9, yesList.size());
+		assertRefactoring(yesList, "04490af06faa8fd1be15da88172beb32218dd336", "Extract Variable", 1);
+		assertRefactoring(yesList, "347bbeb8f98a49744501ac50850457ba8751d545", "Extract Class", 1);
+		assertRefactoring(yesList, "347bbeb8f98a49744501ac50850457ba8751d545", "Move Method", 3);
+		assertRefactoring(yesList, "5470bcaa9d75d73fb9c687fa13e12d642c75984f", "Extract Method", 2);
+		assertRefactoring(yesList, "97744806d59820b096fb502b1d51ca54b5d0921d", "Rename Method", 1);
+		assertRefactoring(yesList, "bfe6bd8634895645aa71d6a6dc668545297d7413", "Rename Parameter", 1);
 
-		// then, it was refactored two times (in commit 347bb..., 4 different refactorings have happened)
-		Assert.assertEquals("5470bcaa9d75d73fb9c687fa13e12d642c75984f", yesList.get(0).getRefactorCommit());
-		Assert.assertEquals("347bbeb8f98a49744501ac50850457ba8751d545", yesList.get(1).getRefactorCommit());
+		// the file should appear twice as examples of 'no'
+		assertNoRefactoring(noList, "aae50c585ec3ac33c6a9af792e80378904a73195", "5470bcaa9d75d73fb9c687fa13e12d642c75984f");
+		// TODO: assertions related to the values of the No metrics
 
-		// then, 23 commits in a row without a refactoring
-		// so, it appears two times
-		// the first time, note how it matches with the refactoring commit; after all, it was when it started to become stable
-		Assert.assertEquals("5470bcaa9d75d73fb9c687fa13e12d642c75984f", noList.get(1).getCommit());
-		Assert.assertEquals("b0e1b80b6d4a10a9c9f46539bc4c7a3cce55886e", noList.get(2).getCommit());
-
-		session.close();
 	}
 
 	// check the number of test and production files as well as their LOC

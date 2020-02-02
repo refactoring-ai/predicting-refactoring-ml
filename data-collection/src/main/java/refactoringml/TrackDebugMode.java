@@ -5,4 +5,5 @@ public class TrackDebugMode {
 	public static String FILE_TO_TRACK;
 
 
+	public static String COMMIT_TO_TRACK;
 }
