@@ -1,59 +1,38 @@
 package integration.realprojects;
 
-import com.google.common.io.Files;
-import integration.DataBaseInfo;
-import org.apache.commons.io.FileUtils;
+import integration.IntegrationBaseTest;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.junit.*;
-import refactoringml.App;
-import refactoringml.db.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.jupiter.api.TestInstance;
+import refactoringml.db.No;
+import refactoringml.db.Yes;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-@Ignore
-public class ApacheCommonsLangIntegrationTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
 
-    private static Database db;
-    private static String outputDir;
-    private static SessionFactory sf;
-    private static String tmpDir;
-    private static Project project;
 
-    @BeforeClass
-    public static void before() throws Exception {
-        sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, true);
-        db = new Database(sf);
-        outputDir = Files.createTempDir().getAbsolutePath();
-        tmpDir = Files.createTempDir().getAbsolutePath();
-
-        String repo1 = "https://www.github.com/apache/commons-lang.git";
-
-        App app = new App("integration-test",
-                repo1,
-                outputDir,
-                10,
-                db,
-                "2ea44b2adae8da8e3e7f55cc226479f9431feda9",
-                false);
-
-        project = app.run();
-
+    @Override
+    protected String getLastCommit() {
+        return "2ea44b2adae8da8e3e7f55cc226479f9431feda9";
     }
 
-    @AfterClass
-    public static void after() throws IOException {
-        db.close();
-        sf.close();
-        FileUtils.deleteDirectory(new File(tmpDir));
-        FileUtils.deleteDirectory(new File(outputDir));
+    @Override
+    protected String getRepo() {
+        return "https://www.github.com/apache/commons-lang.git";
     }
+
+    @Override
+    protected String track() {
+        return "src/java/org/apache/commons/lang/builder/HashCodeBuilder.java";
+    }
+
 
     // this test checks the Rename Method that has happened in #5e7d64d6b2719afb1e5f4785d80d24ac5a19a782,
     // method isSet
-    @Test
+    @org.junit.jupiter.api.Test
     public void t1() {
 
 
@@ -81,7 +60,7 @@ public class ApacheCommonsLangIntegrationTest {
 
     // this test follows the src/java/org/apache/commons/lang/builder/HashCodeBuilder.java file
 
-    @Test
+    @org.junit.jupiter.api.Test
     public void t2() {
         Session session = sf.openSession();
 
@@ -95,7 +74,7 @@ public class ApacheCommonsLangIntegrationTest {
                 .setParameter("filePath", "src/java/org/apache/commons/lang/builder/HashCodeBuilder.java")
                 .setParameter("project", project)
                 .list();
-        Assert.assertEquals(3, yesList.size());
+        Assert.assertEquals(8, yesList.size());
 
 
         Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", noList.get(0).getCommit());
@@ -116,7 +95,7 @@ public class ApacheCommonsLangIntegrationTest {
     }
 
     // check the number of test and production files as well as their LOC
-    @Test
+    @org.junit.jupiter.api.Test
     public void t3() {
 
         // the next two assertions come directly from a 'cloc .' in the project
