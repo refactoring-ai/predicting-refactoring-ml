@@ -2,7 +2,7 @@ mysql/*
 repos/r1/*
 
 .settings
-
+repos/*
 *.iml
 .idea/
 .DS_Store
