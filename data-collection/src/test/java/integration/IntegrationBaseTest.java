@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
 import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
@@ -18,6 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public abstract class IntegrationBaseTest {
 
@@ -35,9 +38,12 @@ public abstract class IntegrationBaseTest {
 		outputDir = Files.createTempDir().getAbsolutePath();
 		tmpDir = Files.createTempDir().getAbsolutePath();
 
-		String repo1 = getRepo();
+		String repoLocalDir = "repos/" + extractProjectNameFromGitUrl(getRepo());
+		boolean projectAlreadyCloned = new File(repoLocalDir).exists();
+		if(!projectAlreadyCloned)
+			new GitServiceImpl().cloneIfNotExists(repoLocalDir, getRepo());
 
-		deleteProject(repo1);
+		deleteProject(getRepo());
 
 		if(track()!=null || commitTrack() != null) {
 			TrackDebugMode.ACTIVE = true;
@@ -46,7 +52,7 @@ public abstract class IntegrationBaseTest {
 		}
 
 		App app = new App("integration-test",
-				repo1,
+				repoLocalDir,
 				outputDir,
 				threshold(),
 				db,
