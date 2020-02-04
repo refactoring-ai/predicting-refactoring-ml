@@ -91,7 +91,7 @@ public class ProcessMetricsCollector {
 						refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
 						db.commit();
 					} catch (Exception e) {
-						log.error("Error when collecting process metrics", e);
+						log.error("Error when collecting process metrics in commit " + commit.getName(), e);
 						db.rollback();
 					} finally {
 						db.close();
@@ -133,6 +133,7 @@ public class ProcessMetricsCollector {
 
 			if(TrackDebugMode.ACTIVE && pm.getFileName().equals(TrackDebugMode.FILE_TO_TRACK)) {
 				log.info("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
+				log.info("[TRACK] " + pm.toString());
 			}
 
 			outputNonRefactoredClass(pm);
@@ -176,7 +177,7 @@ public class ProcessMetricsCollector {
 						continue;
 				}
 
-				// add class to our in-memory pmDatabase (if it's not a test file)
+				// add class to our in-memory pmDatabase
 				if(!pmDatabase.containsKey(fileName))
 					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
 
@@ -220,25 +221,55 @@ public class ProcessMetricsCollector {
 				log.info("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName());
 			}
 
-			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
+
 			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
-			ProcessMetrics dbProcessMetrics = new ProcessMetrics(
-					currentProcessMetrics.qtyOfCommits(),
-					currentProcessMetrics.getLinesAdded(),
-					currentProcessMetrics.getLinesDeleted(),
-					currentProcessMetrics.qtyOfAuthors(),
-					currentProcessMetrics.qtyMinorAuthors(),
-					currentProcessMetrics.qtyMajorAuthors(),
-					currentProcessMetrics.authorOwnership(),
-					currentProcessMetrics.getBugFixCount(),
-					currentProcessMetrics.getRefactoringsInvolved()
-			);
+
+			ProcessMetrics dbProcessMetrics;
+
+			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
+			// however, we might not be able to find the process metrics of that class.
+			// this will happen in strange cases where we never tracked that class before...
+			// for now, let's store it as -1, so that we can still use the data point for structural metrics
+			// TODO: better track renames. As soon as a class is renamed, transfer its process metrics.
+			if(currentProcessMetrics == null) {
+				dbProcessMetrics = new ProcessMetrics(
+						-1,
+						-1,
+						-1,
+						-1,
+						-1,
+						-1,
+						-1,
+						-1,
+						-1
+				);
+
+				log.error("Not able to find process metrics for file " + fileName + " (commit " + commit.getName() + ")");
+				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
+					log.info("[TRACK] Not able to find process metrics at " + commit.getId().getName());
+				}
+			} else {
+
+				dbProcessMetrics = new ProcessMetrics(
+						currentProcessMetrics.qtyOfCommits(),
+						currentProcessMetrics.getLinesAdded(),
+						currentProcessMetrics.getLinesDeleted(),
+						currentProcessMetrics.qtyOfAuthors(),
+						currentProcessMetrics.qtyMinorAuthors(),
+						currentProcessMetrics.qtyMajorAuthors(),
+						currentProcessMetrics.authorOwnership(),
+						currentProcessMetrics.getBugFixCount(),
+						currentProcessMetrics.getRefactoringsInvolved()
+				);
+			}
 			yes.setProcessMetrics(dbProcessMetrics);
 			db.update(yes);
 
 			// update counters
-			currentProcessMetrics.increaseRefactoringsInvolved();
-			currentProcessMetrics.resetCounter(commit.getName(), JGitUtils.getGregorianCalendar(commit));
+			if(currentProcessMetrics != null) {
+				currentProcessMetrics.increaseRefactoringsInvolved();
+				currentProcessMetrics.resetCounter(commit.getName(), JGitUtils.getGregorianCalendar(commit));
+			}
 
 			refactoredClasses.add(fileName);
 

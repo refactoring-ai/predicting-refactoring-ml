@@ -3,6 +3,7 @@ package integration.realprojects;
 import integration.IntegrationBaseTest;
 import org.hibernate.Session;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
@@ -11,6 +12,7 @@ import refactoringml.db.Yes;
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Ignore // still need to manually validate this one
 public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
 
 

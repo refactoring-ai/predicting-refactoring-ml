@@ -232,11 +232,6 @@ public class App {
 			};
 	}
 
-	private Iterator<RevCommit> getAllCommits(Repository repo) throws Exception {
-		GitServiceImpl gs = new GitServiceImpl();
-		return gs.createAllRevsWalk(repo).iterator();
-	}
-
 	private int numberOfCommits(Git git) throws GitAPIException {
 		Iterable<RevCommit> commits = git.log().call();
 		int count = 0;

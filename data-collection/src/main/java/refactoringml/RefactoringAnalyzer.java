@@ -123,11 +123,12 @@ public class RefactoringAnalyzer {
 			String fileBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
 			String fileAfter = SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName));
 
-			// save the current file in a temp dir to execute the CK tool
+			// save the old version of the file in a temp dir to execute the CK tool
+			// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
+			// but later we notice it might do in cases of file renames and refactorings in the same commit.
 			createTmpDir();
-
-			createAllDirs(tempDir, currentFileName);
-			try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + currentFileName))) {
+			createAllDirs(tempDir, oldFileName);
+			try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
 				out.print(fileBefore);
 			}
 

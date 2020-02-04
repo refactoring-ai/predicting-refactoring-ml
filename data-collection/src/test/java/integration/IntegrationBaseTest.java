@@ -77,21 +77,26 @@ public abstract class IntegrationBaseTest {
 	protected void deleteProject(String repo1) {
 		try {
 			Session session = sf.openSession();
-			session.beginTransaction();
+
 
 			List<Project> projects = (List<Project>) session.createQuery("from Project p where p.gitUrl = :gitUrl")
 					.setParameter("gitUrl", repo1).list();
 
-			session.createQuery("delete from Yes y where project in :project")
-					.setParameter("project", projects)
-					.executeUpdate();
-			session.createQuery("delete from No where project in :project")
-					.setParameter("project", projects)
-					.executeUpdate();
+			if(!projects.isEmpty()) {
+				session.beginTransaction();
 
-			projects.stream().forEach(session::delete);
+				session.createQuery("delete from Yes y where project in :project")
+						.setParameter("project", projects)
+						.executeUpdate();
+				session.createQuery("delete from No where project in :project")
+						.setParameter("project", projects)
+						.executeUpdate();
 
-			session.getTransaction().commit();
+				projects.stream().forEach(session::delete);
+				session.getTransaction().commit();
+			}
+
+
 			session.close();
 		} catch(Exception e) {
 			System.out.println("Could not delete the project before starting the test");
