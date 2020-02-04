@@ -128,8 +128,8 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
         // also manually validated
         Assert.assertEquals(5, noList.get(0).getClassMetrics().getClassNumberOfPublicFields());
         Assert.assertEquals(39, noList.get(0).getClassMetrics().getClassNumberOfPublicMethods());
-        Assert.assertEquals(4, noList.get(0).getClassMetrics().getClassNumberOfPublicFields());
-        Assert.assertEquals(13, noList.get(0).getClassMetrics().getClassNumberOfPublicMethods());
+        Assert.assertEquals(13, noList.get(0).getClassMetrics().getClassNumberOfPrivateFields());
+        Assert.assertEquals(4, noList.get(0).getClassMetrics().getClassNumberOfPrivateMethods());
     }
 
     @Test
