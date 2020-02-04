@@ -17,6 +17,8 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		return "repos/r2";
 	}
 
+	// This test helped us to realize (again) that when class name and file name don't match, we can't link the
+	// refactoring. We opened a PR in RefactoringMiner; waiting for merge.
 	@Test
 	public void yes() {
 
