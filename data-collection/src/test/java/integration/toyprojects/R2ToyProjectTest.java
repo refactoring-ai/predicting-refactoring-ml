@@ -25,12 +25,11 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 				.list();
 		Assert.assertEquals(1, yesList.size());
 
-		Assert.assertEquals("Rename Class", yesList.stream().filter(x -> x.getRefactorCommit().equals("bc15aee7cfaddde19ba6fefe0d12331fe98ddd46")).findFirst().get().getRefactoring());
+		assertRefactoring(yesList, "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46", "Rename Class", 1);
 
-//		Assert.assertEquals("Extract Method", yesList.stream().filter(x -> x.getRefactorCommit().equals("e8895b22847c7c54a9e187f9f674db274e6bc103")).findFirst().get().getRefactoring());
-//		Assert.assertEquals("Rename Variable", yesList.stream().filter(x -> x.getRefactorCommit().equals("04ae2289e4f788c9d53594f85262c0715b3e257b")).findFirst().get().getRefactoring());
-//		Assert.assertEquals("Inline Method", yesList.stream().filter(x -> x.getRefactorCommit().equals("21151bf7e36da52b9305d99755eb6f0b7616e620")).findFirst().get().getRefactoring());
-
+		// FIX: Uncomment this once RefactoringMiner returns file names
+		//assertRefactoring(yesList, "a03a3d71f7838cf964551fdc2be22b37fe9a35e6", "Rename Attribute", 1);
+		//assertRefactoring(yesList, "e5b28cec38af6d7f1564e19f90278b6d1d7037b2", "Rename Attribute", 1);
 	}
 
 	@Test
