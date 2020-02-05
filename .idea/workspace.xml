@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ef254927-a5ef-4982-b42b-f58ed8f7be1f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCSVIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCSVIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/data-collection/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,81 +21,90 @@
       <FILTER>integration.*</FILTER>
     </SUITE>
   </component>
+  <component name="CoverageViewManager">
+    <option name="myElementSize" value="195" />
+  </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCliIntegrationTest.java">
+        <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/toyprojects/R1ToyProjectTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="136" column="18" lean-forward="true" selection-start-line="136" selection-start-column="18" selection-end-line="136" selection-end-column="18" />
+            <state relative-caret-position="178">
+              <caret line="20" selection-start-line="20" selection-end-line="20" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/toyprojects/R2ToyProjectTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="170">
+              <caret line="19" column="9" lean-forward="true" selection-start-line="19" selection-start-column="9" selection-end-line="19" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data-collection/volumes/mysql/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="68">
+              <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data-collection/volumes/rabbitmq/.gitignore">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data-collection/volumes/storage/.gitignore">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCSVIntegrationTest.java">
+        <entry file="file://$PROJECT_DIR$/data-collection/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="167" lean-forward="true" selection-start-line="167" selection-end-line="167" />
+            <state relative-caret-position="187">
+              <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data-collection/repos/r2/Person.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="408">
+              <caret line="34" column="24" selection-start-line="34" selection-start-column="24" selection-end-line="34" selection-end-column="24" />
+              <folding>
+                <element signature="e#778#779#0" expanded="true" />
+                <element signature="e#808#809#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data-collection/repos/r2/TelephoneNumber.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="68">
+              <caret line="4" column="34" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="34" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/IntegrationBaseTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="172">
+              <caret line="86" selection-start-line="86" selection-end-line="86" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/db/Project.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="560">
-              <caret line="78" column="19" selection-start-line="78" selection-start-column="19" selection-end-line="78" selection-end-column="19" />
-              <folding>
-                <element signature="e#2017#2018#0" expanded="true" />
-                <element signature="e#2038#2039#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/db/Database.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="184">
-              <caret line="15" column="11" selection-start-line="15" selection-start-column="11" selection-end-line="15" selection-end-column="11" />
-              <folding>
-                <element signature="e#343#344#0" expanded="true" />
-                <element signature="e#362#363#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/App.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="333">
-              <caret line="59" column="11" selection-start-line="59" selection-start-column="11" selection-end-line="59" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/DataBaseInfo.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="2" column="25" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/refactoringml/CKUtilsTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -113,7 +124,16 @@
       <find>getParsedOptionValue</find>
       <find>b9ccc94008c78a59695f0c77ebe4ecf284370956</find>
       <find>https:/github.com/apache/commons-cli.git</find>
+      <find>65</find>
+      <find>threshold</find>
+      <find>b0e1b80b6d4a10a9c9f46539bc4c7a3cce55886e</find>
+      <find>5c40090fecdacd9366bba7e3e29d94f213cf2633</find>
+      <find>src/java/org/apache/commons/cli/Option.java</find>
+      <find>7ac5dd3ec633d64603bb836d0576f34a51f93f08</find>
     </findStrings>
+    <replaceStrings>
+      <replace />
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -122,22 +142,40 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/data-collection/src/test/java/integration/DataBaseInfo.java" />
-        <option value="$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCliIntegrationTest.java" />
         <option value="$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCSVIntegrationTest.java" />
+        <option value="$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCliIntegrationTest.java" />
+        <option value="$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsLangIntegrationTest.java" />
+        <option value="$PROJECT_DIR$/data-collection/src/test/java/integration/realprojects/ApacheCommonsCSVIntegrationTest.java" />
+        <option value="$PROJECT_DIR$/data-collection/src/test/java/integration/realprojects/ApacheCommonsLangIntegrationTest.java" />
+        <option value="$PROJECT_DIR$/data-collection/src/test/java/integration/toyprojects/R2ToyProjectTest.java" />
+        <option value="$PROJECT_DIR$/data-collection/repos/r2/Address.java" />
+        <option value="$PROJECT_DIR$/data-collection/repos/r2/TelephoneNumber.java" />
+        <option value="$PROJECT_DIR$/data-collection/repos/r2/Person.java" />
+        <option value="$PROJECT_DIR$/data-collection/.gitignore" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="MavenImportPreferences">
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="importAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
     <option name="x" value="1440" />
     <option name="y" value="-28" />
-    <option name="width" value="1920" />
+    <option name="width" value="1280" />
     <option name="height" value="1057" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -149,6 +187,19 @@
               <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
               <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
               <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+              <item name="repos" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+              <item name="repos" type="462c0819:PsiDirectoryNode" />
+              <item name="r2" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
@@ -194,6 +245,26 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="integration" type="462c0819:PsiDirectoryNode" />
+              <item name="realprojects" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="integration" type="462c0819:PsiDirectoryNode" />
+              <item name="toyprojects" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="refactoringml" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -204,21 +275,51 @@
               <item name="test" type="462c0819:PsiDirectoryNode" />
               <item name="resources" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+              <item name="volumes" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+              <item name="volumes" type="462c0819:PsiDirectoryNode" />
+              <item name="mysql" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+              <item name="volumes" type="462c0819:PsiDirectoryNode" />
+              <item name="rabbitmq" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="predicting-refactoring-ml" type="b2602c69:ProjectViewProjectNode" />
+              <item name="predicting-refactoring-ml" type="462c0819:PsiDirectoryNode" />
+              <item name="data-collection" type="462c0819:PsiDirectoryNode" />
+              <item name="volumes" type="462c0819:PsiDirectoryNode" />
+              <item name="storage" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1580392759330" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1580901838619" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="integration.toyprojects" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -232,92 +333,93 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.ApacheCommonsCSVIntegrationTest">
-    <configuration name="ApacheCommonsCSVIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="refactoring-analyzer" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="integration.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="integration" />
-      <option name="MAIN_CLASS_NAME" value="integration.ApacheCommonsCSVIntegrationTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ApacheCommonsCSVIntegrationTest.t1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="refactoring-analyzer" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="integration.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="integration" />
-      <option name="MAIN_CLASS_NAME" value="integration.ApacheCommonsCSVIntegrationTest" />
-      <option name="METHOD_NAME" value="t1" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.R2ToyProjectTest.yes">
     <configuration name="ApacheCommonsCSVIntegrationTest.t2" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="refactoring-analyzer" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="integration.*" />
+          <option name="PATTERN" value="integration.realprojects.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="integration" />
-      <option name="MAIN_CLASS_NAME" value="integration.ApacheCommonsCSVIntegrationTest" />
+      <option name="PACKAGE_NAME" value="integration.realprojects" />
+      <option name="MAIN_CLASS_NAME" value="integration.realprojects.ApacheCommonsCSVIntegrationTest" />
       <option name="METHOD_NAME" value="t2" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ApacheCommonsCSVIntegrationTest.t3" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ApacheCommonsLangIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="refactoring-analyzer" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="integration.*" />
+          <option name="PATTERN" value="integration.realprojects.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="integration" />
-      <option name="MAIN_CLASS_NAME" value="integration.ApacheCommonsCSVIntegrationTest" />
-      <option name="METHOD_NAME" value="t3" />
+      <option name="PACKAGE_NAME" value="integration.realprojects" />
+      <option name="MAIN_CLASS_NAME" value="integration.realprojects.ApacheCommonsLangIntegrationTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ApacheCommonsLangIntegrationTest.t2" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="refactoring-analyzer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="integration.realprojects.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="integration.realprojects" />
+      <option name="MAIN_CLASS_NAME" value="integration.realprojects.ApacheCommonsLangIntegrationTest" />
+      <option name="METHOD_NAME" value="t2" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ApacheCommonsCliIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="R2ToyProjectTest.no" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="refactoring-analyzer" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="integration.*" />
+          <option name="PATTERN" value="integration.toyprojects.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="integration" />
-      <option name="MAIN_CLASS_NAME" value="integration.ApacheCommonsCliIntegrationTest" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="PACKAGE_NAME" value="integration.toyprojects" />
+      <option name="MAIN_CLASS_NAME" value="integration.toyprojects.R2ToyProjectTest" />
+      <option name="METHOD_NAME" value="no" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="R2ToyProjectTest.yes" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="refactoring-analyzer" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="integration.toyprojects.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="integration.toyprojects" />
+      <option name="MAIN_CLASS_NAME" value="integration.toyprojects.R2ToyProjectTest" />
+      <option name="METHOD_NAME" value="yes" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.ApacheCommonsCSVIntegrationTest" />
-        <item itemvalue="JUnit.ApacheCommonsCSVIntegrationTest.t3" />
+        <item itemvalue="JUnit.R2ToyProjectTest.yes" />
+        <item itemvalue="JUnit.R2ToyProjectTest.no" />
+        <item itemvalue="JUnit.ApacheCommonsLangIntegrationTest.t2" />
+        <item itemvalue="JUnit.ApacheCommonsLangIntegrationTest" />
         <item itemvalue="JUnit.ApacheCommonsCSVIntegrationTest.t2" />
-        <item itemvalue="JUnit.ApacheCommonsCSVIntegrationTest.t1" />
-        <item itemvalue="JUnit.ApacheCommonsCliIntegrationTest" />
       </list>
     </recent_temporary>
   </component>
@@ -331,87 +433,97 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1580328258718</updated>
-      <workItem from="1580328260303" duration="9011000" />
+      <workItem from="1580328260303" duration="16209000" />
+      <workItem from="1580412038506" duration="61000" />
+      <workItem from="1580748957913" duration="8051000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 48m 37s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_no - 2020.02.03 at 16h 35m 55s.xml">
+      <configuration name="R2ToyProjectTest.no" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 51m 53s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 36m 09s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 52m 31s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 41m 37s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 53m 01s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 43m 07s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 53m 23s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 44m 18s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 53m 49s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 45m 43s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 54m 07s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 46m 15s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 54m 57s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 46m 41s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 55m 43s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 49m 46s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ApacheCommonsCSVIntegrationTest_t3 - 2020.01.30 at 11h 56m 07s.xml">
-      <configuration name="ApacheCommonsCSVIntegrationTest.t3" configurationId="JUnit" />
+    <history-entry file="R2ToyProjectTest_yes - 2020.02.03 at 16h 52m 48s.xml">
+      <configuration name="R2ToyProjectTest.yes" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9011000" />
+    <option name="totallyTimeSpent" value="24321000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1440" y="-28" width="1920" height="1057" extended-state="6" />
-    <editor active="true" />
+    <frame x="0" y="23" width="1440" height="834" extended-state="6" />
     <layout>
-      <window_info id="Designer" />
-      <window_info id="Image Layers" />
-      <window_info id="UI Designer" />
-      <window_info id="Favorites" side_tool="true" />
-      <window_info id="Capture Tool" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.185836" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24821173" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" weight="0.3284974" />
-      <window_info anchor="bottom" id="Tool Output" />
-      <window_info anchor="bottom" id="Event Log" side_tool="true" />
-      <window_info anchor="bottom" id="Java Enterprise" />
-      <window_info anchor="bottom" id="Database Changes" />
-      <window_info anchor="bottom" id="Version Control" />
-      <window_info anchor="bottom" id="Flutter Performance" side_tool="true" />
-      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
-      <window_info anchor="bottom" id="ANTLR Preview" />
-      <window_info anchor="bottom" id="Messages" weight="0.32953367" />
+      <window_info id="Designer" order="2" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Capture Tool" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.36994818" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32953367" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.52021563" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="right" id="Maven" />
-      <window_info anchor="right" id="Palette" />
-      <window_info anchor="right" id="Capture Analysis" />
-      <window_info anchor="right" id="Flutter Inspector" />
-      <window_info anchor="right" id="Flutter Outline" />
-      <window_info anchor="right" id="Database" />
-      <window_info anchor="right" id="Palette&#9;" />
-      <window_info anchor="right" id="Theme Preview" />
-      <window_info anchor="right" id="Jms Messenger" />
-      <window_info anchor="right" id="Coverage" side_tool="true" weight="0.3197425" />
-      <window_info anchor="right" id="Bean Validation" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32953367" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.3284974" />
+      <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Tool Output" order="9" weight="0.32953367" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Java Enterprise" order="11" weight="0.32953367" />
+      <window_info anchor="bottom" id="Database Changes" order="12" />
+      <window_info anchor="bottom" id="Version Control" order="13" weight="0.32953367" />
+      <window_info anchor="bottom" id="Flutter Performance" order="14" side_tool="true" />
+      <window_info anchor="bottom" id="ANTLR Preview" order="15" weight="0.32953367" />
+      <window_info anchor="bottom" id="Messages" order="16" weight="0.32953367" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Maven" order="3" />
+      <window_info anchor="right" id="Palette" order="4" />
+      <window_info anchor="right" id="Coverage" order="5" side_tool="true" weight="0.31948882" />
+      <window_info anchor="right" id="Capture Analysis" order="6" />
+      <window_info anchor="right" id="Flutter Inspector" order="7" />
+      <window_info anchor="right" id="Flutter Outline" order="8" />
+      <window_info anchor="right" id="Database" order="9" />
+      <window_info anchor="right" id="Palette&#9;" order="10" />
+      <window_info anchor="right" id="Theme Preview" order="11" />
+      <window_info anchor="right" id="Jms Messenger" order="12" />
+      <window_info anchor="right" id="Bean Validation" order="13" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -421,51 +533,27 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCliIntegrationTest.java</url>
-          <line>32</line>
+          <url>file://$PROJECT_DIR$/data-collection/src/test/java/integration/realprojects/ApacheCommonsCSVIntegrationTest.java</url>
+          <line>62</line>
           <properties />
-          <option name="timeStamp" value="2" />
+          <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/App.java</url>
-          <line>81</line>
+          <url>file://$PROJECT_DIR$/data-collection/src/test/java/integration/toyprojects/R2ToyProjectTest.java</url>
+          <line>22</line>
           <properties />
-          <option name="timeStamp" value="4" />
+          <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCliIntegrationTest.java</url>
-          <line>110</line>
+          <url>file://$PROJECT_DIR$/data-collection/src/test/java/integration/toyprojects/R2ToyProjectTest.java</url>
+          <line>38</line>
           <properties />
-          <option name="timeStamp" value="6" />
+          <option name="timeStamp" value="20" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/data-collection/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="136">
-            <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" selection-end-column="28" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/refactoringml/CKUtilsTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/DataBaseInfo.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="25" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/data-collection/lib/RefactoringMiner-20190430.jar!/org/refactoringminer/util/GitServiceImpl.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -487,24 +575,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/db/Database.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="15" column="11" selection-start-line="15" selection-start-column="11" selection-end-line="15" selection-end-column="11" />
-          <folding>
-            <element signature="e#343#344#0" expanded="true" />
-            <element signature="e#362#363#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/App.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="333">
-          <caret line="59" column="11" selection-start-line="59" selection-start-column="11" selection-end-line="59" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.13-beta-1/junit-4.13-beta-1.jar!/org/junit/Assert.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
@@ -512,21 +582,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/db/Project.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="560">
-          <caret line="78" column="19" selection-start-line="78" selection-start-column="19" selection-end-line="78" selection-end-column="19" />
-          <folding>
-            <element signature="e#2017#2018#0" expanded="true" />
-            <element signature="e#2038#2039#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCliIntegrationTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="136" column="18" lean-forward="true" selection-start-line="136" selection-start-column="18" selection-end-line="136" selection-end-column="18" />
+        <state relative-caret-position="2244">
+          <caret line="145" column="5" selection-start-line="125" selection-start-column="4" selection-end-line="145" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -535,11 +594,224 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsCSVIntegrationTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="167" lean-forward="true" selection-start-line="167" selection-end-line="167" />
+        <state relative-caret-position="1258">
+          <caret line="87" column="5" selection-start-line="61" selection-start-column="4" selection-end-line="87" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/db/Database.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="15" column="11" selection-start-line="15" selection-start-column="11" selection-end-line="15" selection-end-column="11" />
+          <folding>
+            <element signature="e#343#344#0" expanded="true" />
+            <element signature="e#362#363#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/ApacheCommonsLangIntegrationTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="29" selection-start-line="8" selection-start-column="29" selection-end-line="8" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/db/Project.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="97" column="16" selection-start-line="97" selection-start-column="16" selection-end-line="97" selection-end-column="16" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2017#2018#0" expanded="true" />
+            <element signature="e#2038#2039#0" expanded="true" />
+            <element signature="e#2342#2343#0" expanded="true" />
+            <element signature="e#2374#2375#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter-api/5.6.0/junit-jupiter-api-5.6.0.jar!/org/junit/jupiter/api/TestInstance.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="33" column="5" lean-forward="true" selection-start-line="33" selection-start-column="5" selection-end-line="33" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/refactoringml/JGitUtilsTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/refactoringml/ProcessMetricTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-335">
+          <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/refactoringml/RefactoringMinerPlaygroundTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="16" column="13" selection-start-line="16" selection-start-column="13" selection-end-line="16" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/refactoringml/CKUtilsTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-19">
+          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/DataBaseInfo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="25" selection-start-line="5" selection-start-column="25" selection-end-line="5" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/main/java/refactoringml/App.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="79" selection-start-line="79" selection-end-line="79" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter-api/5.6.0/junit-jupiter-api-5.6.0.jar!/org/junit/jupiter/api/Test.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/realprojects/ApacheCommonsCliIntegrationTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="27" column="5" selection-start-line="14" selection-start-column="4" selection-end-line="27" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/realprojects/ApacheCommonsCSVIntegrationTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="321">
+          <caret line="32" column="4" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="31" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/realprojects/ApacheCommonsLangIntegrationTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="246">
+          <caret line="76" column="29" selection-start-line="76" selection-start-column="29" selection-end-line="76" selection-end-column="29" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/repos/r2/Address.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="20" selection-start-column="13" selection-end-column="20" />
+          <folding>
+            <element signature="e#108#109#0" expanded="true" />
+            <element signature="e#137#138#0" expanded="true" />
+            <element signature="e#181#182#0" expanded="true" />
+            <element signature="e#217#218#0" expanded="true" />
+            <element signature="e#250#251#0" expanded="true" />
+            <element signature="e#279#280#0" expanded="true" />
+            <element signature="e#323#324#0" expanded="true" />
+            <element signature="e#359#360#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/toyprojects/R1ToyProjectTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="178">
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/IntegrationBaseTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="172">
+          <caret line="86" selection-start-line="86" selection-end-line="86" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/repos/r2/TelephoneNumber.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="34" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/repos/r2/Person.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="34" column="24" selection-start-line="34" selection-start-column="24" selection-end-line="34" selection-end-column="24" />
+          <folding>
+            <element signature="e#778#779#0" expanded="true" />
+            <element signature="e#808#809#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/src/test/java/integration/toyprojects/R2ToyProjectTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="19" column="9" lean-forward="true" selection-start-line="19" selection-start-column="9" selection-end-line="19" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/volumes/mysql/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/volumes/rabbitmq/.gitignore">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/volumes/storage/.gitignore">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="255">
+            <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data-collection/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
         </state>
       </provider>
     </entry>
