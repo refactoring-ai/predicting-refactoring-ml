@@ -86,4 +86,12 @@ public class No {
 	public String getCommit() {
 		return commit;
 	}
+
+	public ProcessMetrics getProcessMetrics() {
+		return processMetrics;
+	}
+
+	public ClassMetric getClassMetrics() {
+		return classMetrics;
+	}
 }

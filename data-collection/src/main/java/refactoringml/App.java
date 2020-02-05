@@ -25,7 +25,6 @@ import refactoringml.util.JGitUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 import static refactoringml.util.FilePathUtils.lastSlashDir;
@@ -119,7 +118,7 @@ public class App {
 			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, storeFullSourceCode);
 
-			RefactoringHandler handler = getRefactoringHandler(git, refactoringAnalyzer);
+			RefactoringHandler handler = getRefactoringHandler(git);
 
 			// get all commits in the repo, and to each commit with a refactoring, extract the metrics
 			RevWalk walk = JGitUtils.getReverseWalk(repo, mainBranch);
@@ -206,7 +205,7 @@ public class App {
 		return git.getRepository().resolve(Constants.HEAD).getName();
 	}
 
-	private RefactoringHandler getRefactoringHandler(Git git, RefactoringAnalyzer refactoringAnalyzer) {
+	private RefactoringHandler getRefactoringHandler(Git git) {
 		return new RefactoringHandler() {
 				@Override
 				public void handle(String commitId, List<Refactoring> refactorings) {
@@ -230,11 +229,6 @@ public class App {
 					}
 				}
 			};
-	}
-
-	private Iterator<RevCommit> getAllCommits(Repository repo) throws Exception {
-		GitServiceImpl gs = new GitServiceImpl();
-		return gs.createAllRevsWalk(repo).iterator();
 	}
 
 	private int numberOfCommits(Git git) throws GitAPIException {

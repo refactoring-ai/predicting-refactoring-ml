@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
 import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
@@ -18,6 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public abstract class IntegrationBaseTest {
 
@@ -35,9 +38,12 @@ public abstract class IntegrationBaseTest {
 		outputDir = Files.createTempDir().getAbsolutePath();
 		tmpDir = Files.createTempDir().getAbsolutePath();
 
-		String repo1 = getRepo();
+		String repoLocalDir = "repos/" + extractProjectNameFromGitUrl(getRepo());
+		boolean projectAlreadyCloned = new File(repoLocalDir).exists();
+		if(!projectAlreadyCloned)
+			new GitServiceImpl().cloneIfNotExists(repoLocalDir, getRepo());
 
-		deleteProject(repo1);
+		deleteProject(getRepo());
 
 		if(track()!=null || commitTrack() != null) {
 			TrackDebugMode.ACTIVE = true;
@@ -46,7 +52,7 @@ public abstract class IntegrationBaseTest {
 		}
 
 		App app = new App("integration-test",
-				repo1,
+				repoLocalDir,
 				outputDir,
 				threshold(),
 				db,
@@ -77,21 +83,26 @@ public abstract class IntegrationBaseTest {
 	protected void deleteProject(String repo1) {
 		try {
 			Session session = sf.openSession();
-			session.beginTransaction();
+
 
 			List<Project> projects = (List<Project>) session.createQuery("from Project p where p.gitUrl = :gitUrl")
 					.setParameter("gitUrl", repo1).list();
 
-			session.createQuery("delete from Yes y where project in :project")
-					.setParameter("project", projects)
-					.executeUpdate();
-			session.createQuery("delete from No where project in :project")
-					.setParameter("project", projects)
-					.executeUpdate();
+			if(!projects.isEmpty()) {
+				session.beginTransaction();
 
-			projects.stream().forEach(session::delete);
+				session.createQuery("delete from Yes y where project in :project")
+						.setParameter("project", projects)
+						.executeUpdate();
+				session.createQuery("delete from No where project in :project")
+						.setParameter("project", projects)
+						.executeUpdate();
 
-			session.getTransaction().commit();
+				projects.stream().forEach(session::delete);
+				session.getTransaction().commit();
+			}
+
+
 			session.close();
 		} catch(Exception e) {
 			System.out.println("Could not delete the project before starting the test");

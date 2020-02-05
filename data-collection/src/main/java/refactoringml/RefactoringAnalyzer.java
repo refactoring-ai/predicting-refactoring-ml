@@ -61,9 +61,13 @@ public class RefactoringAnalyzer {
 			return;
 		}
 
+		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoring.toString().trim() + "]");
+
 		String refactoredClass = refactoring.getInvolvedClassesBeforeRefactoring().get(0);
 
-		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoring.toString().trim() + "]");
+		if(refactoring.getInvolvedClassesBeforeRefactoring().isEmpty() || refactoring.getInvolvedClassesBeforeRefactoring().size() > 1) {
+			log.info("More than one InvolvedClassesBeforeRefactoring(). Understand why.");
+		}
 
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
 			log.info("[TRACK] Commit " + commit.getId().getName());
@@ -95,9 +99,9 @@ public class RefactoringAnalyzer {
 			// a list of classes, and we do not treat it. TTV limitation: we do not predict these refactoring operations.
 			// 2) The refactoring happened in an inner class. In these cases, we also do not detect. This is a TTV/limitation of the approach.
 			// 3) It is a refactoring on a deleted file. We filtered them out (see refactoredEntry filters above).
-			// 4) the name of the file doesn't match with the name of the class.
+			// 4) the name of the file doesn't match with the name of the class. TODO: Open a feature request in RefactoringMiner
 			if(!refactoredEntry.isPresent()) {
-				throw new RuntimeException("RefactoringMiner finds a refactoring, but we can't find it in DiffEntry: a " + refactoring.getRefactoringType() + " at " + refactoredClass);
+				throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClass + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
 			}
 
 			DiffEntry entry = refactoredEntry.get();
@@ -119,11 +123,12 @@ public class RefactoringAnalyzer {
 			String fileBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
 			String fileAfter = SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName));
 
-			// save the current file in a temp dir to execute the CK tool
+			// save the old version of the file in a temp dir to execute the CK tool
+			// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
+			// but later we notice it might do in cases of file renames and refactorings in the same commit.
 			createTmpDir();
-
-			createAllDirs(tempDir, currentFileName);
-			try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + currentFileName))) {
+			createAllDirs(tempDir, oldFileName);
+			try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
 				out.print(fileBefore);
 			}
 

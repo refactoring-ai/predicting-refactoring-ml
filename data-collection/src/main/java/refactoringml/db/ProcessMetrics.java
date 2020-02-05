@@ -46,4 +46,40 @@ public class ProcessMetrics {
 				", refactoringsInvolved=" + refactoringsInvolved +
 				'}';
 	}
+
+	public int getQtyOfCommits() {
+		return qtyOfCommits;
+	}
+
+	public int getLinesAdded() {
+		return linesAdded;
+	}
+
+	public int getLinesDeleted() {
+		return linesDeleted;
+	}
+
+	public int getQtyOfAuthors() {
+		return qtyOfAuthors;
+	}
+
+	public long getQtyMinorAuthors() {
+		return qtyMinorAuthors;
+	}
+
+	public long getQtyMajorAuthors() {
+		return qtyMajorAuthors;
+	}
+
+	public double getAuthorOwnership() {
+		return authorOwnership;
+	}
+
+	public int getBugFixCount() {
+		return bugFixCount;
+	}
+
+	public int getRefactoringsInvolved() {
+		return refactoringsInvolved;
+	}
 }

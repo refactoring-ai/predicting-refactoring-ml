@@ -136,4 +136,156 @@ public class ClassMetric {
 				", classUniqueWordsQty=" + classUniqueWordsQty +
 				'}';
 	}
+
+	public int getClassCbo() {
+		return classCbo;
+	}
+
+	public int getClassWmc() {
+		return classWmc;
+	}
+
+	public int getClassRfc() {
+		return classRfc;
+	}
+
+	public int getClassLcom() {
+		return classLcom;
+	}
+
+	public int getClassNumberOfMethods() {
+		return classNumberOfMethods;
+	}
+
+	public int getClassNumberOfStaticMethods() {
+		return classNumberOfStaticMethods;
+	}
+
+	public int getClassNumberOfPublicMethods() {
+		return classNumberOfPublicMethods;
+	}
+
+	public int getClassNumberOfPrivateMethods() {
+		return classNumberOfPrivateMethods;
+	}
+
+	public int getClassNumberOfProtectedMethods() {
+		return classNumberOfProtectedMethods;
+	}
+
+	public int getClassNumberOfDefaultMethods() {
+		return classNumberOfDefaultMethods;
+	}
+
+	public int getClassNumberOfAbstractMethods() {
+		return classNumberOfAbstractMethods;
+	}
+
+	public int getClassNumberOfFinalMethods() {
+		return classNumberOfFinalMethods;
+	}
+
+	public int getClassNumberOfSynchronizedMethods() {
+		return classNumberOfSynchronizedMethods;
+	}
+
+	public int getClassNumberOfFields() {
+		return classNumberOfFields;
+	}
+
+	public int getClassNumberOfStaticFields() {
+		return classNumberOfStaticFields;
+	}
+
+	public int getClassNumberOfPublicFields() {
+		return classNumberOfPublicFields;
+	}
+
+	public int getClassNumberOfPrivateFields() {
+		return classNumberOfPrivateFields;
+	}
+
+	public int getClassNumberOfProtectedFields() {
+		return classNumberOfProtectedFields;
+	}
+
+	public int getClassNumberOfDefaultFields() {
+		return classNumberOfDefaultFields;
+	}
+
+	public int getClassNumberOfFinalFields() {
+		return classNumberOfFinalFields;
+	}
+
+	public int getClassNumberOfSynchronizedFields() {
+		return classNumberOfSynchronizedFields;
+	}
+
+	public int getClassNosi() {
+		return classNosi;
+	}
+
+	public int getClassLoc() {
+		return classLoc;
+	}
+
+	public int getClassReturnQty() {
+		return classReturnQty;
+	}
+
+	public int getClassLoopQty() {
+		return classLoopQty;
+	}
+
+	public int getClassComparisonsQty() {
+		return classComparisonsQty;
+	}
+
+	public int getClassTryCatchQty() {
+		return classTryCatchQty;
+	}
+
+	public int getClassParenthesizedExpsQty() {
+		return classParenthesizedExpsQty;
+	}
+
+	public int getClassStringLiteralsQty() {
+		return classStringLiteralsQty;
+	}
+
+	public int getClassNumbersQty() {
+		return classNumbersQty;
+	}
+
+	public int getClassAssignmentsQty() {
+		return classAssignmentsQty;
+	}
+
+	public int getClassMathOperationsQty() {
+		return classMathOperationsQty;
+	}
+
+	public int getClassVariablesQty() {
+		return classVariablesQty;
+	}
+
+	public int getClassMaxNestedBlocks() {
+		return classMaxNestedBlocks;
+	}
+
+	public int getClassAnonymousClassesQty() {
+		return classAnonymousClassesQty;
+	}
+
+	public int getClassSubClassesQty() {
+		return classSubClassesQty;
+	}
+
+	public int getClassLambdasQty() {
+		return classLambdasQty;
+	}
+
+	public int getClassUniqueWordsQty() {
+		return classUniqueWordsQty;
+	}
 }
