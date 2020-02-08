@@ -40,4 +40,8 @@ public class CKUtils {
 	private static String cleanGenerics(String clazzName) {
 		return clazzName.replaceAll("\\$", "\\.").replaceAll("<.*>", "").trim();
 	}
+
+	public static String cleanClassName(String clazzName) {
+		return clazzName.replaceAll("\\$", "\\.");
+	}
 }

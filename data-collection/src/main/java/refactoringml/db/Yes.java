@@ -98,6 +98,10 @@ public class Yes {
 		return fieldMetrics;
 	}
 
+	public String getClassName() {
+		return className;
+	}
+
 	@Override
 	public String toString() {
 		return "Yes{" +

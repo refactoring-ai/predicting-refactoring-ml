@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static refactoringml.util.CKUtils.cleanClassName;
 import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
@@ -210,7 +211,9 @@ public class RefactoringAnalyzer {
 		final List<Yes> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 
-			if(!ck.getClassName().equals(refactoredClass))
+			String cleanedCkClassName = cleanClassName(ck.getClassName());
+
+			if(!cleanedCkClassName.equals(refactoredClass))
 				return;
 
 			// collect the class level metrics
@@ -336,7 +339,7 @@ public class RefactoringAnalyzer {
 					refactoringDate,
 					parentCommit,
 					ck.getFile().replace(tempDir, ""),
-					ck.getClassName(),
+					cleanedCkClassName,
 					refactoring.getRefactoringType().getDisplayName(),
 					refactoringTypeInNumber(refactoring),
 					classMetric,
