@@ -3,8 +3,8 @@ package integration.realprojects;
 import integration.IntegrationBaseTest;
 import org.hibernate.Session;
 import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
 import refactoringml.db.Yes;
@@ -12,7 +12,7 @@ import refactoringml.db.Yes;
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Ignore // still need to manually validate this one
+@Disabled // still need to manually validate this one
 public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
 
 
@@ -34,7 +34,7 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
 
     // this test checks the Rename Method that has happened in #5e7d64d6b2719afb1e5f4785d80d24ac5a19a782,
     // method isSet
-    @org.junit.jupiter.api.Test
+    @Test
     public void t1() {
 
 
@@ -62,7 +62,7 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
 
     // this test follows the src/java/org/apache/commons/lang/builder/HashCodeBuilder.java file
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void t2() {
         Session session = sf.openSession();
 
@@ -97,7 +97,7 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
     }
 
     // check the number of test and production files as well as their LOC
-    @org.junit.jupiter.api.Test
+    @Test
     public void t3() {
 
         // the next two assertions come directly from a 'cloc .' in the project

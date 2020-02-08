@@ -3,9 +3,9 @@ package refactoringml;
 import com.github.mauricioaniche.ck.CK;
 import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
@@ -53,150 +54,109 @@ public class RefactoringAnalyzer {
 
 	public void collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
 
-		if (commit.getParentCount() == 0) {
+		if (commit.getParentCount() == 0 || !studied(refactoring)) {
 			return ;
 		}
 
-		if(!studied(refactoring)) {
-			return;
-		}
-
 		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoring.toString().trim() + "]");
-
-		String refactoredClass = refactoring.getInvolvedClassesBeforeRefactoring().get(0);
-
-		if(refactoring.getInvolvedClassesBeforeRefactoring().isEmpty() || refactoring.getInvolvedClassesBeforeRefactoring().size() > 1) {
-			log.info("More than one InvolvedClassesBeforeRefactoring(). Understand why.");
-		}
-
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
 			log.info("[TRACK] Commit " + commit.getId().getName());
 		}
 
 		RevCommit commitParent = commit.getParent(0);
 
-		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-	        diffFormatter.setRepository(repository);
-			diffFormatter.setDetectRenames(true);
+		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
 
-			List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
+			String refactoredClassFile = pair.getLeft();
+			String refactoredClassName = pair.getRight();
 
-			// we try to match either the old or the new name of the file.
-			// this is to help us in catching renames or moves
-			// we also ignore files that were actually removed... no need to use these refactorings (although returned by RefactoringMiner)
-			Optional<DiffEntry> refactoredEntry = entries.stream()
-					.filter(entry -> entry.getChangeType() != ChangeType.DELETE)
-					.filter(entry -> {
-						String oldFileName = entry.getOldPath();
-						String newFileName = entry.getNewPath();
-						return classFromFileName(oldFileName).equals(classFromFullName(refactoredClass)) ||
-								classFromFileName(newFileName).equals(classFromFullName(refactoredClass));
-					})
-					.findFirst();
+			try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+				diffFormatter.setRepository(repository);
+				diffFormatter.setDetectRenames(true);
 
-			// sometimes the class might not be found
-			// 1) Probably a case of refactoring with multiple classes (e.g., rename package), and RefactoringMiner currently returns
-			// a list of classes, and we do not treat it. TTV limitation: we do not predict these refactoring operations.
-			// 2) The refactoring happened in an inner class. In these cases, we also do not detect. This is a TTV/limitation of the approach.
-			// 3) It is a refactoring on a deleted file. We filtered them out (see refactoredEntry filters above).
-			// 4) the name of the file doesn't match with the name of the class. TODO: Open a feature request in RefactoringMiner
-			if(!refactoredEntry.isPresent()) {
-				throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClass + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
-			}
+				List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
 
-			DiffEntry entry = refactoredEntry.get();
-			diffFormatter.toFileHeader(entry);
+				// we try to match either the old or the new name of the file.
+				// this is to help us in catching renames or moves
+				Optional<DiffEntry> refactoredEntry = entries.stream()
+						.filter(entry -> {
+							String oldFileName = entry.getOldPath();
+							String newFileName = entry.getNewPath();
+							return refactoredClassFile.equals(oldFileName) ||
+									refactoredClassFile.equals(newFileName);
+						})
+						.findFirst();
 
-			String oldFileName = entry.getOldPath();
-			String currentFileName = entry.getNewPath();
-
-			if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-					log.info("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
-			}
-
-
-			//
-			//Match filter 
-			//Either the test file or regular file based on the filter value.
-			//*We can do it better but for now let's get the results first.*    
-			//
-			String fileBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
-			String fileAfter = SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName));
-
-			// save the old version of the file in a temp dir to execute the CK tool
-			// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
-			// but later we notice it might do in cases of file renames and refactorings in the same commit.
-			createTmpDir();
-			createAllDirs(tempDir, oldFileName);
-			try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
-				out.print(fileBefore);
-			}
-
-			// generate metric for the refactored class
-			Calendar commitTime = JGitUtils.getGregorianCalendar(commit);
-
-			Yes yes = calculateCkMetrics(refactoredClass, commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
-
-			if(yes!=null) {
-				// mark it as To Do for the process metrics tool
-				processMetrics.addToList(commit, yes);
-
-				if(storeFullSourceCode) {
-					// store the before and after versions for the deep learning training
-					// note that we save the file before with the same name of the current file name,
-					// as to help in finding it (from the SQL query to the file)
-					saveSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
-
-					// save also a cleaned version of the source code (using astc)
-					// this is to facilitate the deep learning process
-					cleanSourceCode(commit.getId().getName(), fileBefore, currentFileName, fileAfter, yes);
+				// this should not happen...
+				if(!refactoredEntry.isPresent()) {
+					log.info("old classes in DiffEntry: " + entries.stream().map(x -> x.getOldPath()).collect(Collectors.toList()));
+					log.info("new classes in DiffEntry: " + entries.stream().map(x -> x.getNewPath()).collect(Collectors.toList()));
+					throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
 				}
-			} else {
-				log.error("YES was not created. CK did not find the class, maybe?");
+
+				// we found the file, let's get its metrics!
+				DiffEntry entry = refactoredEntry.get();
+				diffFormatter.toFileHeader(entry);
+
+				String oldFileName = entry.getOldPath();
+				String currentFileName = entry.getNewPath();
 
 				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-					log.info("[TRACK] YES instance not created!");
+					log.info("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
 				}
-			}
 
-			cleanTmpDir();
-		}//end if
+				// Now, we get the contents of the file before
+				String sourceCodeBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
+
+				// save the old version of the file in a temp dir to execute the CK tool
+				// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
+				// but later we notice it might do in cases of file renames and refactorings in the same commit.
+				createTmpDir();
+				createAllDirs(tempDir, oldFileName);
+				try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
+					out.print(sourceCodeBefore);
+				}
+
+				// generate metric for the refactored class
+				Calendar commitTime = JGitUtils.getGregorianCalendar(commit);
+
+				Yes yes = calculateCkMetrics(refactoredClassName, commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
+
+				if(yes!=null) {
+					// mark it as To Do for the process metrics tool
+					processMetrics.addToList(commit, yes);
+
+					if(storeFullSourceCode) {
+						// let's get the source code of the file after the refactoring
+						// but only if not deleted
+						String sourceCodeAfter = !wasDeleted(currentFileName) ? SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName)) : "";
+
+						// store the before and after versions for the deep learning training
+						// note that we save the file before with the same name of the current file name,
+						// as to help in finding it (from the SQL query to the file)
+						saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, yes);
+					}
+				} else {
+					log.error("YES was not created. CK did not find the class, maybe?");
+
+					if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
+						log.info("[TRACK] YES instance not created!");
+					}
+				}
+
+				cleanTmpDir();
+			}//end if
+
+		}
 
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
 			log.info("[TRACK] End commit " + commit.getId().getName());
 		}
+
     }
 
-	
-	private void cleanSourceCode(String commit, String fileBefore, String fileNameAfter, String fileAfter, Yes yes) throws FileNotFoundException {
-
-		// Run ast converter 1
-		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameAfter);
-		createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileNameAfter);
-
-		String completeFileNameAstC1 = String.format("%s-%d-%s-%d-%s-astc1",
-				fileNameAfter,
-				yes.getRefactoringType(),
-				yes.getRefactoring(),
-				(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
-				getMethodAndOrVariableNameIfAny(yes)
-				);
-
-		PrintStream before1 = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameAstC1);
-		before1.print(ASTConverter.converter(fileBefore, 1));
-		before1.close();
-
-		// Run ast converter 2
-		String completeFileNameAstC2 = String.format("%s-%d-%s-%d-%s-astc2",
-				fileNameAfter,
-				yes.getRefactoringType(),
-				yes.getRefactoring(),
-				(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
-				getMethodAndOrVariableNameIfAny(yes));
-
-		PrintStream before2 = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameAstC2);
-		before2.print(ASTConverter.converter(fileBefore, 2));
-		before2.close();
+	private boolean wasDeleted(String fileName) {
+		return fileName.equals("/dev/null");
 	}
 
 	private String getMethodAndOrVariableNameIfAny(Yes yes) {
@@ -214,25 +174,36 @@ public class RefactoringAnalyzer {
 		return "";
 	}
 
-	private void saveSourceCode(String commit, String fileBefore, String fileNameAfter, String fileAfter, Yes yes) throws FileNotFoundException {
+	private void saveSourceCode(String commit, String fileNameBefore, String sourceCodeBefore, String fileNameAfter, String sourceCodeAfter, Yes yes) throws FileNotFoundException {
 
-		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameAfter);
-		createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileNameAfter);
+		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameBefore);
 
-		String completeFileName = String.format("%s-%d-%s-%d-%s",
-						fileNameAfter,
-						yes.getRefactoringType(),
-						yes.getRefactoring(),
-						(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
-						getMethodAndOrVariableNameIfAny(yes));
+		String completeFileNameBefore = String.format("%s-%d-%s-%d-%s",
+				fileNameBefore,
+				yes.getRefactoringType(),
+				yes.getRefactoring(),
+				(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+				getMethodAndOrVariableNameIfAny(yes));
 
-		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileName);
-		before.print(fileBefore);
+		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameBefore);
+		before.print(sourceCodeBefore);
 		before.close();
 
-		PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileName);
-		after.print(fileAfter);
-		after.close();
+		if(!sourceCodeAfter.isEmpty()) {
+			createAllDirs(fileStorageDir + commit + "/after-refactoring/", fileNameAfter);
+
+			String completeFileNameAfter = String.format("%s-%d-%s-%d-%s",
+					fileNameAfter,
+					yes.getRefactoringType(),
+					yes.getRefactoring(),
+					(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+					getMethodAndOrVariableNameIfAny(yes));
+
+			PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAfter);
+			after.print(sourceCodeAfter);
+			after.close();
+		}
+
 	}
 
 	private Yes calculateCkMetrics(String refactoredClass, String refactorCommit, Calendar refactoringDate, Refactoring refactoring, String parentCommit) {

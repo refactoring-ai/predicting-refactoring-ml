@@ -18,20 +18,17 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	// This test helped us to realize (again) that when class name and file name don't match, we can't link the
-	// refactoring. We opened a PR in RefactoringMiner; waiting for merge.
+	// refactoring. We opened a PR in RefactoringMiner; now it works!
 	@Test
 	public void yes() {
 
 		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
 				.setParameter("project", project)
 				.list();
-		Assert.assertEquals(1, yesList.size());
+		Assert.assertEquals(2, yesList.size());
 
 		assertRefactoring(yesList, "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46", "Rename Class", 1);
-
-		// FIX: Uncomment this once RefactoringMiner returns file names
-		//assertRefactoring(yesList, "a03a3d71f7838cf964551fdc2be22b37fe9a35e6", "Rename Attribute", 1);
-		//assertRefactoring(yesList, "e5b28cec38af6d7f1564e19f90278b6d1d7037b2", "Rename Attribute", 1);
+		assertRefactoring(yesList, "515365875143aa84b5bbb5c3191e7654a942912f", "Extract Class", 1);
 	}
 
 	@Test
