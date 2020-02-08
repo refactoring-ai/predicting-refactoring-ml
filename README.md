@@ -24,6 +24,7 @@ Use Maven: `mvn clean compile`. Or just import it via IntelliJ; it will know wha
 
 If you want to export a jar file and run it somewhere else, just do `mvn clean package`. A .jar file will be created under the `target/` folder. You can use this jar to run the tool manually.
 
+To run the tests, you should unzip all the .zip files inside /data-collection/repos. 
 
 ### Running in a manual way
 
