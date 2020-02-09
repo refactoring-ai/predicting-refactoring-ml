@@ -162,6 +162,7 @@ public class App {
 					}
 				} else {
 					// timeout happened, so count it as an exception
+					log.error("Refactoring Miner returned null for " + commitHash + ". Possibly this is the first commit of the project, or a timeout.");
 					exceptionsCount++;
 				}
 
@@ -216,7 +217,7 @@ public class App {
 				@Override
 				public void handleException(String commitId, Exception e) {
 					exceptionsCount++;
-					log.error("RefactoringMiner not handle commit Id " + commitId, e);
+					log.error("RefactoringMiner could not handle commit Id " + commitId, e);
 					resetGitRepo();
 
 				}
