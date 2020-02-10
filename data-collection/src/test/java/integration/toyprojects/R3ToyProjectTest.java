@@ -63,7 +63,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(3, project.getNumberOfProductionFiles());
 
 		Assert.assertEquals(23, project.getProductionLoc());
-		
+
 
 	}
 }
