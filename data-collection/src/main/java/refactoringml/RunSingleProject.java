@@ -26,6 +26,7 @@ public class RunSingleProject {
 		boolean storeFullSourceCode;
 
 		if(test) {
+			//TODO: remove references to mauricios desktop, e.g. make them arguments
 			gitUrl = "/Users/mauricioaniche/Desktop/commons-lang";
 			storagePath = "/Users/mauricioaniche/Desktop/results/";
 			datasetName = "test";
@@ -46,6 +47,7 @@ public class RunSingleProject {
 			gitUrl = args[1].trim();
 			storagePath = lastSlashDir(args[2].trim());
 
+			//TODO: is this extension necessary? it is inconsistent with the url handling in RunQueue
 			url = args[3] + "?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; // our servers config.
 			user = args[4];
 			pwd = args[5];
@@ -65,14 +67,7 @@ public class RunSingleProject {
 			log.error("Error when connecting to the db", e);
 		}
 
-		// do not run if the project is already in the database
-		if (db.projectExists(gitUrl)) {
-			System.out.println(String.format("Project %s already in the database", gitUrl));
-			System.exit(-1);
-		}
-
 		new App(datasetName, gitUrl, storagePath, threshold, db, storeFullSourceCode).run();
-
 	}
 
 

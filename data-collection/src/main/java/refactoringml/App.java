@@ -74,7 +74,13 @@ public class App {
 		this.storeFullSourceCode = storeFullSourceCode;
 	}
 
+
 	public Project run () throws Exception {
+		// do not run if the project is already in the database
+		if (db.projectExists(gitUrl)) {
+			String message = String.format("Project %s already in the database", gitUrl);
+			throw new IllegalArgumentException(message);
+		}
 
 		long start = System.currentTimeMillis();
 
