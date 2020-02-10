@@ -39,4 +39,24 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 				.list();
 		Assert.assertEquals(0, noList.size());
 	}
+
+	@Test
+	public void metrics() {
+
+		// the next two assertions come directly from a 'cloc .' in the project
+		Assert.assertEquals(19, project.getJavaLoc());
+
+		Assert.assertEquals(1, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
+
+		Assert.assertEquals(0, project.getNumberOfProductionFiles());
+
+		Assert.assertEquals(1, project.getNumberOfTestFiles());
+
+		Assert.assertEquals(0, project.getProductionLoc());
+
+		Assert.assertEquals(19, project.getTestLoc());
+
+	}
+
+
 }
