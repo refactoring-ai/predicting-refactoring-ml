@@ -28,10 +28,6 @@ import static refactoringml.util.RefactoringUtils.cleanMethodName;
 public class ProcessMetricsCollector {
 
 	private String tempDir;
-
-	// commit hash, file name
-	Map<String, Set<Long>> todo;
-
 	private Project project;
 	private Database db;
 	private Repository repository;
@@ -51,73 +47,45 @@ public class ProcessMetricsCollector {
 		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		this.lastCommitToProcess = lastCommitToProcess;
-		todo = new HashMap<>();
 		pmDatabase = new PMDatabase(commitThreshold);
 	}
 
-	public void addToList (RevCommit commitData, Yes yes) {
-		String id = commitData.getName();
-		if(!todo.containsKey(id))
-			todo.put(id, new HashSet<>());
+	public void collectMetrics(RevCommit commit, Set<Long> allYeses, boolean isRefactoring) throws IOException {
+		if(commit.getParentCount() <= 1) {
+			RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 
-		todo.get(id).add(yes.getId());
-	}
+			Set<String> refactoredClasses = new HashSet<>();
 
-	public void collect() throws IOException {
-
-		RevWalk walk = JGitUtils.getReverseWalk(repository, branch);
-
-		RevCommit commit = walk.next();
-
-		boolean lastFound = false;
-		while(commit!=null && !lastFound) {
-
-			// did we find the commit to stop?
-			// if so, process it, and then stop
-			if(commit.getName().equals(lastCommitToProcess))
-				lastFound = true;
-
-			if(commit.getParentCount() <= 1) {
-
-				log.debug("Commit ID " + commit.getName());
-				RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
-
-				Set<String> refactoredClasses = new HashSet<>();
-
-				// if the class happened to be refactored, then, print its process metrics at that time
-				if (todo.containsKey(commit.getName())) {
-					try {
-						db.openSession();
-						refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
-						db.commit();
-					} catch (Exception e) {
-						log.error("Error when collecting process metrics in commit " + commit.getName(), e);
-						db.rollback();
-					} finally {
-						db.close();
-					}
-				}
-
-				// we go now change by change in the commit to update the process metrics there
-				// (no need for db here, as this update happens only locally)
-				updateProcessMetrics(commit, commitParent);
-
-				// update classes that were not refactored on this commit
+			// if the class happened to be refactored, then, print its process metrics at that time
+			if (isRefactoring) {
 				try {
 					db.openSession();
-					updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
+					refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit, allYeses);
 					db.commit();
 				} catch (Exception e) {
+					log.error("Error when collecting process metrics in commit " + commit.getName(), e);
 					db.rollback();
 				} finally {
 					db.close();
 				}
 			}
 
-			commit = walk.next();
-		}
-		walk.close();
+			// we go now change by change in the commit to update the process metrics there
+			// (no need for db here, as this update happens only locally)
+			updateProcessMetrics(commit, commitParent);
 
+			// update classes that were not refactored on this commit
+			try {
+				db.openSession();
+				updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
+				db.commit();
+			} catch (Exception e) {
+				log.error("Error when collecting process metrics in commit " + commit.getName(), e);
+				db.rollback();
+			} finally {
+				db.close();
+			}
+		}
 	}
 
 	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, Set<String> refactoredClasses) throws IOException {
@@ -206,10 +174,8 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private Set<String> collectProcessMetricsOfRefactoredCommit(RevCommit commit) {
-
+	private Set<String> collectProcessMetricsOfRefactoredCommit(RevCommit commit, Set<Long> allYeses) {
 		Set<String> refactoredClasses = new HashSet<>();
-		Set<Long> allYeses = todo.get(commit.getName());
 
 		for (Long yesId : allYeses) {
 
