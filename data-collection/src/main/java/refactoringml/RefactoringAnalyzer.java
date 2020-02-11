@@ -212,12 +212,18 @@ public class RefactoringAnalyzer {
 		new CK().calculate(tempDir, ck -> {
 
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
+			boolean isSubclass = ClassMetric.evaluateSubclass(ck.getClassName());
 
-			if(!cleanedCkClassName.equals(refactoredClass))
+			if(!isSubclass && !cleanedCkClassName.equals(refactoredClass)) {
+				//TODO: when do the refactored class name and cleaned class name do not match?
+				log.error("Incorrect class name: " + cleanedCkClassName + " expected: " + refactoredClass);
 				return;
+			}
 
 			// collect the class level metrics
-			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
+			ClassMetric classMetric = new ClassMetric(
+					isSubclass,
+					ck.getCbo(),
 					ck.getWmc(),
 					ck.getRfc(),
 					ck.getLcom(),

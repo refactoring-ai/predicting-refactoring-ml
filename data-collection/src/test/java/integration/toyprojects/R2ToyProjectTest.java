@@ -2,6 +2,7 @@ package integration.toyprojects;
 
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
@@ -29,6 +30,10 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 
 		assertRefactoring(yesList, "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46", "Rename Class", 1);
 		assertRefactoring(yesList, "515365875143aa84b5bbb5c3191e7654a942912f", "Extract Class", 1);
+
+		for (Yes yes : yesList){
+			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+		}
 	}
 
 	@Test

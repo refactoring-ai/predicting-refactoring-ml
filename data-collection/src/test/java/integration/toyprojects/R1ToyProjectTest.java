@@ -2,6 +2,7 @@ package integration.toyprojects;
 
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
@@ -26,6 +27,10 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(3, yesList.size());
 
 		assertRefactoring(yesList, "e8895b22847c7c54a9e187f9f674db274e6bc103", "Extract Method", 1);
+
+		for (Yes yes : yesList){
+			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+		}
 	}
 
 	@Test

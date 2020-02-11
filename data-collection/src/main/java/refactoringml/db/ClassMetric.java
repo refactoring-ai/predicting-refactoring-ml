@@ -5,6 +5,7 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class ClassMetric {
 
+	private boolean isSubclass;
 	private int classCbo;
 	private int classWmc;
 	private int classRfc;
@@ -48,11 +49,12 @@ public class ClassMetric {
 	@Deprecated // hibernate purposes
 	public ClassMetric(){}
 
-	public ClassMetric(int classCbo, int classWmc, int classRfc, int classLcom, int classNumberOfMethods, int classNumberOfStaticMethods, int classNumberOfPublicMethods, int classNumberOfPrivateMethods, int classNumberOfProtectedMethods,
+	public ClassMetric(boolean isSubclass, int classCbo, int classWmc, int classRfc, int classLcom, int classNumberOfMethods, int classNumberOfStaticMethods, int classNumberOfPublicMethods, int classNumberOfPrivateMethods, int classNumberOfProtectedMethods,
 	                   int classNumberOfDefaultMethods, int classNumberOfAbstractMethods, int classNumberOfFinalMethods, int classNumberOfSynchronizedMethods, int classNumberOfFields, int classNumberOfStaticFields,
 	                   int classNumberOfPublicFields, int classNumberOfPrivateFields, int classNumberOfProtectedFields, int classNumberOfDefaultFields, int classNumberOfFinalFields, int classNumberOfSynchronizedFields,
 	                   int classNosi, int classLoc, int classReturnQty, int classLoopQty, int classComparisonsQty, int classTryCatchQty, int classParenthesizedExpsQty, int classStringLiteralsQty, int classNumbersQty, int classAssignmentsQty,
 	                   int classMathOperationsQty, int classVariablesQty, int classMaxNestedBlocks, int classAnonymousClassesQty, int classSubClassesQty, int classLambdasQty, int classUniqueWordsQty) {
+		this.isSubclass = isSubclass;
 		this.classCbo = classCbo;
 		this.classWmc = classWmc;
 		this.classRfc = classRfc;
@@ -96,7 +98,8 @@ public class ClassMetric {
 	@Override
 	public String toString() {
 		return "ClassMetric{" +
-				"classCbo=" + classCbo +
+				"isSubclass=" + isSubclass +
+				", classCbo=" + classCbo +
 				", classWmc=" + classWmc +
 				", classRfc=" + classRfc +
 				", classLcom=" + classLcom +
@@ -136,6 +139,13 @@ public class ClassMetric {
 				", classUniqueWordsQty=" + classUniqueWordsQty +
 				'}';
 	}
+
+	public boolean isSubclass(){ return isSubclass; }
+
+	/*
+	Only works with the class name from ck, because there subclasses are marked with a $ symbol.
+	 */
+	public static boolean evaluateSubclass(String className) { return className.contains("$"); }
 
 	public int getClassCbo() {
 		return classCbo;
