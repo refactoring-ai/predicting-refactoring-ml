@@ -6,6 +6,8 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class ProcessMetrics {
 
+
+	@Column(nullable = true) private boolean processMetricsAvailable;
 	@Column(nullable = true) private int qtyOfCommits;
 	@Column(nullable = true) private int linesAdded;
 	@Column(nullable = true) private int linesDeleted;
@@ -19,8 +21,10 @@ public class ProcessMetrics {
 	@Deprecated // hibernate purposes
 	public ProcessMetrics() {}
 
-	public ProcessMetrics(int qtyOfCommits, int linesAdded, int linesDeleted, int qtyOfAuthors, long qtyMinorAuthors,
-	                      long qtyMajorAuthors, double authorOwnership, int bugFixCount, int refactoringsInvolved) {
+	public ProcessMetrics(boolean processMetricsAvailable, int qtyOfCommits, int linesAdded, int linesDeleted, int qtyOfAuthors, long qtyMinorAuthors,
+						  long qtyMajorAuthors, double authorOwnership, int bugFixCount, int refactoringsInvolved) {
+		this.refactoringsInvolved = refactoringsInvolved;
+		this.processMetricsAvailable = processMetricsAvailable;
 		this.qtyOfCommits = qtyOfCommits;
 		this.linesAdded = linesAdded;
 		this.linesDeleted = linesDeleted;
@@ -29,12 +33,12 @@ public class ProcessMetrics {
 		this.qtyMajorAuthors = qtyMajorAuthors;
 		this.authorOwnership = authorOwnership;
 		this.bugFixCount = bugFixCount;
-		this.refactoringsInvolved = refactoringsInvolved;
 	}
 
 	@Override
 	public String toString() {
 		return "ProcessMetrics{" +
+				"processMetricsAvailable=" + processMetricsAvailable +
 				"qtyOfCommits=" + qtyOfCommits +
 				", linesAdded=" + linesAdded +
 				", linesDeleted=" + linesDeleted +
@@ -46,6 +50,8 @@ public class ProcessMetrics {
 				", refactoringsInvolved=" + refactoringsInvolved +
 				'}';
 	}
+
+	public boolean hasProcessMetrics() { return processMetricsAvailable; }
 
 	public int getQtyOfCommits() {
 		return qtyOfCommits;

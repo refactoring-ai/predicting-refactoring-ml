@@ -55,4 +55,15 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(56, project.getProductionLoc());
 
 	}
+
+	@Test
+	public void processMetricsAvailable() {
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+				.setParameter("project", project)
+				.list();
+
+		for (Yes element : yesList) {
+			Assert.assertFalse(element.getProcessMetrics().hasProcessMetrics());
+		}
+	}
 }

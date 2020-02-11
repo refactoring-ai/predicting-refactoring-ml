@@ -1,5 +1,6 @@
 package refactoringml.db;
 
+import refactoringml.ProcessMetric;
 import refactoringml.util.RefactoringUtils;
 
 import javax.persistence.*;
@@ -89,6 +90,8 @@ public class Yes {
 	public MethodMetric getMethodMetrics() {
 		return methodMetrics;
 	}
+
+	public ProcessMetrics getProcessMetrics() { return processMetrics; }
 
 	public VariableMetric getVariableMetrics() {
 		return variableMetrics;

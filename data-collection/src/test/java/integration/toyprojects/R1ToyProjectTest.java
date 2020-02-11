@@ -49,5 +49,18 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(0, project.getNumberOfTestFiles());
 
 		Assert.assertEquals(9, project.getProductionLoc());
+
 	}
+
+	@Test
+	public void processMetricsAvailable() {
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+				.setParameter("project", project)
+				.list();
+
+		for (Yes element : yesList) {
+			Assert.assertFalse(element.getProcessMetrics().hasProcessMetrics());
+		}
+	}
+
 }

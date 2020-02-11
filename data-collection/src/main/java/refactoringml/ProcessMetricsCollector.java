@@ -1,5 +1,6 @@
 package refactoringml;
 
+import com.github.javaparser.utils.Log;
 import com.github.mauricioaniche.ck.CK;
 import com.github.mauricioaniche.ck.CKMethodResult;
 import com.google.common.io.Files;
@@ -71,7 +72,6 @@ public class ProcessMetricsCollector {
 
 		boolean lastFound = false;
 		while(commit!=null && !lastFound) {
-
 			// did we find the commit to stop?
 			// if so, process it, and then stop
 			if(commit.getName().equals(lastCommitToProcess))
@@ -89,11 +89,10 @@ public class ProcessMetricsCollector {
 					try {
 						db.openSession();
 						refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
-						db.commit();
 					} catch (Exception e) {
 						log.error("Error when collecting process metrics in commit " + commit.getName(), e);
-						db.rollback();
 					} finally {
+						db.commit();
 						db.close();
 					}
 				}
@@ -106,10 +105,10 @@ public class ProcessMetricsCollector {
 				try {
 					db.openSession();
 					updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
-					db.commit();
 				} catch (Exception e) {
-					db.rollback();
+					log.error("Error when collecting process metrics in commit " + commit.getName(), e);
 				} finally {
+					db.commit();
 					db.close();
 				}
 			}
@@ -233,6 +232,7 @@ public class ProcessMetricsCollector {
 			// TODO: better track renames. As soon as a class is renamed, transfer its process metrics.
 			if(currentProcessMetrics == null) {
 				dbProcessMetrics = new ProcessMetrics(
+						false,
 						-1,
 						-1,
 						-1,
@@ -251,6 +251,7 @@ public class ProcessMetricsCollector {
 			} else {
 
 				dbProcessMetrics = new ProcessMetrics(
+						true,
 						currentProcessMetrics.qtyOfCommits(),
 						currentProcessMetrics.getLinesAdded(),
 						currentProcessMetrics.getLinesDeleted(),
@@ -289,6 +290,8 @@ public class ProcessMetricsCollector {
 
 			ProcessMetric filePm = pmDatabase.get(fileName);
 			ProcessMetrics dbProcessMetrics = new ProcessMetrics(
+					//TODO: figure out if there is a smarter way to set the has metrics boolean for this case
+					filePm != null,
 					filePm.getBaseCommits(),
 					filePm.getBaseLinesAdded(),
 					filePm.getBaseLinesDeleted(),
