@@ -51,33 +51,16 @@ public class ProcessMetricsCollector {
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allYeses, boolean isRefactoring) throws IOException {
-		if(commit.getParentCount() <= 1) {
-			RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
+		if(commit.getParentCount() > 1) return;
 
-			Set<String> refactoredClasses = new HashSet<>();
+		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
+		Set<String> refactoredClasses = new HashSet<>();
 
-			// if the class happened to be refactored, then, print its process metrics at that time
-			if (isRefactoring) {
-				try {
-					db.openSession();
-					refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit, allYeses);
-					db.commit();
-				} catch (Exception e) {
-					log.error("Error when collecting process metrics in commit " + commit.getName(), e);
-					db.rollback();
-				} finally {
-					db.close();
-				}
-			}
-
-			// we go now change by change in the commit to update the process metrics there
-			// (no need for db here, as this update happens only locally)
-			updateProcessMetrics(commit, commitParent);
-
-			// update classes that were not refactored on this commit
+		// if the class happened to be refactored, then, print its process metrics at that time
+		if (isRefactoring) {
 			try {
 				db.openSession();
-				updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
+				refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit, allYeses);
 				db.commit();
 			} catch (Exception e) {
 				log.error("Error when collecting process metrics in commit " + commit.getName(), e);
@@ -85,6 +68,22 @@ public class ProcessMetricsCollector {
 			} finally {
 				db.close();
 			}
+		}
+
+		// we go now change by change in the commit to update the process metrics there
+		// (no need for db here, as this update happens only locally)
+		updateProcessMetrics(commit, commitParent);
+
+		// update classes that were not refactored on this commit
+		try {
+			db.openSession();
+			updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
+			db.commit();
+		} catch (Exception e) {
+			log.error("Error when collecting process metrics in commit " + commit.getName(), e);
+			db.rollback();
+		} finally {
+			db.close();
 		}
 	}
 
