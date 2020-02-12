@@ -19,6 +19,7 @@ import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
+import java.nio.InvalidMarkException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -210,15 +211,13 @@ public class RefactoringAnalyzer {
 	private Yes calculateCkMetrics(String refactoredClass, String refactorCommit, Calendar refactoringDate, Refactoring refactoring, String parentCommit) {
 		final List<Yes> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
-
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
-			boolean isSubclass = ClassMetric.evaluateSubclass(ck.getClassName());
 
-			if(!isSubclass && !cleanedCkClassName.equals(refactoredClass)) {
-				//TODO: when do the refactored class name and cleaned class name do not match?
-				log.error("Incorrect class name: " + cleanedCkClassName + " expected: " + refactoredClass);
+			//Ignore all subclass callbacks from CK, that are not relevant in this case
+			if(!cleanedCkClassName.equals(refactoredClass))
 				return;
-			}
+
+			boolean isSubclass = CKUtils.evaluateSubclass(ck.getType());
 
 			// collect the class level metrics
 			ClassMetric classMetric = new ClassMetric(

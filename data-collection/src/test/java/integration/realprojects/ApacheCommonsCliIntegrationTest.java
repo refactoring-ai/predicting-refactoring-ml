@@ -1,15 +1,15 @@
 package integration.realprojects;
 
 import integration.IntegrationBaseTest;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
 import refactoringml.db.Yes;
-
-import javax.transaction.TransactionScoped;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
@@ -51,23 +51,20 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 			}
 		}
 
-		List<No> noList = session.createQuery("From No where (className = :className1 or className = :className2) and project = :project")
+		Query query = session.createQuery("From No where (className = :className1 or className = :className2) and project = :project")
 				.setParameter("className1", "org.apache.commons.cli.HelpFormatter")
 				.setParameter("className2", "org.apache.commons.cli.HelpFormatter.StringBufferComparator")
-				.setParameter("project", project)
-				.list();
+				.setParameter("project", project);
+		List<No> noList = query.list();
+		Assert.assertEquals(927, noList.size());
 
-		//TODO: figure out why the where condition doesn't work
-		Assert.assertEquals(358, noList.size());
-		for (No no : noList){
-			switch(no.getClassName()){
-				case "org.apache.commons.cli.HelpFormatter.StringBufferComparator":
-					Assert.assertTrue(no.getClassMetrics().isSubclass());
-					break;
-				default:
-					Assert.assertFalse(no.getClassMetrics().isSubclass());
-			}
-		}
+		List<No> areSubclasses = noList.stream().filter(no ->
+				no.getClassMetrics().isSubclass()
+				&& no.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
+		List<No> areNoSubclasses = noList.stream().filter(no -> !no.getClassMetrics().isSubclass()).collect(Collectors.toList());
+
+		Assert.assertEquals(13, areSubclasses.size());
+		Assert.assertEquals(914, areNoSubclasses.size());
 	}
 
 

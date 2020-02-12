@@ -349,7 +349,7 @@ public class ProcessMetricsCollector {
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 			ClassMetric classMetric = new ClassMetric(
-					ClassMetric.evaluateSubclass(ck.getClassName()),
+					CKUtils.evaluateSubclass(ck.getType()),
 					ck.getCbo(),
 					ck.getWmc(),
 					ck.getRfc(),

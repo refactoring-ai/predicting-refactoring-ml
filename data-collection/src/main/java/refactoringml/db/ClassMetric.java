@@ -142,11 +142,6 @@ public class ClassMetric {
 
 	public boolean isSubclass(){ return isSubclass; }
 
-	/*
-	Only works with the class name from ck, because there subclasses are marked with a $ symbol.
-	 */
-	public static boolean evaluateSubclass(String className) { return className.contains("$"); }
-
 	public int getClassCbo() {
 		return classCbo;
 	}
