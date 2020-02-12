@@ -89,10 +89,10 @@ public class ProcessMetricsCollector {
 					try {
 						db.openSession();
 						refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit);
+						db.commit();
 					} catch (Exception e) {
 						log.error("Error when collecting process metrics in commit " + commit.getName(), e);
 					} finally {
-						db.commit();
 						db.close();
 					}
 				}
@@ -105,10 +105,10 @@ public class ProcessMetricsCollector {
 				try {
 					db.openSession();
 					updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
+					db.commit();
 				} catch (Exception e) {
 					log.error("Error when collecting process metrics in commit " + commit.getName(), e);
 				} finally {
-					db.commit();
 					db.close();
 				}
 			}

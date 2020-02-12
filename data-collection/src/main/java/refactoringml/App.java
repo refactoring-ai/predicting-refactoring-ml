@@ -142,7 +142,6 @@ public class App {
 				commitIdToProcess = null;
 
 				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
-				//TODO: make the timeout a config setting, thus we could change it easily e.g. for testing
 				miner.detectAtCommit(repo, commitHash, handler, 20);
 
 				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
