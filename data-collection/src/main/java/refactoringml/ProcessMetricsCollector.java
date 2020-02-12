@@ -159,6 +159,11 @@ public class ProcessMetricsCollector {
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 					log.info("[TRACK] File was changed in commit " + commit.getId().getName() + ", updating process metrics");
 				}
+				//TODO: Track Renames issue #19
+				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
+				else if (){
+					pmDatabase.rename(oldClassName, newClassName);
+				}
 
 				// do not collect these numbers if not a java file (save some memory)
 				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
@@ -166,15 +171,14 @@ public class ProcessMetricsCollector {
 					continue;
 				}
 
-				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
+				//TODO: Figure out if DELETES are
+				// if the class was deleted, we remove it from our pmDatabase, as to not mess
 				// with the refactoring counter...
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
 				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
 					pmDatabase.remove(entry.getOldPath());
-
-					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
-						continue;
+					continue;
 				}
 
 				// add class to our in-memory pmDatabase
@@ -185,9 +189,10 @@ public class ProcessMetricsCollector {
 				int linesDeleted = 0;
 				int linesAdded = 0;
 
+				//wrong, this always overrides previous results
 				for (Edit edit : diffFormatter.toFileHeader(entry).toEditList()) {
-					linesDeleted = edit.getEndA() - edit.getBeginA();
-					linesAdded = edit.getEndB() - edit.getBeginB();
+					linesDeleted += edit.getEndA() - edit.getBeginA();
+					linesAdded += edit.getEndB() - edit.getBeginB();
 				}
 
 				// update our pmDatabase entry with the information of the current commit
@@ -201,7 +206,6 @@ public class ProcessMetricsCollector {
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 					log.info("[TRACK] Counter increased to " + currentClazz.counter());
 				}
-
 			}
 		}
 	}

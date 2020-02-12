@@ -87,9 +87,7 @@ public class No {
 		return commit;
 	}
 
-	public ProcessMetrics getProcessMetrics() {
-		return processMetrics;
-	}
+	public ProcessMetrics getProcessMetrics() { return processMetrics; }
 
 	public ClassMetric getClassMetrics() {
 		return classMetrics;

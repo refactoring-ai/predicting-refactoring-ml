@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PMDatabase {
-
+	/*
+	Maps class names onto their original process metrics.
+	 */
 	private Map<String, ProcessMetric> database;
 	private int commitThreshold;
 
@@ -14,7 +16,6 @@ public class PMDatabase {
 		this.commitThreshold = commitThreshold;
 		this.database = new HashMap<>();
 	}
-
 
 	public boolean containsKey (String fileName) {
 		return database.containsKey(fileName);
@@ -44,5 +45,16 @@ public class PMDatabase {
 
 	public Map<String, ProcessMetric> getDatabase() {
 		return database;
+	}
+
+	/*
+	Report the rename of a class in order to track its process metrics.
+	In case of (various renames), the names are replaced, e.g.
+	1. Rename People to Person: Person -> People_ProcessMetrics
+	2. Rename Person to Human: Human -> People_ProcessMetrics
+	 */
+	public boolean rename(String oldClassName, String newClassName){
+		ProcessMetric metric = database.remove(oldClassName);
+		return database.put(newClassName, metric) != null;
 	}
 }

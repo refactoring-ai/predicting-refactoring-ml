@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
+import refactoringml.ProcessMetric;
 import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
 
@@ -148,5 +149,15 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(noCommits, assertCommits);
 	}
 
+	protected void assertProcessMetrics(Yes yes, ProcessMetrics truth) {
+		assertProcessMetrics(yes.getProcessMetrics(), truth);
+	}
 
+	protected void assertProcessMetrics(No no, ProcessMetrics truth) {
+		assertProcessMetrics(no.getProcessMetrics(), truth);
+	}
+
+	private void assertProcessMetrics(ProcessMetrics found, ProcessMetrics truth){
+		Assert.assertEquals(truth.toString(), found.toString());
+	}
 }

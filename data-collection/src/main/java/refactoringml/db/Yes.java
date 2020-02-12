@@ -1,5 +1,6 @@
 package refactoringml.db;
 
+import refactoringml.ProcessMetric;
 import refactoringml.util.RefactoringUtils;
 
 import javax.persistence.*;
@@ -98,9 +99,11 @@ public class Yes {
 		return fieldMetrics;
 	}
 
-	public String getClassName() {
-		return className;
+	public ProcessMetrics getProcessMetrics() {
+		return processMetrics;
 	}
+
+	public String getClassName() { return className; }
 
 	@Override
 	public String toString() {

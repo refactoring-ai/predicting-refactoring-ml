@@ -77,6 +77,7 @@ public class RefactoringAnalyzer {
 
 				List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
 
+				//TODO: Process metrics: Track renames #19
 				// we try to match either the old or the new name of the file.
 				// this is to help us in catching renames or moves
 				Optional<DiffEntry> refactoredEntry = entries.stream()
