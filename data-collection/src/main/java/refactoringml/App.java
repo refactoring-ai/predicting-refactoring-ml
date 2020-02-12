@@ -155,7 +155,7 @@ public class App {
 					for (Refactoring ref : refactoringsToProcess) {
 						try {
 							db.openSession();
-							allYeses = refactoringAnalyzer.collectCommitData(currentCommit, ref);
+							allYeses.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref));
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;

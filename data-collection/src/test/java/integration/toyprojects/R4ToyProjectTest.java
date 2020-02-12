@@ -23,7 +23,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
 				.setParameter("project", project)
 				.list();
-		Assert.assertEquals(2, yesList.size());
+		Assert.assertEquals(3, yesList.size());
 
 		String extractCommit = "dd9aa00b03c9456c69c5e6566040fb994d7c9d98";
 		Yes extractYes = yesList.stream().filter(yes -> yes.getRefactorCommit().equals(extractCommit)).findFirst().get();
