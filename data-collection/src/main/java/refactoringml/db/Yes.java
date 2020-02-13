@@ -91,19 +91,19 @@ public class Yes {
 		return methodMetrics;
 	}
 
-	public VariableMetric getVariableMetrics() {
-		return variableMetrics;
-	}
+	public VariableMetric getVariableMetrics() { return variableMetrics; }
 
 	public FieldMetric getFieldMetrics() {
 		return fieldMetrics;
 	}
 
-	public ProcessMetrics getProcessMetrics() {
-		return processMetrics;
-	}
+	public ProcessMetrics getProcessMetrics() { return processMetrics;}
 
 	public String getClassName() { return className; }
+
+	public ClassMetric getClassMetrics() { return classMetrics; }
+
+	public String getRefactorCommit() { return refactorCommit; }
 
 	@Override
 	public String toString() {
@@ -123,9 +123,5 @@ public class Yes {
 				", fieldMetrics=" + fieldMetrics +
 				", processMetrics=" + processMetrics +
 				'}';
-	}
-
-	public String getRefactorCommit() {
-		return refactorCommit;
 	}
 }

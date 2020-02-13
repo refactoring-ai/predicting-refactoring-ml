@@ -45,6 +45,7 @@ public class RunQueue {
 		String pwd = "";
 		int threshold = 50;
 		boolean storeFullSourceCode = true;
+		//TODO: remove references to mauricios desktop, e.g. make this an argument
 		String storagePath = "/Users/mauricioaniche/Desktop/results/";
 
 		boolean test = false;
@@ -99,16 +100,10 @@ public class RunQueue {
 		String gitUrl = msg[1];
 
 		log.info("Dataset: " + dataset + ", Git URL: " + gitUrl);
-
-		// do not run if the project is already in the database
-		if (db.projectExists(gitUrl)) {
-			System.out.println(String.format("Project %s already in the database", gitUrl));
-		} else {
-			try {
-				new App(dataset, gitUrl, storagePath, threshold, db, storeFullSourceCode).run();
-			} catch(Exception e) {
-				log.error("Error while processing " + gitUrl, e);
-			}
+		try {
+			new App(dataset, gitUrl, storagePath, threshold, db, storeFullSourceCode).run();
+		} catch(Exception e) {
+			log.error("Error while processing " + gitUrl, e);
 		}
 	}
 

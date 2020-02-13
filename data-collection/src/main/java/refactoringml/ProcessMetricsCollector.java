@@ -22,6 +22,7 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static refactoringml.util.CKUtils.cleanClassName;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
@@ -161,7 +162,9 @@ public class ProcessMetricsCollector {
 				}
 				//TODO: Track Renames issue #19
 				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
-				else if (){
+				else if (false){
+					String oldClassName = "";
+					String newClassName = "";
 					pmDatabase.rename(oldClassName, newClassName);
 				}
 
@@ -350,8 +353,10 @@ public class ProcessMetricsCollector {
 		List<No> nos = new ArrayList<>();
 
 		new CK().calculate(tempDir, ck -> {
-
-			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
+			String cleanedCkClassName = cleanClassName(ck.getClassName());
+			ClassMetric classMetric = new ClassMetric(
+					CKUtils.evaluateSubclass(ck.getType()),
+					ck.getCbo(),
 					ck.getWmc(),
 					ck.getRfc(),
 					ck.getLcom(),
@@ -396,7 +401,7 @@ public class ProcessMetricsCollector {
 					commitHashBackThen,
 					commitDate,
 					ck.getFile().replace(tempDir, ""),
-					ck.getClassName(),
+					cleanedCkClassName,
 					classMetric,
 					null,
 					null,
@@ -438,7 +443,7 @@ public class ProcessMetricsCollector {
 						commitHashBackThen,
 						commitDate,
 						ck.getFile().replace(tempDir, ""),
-						ck.getClassName(),
+						cleanedCkClassName,
 						classMetric,
 						methodMetrics,
 						null,
@@ -455,7 +460,7 @@ public class ProcessMetricsCollector {
 							commitHashBackThen,
 							commitDate,
 							ck.getFile().replace(tempDir, ""),
-							ck.getClassName(),
+							cleanedCkClassName,
 							classMetric,
 							methodMetrics,
 							variableMetric,
@@ -482,7 +487,7 @@ public class ProcessMetricsCollector {
 						commitHashBackThen,
 						commitDate,
 						ck.getFile().replace(tempDir, ""),
-						ck.getClassName(),
+						cleanedCkClassName,
 						classMetric,
 						null,
 						null,

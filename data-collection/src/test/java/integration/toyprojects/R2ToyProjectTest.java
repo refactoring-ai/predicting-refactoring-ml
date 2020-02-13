@@ -1,7 +1,9 @@
 package integration.toyprojects;
 
 import integration.IntegrationBaseTest;
+import org.hibernate.query.Query;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.ProcessMetric;
@@ -10,6 +12,7 @@ import refactoringml.db.ProcessMetrics;
 import refactoringml.db.Yes;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R2ToyProjectTest extends IntegrationBaseTest {
@@ -46,6 +49,22 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
+	public void isSubclass() {
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+				.setParameter("project", project)
+				.list();
+		Assert.assertEquals(2, yesList.size());
+
+		List<Yes> areSubclasses = yesList.stream().filter(yes ->
+				yes.getClassMetrics().isSubclass()
+						&& yes.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
+		List<Yes> areNoSubclasses = yesList.stream().filter(yes -> !yes.getClassMetrics().isSubclass()).collect(Collectors.toList());
+
+		Assert.assertEquals(0, areSubclasses.size());
+		Assert.assertEquals(2, areNoSubclasses.size());
+	}
+
+	@Test
 	public void no() {
 		// there are no instances of no variables, as the repo is too small
 		List<No> noList = session.createQuery("From No where project = :project")
@@ -56,7 +75,6 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	public void metrics() {
-
 		// the next two assertions come directly from a 'cloc .' in the project
 		Assert.assertEquals(64, project.getJavaLoc());
 
@@ -67,6 +85,5 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(1, project.getNumberOfTestFiles());
 
 		Assert.assertEquals(56, project.getProductionLoc());
-
 	}
 }
