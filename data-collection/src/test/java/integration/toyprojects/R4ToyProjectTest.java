@@ -1,6 +1,5 @@
 package integration.toyprojects;
 
-import com.jcabi.immutable.Array;
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -9,8 +8,6 @@ import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
 import refactoringml.db.ProcessMetrics;
 import refactoringml.db.Yes;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -124,6 +121,22 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	public void metrics() {
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+				.setParameter("project", project)
+				.list();
+		ProcessMetrics methodExtract = new ProcessMetrics(
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0.0,
+				0,
+				0
+		);
+		assertProcessMetrics(filterCommit(yesList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0), methodExtract);
+
 		//TODO: The author owner ship metric is a bit weird with 0.5, I would expect something like 0.25
 		ProcessMetrics methodRename = new ProcessMetrics(
 				7,
@@ -136,10 +149,6 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				5
 		);
-		List<Yes> yesList = session.createQuery("From Yes where project = :project and refactoring = :refactoring order by refactoringDate desc")
-				.setParameter("project", project)
-				.setParameter("refactoring", "Rename Method")
-				.list();
 		assertProcessMetrics(filterCommit(yesList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0), methodRename);
 
 		// the next two assertions come directly from a 'cloc .' in the project

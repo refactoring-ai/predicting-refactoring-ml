@@ -11,10 +11,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
-import refactoringml.ProcessMetric;
 import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;

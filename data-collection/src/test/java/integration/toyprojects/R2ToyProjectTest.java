@@ -1,16 +1,12 @@
 package integration.toyprojects;
 
 import integration.IntegrationBaseTest;
-import org.hibernate.query.Query;
 import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import refactoringml.ProcessMetric;
 import refactoringml.db.No;
 import refactoringml.db.ProcessMetrics;
 import refactoringml.db.Yes;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
