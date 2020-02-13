@@ -1,13 +1,15 @@
 package integration.realprojects;
 
 import integration.IntegrationBaseTest;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.query.Query;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
 import refactoringml.db.Yes;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
@@ -27,12 +29,49 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		return "src/java/org/apache/commons/cli/Option.java";
 	}
 
+	/*
+	Test the isSubclass boolean
+	 */
+	@Test
+	public void isSubclass() {
+		List<Yes> yesList = session.createQuery("From Yes where (className = :className1 or className = :className2) and project = :project")
+				.setParameter("className1", "org.apache.commons.cli.HelpFormatter")
+				.setParameter("className2", "org.apache.commons.cli.HelpFormatter.StringBufferComparator")
+				.setParameter("project", project)
+				.list();
+
+		Assert.assertEquals(10, yesList.size());
+		for (Yes yes : yesList){
+			switch(yes.getClassName()){
+				case "org.apache.commons.cli.HelpFormatter.StringBufferComparator":
+					Assert.assertTrue(yes.getClassMetrics().isSubclass());
+					break;
+				default:
+					Assert.assertFalse(yes.getClassMetrics().isSubclass());
+			}
+		}
+
+		Query query = session.createQuery("From No where (className = :className1 or className = :className2) and project = :project")
+				.setParameter("className1", "org.apache.commons.cli.HelpFormatter")
+				.setParameter("className2", "org.apache.commons.cli.HelpFormatter.StringBufferComparator")
+				.setParameter("project", project);
+		List<No> noList = query.list();
+		Assert.assertEquals(927, noList.size());
+
+		List<No> areSubclasses = noList.stream().filter(no ->
+				no.getClassMetrics().isSubclass()
+				&& no.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
+		List<No> areNoSubclasses = noList.stream().filter(no -> !no.getClassMetrics().isSubclass()).collect(Collectors.toList());
+
+		Assert.assertEquals(13, areSubclasses.size());
+		Assert.assertEquals(914, areNoSubclasses.size());
+	}
+
+
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
 	// method getParsedOptionValue
 	@Test
 	public void t1() {
-
-
 		// manually verified
 		Yes instance1 = (Yes) session.createQuery("from Yes where refactoring = :refactoring and methodMetrics.fullMethodName = :method and refactorCommit = :refactorCommit and project = :project")
 				.setParameter("refactoring", "Extract Method")
@@ -48,7 +87,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		Assert.assertEquals(1, instance1.getMethodMetrics().getMethodMaxNestedBlocks());
 		Assert.assertEquals(2, instance1.getMethodMetrics().getMethodReturnQty());
 		Assert.assertEquals(0, instance1.getMethodMetrics().getMethodTryCatchQty());
-
 	}
 
 	// this test follows the src/java/org/apache/commons/cli/Option.java file
@@ -56,7 +94,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	// YES where variableAppearances = -1, as this happens in newly introduced variables.
 	@Test
 	public void t2() {
-
 		List<No> noList = session.createQuery("From No where filePath = :filePath and project = :project")
 				.setParameter("filePath", "src/java/org/apache/commons/cli/Option.java")
 				.setParameter("project", project)
@@ -79,7 +116,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		// the file should appear twice as examples of 'no'
 		assertNoRefactoring(noList, "aae50c585ec3ac33c6a9af792e80378904a73195", "5470bcaa9d75d73fb9c687fa13e12d642c75984f");
 		// TODO: assertions related to the values of the No metrics
-
 	}
 
 	// check the number of test and production files as well as their LOC

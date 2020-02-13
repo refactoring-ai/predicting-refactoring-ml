@@ -44,4 +44,9 @@ public class CKUtils {
 	public static String cleanClassName(String clazzName) {
 		return clazzName.replaceAll("\\$", "\\.");
 	}
+
+	/*
+	Only works with the class type from ck.
+	 */
+	public static boolean evaluateSubclass(String classType) { return classType.equals("subclass"); }
 }
