@@ -13,13 +13,9 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.astconverter.ASTConverter;
 import refactoringml.db.*;
-import refactoringml.util.CKUtils;
-import refactoringml.util.JGitUtils;
-import refactoringml.util.RefactoringUtils;
-import refactoringml.util.SourceCodeUtils;
+import refactoringml.util.*;
 
 import java.io.*;
-import java.nio.InvalidMarkException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -344,7 +340,7 @@ public class RefactoringAnalyzer {
 					refactorCommit,
 					refactoringDate,
 					parentCommit,
-					ck.getFile().replace(tempDir, ""),
+					FilePathUtils.enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 					cleanedCkClassName,
 					refactoring.getRefactoringType().getDisplayName(),
 					refactoringTypeInNumber(refactoring),
@@ -361,6 +357,7 @@ public class RefactoringAnalyzer {
 		return list.isEmpty() ? null : list.get(0);
 	}
 
+	//TODO: on my Windows computer the tempDir is not always deleted
 	private void cleanTmpDir() throws IOException {
 		if(tempDir != null) {
 			FileUtils.deleteDirectory(new File(tempDir));
@@ -369,8 +366,7 @@ public class RefactoringAnalyzer {
 	}
 
 	private void createTmpDir() {
-		tempDir = lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
+		String unixTmpDir = FilePathUtils.enforceUnixPaths(com.google.common.io.Files.createTempDir().getAbsolutePath());
+		tempDir = lastSlashDir(unixTmpDir);
 	}
-
-
 }

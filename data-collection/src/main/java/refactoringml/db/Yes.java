@@ -1,8 +1,7 @@
 package refactoringml.db;
 
-import refactoringml.ProcessMetric;
+import refactoringml.util.FilePathUtils;
 import refactoringml.util.RefactoringUtils;
-
 import javax.persistence.*;
 import java.util.Calendar;
 
@@ -55,7 +54,7 @@ public class Yes {
 		this.refactorCommit = refactorCommit;
 		this.refactoringDate = refactoringDate;
 		this.parentCommit = parentCommit;
-		this.filePath = filePath;
+		this.filePath = FilePathUtils.enforceUnixPaths(filePath);
 		this.className = className;
 		this.refactoring = refactoring;
 		this.refactoringType = refactoringType;
