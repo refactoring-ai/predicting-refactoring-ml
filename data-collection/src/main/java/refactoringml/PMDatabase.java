@@ -7,7 +7,10 @@ import java.util.stream.Collectors;
 
 public class PMDatabase {
 	/*
-	Maps class names onto their original process metrics.
+	Maps file names onto their original process metrics.
+	TODO: Track both class and filename renames
+	 I found that we currently only use filenames instead of classnames to track process metrics in the `PMDatabase.java`.
+	 Thus, we use the same process metric for all classes in a file.
 	 */
 	private Map<String, ProcessMetric> database;
 	private int commitThreshold;
@@ -39,22 +42,20 @@ public class PMDatabase {
 		remove(clazz.getFileName());
 	}
 
-	public void remove (String key) {
-		database.remove(key);
-	}
+	public void remove (String key) { database.remove(key); }
 
 	public Map<String, ProcessMetric> getDatabase() {
 		return database;
 	}
 
 	/*
-	Report the rename of a class in order to track its process metrics.
+	Report the rename of a file in order to track its process metrics.
 	In case of (various renames), the names are replaced, e.g.
-	1. Rename People to Person: Person -> People_ProcessMetrics
-	2. Rename Person to Human: Human -> People_ProcessMetrics
+	1. Rename People.java to Person.java: Person -> People_ProcessMetrics
+	2. Rename Person.java to Human.java: Human -> People_ProcessMetrics
 	 */
-	public boolean rename(String oldClassName, String newClassName){
-		ProcessMetric metric = database.remove(oldClassName);
-		return database.put(newClassName, metric) != null;
+	public boolean rename(String oldFilename, String newFilename){
+		ProcessMetric metric = database.remove(oldFilename);
+		return database.put(newFilename, metric) != null;
 	}
 }

@@ -26,11 +26,14 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate asc")
 				.setParameter("project", project)
 				.list();
-		Assert.assertEquals(5, yesList.size());
+		Assert.assertEquals(6, yesList.size());
 
 		assertRefactoring(yesList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98", "Extract Method", 1);
 		Assertions.assertEquals("a.Animal.Dog", yesList.get(0).getClassName());
 		Assertions.assertTrue(yesList.get(0).getClassMetrics().isSubclass());
+
+		assertRefactoring(yesList, "d3b912566712bdeda096c60a8887dd96b76ceb7b", "Rename Method", 1);
+		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", yesList.get(5).getClassName());
 	}
 
 	@Test
@@ -66,19 +69,78 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, renameClassFull, "Rename Class",1);
 
 		//no check if the class metrics were tracked and set correct
-		ProcessMetrics doubleRenameMetrics = new ProcessMetrics();
-		assertProcessMetrics(filterCommit(yesList, doubleRenameCommit).get(0), doubleRenameMetrics);
-		assertProcessMetrics(filterCommit(yesList, doubleRenameCommit).get(1), doubleRenameMetrics);
+		//TODO: Should the qtyOfCommits not be 3, as it is the 4th commit changing this file?
+		ProcessMetrics doubleRenameMetrics1 = new ProcessMetrics(
+				3,
+				34,
+				4,
+				1,
+				0,
+				1,
+				1.0,
+				0,
+				1
+		);
+		assertProcessMetrics(filterCommit(yesList, doubleRenameCommit).get(0), doubleRenameMetrics1);
+		ProcessMetrics doubleRenameMetrics2 = new ProcessMetrics(
+				3,
+				34,
+				4,
+				1,
+				0,
+				1,
+				1.0,
+				0,
+				2
+		);
+		assertProcessMetrics(filterCommit(yesList, doubleRenameCommit).get(1), doubleRenameMetrics2);
 
-		ProcessMetrics renameClassMetrics = new ProcessMetrics();
+		ProcessMetrics renameClassMetrics = new ProcessMetrics(
+				5,
+				36,
+				6,
+				2,
+				0,
+				2,
+				0.5,
+				0,
+				3
+		);
 		assertProcessMetrics(filterCommit(yesList, renameClass).get(0), renameClassMetrics);
-
-		ProcessMetrics renameFullMetrics = new ProcessMetrics();
+		//TODO: The author owner ship metric is a bit weird with 0.4, I would expect something like 0.33
+		ProcessMetrics renameFullMetrics = new ProcessMetrics(
+				6,
+				37,
+				7,
+				3,
+				0,
+				3,
+				0.4,
+				0,
+				4
+		);
 		assertProcessMetrics(filterCommit(yesList, renameClassFull).get(0), renameFullMetrics);
 	}
 
 	@Test
 	public void metrics() {
+		ProcessMetrics methodRename = new ProcessMetrics(
+				7,
+				38,
+				8,
+				4,
+				0,
+				4,
+				0.25,
+				0,
+				5
+		);
+		List<Yes> yesList = session.createQuery("From Yes where project = :project and refactoring = :refactoring order by refactoringDate desc")
+				.setParameter("project", project)
+				.setParameter("refactoring", "Rename Method")
+				.list();
+		assertProcessMetrics(filterCommit(yesList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0), methodRename);
+
 		// the next two assertions come directly from a 'cloc .' in the project
 		Assert.assertEquals(29, project.getJavaLoc());
 

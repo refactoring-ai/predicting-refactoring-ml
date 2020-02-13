@@ -155,17 +155,10 @@ public class ProcessMetricsCollector {
 			diffFormatter.setDetectRenames(true);
 
 			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
-				String fileName = entry.getPath(null);
+				String fileName = entry.getNewPath();
 
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 					log.info("[TRACK] File was changed in commit " + commit.getId().getName() + ", updating process metrics");
-				}
-				//TODO: Track Renames issue #19
-				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
-				else if (false){
-					String oldClassName = "";
-					String newClassName = "";
-					pmDatabase.rename(oldClassName, newClassName);
 				}
 
 				// do not collect these numbers if not a java file (save some memory)
@@ -174,17 +167,25 @@ public class ProcessMetricsCollector {
 					continue;
 				}
 
-				//TODO: Figure out if DELETES are
 				// if the class was deleted, we remove it from our pmDatabase, as to not mess
 				// with the refactoring counter...
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
-				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
+				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
 					pmDatabase.remove(entry.getOldPath());
+					log.info("Removed " + entry.getOldPath() + " from PMDatabase.");
 					continue;
 				}
+				//TODO: Track Renames - #19
+				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
+				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
+					String oldFileName = entry.getOldPath();
+					pmDatabase.rename(oldFileName, fileName);
+					log.info("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
+				}
 
-				// add class to our in-memory pmDatabase
+				//TODO: track class names instead of filenames for the process metrics
+				// add file () to our in-memory pmDatabase
 				if(!pmDatabase.containsKey(fileName))
 					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
 
@@ -221,7 +222,8 @@ public class ProcessMetricsCollector {
 		for (Long yesId : allYeses) {
 
 			Yes yes = db.findYes(yesId);
-
+			//TODO: the filePath from yes and Diffentry do not always match, e.g.
+			// C:\Users\jange\AppData\Local\Temp\1581607643389-0\a\Animal.java and a/Animal.java from toyrepo r4
 			String fileName = yes.getFilePath();
 
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
