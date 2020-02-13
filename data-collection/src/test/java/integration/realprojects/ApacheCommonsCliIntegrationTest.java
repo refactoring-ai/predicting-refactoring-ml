@@ -30,7 +30,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	}
 
 	/*
-	Test the isSubclass boolean
+	Test the isSubclass boolean for both yes and no.
 	 */
 	@Test
 	public void isSubclass() {
@@ -41,15 +41,13 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				.list();
 
 		Assert.assertEquals(10, yesList.size());
-		for (Yes yes : yesList){
-			switch(yes.getClassName()){
-				case "org.apache.commons.cli.HelpFormatter.StringBufferComparator":
-					Assert.assertTrue(yes.getClassMetrics().isSubclass());
-					break;
-				default:
-					Assert.assertFalse(yes.getClassMetrics().isSubclass());
-			}
-		}
+		List<Yes> areSubclassesYes = yesList.stream().filter(yes ->
+				yes.getClassMetrics().isSubclass()
+						&& yes.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
+		List<Yes> areNoSubclassesYes = yesList.stream().filter(yes -> !yes.getClassMetrics().isSubclass()).collect(Collectors.toList());
+
+		Assert.assertEquals(0, areSubclassesYes.size());
+		Assert.assertEquals(10, areNoSubclassesYes.size());
 
 		Query query = session.createQuery("From No where (className = :className1 or className = :className2) and project = :project")
 				.setParameter("className1", "org.apache.commons.cli.HelpFormatter")
