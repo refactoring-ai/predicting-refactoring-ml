@@ -39,10 +39,10 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		ProcessMetrics metrics = new ProcessMetrics(0, 1, 3, 1, 0, 1, 0, 0, 1);
 		assertProcessMetrics(renameRefactoring, metrics);
 
-		String nextCommit = "515365875143aa84b5bbb5c3191e7654a942912f";
-		assertRefactoring(yesList, nextCommit, "Extract Class", 1);
+		String extractCommit = "515365875143aa84b5bbb5c3191e7654a942912f";
+		assertRefactoring(yesList, extractCommit, "Extract Class", 1);
 
-		Yes extractClassRefactoring = yesList.stream().filter(yes -> yes.getRefactorCommit().equals(renameCommit)).findFirst().get();
+		Yes extractClassRefactoring = filterCommit(yesList, extractCommit).get(0);
 		//TODO: figure out what to expect here
 		metrics = new ProcessMetrics(0, 1, 3, 1, 0, 1, 0, 0, 1);
 		assertProcessMetrics(extractClassRefactoring, metrics);

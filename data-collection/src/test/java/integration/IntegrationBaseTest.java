@@ -133,16 +133,22 @@ public abstract class IntegrationBaseTest {
 
 	protected abstract String getRepo();
 
-	protected void assertRefactoring(List<Yes> yesList, String commit, String refactoring, int qty) {
+	protected List<Yes> filterCommit(List<Yes> yesList, String commit){
+		return yesList.stream().filter(yes -> yes.getRefactorCommit().equals(commit)).collect(Collectors.toList());
+	}
 
-		List<Yes> inCommit = yesList.stream().filter(x -> x.getRefactorCommit().equals(commit)).collect(Collectors.toList());
+	protected List<No> filterNoCommit(List<No> noList, String commit){
+		return noList.stream().filter(no -> no.getCommit().equals(commit)).collect(Collectors.toList());
+	}
+
+	protected void assertRefactoring(List<Yes> yesList, String commit, String refactoring, int qty) {
+		List<Yes> inCommit = filterCommit(yesList, commit);
 
 		long count = inCommit.stream().filter(x -> x.getRefactoring().equals(refactoring)).count();
 		Assert.assertEquals(qty, count);
 	}
 
 	protected void assertNoRefactoring(List<No> noList, String... commits) {
-
 		Set<String> noCommits = noList.stream().map(x -> x.getCommit()).collect(Collectors.toSet());
 		Set<String> assertCommits = Set.of(commits);
 
