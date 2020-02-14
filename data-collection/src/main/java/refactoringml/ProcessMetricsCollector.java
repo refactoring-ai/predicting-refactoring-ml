@@ -122,7 +122,6 @@ public class ProcessMetricsCollector {
 	}
 
 	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, Set<String> refactoredClasses) throws IOException {
-
 		// if there are classes over the threshold, we output them as an examples of not refactored classes,
 		// and we reset their counter.
 		// note that we have a lot of failures here, as X commits later, the class might had been
@@ -142,8 +141,7 @@ public class ProcessMetricsCollector {
 			// we then reset the counter, and start again.
 			// it is ok to use the same class more than once, as metrics as well as
 			// its source code will/may change, and thus, they are a different instance.
-			pm.resetCounter(commit.getName(), JGitUtils.getGregorianCalendar(commit));
-
+			pm.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
 		}
 
 	}
@@ -180,7 +178,7 @@ public class ProcessMetricsCollector {
 
 				// add class to our in-memory pmDatabase
 				if(!pmDatabase.containsKey(fileName))
-					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
+					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit)));
 
 				// collect number of lines deleted and added in that file
 				int linesDeleted = 0;
@@ -269,7 +267,7 @@ public class ProcessMetricsCollector {
 			// update counters
 			if(currentProcessMetrics != null) {
 				currentProcessMetrics.increaseRefactoringsInvolved();
-				currentProcessMetrics.resetCounter(commit.getName(), JGitUtils.getGregorianCalendar(commit));
+				currentProcessMetrics.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
 			}
 
 			refactoredClasses.add(fileName);
@@ -309,6 +307,7 @@ public class ProcessMetricsCollector {
 	private void outputNonRefactoredClass (ProcessMetric clazz) throws IOException {
 		String commitHashBackThen = clazz.getBaseCommitForNonRefactoring();
 		Calendar commitDate = clazz.getBaseCommitDateForNonRefactoring();
+		String commitMessage = clazz.getBaseCommitMessageForNonRefactoring();
 
 		String sourceCodeBackThen;
 
@@ -329,7 +328,7 @@ public class ProcessMetricsCollector {
 			createTempDir();
 
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
-			List<No> nos = codeMetrics(commitHashBackThen, commitDate);
+			List<No> nos = codeMetrics(commitHashBackThen, commitMessage, commitDate);
 
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
@@ -342,7 +341,7 @@ public class ProcessMetricsCollector {
 
 	}
 
-	private List<No> codeMetrics(String commitHashBackThen, Calendar commitDate) {
+	private List<No> codeMetrics(String commitHashBackThen, String commitMessage, Calendar commitDate) {
 
 		List<No> nos = new ArrayList<>();
 
@@ -393,6 +392,7 @@ public class ProcessMetricsCollector {
 			No no = new No(
 					project,
 					commitHashBackThen,
+					commitMessage,
 					commitDate,
 					ck.getFile().replace(tempDir, ""),
 					cleanedCkClassName,
@@ -435,6 +435,7 @@ public class ProcessMetricsCollector {
 				No noM = new No(
 						project,
 						commitHashBackThen,
+						commitMessage,
 						commitDate,
 						ck.getFile().replace(tempDir, ""),
 						cleanedCkClassName,
@@ -452,6 +453,7 @@ public class ProcessMetricsCollector {
 					No noV = new No(
 							project,
 							commitHashBackThen,
+							commitMessage,
 							commitDate,
 							ck.getFile().replace(tempDir, ""),
 							cleanedCkClassName,
@@ -479,6 +481,7 @@ public class ProcessMetricsCollector {
 				No noF = new No(
 						project,
 						commitHashBackThen,
+						commitMessage,
 						commitDate,
 						ck.getFile().replace(tempDir, ""),
 						cleanedCkClassName,

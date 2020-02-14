@@ -10,7 +10,8 @@ public class ProcessMetricTest {
 
 	@Test
 	public void authorOwnership() {
-		ProcessMetric pm = new ProcessMetric("a.Java", "123", Calendar.getInstance());
+		//TODO: What commit message should I use here?
+		ProcessMetric pm = new ProcessMetric("a.Java", "123", "", Calendar.getInstance());
 
 		for(int i = 0; i < 90; i++) {
 			pm.existsIn("commit","Mauricio", 10, 20);
@@ -37,7 +38,8 @@ public class ProcessMetricTest {
 		int qtyKeywords = ProcessMetric.bugKeywords.length;
 		Random rnd = new Random();
 
-		ProcessMetric pm = new ProcessMetric("a.Java", "123", Calendar.getInstance());
+		//TODO: What commit message should I use here?
+		ProcessMetric pm = new ProcessMetric("a.Java", "123", "", Calendar.getInstance());
 
 		pm.existsIn( "bug fix here","Rafael", 10, 20);
 

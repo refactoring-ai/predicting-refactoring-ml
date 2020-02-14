@@ -99,6 +99,8 @@ public class Project {
 		return projectSizeInBytes;
 	}
 
+	public String getGitUrl() {return gitUrl;}
+
 	@Override
 	public String toString() {
 		return "Project{" +
