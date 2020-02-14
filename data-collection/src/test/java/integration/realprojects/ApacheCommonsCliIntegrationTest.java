@@ -68,6 +68,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 	@Test
 	public void commitMetaData(){
+		//TODO: How to check the commit url without changing IntegrationBasetest, as the
 		String renameCommit = "04490af06faa8fd1be15da88172beb32218dd336";
 		assertMetaDataYes(
 				renameCommit,
@@ -81,8 +82,11 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		String moveCommit = "347bbeb8f98a49744501ac50850457ba8751d545";
 		assertMetaDataYes(
 				moveCommit,
-				"Move Method",
-				"",
+				"refactored the option string handling, added property support for options with an argument value\n" +
+						"\n" +
+						"\n" +
+						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129846 13f79535-47bb-0310-9956-ffa450edef68",
+				"Rename Parameter\topts : Options to options : Options in method public parse(options Options, arguments String[], stopAtNonOption boolean) : CommandLine in class org.apache.commons.cli.Parser",
 				getRepo().replace(".git", "") + "/commit/" + moveCommit);
 
 		String noCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
