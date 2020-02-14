@@ -91,6 +91,10 @@ public class No {
 
 	public String getClassName() { return className; }
 
+	public String getCommitMessage (){return commitMessage;}
+
+	public String getCommitUrl (){return commitUrl;}
+
 	@Override
 	public String toString() {
 		return "No{" +

@@ -41,6 +41,16 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
+	public void commitMetaData(){
+		String commit = "dd9aa00b03c9456c69c5e6566040fb994d7c9d98";
+		assertMetaDataYes(
+				commit,
+				"extract method",
+				"Extract Method\tprivate print(a int, b int, c int) : void extracted from public bark() : void in class a.Animal.Dog",
+				"@local/" + getRepo() + "/" + commit);
+	}
+
+	@Test
 	public void metrics() {
 		// the next two assertions come directly from a 'cloc .' in the project
 		Assert.assertEquals(29, project.getJavaLoc());

@@ -1,7 +1,7 @@
 package integration.realprojects;
 
+import com.jcabi.immutable.Array;
 import integration.IntegrationBaseTest;
-import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -67,6 +67,43 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		Assert.assertEquals(914, areNoSubclasses.size());
 	}
 
+	@Test
+	public void commitMetaData(){
+		String renameCommit = "04490af06faa8fd1be15da88172beb32218dd336";
+		assertMetaDataYes(
+				renameCommit,
+				"bug #11457: implemented fix, javadoc added to Option\n" +
+						"\n" +
+						"\n" +
+						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129803 13f79535-47bb-0310-9956-ffa450edef68",
+				"Extract Variable\tkey : String in method package setOpt(opt Option) : void from class org.apache.commons.cli.CommandLine",
+				getRepo() + "/commit/" + renameCommit);
+
+		String moveCommit = "347bbeb8f98a49744501ac50850457ba8751d545";
+		assertMetaDataYes(
+				moveCommit,
+				"Move Method",
+				"",
+				getRepo() + "/commit/" + moveCommit);
+
+		String noCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
+		assertMetaDataNo(
+				noCommit1,
+				"moved cli over from the sandbox to commons proper\n" +
+						"\n" +
+						"\n" +
+						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68",
+				getRepo() + "/commit/" + renameCommit);
+
+		String noCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
+		assertMetaDataNo(
+				noCommit2,
+				"javadoc updates\n" +
+						"\n" +
+						"\n" +
+						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68",
+				getRepo() + "/commit/" + renameCommit);
+	}
 
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
 	// method getParsedOptionValue

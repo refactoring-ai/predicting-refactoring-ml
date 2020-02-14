@@ -46,6 +46,16 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
+	public void commitMetaData(){
+		String commit = "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46";
+		assertMetaDataYes(
+				commit,
+				"rename class",
+				"Rename Class\tPerson renamed to People",
+				"@local/" + getRepo() + "/" + commit);
+	}
+
+	@Test
 	public void metrics() {
 
 		// the next two assertions come directly from a 'cloc .' in the project

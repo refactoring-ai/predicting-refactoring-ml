@@ -148,5 +148,24 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(noCommits, assertCommits);
 	}
 
+	protected void assertMetaDataYes (String commit, String commitMessage, String refactoringSummary, String commitUrl){
+		Yes yes = (Yes) session.createQuery("From Yes where project = :project and refactorCommit = :refactorCommit ")
+				.setParameter("project", project)
+				.setParameter("refactorCommit", commit)
+				.list().get(0);
 
+		Assert.assertEquals(refactoringSummary, yes.getRefactoringSummary());
+		Assert.assertEquals(commitMessage, yes.getCommitMessage());
+		Assert.assertEquals(commitUrl, yes.getCommitUrl());
+	}
+
+	protected void assertMetaDataNo(String commit, String commitMessage, String commitUrl){
+		No no = (No) session.createQuery("From No where project = :project and commit = :refactorCommit ")
+				.setParameter("project", project)
+				.setParameter("commit", commit)
+				.list().get(0);
+
+		Assert.assertEquals(commitMessage, no.getCommitMessage());
+		Assert.assertEquals(commitUrl, no.getCommitUrl());
+	}
 }

@@ -44,14 +44,11 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void commitMetaData(){
 		String commit = "21151bf7e36da52b9305d99755eb6f0b7616e620";
-		Yes yes = (Yes) session.createQuery("From Yes where project = :project and refactorCommit = :refactorCommit ")
-				.setParameter("project", project)
-				.setParameter("refactorCommit", commit)
-				.list().get(0);
-
-		Assert.assertEquals("Inline Method\tprivate convert(a int) : int inlined to public m1() : void in class a.Example1", yes.getRefactoringSummary());
-		Assert.assertEquals("inline method", yes.getCommitMessage());
-		Assert.assertEquals("@local/repos/r1/" + commit, yes.getCommitUrl());
+		assertMetaDataYes(
+				commit,
+				"inline method",
+				"Inline Method\tprivate convert(a int) : int inlined to public m1() : void in class a.Example1",
+				"@local/" + getRepo() + "/" + commit);
 	}
 
 	@Test

@@ -45,6 +45,16 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
+	public void commitMetaData(){
+		String commit = "31820e9d172ba571d93de14733101f8cb81853e8";
+		assertMetaDataYes(
+				commit,
+				"extract method",
+				"Extract Method\tprivate print2() : void extracted from public print() : void in class a.Test",
+				"@local/" + getRepo() + "/" + commit);
+	}
+
+	@Test
 	public void metrics() {
 
 		// the next two assertions come directly from a 'cloc .' in the project
