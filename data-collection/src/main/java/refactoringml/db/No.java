@@ -10,6 +10,8 @@ import java.util.Calendar;
 @Entity
 @Table(name = "no", indexes = {@Index(columnList = "project_id"), @Index(columnList = "type"), @Index(columnList = "isTest")})
 public class No {
+	//TODO: candidate for a config file
+	private final int stringMaxLength = 255;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,7 +71,8 @@ public class No {
 		this.variableMetrics = variableMetrics;
 		this.fieldMetrics = fieldMetrics;
 		this.type = type;
-		this.commitMessage = commitMessage.trim();
+		this.commitMessage = limitStringLength(commitMessage.trim());
+		//TODO: the project URL does not contain the remote url, if one exists, but the local one
 		this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commit, project.isLocal());
 
 		this.isTest = RefactoringUtils.isTestFile(this.filePath);
@@ -112,5 +115,10 @@ public class No {
 				", processMetrics=" + processMetrics +
 				", type=" + type +
 				'}';
+	}
+
+	//Limit the length of strings to stringMaxLength to avoid DataException from the DB
+	private String limitStringLength(String string){
+		return string.substring(0, Math.min(stringMaxLength, string.length()));
 	}
 }
