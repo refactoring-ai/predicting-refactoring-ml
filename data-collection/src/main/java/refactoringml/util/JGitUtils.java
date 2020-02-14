@@ -67,7 +67,8 @@ public class JGitUtils {
 		if (isLocal){
 			return String.format("@local/%s/%s", repositoryUrl, commitId);
 		}
-		return String.format("%s/commit/%s", repositoryUrl, commitId);
+		String cleanRepositoryUrl = repositoryUrl.replace(".git", "");
+		return String.format("%s/commit/%s", cleanRepositoryUrl, commitId);
 	}
 
 }

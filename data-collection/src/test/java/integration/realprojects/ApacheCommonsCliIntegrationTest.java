@@ -77,14 +77,14 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129803 13f79535-47bb-0310-9956-ffa450edef68",
 				"Extract Variable\tkey : String in method package setOpt(opt Option) : void from class org.apache.commons.cli.CommandLine",
-				getRepo() + "/commit/" + renameCommit);
+				getRepo().replace(".git", "") + "/commit/" + renameCommit);
 
 		String moveCommit = "347bbeb8f98a49744501ac50850457ba8751d545";
 		assertMetaDataYes(
 				moveCommit,
 				"Move Method",
 				"",
-				getRepo() + "/commit/" + moveCommit);
+				getRepo().replace(".git", "") + "/commit/" + moveCommit);
 
 		String noCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
 		assertMetaDataNo(
@@ -93,7 +93,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"\n" +
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68",
-				getRepo() + "/commit/" + renameCommit);
+				getRepo().replace(".git", "") + "/commit/" + renameCommit);
 
 		String noCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
 		assertMetaDataNo(
@@ -102,7 +102,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"\n" +
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68",
-				getRepo() + "/commit/" + renameCommit);
+				getRepo().replace(".git", "") + "/commit/" + renameCommit);
 	}
 
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
