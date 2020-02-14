@@ -1,5 +1,6 @@
 package refactoringml.db;
 
+import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
 
 import javax.persistence.*;
@@ -79,8 +80,7 @@ public class Yes {
 		this.variableMetrics = variableMetrics;
 		this.fieldMetrics = fieldMetrics;
 		this.commitMessage = commitMessage.trim();
-		//TODO: fix this for local repos, because repos/r1/commit/commitID is wrong
-		this.commitUrl = project.getGitUrl() + "/commit/" + refactorCommit;
+		this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), refactorCommit, project.isLocal());
 		this.refactoringSummary = refactoringSummary;
 
 		this.isTest = RefactoringUtils.isTestFile(this.filePath);

@@ -51,6 +51,7 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 
 		Assert.assertEquals("Inline Method\tprivate convert(a int) : int inlined to public m1() : void in class a.Example1", yes.getRefactoringSummary());
 		Assert.assertEquals("inline method", yes.getCommitMessage());
+		Assert.assertEquals("@local/repos/r1/" + commit, yes.getCommitUrl());
 	}
 
 	@Test

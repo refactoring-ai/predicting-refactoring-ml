@@ -61,6 +61,13 @@ public class JGitUtils {
 		return walk;
 	}
 
-
+	//Generate the commit url with repository url and the commit ID
+	//Local repositories without remote are formatted as: @local/repository/commit Id
+	public static String generateCommitUrl(String repositoryUrl, String commitId, boolean isLocal){
+		if (isLocal){
+			return String.format("@local/%s/%s", repositoryUrl, commitId);
+		}
+		return String.format("%s/commit/%s", repositoryUrl, commitId);
+	}
 
 }
