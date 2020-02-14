@@ -71,5 +71,4 @@ public class JGitUtils {
 		String cleanRepositoryUrl = repositoryUrl.replace(".git", "");
 		return String.format("%s/commit/%s", cleanRepositoryUrl, commitId);
 	}
-
 }

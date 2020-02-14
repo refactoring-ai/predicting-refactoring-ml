@@ -82,7 +82,6 @@ public class Yes {
 		this.variableMetrics = variableMetrics;
 		this.fieldMetrics = fieldMetrics;
 		this.commitMessage = limitStringLength(commitMessage.trim());
-		//TODO: the project URL does not contain the remote url, if one exists, but the local one
 		this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), refactorCommit, project.isLocal());
 		this.refactoringSummary = limitStringLength(refactoringSummary.trim());
 

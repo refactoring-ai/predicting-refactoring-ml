@@ -58,7 +58,7 @@ public class Project {
 		this.testLoc = c.getLocTestFiles();
 		this.projectSizeInBytes = projectSizeInBytes;
 		this.javaLoc = this.productionLoc + this.testLoc;
-		this.isLocal = !(gitUrl.startsWith("https") || gitUrl.startsWith("git"));
+		this.isLocal = isLocal(gitUrl);
 	}
 
 	public void setFinishedDate(Calendar finishedDate) {
@@ -104,6 +104,8 @@ public class Project {
 	public String getGitUrl() {return gitUrl; }
 
 	public boolean isLocal(){ return isLocal; }
+
+	public static boolean isLocal(String gitUrl) { return !(gitUrl.startsWith("https") || gitUrl.startsWith("git")); }
 
 	@Override
 	public String toString() {

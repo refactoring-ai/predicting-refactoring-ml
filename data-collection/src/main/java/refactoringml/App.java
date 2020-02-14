@@ -89,7 +89,7 @@ public class App {
 
 		// creates a temp dir to store the project
 		String newTmpDir = Files.createTempDir().getAbsolutePath();
-		String clonePath = (!gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
+		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
 
 		try {
 

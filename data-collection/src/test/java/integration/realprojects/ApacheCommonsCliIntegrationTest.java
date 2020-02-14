@@ -1,6 +1,5 @@
 package integration.realprojects;
 
-import com.jcabi.immutable.Array;
 import integration.IntegrationBaseTest;
 import org.hibernate.query.Query;
 import org.junit.Assert;

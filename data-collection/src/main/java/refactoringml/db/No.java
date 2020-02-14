@@ -72,7 +72,6 @@ public class No {
 		this.fieldMetrics = fieldMetrics;
 		this.type = type;
 		this.commitMessage = limitStringLength(commitMessage.trim());
-		//TODO: the project URL does not contain the remote url, if one exists, but the local one
 		this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commit, project.isLocal());
 
 		this.isTest = RefactoringUtils.isTestFile(this.filePath);
