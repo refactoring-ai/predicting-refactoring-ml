@@ -25,7 +25,9 @@ import refactoringml.util.JGitUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
@@ -122,7 +124,7 @@ public class App {
 
 
 			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
-			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, storeFullSourceCode);
+			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
 
 			RefactoringHandler handler = getRefactoringHandler(git);
 
@@ -142,7 +144,7 @@ public class App {
 
 				String commitHash = currentCommit.getId().getName();
 
-				log.debug("Invoking refactoringminer for commit " + commitHash);
+				log.debug("Invoking refactoring miner for commit " + commitHash);
 
 				refactoringsToProcess = null;
 				commitIdToProcess = null;
@@ -150,13 +152,16 @@ public class App {
 				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
 				miner.detectAtCommit(repo, commitHash, handler, 20);
 
+				//stores all the ck metrics for the current commit
+				Set<Long> allYeses = new HashSet<Long>();
+
 				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
 				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
 				if (thereIsRefactoringToProcess) {
 					for (Refactoring ref : refactoringsToProcess) {
 						try {
 							db.openSession();
-							refactoringAnalyzer.collectCommitData(currentCommit, ref);
+							allYeses.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref));
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
@@ -172,21 +177,20 @@ public class App {
 					exceptionsCount++;
 				}
 
+				//collect the process metrics for the current commit
+				if(currentCommit.getParentCount() <= 1)
+					processMetrics.collectMetrics(currentCommit, allYeses, thereIsRefactoringToProcess);
+
 				currentCommit = walk.next();
 			}
 
 			walk.close();
 
-			// all refactorings were detected, now we start the second phase:
-			// collecting process metrics and examples of non-refatored code
-			log.info("Starting the collection of the process metrics and the non-refactored classes");
-			processMetrics.collect();
-
 			long end = System.currentTimeMillis();
 			log.info(String.format("Finished in %.2f minutes", ( ( end - start ) / 1000.0 / 60.0 )));
 
 			// set finished data
-			// note that if this process crashes, finisheddate will be equals to null in the database
+			// note that if this process crashes, finished date will be equals to null in the database
 			// these projects must be deleted manually afterwards....
 			db.openSession();
 			project.setFinishedDate(Calendar.getInstance());
