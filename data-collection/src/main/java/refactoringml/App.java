@@ -171,8 +171,9 @@ public class App {
 					exceptionsCount++;
 				}
 
-				//collect the metrics for the current commit
-				processMetrics.collectMetrics(currentCommit, allYeses, thereIsRefactoringToProcess);
+				//collect the process metrics for the current commit
+				if(currentCommit.getParentCount() <= 1)
+					processMetrics.collectMetrics(currentCommit, allYeses, thereIsRefactoringToProcess);
 
 				currentCommit = walk.next();
 			}

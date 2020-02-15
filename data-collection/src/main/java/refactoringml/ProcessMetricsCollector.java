@@ -51,12 +51,11 @@ public class ProcessMetricsCollector {
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allYeses, boolean isRefactoring) throws IOException {
-		if(commit.getParentCount() > 1) return;
-
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 		Set<String> refactoredClasses = new HashSet<>();
 
-		// if the class happened to be refactored, then, print its process metrics at that time
+		//if this commit contained a refactoring, then collect its process metrics,
+		//otherwise only update the file process metrics
 		if (isRefactoring) {
 			try {
 				db.openSession();
