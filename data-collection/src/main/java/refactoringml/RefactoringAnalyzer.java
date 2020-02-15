@@ -13,13 +13,11 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
-import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,8 +63,8 @@ public class RefactoringAnalyzer {
 		}
 
 		RevCommit commitParent = commit.getParent(0);
+		CommitMetaData commitMetaData = new CommitMetaData(commit, project);
 
-		String commitMessage = commit.getFullMessage();
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
 
 			String refactoredClassFile = pair.getLeft();
@@ -119,10 +117,7 @@ public class RefactoringAnalyzer {
 					out.print(sourceCodeBefore);
 				}
 
-				// generate metric for the refactored class
-				Calendar commitTime = JGitUtils.getGregorianCalendar(commit);
-
-				Yes yes = calculateCkMetrics(refactoredClassName, commit.getId().getName(), commitMessage, commitTime, refactoring, refactoringSummary, commitParent.getId().getName());
+				Yes yes = calculateCkMetrics(refactoredClassName, commitMetaData, refactoring, refactoringSummary);
 
 				if(yes!=null) {
 					// mark it as To Do for the process metrics tool
@@ -208,7 +203,7 @@ public class RefactoringAnalyzer {
 
 	}
 
-	private Yes calculateCkMetrics(String refactoredClass, String refactorCommit, String commitMessage, Calendar refactoringDate, Refactoring refactoring, String refactoringSummary, String parentCommit) {
+	private Yes calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
 		final List<Yes> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
@@ -340,10 +335,7 @@ public class RefactoringAnalyzer {
 			// assemble the final object
 			Yes yes = new Yes(
 					project,
-					refactorCommit,
-					commitMessage,
-					refactoringDate,
-					parentCommit,
+					commitMetaData,
 					ck.getFile().replace(tempDir, ""),
 					cleanedCkClassName,
 					refactoring.getRefactoringType().getDisplayName(),

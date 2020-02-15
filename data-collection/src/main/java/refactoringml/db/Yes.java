@@ -1,11 +1,8 @@
 package refactoringml.db;
 
 import org.hibernate.annotations.Type;
-import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
-
 import javax.persistence.*;
-import java.util.Calendar;
 
 //TODO: create a Baseclass for both Yes and No, as they share a lot of logic
 @Entity
@@ -19,18 +16,8 @@ public class Yes {
 	//project id: referencing the project information, e.g. name or gitUrl
 	private Project project;
 
-	//id of this refactoring commit
-	private String refactorCommit;
-	@Type(type="text")
-	//original commit message
-	private String commitMessage;
-	//url to the commit on its remote repository, e.g. https://github.com/mauricioaniche/predicting-refactoring-ml/commit/36016e4023cb74cd1076dbd33e0d7a73a6a61993
-	private String commitUrl;
-	@Temporal(TemporalType.TIMESTAMP)
-	private Calendar refactoringDate;
-
-	//id of the parent commit
-	private String parentCommit;
+	@ManyToOne
+	private CommitMetaData commitMetaData;
 
 	//relative filepath to the java file of the refactored class
 	private String filePath;
@@ -67,12 +54,9 @@ public class Yes {
 	@Deprecated // hibernate purposes
 	public Yes() {}
 
-	public Yes(Project project, String refactorCommit, String commitMessage, Calendar refactoringDate, String parentCommit, String filePath, String className, String refactoring, int refactoringLevel,
+	public Yes(Project project, CommitMetaData commitMetaData, String filePath, String className, String refactoring, int refactoringLevel,
 	           String refactoringSummary, ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
 		this.project = project;
-		this.refactorCommit = refactorCommit;
-		this.refactoringDate = refactoringDate;
-		this.parentCommit = parentCommit;
 		this.filePath = filePath;
 		this.className = className;
 		this.refactoring = refactoring;
@@ -81,8 +65,7 @@ public class Yes {
 		this.methodMetrics = methodMetrics;
 		this.variableMetrics = variableMetrics;
 		this.fieldMetrics = fieldMetrics;
-		this.commitMessage = commitMessage.trim();
-		this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), refactorCommit, project.isLocal());
+		this.commitMetaData = commitMetaData;
 		this.refactoringSummary = refactoringSummary.trim();
 
 		this.isTest = RefactoringUtils.isTestFile(this.filePath);
@@ -110,24 +93,20 @@ public class Yes {
 
 	public ClassMetric getClassMetrics() { return classMetrics; }
 
-	public String getRefactorCommit() { return refactorCommit; }
+	public String getRefactorCommit() { return commitMetaData.getCommit(); }
 
-	public String getCommitMessage (){return commitMessage;}
+	public String getCommitMessage (){return commitMetaData.getCommitMessage();}
 
 	public String getRefactoringSummary (){return refactoringSummary;}
 
-	public String getCommitUrl (){return commitUrl;}
+	public String getCommitUrl (){return commitMetaData.getCommitUrl();}
 
 	@Override
 	public String toString() {
 		return "Yes{" +
 				"id=" + id +
 				", project=" + project +
-				", refactorCommit='" + refactorCommit + '\'' +
-				", commitMessage=" + commitMessage +
-				", commitUrl=" + commitUrl +
-				", refactoringDate=" + refactoringDate +
-				", parentCommit='" + parentCommit + '\'' +
+				", commitMetaData=" + commitMetaData +
 				", filePath='" + filePath + '\'' +
 				", className='" + className + '\'' +
 				", refactoringLevel=" + refactoringLevel +

@@ -16,6 +16,7 @@ import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
+import refactoringml.db.CommitMetaData;
 import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;

@@ -1,11 +1,7 @@
 package refactoringml.db;
 
-import org.hibernate.annotations.Type;
-import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
-
 import javax.persistence.*;
-import java.util.Calendar;
 
 //TODO: create a Baseclass for both Yes and No, as they share a lot of logic
 @Entity
@@ -19,16 +15,8 @@ public class No {
 	//project id: referencing the project information, e.g. name or gitUrl
 	private Project project;
 
-	//id of this commit
-	private String commit;
-	@Type(type="text")
-	//original commit message
-	private String commitMessage;
-	//url to the commit on its remote repository, e.g. https://github.com/mauricioaniche/predicting-refactoring-ml/commit/36016e4023cb74cd1076dbd33e0d7a73a6a61993
-	private String commitUrl;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	private Calendar commitDate;
+	@ManyToOne
+	private CommitMetaData commitMetaData;
 
 	//relative filepath to the java file of the refactored class
 	private String filePath;
@@ -58,11 +46,10 @@ public class No {
 	@Deprecated // hibernate purposes
 	public No() {}
 
-	public No(Project project, String commit, String commitMessage, Calendar commitDate, String filePath, String className,
-	          ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int type) {
+	public No(Project project, CommitMetaData commitMetaData, String filePath, String className, ClassMetric classMetrics,
+			  MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int type) {
 		this.project = project;
-		this.commit = commit;
-		this.commitDate = commitDate;
+		this.commitMetaData = commitMetaData;
 		this.filePath = filePath;
 		this.className = className;
 		this.classMetrics = classMetrics;
@@ -70,8 +57,6 @@ public class No {
 		this.variableMetrics = variableMetrics;
 		this.fieldMetrics = fieldMetrics;
 		this.type = type;
-		this.commitMessage = commitMessage.trim();
-		this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commit, project.isLocal());
 
 		this.isTest = RefactoringUtils.isTestFile(this.filePath);
 	}
@@ -81,7 +66,7 @@ public class No {
 	}
 
 	public String getCommit() {
-		return commit;
+		return commitMetaData.getCommit();
 	}
 
 	public ProcessMetrics getProcessMetrics() { return processMetrics; }
@@ -92,18 +77,12 @@ public class No {
 
 	public String getClassName() { return className; }
 
-	public String getCommitMessage (){return commitMessage;}
-
-	public String getCommitUrl (){return commitUrl;}
-
 	@Override
 	public String toString() {
 		return "No{" +
 				"id=" + id +
 				", project=" + project +
-				", commit='" + commit + '\'' +
-				", commitMessage=" + commitMessage +
-				", commitUrl=" + commitUrl +
+				", commitMetaData=" + commitMetaData +
 				", filePath='" + filePath + '\'' +
 				", className='" + className + '\'' +
 				", classMetrics=" + classMetrics +

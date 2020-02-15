@@ -305,12 +305,11 @@ public class ProcessMetricsCollector {
 	}
 
 	private void outputNonRefactoredClass (ProcessMetric clazz) throws IOException {
+		CommitMetaData commitMetaData = new CommitMetaData(clazz, project);
+
 		String commitHashBackThen = clazz.getBaseCommitForNonRefactoring();
-		Calendar commitDate = clazz.getBaseCommitDateForNonRefactoring();
-		String commitMessage = clazz.getBaseCommitMessageForNonRefactoring();
 
 		String sourceCodeBackThen;
-
 		log.info("Class " + clazz.getFileName() + " is an example of not refactored (original commit " + commitHashBackThen + ")");
 
 		try {
@@ -323,12 +322,12 @@ public class ProcessMetricsCollector {
 		}
 
 		try {
-
 			// create a temp dir to store the source code files and run CK there
 			createTempDir();
 
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
-			List<No> nos = codeMetrics(commitHashBackThen, commitMessage, commitDate);
+
+			List<No> nos = codeMetrics(commitMetaData);
 
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
@@ -341,7 +340,7 @@ public class ProcessMetricsCollector {
 
 	}
 
-	private List<No> codeMetrics(String commitHashBackThen, String commitMessage, Calendar commitDate) {
+	private List<No> codeMetrics(CommitMetaData commitMetaData) {
 
 		List<No> nos = new ArrayList<>();
 
@@ -391,9 +390,7 @@ public class ProcessMetricsCollector {
 
 			No no = new No(
 					project,
-					commitHashBackThen,
-					commitMessage,
-					commitDate,
+					commitMetaData,
 					ck.getFile().replace(tempDir, ""),
 					cleanedCkClassName,
 					classMetric,
@@ -434,9 +431,7 @@ public class ProcessMetricsCollector {
 
 				No noM = new No(
 						project,
-						commitHashBackThen,
-						commitMessage,
-						commitDate,
+						commitMetaData,
 						ck.getFile().replace(tempDir, ""),
 						cleanedCkClassName,
 						classMetric,
@@ -452,9 +447,7 @@ public class ProcessMetricsCollector {
 
 					No noV = new No(
 							project,
-							commitHashBackThen,
-							commitMessage,
-							commitDate,
+							commitMetaData,
 							ck.getFile().replace(tempDir, ""),
 							cleanedCkClassName,
 							classMetric,
@@ -480,9 +473,7 @@ public class ProcessMetricsCollector {
 
 				No noF = new No(
 						project,
-						commitHashBackThen,
-						commitMessage,
-						commitDate,
+						commitMetaData,
 						ck.getFile().replace(tempDir, ""),
 						cleanedCkClassName,
 						classMetric,
