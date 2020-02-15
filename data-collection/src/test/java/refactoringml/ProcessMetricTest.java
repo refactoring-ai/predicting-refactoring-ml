@@ -38,8 +38,7 @@ public class ProcessMetricTest {
 		int qtyKeywords = ProcessMetric.bugKeywords.length;
 		Random rnd = new Random();
 
-		//TODO: What commit message should I use here?
-		ProcessMetric pm = new ProcessMetric("a.Java", "123", "", Calendar.getInstance());
+		ProcessMetric pm = new ProcessMetric("a.Java", "123", "bug fix here", Calendar.getInstance());
 
 		pm.existsIn( "bug fix here","Rafael", 10, 20);
 

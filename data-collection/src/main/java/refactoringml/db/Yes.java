@@ -1,5 +1,6 @@
 package refactoringml.db;
 
+import org.hibernate.annotations.Type;
 import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
 
@@ -8,11 +9,8 @@ import java.util.Calendar;
 
 //TODO: create a Baseclass for both Yes and No, as they share a lot of logic
 @Entity
-@Table(name = "yes", indexes = {@Index(columnList = "project_id"), @Index(columnList = "refactoringLevel"), @Index(columnList = "refactoring"), @Index(columnList = "refactoringSummary"), @Index(columnList = "isTest")})
+@Table(name = "yes", indexes = {@Index(columnList = "project_id"), @Index(columnList = "refactoringLevel"), @Index(columnList = "refactoring"), @Index(columnList = "isTest")})
 public class Yes {
-	//TODO: candidate for a config file
-	private final int stringMaxLength = 255;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -23,6 +21,7 @@ public class Yes {
 
 	//id of this refactoring commit
 	private String refactorCommit;
+	@Type(type="text")
 	//original commit message
 	private String commitMessage;
 	//url to the commit on its remote repository, e.g. https://github.com/mauricioaniche/predicting-refactoring-ml/commit/36016e4023cb74cd1076dbd33e0d7a73a6a61993
@@ -47,6 +46,7 @@ public class Yes {
 	//Describe the refactoring e.g. "Rename Class" or "Extract Method"
 	private String refactoring;
 	//Describe the content of the refactoring e.g. "Rename Pets to Cat"
+	@Type(type="text")
 	private String refactoringSummary;
 
 	@Embedded
@@ -81,9 +81,9 @@ public class Yes {
 		this.methodMetrics = methodMetrics;
 		this.variableMetrics = variableMetrics;
 		this.fieldMetrics = fieldMetrics;
-		this.commitMessage = limitStringLength(commitMessage.trim());
+		this.commitMessage = commitMessage.trim();
 		this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), refactorCommit, project.isLocal());
-		this.refactoringSummary = limitStringLength(refactoringSummary.trim());
+		this.refactoringSummary = refactoringSummary.trim();
 
 		this.isTest = RefactoringUtils.isTestFile(this.filePath);
 	}
@@ -139,10 +139,5 @@ public class Yes {
 				", fieldMetrics=" + fieldMetrics +
 				", processMetrics=" + processMetrics +
 				'}';
-	}
-
-	//Limit the length of strings to stringMaxLength to avoid DataException from the DB
-	private String limitStringLength(String string){
-		return string.substring(0, Math.min(stringMaxLength, string.length()));
 	}
 }

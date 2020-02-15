@@ -1,5 +1,6 @@
 package refactoringml.db;
 
+import org.hibernate.annotations.Type;
 import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
 
@@ -10,9 +11,6 @@ import java.util.Calendar;
 @Entity
 @Table(name = "no", indexes = {@Index(columnList = "project_id"), @Index(columnList = "type"), @Index(columnList = "isTest")})
 public class No {
-	//TODO: candidate for a config file
-	private final int stringMaxLength = 255;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -23,6 +21,7 @@ public class No {
 
 	//id of this commit
 	private String commit;
+	@Type(type="text")
 	//original commit message
 	private String commitMessage;
 	//url to the commit on its remote repository, e.g. https://github.com/mauricioaniche/predicting-refactoring-ml/commit/36016e4023cb74cd1076dbd33e0d7a73a6a61993
@@ -71,7 +70,7 @@ public class No {
 		this.variableMetrics = variableMetrics;
 		this.fieldMetrics = fieldMetrics;
 		this.type = type;
-		this.commitMessage = limitStringLength(commitMessage.trim());
+		this.commitMessage = commitMessage.trim();
 		this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commit, project.isLocal());
 
 		this.isTest = RefactoringUtils.isTestFile(this.filePath);
@@ -114,10 +113,5 @@ public class No {
 				", processMetrics=" + processMetrics +
 				", type=" + type +
 				'}';
-	}
-
-	//Limit the length of strings to stringMaxLength to avoid DataException from the DB
-	private String limitStringLength(String string){
-		return string.substring(0, Math.min(stringMaxLength, string.length()));
 	}
 }
