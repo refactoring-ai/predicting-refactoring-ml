@@ -17,6 +17,7 @@ import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,27 +34,26 @@ public class RefactoringAnalyzer {
 	private Project project;
 	private Database db;
 	private Repository repository;
-	private ProcessMetricsCollector processMetrics;
 	private boolean storeFullSourceCode;
 	private String fileStorageDir;
 
 	private static final Logger log = Logger.getLogger(RefactoringAnalyzer.class);
 
-	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir, boolean storeFullSourceCode) {
+	public RefactoringAnalyzer (Project project, Database db, Repository repository, String fileStorageDir, boolean storeFullSourceCode) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
-		this.processMetrics = processMetrics;
 		this.storeFullSourceCode = storeFullSourceCode;
 
 		this.tempDir = null;
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 	}
 
-	public void collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
+	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring, CommitMetaData commitMetaData ) throws IOException {
 
 		if (commit.getParentCount() == 0 || !studied(refactoring)) {
-			return ;
+			//TODO: check if this is correct and desired behavior
+			return new HashSet<Long>();
 		}
 
 		String refactoringSummary = refactoring.toString().trim();
@@ -63,7 +63,7 @@ public class RefactoringAnalyzer {
 		}
 
 		RevCommit commitParent = commit.getParent(0);
-		CommitMetaData commitMetaData = new CommitMetaData(commit, project);
+		Set<Long> allYeses = new HashSet<Long>();
 
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
 
@@ -120,8 +120,8 @@ public class RefactoringAnalyzer {
 				Yes yes = calculateCkMetrics(refactoredClassName, commitMetaData, refactoring, refactoringSummary);
 
 				if(yes!=null) {
-					// mark it as To Do for the process metrics tool
-					processMetrics.addToList(commit, yes);
+					// mark it for the process metrics collection
+					allYeses.add(yes.getId());
 
 					if(storeFullSourceCode) {
 						// let's get the source code of the file after the refactoring
@@ -150,6 +150,7 @@ public class RefactoringAnalyzer {
 			log.info("[TRACK] End commit " + commit.getId().getName());
 		}
 
+		return allYeses;
     }
 
 	private boolean wasDeleted(String fileName) {
@@ -364,6 +365,4 @@ public class RefactoringAnalyzer {
 	private void createTmpDir() {
 		tempDir = lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
 	}
-
-
 }

@@ -15,7 +15,7 @@ public class No {
 	//project id: referencing the project information, e.g. name or gitUrl
 	private Project project;
 
-	@ManyToOne
+	@ManyToOne(targetEntity = CommitMetaData.class)
 	private CommitMetaData commitMetaData;
 
 	//relative filepath to the java file of the refactored class
@@ -76,6 +76,10 @@ public class No {
 	}
 
 	public String getClassName() { return className; }
+
+	public String getCommitMessage (){return commitMetaData.getCommitMessage();}
+
+	public String getCommitUrl (){return commitMetaData.getCommitUrl();}
 
 	@Override
 	public String toString() {

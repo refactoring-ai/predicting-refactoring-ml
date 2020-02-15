@@ -12,7 +12,7 @@ public class Yes {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToOne
+	@ManyToOne(targetEntity = CommitMetaData.class)
 	//project id: referencing the project information, e.g. name or gitUrl
 	private Project project;
 
@@ -100,6 +100,10 @@ public class Yes {
 	public String getRefactoringSummary (){return refactoringSummary;}
 
 	public String getCommitUrl (){return commitMetaData.getCommitUrl();}
+
+	public ProcessMetrics getProcessMetrics()  {
+		return processMetrics;
+	}
 
 	@Override
 	public String toString() {
