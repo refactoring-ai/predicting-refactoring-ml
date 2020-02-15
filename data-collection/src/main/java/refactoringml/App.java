@@ -76,7 +76,13 @@ public class App {
 		this.storeFullSourceCode = storeFullSourceCode;
 	}
 
+
 	public Project run () throws Exception {
+		// do not run if the project is already in the database
+		if (db.projectExists(gitUrl)) {
+			String message = String.format("Project %s already in the database", gitUrl);
+			throw new IllegalArgumentException(message);
+		}
 
 		long start = System.currentTimeMillis();
 
@@ -118,7 +124,7 @@ public class App {
 
 
 			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
-			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, processMetrics, filesStoragePath, storeFullSourceCode);
+			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
 
 			RefactoringHandler handler = getRefactoringHandler(git);
 

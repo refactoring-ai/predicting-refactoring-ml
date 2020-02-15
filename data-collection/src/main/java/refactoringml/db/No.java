@@ -94,4 +94,6 @@ public class No {
 	public ClassMetric getClassMetrics() {
 		return classMetrics;
 	}
+
+	public String getClassName() { return className; }
 }

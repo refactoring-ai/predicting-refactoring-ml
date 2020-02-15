@@ -90,16 +90,20 @@ public class Yes {
 		return methodMetrics;
 	}
 
-	public VariableMetric getVariableMetrics() {
-		return variableMetrics;
-	}
+	public VariableMetric getVariableMetrics() { return variableMetrics; }
 
 	public FieldMetric getFieldMetrics() {
 		return fieldMetrics;
 	}
 
-	public String getClassName() {
-		return className;
+	public String getClassName() { return className; }
+
+	public ClassMetric getClassMetrics() {
+		return classMetrics;
+	}
+
+	public ProcessMetrics getProcessMetrics()  {
+		return processMetrics;
 	}
 
 	@Override

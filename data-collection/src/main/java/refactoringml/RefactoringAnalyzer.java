@@ -11,7 +11,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
-import refactoringml.astconverter.ASTConverter;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.JGitUtils;
@@ -20,6 +19,10 @@ import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.cleanClassName;
@@ -33,17 +36,15 @@ public class RefactoringAnalyzer {
 	private Project project;
 	private Database db;
 	private Repository repository;
-	private ProcessMetricsCollector processMetrics;
 	private boolean storeFullSourceCode;
 	private String fileStorageDir;
 
 	private static final Logger log = Logger.getLogger(RefactoringAnalyzer.class);
 
-	public RefactoringAnalyzer (Project project, Database db, Repository repository, ProcessMetricsCollector processMetrics, String fileStorageDir, boolean storeFullSourceCode) {
+	public RefactoringAnalyzer (Project project, Database db, Repository repository, String fileStorageDir, boolean storeFullSourceCode) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
-		this.processMetrics = processMetrics;
 		this.storeFullSourceCode = storeFullSourceCode;
 
 		this.tempDir = null;
@@ -210,14 +211,18 @@ public class RefactoringAnalyzer {
 	private Yes calculateCkMetrics(String refactoredClass, String refactorCommit, Calendar refactoringDate, Refactoring refactoring, String parentCommit) {
 		final List<Yes> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
-
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 
+			//Ignore all subclass callbacks from CK, that are not relevant in this case
 			if(!cleanedCkClassName.equals(refactoredClass))
 				return;
 
+			boolean isSubclass = CKUtils.evaluateSubclass(ck.getType());
+
 			// collect the class level metrics
-			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
+			ClassMetric classMetric = new ClassMetric(
+					isSubclass,
+					ck.getCbo(),
 					ck.getWmc(),
 					ck.getRfc(),
 					ck.getLcom(),
@@ -365,6 +370,4 @@ public class RefactoringAnalyzer {
 	private void createTmpDir() {
 		tempDir = lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
 	}
-
-
 }

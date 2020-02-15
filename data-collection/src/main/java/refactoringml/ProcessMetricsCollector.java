@@ -22,6 +22,7 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static refactoringml.util.CKUtils.cleanClassName;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
@@ -310,8 +311,10 @@ public class ProcessMetricsCollector {
 		List<No> nos = new ArrayList<>();
 
 		new CK().calculate(tempDir, ck -> {
-
-			ClassMetric classMetric = new ClassMetric(ck.getCbo(),
+			String cleanedCkClassName = cleanClassName(ck.getClassName());
+			ClassMetric classMetric = new ClassMetric(
+					CKUtils.evaluateSubclass(ck.getType()),
+					ck.getCbo(),
 					ck.getWmc(),
 					ck.getRfc(),
 					ck.getLcom(),
@@ -356,7 +359,7 @@ public class ProcessMetricsCollector {
 					commitHashBackThen,
 					commitDate,
 					ck.getFile().replace(tempDir, ""),
-					ck.getClassName(),
+					cleanedCkClassName,
 					classMetric,
 					null,
 					null,
@@ -398,7 +401,7 @@ public class ProcessMetricsCollector {
 						commitHashBackThen,
 						commitDate,
 						ck.getFile().replace(tempDir, ""),
-						ck.getClassName(),
+						cleanedCkClassName,
 						classMetric,
 						methodMetrics,
 						null,
@@ -415,7 +418,7 @@ public class ProcessMetricsCollector {
 							commitHashBackThen,
 							commitDate,
 							ck.getFile().replace(tempDir, ""),
-							ck.getClassName(),
+							cleanedCkClassName,
 							classMetric,
 							methodMetrics,
 							variableMetric,
@@ -442,7 +445,7 @@ public class ProcessMetricsCollector {
 						commitHashBackThen,
 						commitDate,
 						ck.getFile().replace(tempDir, ""),
-						ck.getClassName(),
+						cleanedCkClassName,
 						classMetric,
 						null,
 						null,

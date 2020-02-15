@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
 import refactoringml.db.Yes;
-
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -29,6 +28,10 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 
 		assertRefactoring(yesList, "31820e9d172ba571d93de14733101f8cb81853e8", "Extract Method", 1);
 		Assertions.assertEquals("a.Test", yesList.get(0).getClassName());
+
+		for (Yes yes : yesList){
+			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+		}
 	}
 
 	@Test

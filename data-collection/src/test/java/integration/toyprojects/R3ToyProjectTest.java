@@ -2,11 +2,11 @@ package integration.toyprojects;
 
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
 import refactoringml.db.Yes;
-
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -42,6 +42,9 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, "cf2ef5a3de59923ac000a4fe3ceeb8778229b293", "Pull Up Method", 2);
 		assertRefactoring(yesList, "892ffd8486daaedb5c92a548a23b87753393ce16", "Rename Class", 1);
 
+		for (Yes yes : yesList){
+			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+		}
 	}
 
 	@Test
