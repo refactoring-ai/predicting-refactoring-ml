@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
 import refactoringml.db.Yes;
-
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

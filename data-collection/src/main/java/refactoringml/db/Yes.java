@@ -102,6 +102,10 @@ public class Yes {
 		return classMetrics;
 	}
 
+	public ProcessMetrics getProcessMetrics()  {
+		return processMetrics;
+	}
+
 	@Override
 	public String toString() {
 		return "Yes{" +

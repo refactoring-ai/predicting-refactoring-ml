@@ -2,13 +2,13 @@ package integration.toyprojects;
 
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.No;
+import refactoringml.db.ProcessMetrics;
 import refactoringml.db.Yes;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R2ToyProjectTest extends IntegrationBaseTest {
@@ -22,18 +22,42 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 	// refactoring. We opened a PR in RefactoringMiner; now it works!
 	@Test
 	public void yes() {
-
 		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
 				.setParameter("project", project)
 				.list();
 		Assert.assertEquals(2, yesList.size());
 
-		assertRefactoring(yesList, "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46", "Rename Class", 1);
-		assertRefactoring(yesList, "515365875143aa84b5bbb5c3191e7654a942912f", "Extract Class", 1);
+		String renameCommit = "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46";
+		assertRefactoring(yesList, renameCommit, "Rename Class", 1);
 
-		for (Yes yes : yesList){
-			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
-		}
+		Yes renameRefactoring = yesList.stream().filter(yes -> yes.getRefactorCommit().equals(renameCommit)).findFirst().get();
+		//TODO: figure out what to expect here
+		ProcessMetrics metrics = new ProcessMetrics(0, 1, 3, 1, 0, 1, 0, 0, 1);
+		assertProcessMetrics(renameRefactoring, metrics);
+
+		String extractCommit = "515365875143aa84b5bbb5c3191e7654a942912f";
+		assertRefactoring(yesList, extractCommit, "Extract Class", 1);
+
+		Yes extractClassRefactoring = filterCommit(yesList, extractCommit).get(0);
+		//TODO: figure out what to expect here
+		metrics = new ProcessMetrics(0, 1, 3, 1, 0, 1, 0, 0, 1);
+		assertProcessMetrics(extractClassRefactoring, metrics);
+	}
+
+	@Test
+	public void isSubclass() {
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+				.setParameter("project", project)
+				.list();
+		Assert.assertEquals(2, yesList.size());
+
+		List<Yes> areSubclasses = yesList.stream().filter(yes ->
+				yes.getClassMetrics().isSubclass()
+						&& yes.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
+		List<Yes> areNoSubclasses = yesList.stream().filter(yes -> !yes.getClassMetrics().isSubclass()).collect(Collectors.toList());
+
+		Assert.assertEquals(0, areSubclasses.size());
+		Assert.assertEquals(2, areNoSubclasses.size());
 	}
 
 	@Test
@@ -47,7 +71,6 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	public void metrics() {
-
 		// the next two assertions come directly from a 'cloc .' in the project
 		Assert.assertEquals(64, project.getJavaLoc());
 
@@ -58,6 +81,5 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(1, project.getNumberOfTestFiles());
 
 		Assert.assertEquals(56, project.getProductionLoc());
-
 	}
 }
