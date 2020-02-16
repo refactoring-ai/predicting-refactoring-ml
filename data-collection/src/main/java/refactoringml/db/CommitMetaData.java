@@ -8,13 +8,14 @@ import javax.persistence.*;
 import java.util.Calendar;
 
 @Entity
-@Table(name = "commit_meta-data")
+@Table(name = "commit_metadata")
 public class CommitMetaData {
     //use the unique commit hash to relate from Yes and No to this one
     @Id
     private String commitId;
 
     //original commit message
+    @Lob
     private String commitMessage;
     //url to the commit on its remote repository, e.g. https://github.com/mauricioaniche/predicting-refactoring-ml/commit/36016e4023cb74cd1076dbd33e0d7a73a6a61993
     private String commitUrl;

@@ -59,6 +59,7 @@ public class HibernateConfig {
 			configuration.addAnnotatedClass(Yes.class);
 			configuration.addAnnotatedClass(No.class);
 			configuration.addAnnotatedClass(Project.class);
+			configuration.addAnnotatedClass(CommitMetaData.class);
 
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
 					.applySettings(configuration.getProperties()).build();

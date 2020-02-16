@@ -12,7 +12,7 @@ public class Yes {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToOne(targetEntity = CommitMetaData.class)
+	@ManyToOne
 	//project id: referencing the project information, e.g. name or gitUrl
 	private Project project;
 

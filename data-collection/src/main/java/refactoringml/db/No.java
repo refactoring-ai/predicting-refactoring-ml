@@ -15,7 +15,7 @@ public class No {
 	//project id: referencing the project information, e.g. name or gitUrl
 	private Project project;
 
-	@ManyToOne(targetEntity = CommitMetaData.class)
+	@ManyToOne
 	private CommitMetaData commitMetaData;
 
 	//relative filepath to the java file of the refactored class
