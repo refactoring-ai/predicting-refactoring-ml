@@ -16,6 +16,7 @@ import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
+import refactoringml.db.CommitMetaData;
 import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;
@@ -91,7 +92,7 @@ public class App {
 
 		// creates a temp dir to store the project
 		String newTmpDir = Files.createTempDir().getAbsolutePath();
-		String clonePath = (!gitUrl.startsWith("http") && !gitUrl.startsWith("git@") ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
+		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
 
 		try {
 
@@ -132,8 +133,12 @@ public class App {
 			RevWalk walk = JGitUtils.getReverseWalk(repo, mainBranch);
 			RevCommit currentCommit = walk.next();
 
-			boolean endFound = false;
-			while (currentCommit!=null && !endFound) {
+			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+
+				// we only analyze commits that have one parent
+				// i.e., ignore first commit ever of the repo, and ignore merge commits
+				if(currentCommit.getParentCount() != 1)
+					continue;
 
 				log.debug("Visiting commit " + currentCommit.getId().getName());
 
@@ -161,7 +166,10 @@ public class App {
 					for (Refactoring ref : refactoringsToProcess) {
 						try {
 							db.openSession();
-							allYeses.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref));
+							CommitMetaData commitMetaData = new CommitMetaData(currentCommit, project);
+							db.persist(commitMetaData);
+
+							allYeses.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref, commitMetaData));
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
@@ -178,10 +186,8 @@ public class App {
 				}
 
 				//collect the process metrics for the current commit
-				if(currentCommit.getParentCount() <= 1)
-					processMetrics.collectMetrics(currentCommit, allYeses, thereIsRefactoringToProcess);
+				processMetrics.collectMetrics(currentCommit, allYeses, thereIsRefactoringToProcess);
 
-				currentCommit = walk.next();
 			}
 
 			walk.close();

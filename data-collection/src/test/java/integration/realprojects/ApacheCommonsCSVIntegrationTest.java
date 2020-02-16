@@ -24,7 +24,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
 
     @Override
     protected String track() {
-        return "src/main/java/org/apache/commons/csv/CSVStrategy.java";
+        return "src/main/java/org/apache/commons/csv/CSVFormat.java";
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     public void randomRefactoring() {
 
         // manually verified
-        Yes instance1 = (Yes) session.createQuery("from Yes where refactoring = :refactoring and methodMetrics.fullMethodName = :method and refactorCommit = :refactorCommit and project = :project")
+        Yes instance1 = (Yes) session.createQuery("from Yes where refactoring = :refactoring and methodMetrics.fullMethodName = :method and commitMetaData.commitId = :refactorCommit and project = :project")
                 .setParameter("refactoring", "Rename Parameter")
                 .setParameter("method", "isSet/1[int]")
                 .setParameter("refactorCommit", "b58168683d01149a568734df21568ffcc41105fe")
@@ -59,48 +59,50 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     @Test
     public void yes_CSVFormat() {
 
-
-        // it had suffered 69 refactorings with the new name: 'CSVFormat'...
-        List<Yes> yesList = session.createQuery("From Yes where filePath = :filePath and project = :project order by refactoringDate desc")
+        List<Yes> yesList = session.createQuery("From Yes where filePath = :filePath and project = :project")
                 .setParameter("filePath", "src/main/java/org/apache/commons/csv/CSVFormat.java")
                 .setParameter("project", project)
                 .list();
-        Assert.assertEquals(69, yesList.size());
 
+        // refactoring miner detects precisely 82 refactorings in this file
+        Assert.assertEquals(82, yesList.size());
+
+        assertRefactoring(yesList,"56ca5858db4765112dca44e5deeda0ac181a6766", "Extract Class", 1);
+        assertRefactoring(yesList,"6a34b823c807325bc251ef43c66c307adcd947b8", "Extract Class", 1);
+        assertRefactoring(yesList,"50e2719bb646870dc08dd71f2bc2314ce46def76", "Extract Method", 4);
+        assertRefactoring(yesList,"7c770e0b53235e90a216ae3b214048b765cda0c0", "Inline Method", 1);
+        assertRefactoring(yesList,"6a34b823c807325bc251ef43c66c307adcd947b8", "Move Method",7);
+        assertRefactoring(yesList,"75f39a81a77b3680c21cd3f810da62ebbe9944b8", "Move Method",9);
+        assertRefactoring(yesList,"c0d91d205d5494dc402dab13edcc89679aecd547", "Move Method",1);
         assertRefactoring(yesList,"040c2606eb7e2cfe60e4bbcbf2928f1e971ce4b4", "Rename Method",1);
-        assertRefactoring(yesList,"040c2606eb7e2cfe60e4bbcbf2928f1e971ce4b4", "Rename Parameter",1);
         assertRefactoring(yesList,"0dbb499888e5e17322d08802222f2453bf5621a6", "Rename Method",1);
         assertRefactoring(yesList,"322fad25ad96da607a3045a19702a55381a426e7", "Rename Method",1);
         assertRefactoring(yesList,"38741a48c692ae2fc13cd2445e77ace6ecea1156", "Rename Method",1);
-        assertRefactoring(yesList,"38741a48c692ae2fc13cd2445e77ace6ecea1156", "Rename Parameter",1);
         assertRefactoring(yesList,"4695d73e3b1974454d55a30be2b1c3a4bddbf3db", "Rename Method",4);
-        assertRefactoring(yesList,"50e2719bb646870dc08dd71f2bc2314ce46def76", "Extract Method",4);
-        assertRefactoring(yesList,"56ca5858db4765112dca44e5deeda0ac181a6766", "Extract Class",1);
-        assertRefactoring(yesList,"5a0894f9e0ee9f4703b8db3f200ff4a507bf043b", "Rename Method",1);
-        assertRefactoring(yesList,"5a0894f9e0ee9f4703b8db3f200ff4a507bf043b", "Rename Parameter",1);
+        assertRefactoring(yesList,"5a0894f9e0ee9f4703b8db3f200ff4a507bf043b", "Rename Method",2);
         assertRefactoring(yesList,"67bbc35289bb3435eae0bd6f20cc6b15280e66e0", "Rename Method",4);
-        assertRefactoring(yesList,"67bbc35289bb3435eae0bd6f20cc6b15280e66e0", "Rename Parameter",2);
         assertRefactoring(yesList,"67d150adc88b806e52470d110a438d9107e72ed5", "Rename Method",2);
-        assertRefactoring(yesList,"6a34b823c807325bc251ef43c66c307adcd947b8", "Extract Class",1);
-        assertRefactoring(yesList,"6a34b823c807325bc251ef43c66c307adcd947b8", "Move Method",7);
         assertRefactoring(yesList,"6e57364216b78bca031f764b8d0a46494ba27b46", "Rename Method",1);
         assertRefactoring(yesList,"73ec29f75f1dd6f0c52e9c310dc4f8414346f49a", "Rename Method",3);
-        assertRefactoring(yesList,"73ec29f75f1dd6f0c52e9c310dc4f8414346f49a", "Rename Parameter",2);
         assertRefactoring(yesList,"75f39a81a77b3680c21cd3f810da62ebbe9944b8", "Rename Method",1);
         assertRefactoring(yesList,"7ac5dd3ec633d64603bb836d0576f34a51f93f08", "Rename Method",2);
-        assertRefactoring(yesList,"7c770e0b53235e90a216ae3b214048b765cda0c0", "Inline Method",1);
         assertRefactoring(yesList,"9fb2b4f2b100c8d5a769532ee26973832c2a61c0", "Rename Method",1);
         assertRefactoring(yesList,"a72c71f5cc6431890f82707a2782325be6747dd1", "Rename Method",2);
-        assertRefactoring(yesList,"a72c71f5cc6431890f82707a2782325be6747dd1", "Rename Parameter",2);
         assertRefactoring(yesList,"aa0762d538c52f4384f629bb799769f5f85c1c9e", "Rename Method",1);
-        assertRefactoring(yesList,"aa0762d538c52f4384f629bb799769f5f85c1c9e", "Rename Parameter",1);
-        assertRefactoring(yesList,"afc9de71bd8bb51dfc7ab12df2aeb7a38b709ef2", "Rename Parameter",1);
-        assertRefactoring(yesList,"c0d91d205d5494dc402dab13edcc89679aecd547", "Move Method",1);
         assertRefactoring(yesList,"ecea0c35993b2428e0a938933896329c413de40e", "Rename Method",1);
-        assertRefactoring(yesList,"ecea0c35993b2428e0a938933896329c413de40e", "Rename Parameter",1);
         assertRefactoring(yesList,"f51f89828df4d763148362e312e310435864ba96", "Rename Method",5);
-        assertRefactoring(yesList,"f80c5bd0ad8ed0739f43a2ed6392d94bbceae1c9", "Rename Parameter",1);
         assertRefactoring(yesList,"f9a3162037f7e82ce6927bbe944b7d61349f8c11", "Rename Method",9);
+        assertRefactoring(yesList,"040c2606eb7e2cfe60e4bbcbf2928f1e971ce4b4", "Rename Parameter", 1);
+        assertRefactoring(yesList,"38741a48c692ae2fc13cd2445e77ace6ecea1156", "Rename Parameter", 1);
+        assertRefactoring(yesList,"5a0894f9e0ee9f4703b8db3f200ff4a507bf043b", "Rename Parameter", 3);
+        assertRefactoring(yesList,"67bbc35289bb3435eae0bd6f20cc6b15280e66e0", "Rename Parameter", 2);
+        assertRefactoring(yesList,"73ec29f75f1dd6f0c52e9c310dc4f8414346f49a", "Rename Parameter", 2);
+        assertRefactoring(yesList,"939a8a04eb9391fb29f5e22594a4fd988c89fd57", "Rename Parameter", 1);
+        assertRefactoring(yesList,"a72c71f5cc6431890f82707a2782325be6747dd1", "Rename Parameter", 2);
+        assertRefactoring(yesList,"aa0762d538c52f4384f629bb799769f5f85c1c9e", "Rename Parameter", 1);
+        assertRefactoring(yesList,"afc9de71bd8bb51dfc7ab12df2aeb7a38b709ef2", "Rename Parameter", 1);
+        assertRefactoring(yesList,"ecea0c35993b2428e0a938933896329c413de40e", "Rename Parameter", 1);
+        assertRefactoring(yesList,"f80c5bd0ad8ed0739f43a2ed6392d94bbceae1c9", "Rename Parameter", 1);
 
     }
 
@@ -112,15 +114,15 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
                 .setParameter("project", project)
                 .list();
 
-        // there's just one sentence of 50 commits without refactoring
+        // there's just one sequence of 50 commits without refactoring
         Assert.assertEquals(1, noList.size());
 
         assertNoRefactoring(noList, "67d150adc88b806e52470d110a438d9107e72ed5");
         Assert.assertEquals(4, noList.get(0).getProcessMetrics().getQtyOfAuthors());
 
-        // in yes_CSVFormat, we see that there are 69 refactorings in total.
-        // after this commit, there was just one more refactoring. Thus, 68 refactorings
-        Assert.assertEquals(68, noList.get(0).getProcessMetrics().getRefactoringsInvolved());
+        // in yes_CSVFormat, we see that there are 82 refactorings in total.
+        // after this commit, there was just one more refactoring. Thus, 81 refactorings
+        Assert.assertEquals(81, noList.get(0).getProcessMetrics().getRefactoringsInvolved());
 
         // also manually validated
         Assert.assertEquals(198, noList.get(0).getProcessMetrics().getQtyOfCommits());
@@ -135,7 +137,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     @Test
     public void yes_CSVStrategy() {
         // and 10 with the old name 'CSVStrategy.java'
-        List<Yes> yesList = session.createQuery("From Yes where filePath = :filePath and project = :project order by refactoringDate desc")
+        List<Yes> yesList = session.createQuery("From Yes where filePath = :filePath and project = :project")
                 .setParameter("filePath", "src/main/java/org/apache/commons/csv/CSVStrategy.java")
                 .setParameter("project", project)
                 .list();

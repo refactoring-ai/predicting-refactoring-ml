@@ -1,30 +1,29 @@
 package refactoringml.db;
 
 import refactoringml.util.RefactoringUtils;
-
 import javax.persistence.*;
-import java.util.Calendar;
 
+//TODO: create a Baseclass for both Yes and No, as they share a lot of logic
 @Entity
 @Table(name = "no", indexes = {@Index(columnList = "project_id"), @Index(columnList = "type"), @Index(columnList = "isTest")})
 public class No {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
 	@ManyToOne
+	//project id: referencing the project information, e.g. name or gitUrl
 	private Project project;
 
-	private String commit;
+	@ManyToOne(cascade = CascadeType.ALL)
+	private CommitMetaData commitMetaData;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Calendar commitDate;
-
+	//relative filepath to the java file of the refactored class
 	private String filePath;
+	//name of the refactored class, @Warning: might differ from the filename
 	private String className;
+	//is this commit affecting a test?
 	private boolean isTest;
-
 
 	@Embedded
 	private ClassMetric classMetrics;
@@ -41,16 +40,16 @@ public class No {
 	@Embedded
 	private ProcessMetrics processMetrics;
 
+	//TODO: what exactly describes this field?
 	private int type;
 
 	@Deprecated // hibernate purposes
 	public No() {}
 
-	public No(Project project, String commit, Calendar commitDate, String filePath, String className,
-	          ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int type) {
+	public No(Project project, CommitMetaData commitMetaData, String filePath, String className, ClassMetric classMetrics,
+			  MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int type) {
 		this.project = project;
-		this.commit = commit;
-		this.commitDate = commitDate;
+		this.commitMetaData = commitMetaData;
 		this.filePath = filePath;
 		this.className = className;
 		this.classMetrics = classMetrics;
@@ -66,12 +65,28 @@ public class No {
 		this.processMetrics = processMetrics;
 	}
 
+	public String getCommit() {
+		return commitMetaData.getCommit();
+	}
+
+	public ProcessMetrics getProcessMetrics() { return processMetrics; }
+
+	public ClassMetric getClassMetrics() {
+		return classMetrics;
+	}
+
+	public String getClassName() { return className; }
+
+	public String getCommitMessage (){return commitMetaData.getCommitMessage();}
+
+	public String getCommitUrl (){return commitMetaData.getCommitUrl();}
+
 	@Override
 	public String toString() {
 		return "No{" +
 				"id=" + id +
 				", project=" + project +
-				", commit='" + commit + '\'' +
+				", commitMetaData=" + commitMetaData +
 				", filePath='" + filePath + '\'' +
 				", className='" + className + '\'' +
 				", classMetrics=" + classMetrics +
@@ -82,18 +97,4 @@ public class No {
 				", type=" + type +
 				'}';
 	}
-
-	public String getCommit() {
-		return commit;
-	}
-
-	public ProcessMetrics getProcessMetrics() {
-		return processMetrics;
-	}
-
-	public ClassMetric getClassMetrics() {
-		return classMetrics;
-	}
-
-	public String getClassName() { return className; }
 }

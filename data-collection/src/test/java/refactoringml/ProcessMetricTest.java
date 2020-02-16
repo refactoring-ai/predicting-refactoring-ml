@@ -10,6 +10,7 @@ public class ProcessMetricTest {
 
 	@Test
 	public void authorOwnership() {
+		//TODO: What commit message should I use here?
 		ProcessMetric pm = new ProcessMetric("a.Java", "123", Calendar.getInstance());
 
 		for(int i = 0; i < 90; i++) {

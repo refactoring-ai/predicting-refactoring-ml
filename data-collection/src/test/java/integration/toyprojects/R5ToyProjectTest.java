@@ -21,7 +21,7 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void yes() {
 
-		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by commitMetaData.commitDate desc")
 				.setParameter("project", project)
 				.list();
 		Assert.assertEquals(1, yesList.size());
@@ -30,7 +30,7 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 		Assertions.assertEquals("a.Test", yesList.get(0).getClassName());
 
 		for (Yes yes : yesList){
-			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+			Assertions.assertFalse(yes.getClassMetrics().isInnerClass());
 		}
 	}
 
@@ -41,6 +41,16 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 				.setParameter("project", project)
 				.list();
 		Assert.assertEquals(0, noList.size());
+	}
+
+	@Test
+	public void commitMetaData(){
+		String commit = "31820e9d172ba571d93de14733101f8cb81853e8";
+		assertMetaDataYes(
+				commit,
+				"extract method",
+				"Extract Method\tprivate print2() : void extracted from public print() : void in class a.Test",
+				"@local/" + getRepo() + "/" + commit);
 	}
 
 	@Test

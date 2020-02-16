@@ -36,6 +36,8 @@ public class Project {
 	private int exceptionsCount;
 
 	private String lastCommitHash;
+	//does the project have a remote origin, or is it a local one?
+	private boolean isLocal;
 
 	@Deprecated // hibernate purposes
 	public Project() {}
@@ -55,7 +57,7 @@ public class Project {
 		this.testLoc = c.getLocTestFiles();
 		this.projectSizeInBytes = projectSizeInBytes;
 		this.javaLoc = this.productionLoc + this.testLoc;
-
+		this.isLocal = isLocal(gitUrl);
 	}
 
 	public void setFinishedDate(Calendar finishedDate) {
@@ -93,6 +95,12 @@ public class Project {
 	public long getProjectSizeInBytes() {
 		return projectSizeInBytes;
 	}
+
+	public String getGitUrl() {return gitUrl; }
+
+	public boolean isLocal(){ return isLocal; }
+
+	public static boolean isLocal(String gitUrl) { return !(gitUrl.startsWith("https") || gitUrl.startsWith("git")); }
 
 	@Override
 	public String toString() {

@@ -13,14 +13,12 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
-import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
 import java.util.*;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,14 +49,15 @@ public class RefactoringAnalyzer {
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 	}
 
-	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
+	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring, CommitMetaData commitMetaData ) throws IOException {
 
-		if (commit.getParentCount() == 0 || !studied(refactoring)) {
+		if (!studied(refactoring)) {
 			//TODO: check if this is correct and desired behavior
 			return new HashSet<Long>();
 		}
 
-		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoring.toString().trim() + "]");
+		String refactoringSummary = refactoring.toString().trim();
+		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
 			log.info("[TRACK] Commit " + commit.getId().getName());
 		}
@@ -118,10 +117,7 @@ public class RefactoringAnalyzer {
 					out.print(sourceCodeBefore);
 				}
 
-				// generate metric for the refactored class
-				Calendar commitTime = JGitUtils.getGregorianCalendar(commit);
-
-				Yes yes = calculateCkMetrics(refactoredClassName, commit.getId().getName(), commitTime, refactoring, commitParent.getId().getName());
+				Yes yes = calculateCkMetrics(refactoredClassName, commitMetaData, refactoring, refactoringSummary);
 
 				if(yes!=null) {
 					// mark it for the process metrics collection
@@ -162,13 +158,13 @@ public class RefactoringAnalyzer {
 	}
 
 	private String getMethodAndOrVariableNameIfAny(Yes yes) {
-		if(yes.getRefactoringType() == TYPE_METHOD_LEVEL) {
+		if(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL) {
 			return yes.getMethodMetrics().getShortMethodName();
 		}
-		if(yes.getRefactoringType() == TYPE_VARIABLE_LEVEL) {
+		if(yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL) {
 			return yes.getMethodMetrics().getShortMethodName() + "-" + yes.getVariableMetrics().getVariableName();
 		}
-		if(yes.getRefactoringType() == TYPE_ATTRIBUTE_LEVEL) {
+		if(yes.getRefactoringLevel() == TYPE_ATTRIBUTE_LEVEL) {
 			return yes.getFieldMetrics().getFieldName();
 		}
 
@@ -182,9 +178,9 @@ public class RefactoringAnalyzer {
 
 		String completeFileNameBefore = String.format("%s-%d-%s-%d-%s",
 				fileNameBefore,
-				yes.getRefactoringType(),
+				yes.getRefactoringLevel(),
 				yes.getRefactoring(),
-				(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+				(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL || yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
 				getMethodAndOrVariableNameIfAny(yes));
 
 		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameBefore);
@@ -196,9 +192,9 @@ public class RefactoringAnalyzer {
 
 			String completeFileNameAfter = String.format("%s-%d-%s-%d-%s",
 					fileNameAfter,
-					yes.getRefactoringType(),
+					yes.getRefactoringLevel(),
 					yes.getRefactoring(),
-					(yes.getRefactoringType() == TYPE_METHOD_LEVEL || yes.getRefactoringType() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+					(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL || yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
 					getMethodAndOrVariableNameIfAny(yes));
 
 			PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAfter);
@@ -208,7 +204,7 @@ public class RefactoringAnalyzer {
 
 	}
 
-	private Yes calculateCkMetrics(String refactoredClass, String refactorCommit, Calendar refactoringDate, Refactoring refactoring, String parentCommit) {
+	private Yes calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
 		final List<Yes> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
@@ -340,13 +336,12 @@ public class RefactoringAnalyzer {
 			// assemble the final object
 			Yes yes = new Yes(
 					project,
-					refactorCommit,
-					refactoringDate,
-					parentCommit,
+					commitMetaData,
 					ck.getFile().replace(tempDir, ""),
 					cleanedCkClassName,
 					refactoring.getRefactoringType().getDisplayName(),
 					refactoringTypeInNumber(refactoring),
+					refactoringSummary,
 					classMetric,
 					methodMetrics,
 					variableMetrics,

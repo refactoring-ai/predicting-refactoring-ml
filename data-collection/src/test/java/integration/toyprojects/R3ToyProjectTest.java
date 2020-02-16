@@ -25,7 +25,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	// commit 892ffd8486daaedb5c92a548a23b87753393ce16 should show two refactoring -- Rename Class and Push Down Method
 	@Test
 	public void yes() {
-		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by commitMetaData.commitDate desc")
 				.setParameter("project", project)
 				.list();
 
@@ -44,7 +44,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, "892ffd8486daaedb5c92a548a23b87753393ce16", "Move Method", 1);
 
 		for (Yes yes : yesList){
-			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+			Assertions.assertFalse(yes.getClassMetrics().isInnerClass());
 		}
 	}
 
@@ -58,6 +58,16 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
+	public void commitMetaData(){
+		String commit = "376304b51193e5fade802be2cbd7523d6a5ba664";
+		assertMetaDataYes(
+				commit,
+				"Move and Rename Class testing",
+				"Move And Rename Class\tAnimal moved and renamed to inheritance.superinfo.AnimalSuper",
+				"@local/" + getRepo() + "/" + commit);
+	}
+
+	@Test
 	public void metrics() {
 		// the next two assertions come directly from a 'cloc .' in the project
 		Assert.assertEquals(23, project.getJavaLoc());
@@ -67,7 +77,5 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(3, project.getNumberOfProductionFiles());
 
 		Assert.assertEquals(23, project.getProductionLoc());
-
-
 	}
 }
