@@ -34,7 +34,6 @@ public class Project {
 	private long projectSizeInBytes;
 
 	private int exceptionsCount;
-	private int cleanedRows;
 
 	private String lastCommitHash;
 
@@ -65,10 +64,6 @@ public class Project {
 
 	public void setExceptions(int exceptionsCount) {
 		this.exceptionsCount = exceptionsCount;
-	}
-
-	public void setCleanedRows(int cleanedRows) {
-		this.cleanedRows = cleanedRows;
 	}
 
 	public long getId() {
@@ -116,7 +111,6 @@ public class Project {
 				", productionLoc=" + productionLoc +
 				", testLoc=" + testLoc +
 				", exceptionsCount=" + exceptionsCount +
-				", cleanedRows=" + cleanedRows +
 				", lastCommitHash='" + lastCommitHash + '\'' +
 				'}';
 	}
