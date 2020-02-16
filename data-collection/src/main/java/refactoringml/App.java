@@ -136,8 +136,8 @@ public class App {
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
 
 				// we only analyze commits that have one parent
-				// i.e., ignore first commit ever of the repo, and ignore merge commits
-				if(currentCommit.getParentCount() != 1)
+				// i.e., ignore merge commits
+				if(currentCommit.getParentCount() > 1)
 					continue;
 
 				log.debug("Visiting commit " + currentCommit.getId().getName());
@@ -155,7 +155,9 @@ public class App {
 				commitIdToProcess = null;
 
 				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
-				miner.detectAtCommit(repo, commitHash, handler, 20);
+				// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
+				if(currentCommit.getParentCount()==1)
+					miner.detectAtCommit(repo, commitHash, handler, 20);
 
 				//stores all the ck metrics for the current commit
 				Set<Long> allYeses = new HashSet<Long>();
