@@ -16,7 +16,7 @@ public class Yes {
 	//project id: referencing the project information, e.g. name or gitUrl
 	private Project project;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	private CommitMetaData commitMetaData;
 
 	//relative filepath to the java file of the refactored class
@@ -33,7 +33,7 @@ public class Yes {
 	//Describe the refactoring e.g. "Rename Class" or "Extract Method"
 	private String refactoring;
 	//Describe the content of the refactoring e.g. "Rename Pets to Cat"
-	@Type(type="text")
+	@Lob
 	private String refactoringSummary;
 
 	@Embedded

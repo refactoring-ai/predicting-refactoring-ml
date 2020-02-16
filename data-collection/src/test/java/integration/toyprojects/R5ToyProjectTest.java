@@ -21,7 +21,7 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void yes() {
 
-		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by commitMetaData.commitDate desc")
 				.setParameter("project", project)
 				.list();
 		Assert.assertEquals(1, yesList.size());

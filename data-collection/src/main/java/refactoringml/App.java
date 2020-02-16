@@ -133,8 +133,12 @@ public class App {
 			RevWalk walk = JGitUtils.getReverseWalk(repo, mainBranch);
 			RevCommit currentCommit = walk.next();
 
-			boolean endFound = false;
-			while (currentCommit!=null && !endFound) {
+			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+
+				// we only analyze commits that have one parent
+				// i.e., ignore first commit ever of the repo, and ignore merge commits
+				if(currentCommit.getParentCount() != 1)
+					continue;
 
 				log.debug("Visiting commit " + currentCommit.getId().getName());
 
@@ -156,13 +160,15 @@ public class App {
 				//stores all the ck metrics for the current commit
 				Set<Long> allYeses = new HashSet<Long>();
 
-				CommitMetaData commitMetaData = new CommitMetaData(currentCommit, project);
 				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
 				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
 				if (thereIsRefactoringToProcess) {
 					for (Refactoring ref : refactoringsToProcess) {
 						try {
 							db.openSession();
+							CommitMetaData commitMetaData = new CommitMetaData(currentCommit, project);
+							db.persist(commitMetaData);
+
 							allYeses.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref, commitMetaData));
 							db.commit();
 						} catch (Exception e) {
@@ -180,10 +186,8 @@ public class App {
 				}
 
 				//collect the process metrics for the current commit
-				if(currentCommit.getParentCount() <= 1)
-					processMetrics.collectMetrics(currentCommit, allYeses, thereIsRefactoringToProcess);
+				processMetrics.collectMetrics(currentCommit, allYeses, thereIsRefactoringToProcess);
 
-				currentCommit = walk.next();
 			}
 
 			walk.close();

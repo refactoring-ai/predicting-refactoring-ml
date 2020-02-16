@@ -51,7 +51,7 @@ public class RefactoringAnalyzer {
 
 	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring, CommitMetaData commitMetaData ) throws IOException {
 
-		if (commit.getParentCount() == 0 || !studied(refactoring)) {
+		if (!studied(refactoring)) {
 			//TODO: check if this is correct and desired behavior
 			return new HashSet<Long>();
 		}

@@ -25,7 +25,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	// commit 892ffd8486daaedb5c92a548a23b87753393ce16 should show two refactoring -- Rename Class and Push Down Method
 	@Test
 	public void yes() {
-		List<Yes> yesList = session.createQuery("From Yes where project = :project order by refactoringDate desc")
+		List<Yes> yesList = session.createQuery("From Yes where project = :project order by commitMetaData.commitDate desc")
 				.setParameter("project", project)
 				.list();
 

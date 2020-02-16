@@ -154,7 +154,7 @@ public abstract class IntegrationBaseTest {
 	}
 
 	protected void assertMetaDataYes (String commit, String commitMessage, String refactoringSummary, String commitUrl){
-		Yes yes = (Yes) session.createQuery("From Yes where project = :project and refactorCommit = :refactorCommit ")
+		Yes yes = (Yes) session.createQuery("From Yes where project = :project and commitMetaData.commitId = :refactorCommit ")
 				.setParameter("project", project)
 				.setParameter("refactorCommit", commit)
 				.list().get(0);
