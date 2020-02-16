@@ -54,7 +54,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 		assertRefactoring(yesList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98", "Extract Method", 1);
 		Assertions.assertEquals("a.Animal.Dog", yesList.get(0).getClassName());
-		Assertions.assertTrue(yesList.get(0).getClassMetrics().isSubclass());
+		Assertions.assertTrue(yesList.get(0).getClassMetrics().isInnerClass());
 
 		assertRefactoring(yesList, "d3b912566712bdeda096c60a8887dd96b76ceb7b", "Rename Method", 1);
 		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", yesList.get(5).getClassName());

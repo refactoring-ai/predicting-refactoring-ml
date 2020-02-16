@@ -27,7 +27,7 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, "e8895b22847c7c54a9e187f9f674db274e6bc103", "Extract Method", 1);
 
 		for (Yes yes : yesList){
-			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+			Assertions.assertFalse(yes.getClassMetrics().isInnerClass());
 		}
 	}
 

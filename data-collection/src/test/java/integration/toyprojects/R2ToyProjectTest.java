@@ -52,9 +52,9 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(2, yesList.size());
 
 		List<Yes> areSubclasses = yesList.stream().filter(yes ->
-				yes.getClassMetrics().isSubclass()
+				yes.getClassMetrics().isInnerClass()
 						&& yes.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
-		List<Yes> areNoSubclasses = yesList.stream().filter(yes -> !yes.getClassMetrics().isSubclass()).collect(Collectors.toList());
+		List<Yes> areNoSubclasses = yesList.stream().filter(yes -> !yes.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 
 		Assert.assertEquals(0, areSubclasses.size());
 		Assert.assertEquals(2, areNoSubclasses.size());

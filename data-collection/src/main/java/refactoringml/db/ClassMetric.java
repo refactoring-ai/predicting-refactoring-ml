@@ -5,7 +5,7 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class ClassMetric {
 
-	private boolean isSubclass;
+	private boolean isInnerClass;
 	private int classCbo;
 	private int classWmc;
 	private int classRfc;
@@ -49,12 +49,12 @@ public class ClassMetric {
 	@Deprecated // hibernate purposes
 	public ClassMetric(){}
 
-	public ClassMetric(boolean isSubclass, int classCbo, int classWmc, int classRfc, int classLcom, int classNumberOfMethods, int classNumberOfStaticMethods, int classNumberOfPublicMethods, int classNumberOfPrivateMethods, int classNumberOfProtectedMethods,
+	public ClassMetric(boolean isInnerClass, int classCbo, int classWmc, int classRfc, int classLcom, int classNumberOfMethods, int classNumberOfStaticMethods, int classNumberOfPublicMethods, int classNumberOfPrivateMethods, int classNumberOfProtectedMethods,
 	                   int classNumberOfDefaultMethods, int classNumberOfAbstractMethods, int classNumberOfFinalMethods, int classNumberOfSynchronizedMethods, int classNumberOfFields, int classNumberOfStaticFields,
 	                   int classNumberOfPublicFields, int classNumberOfPrivateFields, int classNumberOfProtectedFields, int classNumberOfDefaultFields, int classNumberOfFinalFields, int classNumberOfSynchronizedFields,
 	                   int classNosi, int classLoc, int classReturnQty, int classLoopQty, int classComparisonsQty, int classTryCatchQty, int classParenthesizedExpsQty, int classStringLiteralsQty, int classNumbersQty, int classAssignmentsQty,
 	                   int classMathOperationsQty, int classVariablesQty, int classMaxNestedBlocks, int classAnonymousClassesQty, int classSubClassesQty, int classLambdasQty, int classUniqueWordsQty) {
-		this.isSubclass = isSubclass;
+		this.isInnerClass = isInnerClass;
 		this.classCbo = classCbo;
 		this.classWmc = classWmc;
 		this.classRfc = classRfc;
@@ -98,7 +98,7 @@ public class ClassMetric {
 	@Override
 	public String toString() {
 		return "ClassMetric{" +
-				"isSubclass=" + isSubclass +
+				"isInnerClass=" + isInnerClass +
 				", classCbo=" + classCbo +
 				", classWmc=" + classWmc +
 				", classRfc=" + classRfc +
@@ -140,7 +140,7 @@ public class ClassMetric {
 				'}';
 	}
 
-	public boolean isSubclass(){ return isSubclass; }
+	public boolean isInnerClass(){ return isInnerClass; }
 
 	public int getClassCbo() {
 		return classCbo;

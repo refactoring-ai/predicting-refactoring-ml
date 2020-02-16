@@ -164,13 +164,12 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(commitUrl, yes.getCommitUrl());
 	}
 
-	protected void assertMetaDataNo(String commit, String commitMessage, String commitUrl) {
-		No no = (No) session.createQuery("From No where project = :project and commit = :refactorCommit ")
+	protected void assertMetaDataNo(String commit, String commitUrl) {
+		No no = (No) session.createQuery("From No where project = :project and commitMetaData.commitId = :commit ")
 				.setParameter("project", project)
 				.setParameter("commit", commit)
 				.list().get(0);
 
-		Assert.assertEquals(commitMessage, no.getCommitMessage());
 		Assert.assertEquals(commitUrl, no.getCommitUrl());
 	}
 

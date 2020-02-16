@@ -44,7 +44,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, "892ffd8486daaedb5c92a548a23b87753393ce16", "Move Method", 1);
 
 		for (Yes yes : yesList){
-			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+			Assertions.assertFalse(yes.getClassMetrics().isInnerClass());
 		}
 	}
 

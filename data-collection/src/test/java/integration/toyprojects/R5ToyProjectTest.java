@@ -30,7 +30,7 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 		Assertions.assertEquals("a.Test", yesList.get(0).getClassName());
 
 		for (Yes yes : yesList){
-			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
+			Assertions.assertFalse(yes.getClassMetrics().isInnerClass());
 		}
 	}
 
