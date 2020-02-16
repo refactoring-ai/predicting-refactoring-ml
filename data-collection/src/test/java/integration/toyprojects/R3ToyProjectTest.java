@@ -29,7 +29,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 				.setParameter("project", project)
 				.list();
 
-		Assert.assertEquals(13, yesList.size());
+		Assert.assertEquals(14, yesList.size());
 
 		assertRefactoring(yesList, "074881da657ed0a11527cb8b14bba12e4111c704", "Rename Class", 1);
 		assertRefactoring(yesList, "d025fed92a7253953a148f7264de28a85bc9af4e", "Rename Method", 2);
@@ -41,6 +41,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, "8fc1ff2f53a617082767b8dd0af60b978dfc6e67", "Move Class", 1);
 		assertRefactoring(yesList, "cf2ef5a3de59923ac000a4fe3ceeb8778229b293", "Pull Up Method", 2);
 		assertRefactoring(yesList, "892ffd8486daaedb5c92a548a23b87753393ce16", "Rename Class", 1);
+		assertRefactoring(yesList, "892ffd8486daaedb5c92a548a23b87753393ce16", "Move Method", 1);
 
 		for (Yes yes : yesList){
 			Assertions.assertFalse(yes.getClassMetrics().isSubclass());
