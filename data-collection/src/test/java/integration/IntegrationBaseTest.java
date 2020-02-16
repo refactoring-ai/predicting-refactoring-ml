@@ -117,7 +117,7 @@ public abstract class IntegrationBaseTest {
 		return null;
 	}
 
-	protected boolean drop() {
+	protected final boolean drop() {
 		return false;
 	}
 
