@@ -144,7 +144,7 @@ public class ProcessMetricsCollector {
 
 				// add class to our in-memory pmDatabase
 				if(!pmDatabase.containsKey(fileName))
-					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit)));
+					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
 
 				// collect number of lines deleted and added in that file
 				int linesDeleted = 0;

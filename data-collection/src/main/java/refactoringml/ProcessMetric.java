@@ -21,7 +21,6 @@ public class ProcessMetric {
 
 	// counters at the time of the base commit
 	private String baseCommitForNonRefactoring;
-	private String baseCommitMessageForNonRefactoring;
 	private int baseLinesAdded = 0;
 	private int baseLinesDeleted = 0;
 	private int baseBugFixCount = 0;
@@ -35,11 +34,10 @@ public class ProcessMetric {
 	public static String[] bugKeywords = {"bug", "error", "mistake", "fault", "wrong", "fail", "fix"};
 	private Calendar baseCommitDateForNonRefactoring;
 
-	public ProcessMetric (String fileName, String baseCommitForNonRefactoring, String baseCommitMessageForNonRefactoring, Calendar baseCommitDateForNonRefactoring) {
+	public ProcessMetric (String fileName, String baseCommitForNonRefactoring, Calendar baseCommitDateForNonRefactoring) {
 		this.fileName = fileName;
 		this.baseCommitForNonRefactoring = baseCommitForNonRefactoring;
 		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
-		this.baseCommitMessageForNonRefactoring = baseCommitMessageForNonRefactoring;
 	}
 
 
@@ -72,7 +70,6 @@ public class ProcessMetric {
 		counter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 		this.baseCommitDateForNonRefactoring = commitDate;
-		this.baseCommitMessageForNonRefactoring = baseCommitMessageForNonRefactoring;
 
 		baseLinesAdded = linesAdded;
 		baseLinesDeleted = linesDeleted;
@@ -98,8 +95,6 @@ public class ProcessMetric {
 	}
 
 	public String getBaseCommitForNonRefactoring () { return baseCommitForNonRefactoring; }
-
-	public String getBaseCommitMessageForNonRefactoring () { return baseCommitMessageForNonRefactoring;  }
 
 	public Calendar getBaseCommitDateForNonRefactoring() { return baseCommitDateForNonRefactoring; }
 
@@ -197,7 +192,6 @@ public class ProcessMetric {
 				", refactoringsInvolved=" + refactoringsInvolved +
 				", counter=" + counter +
 				", baseCommitForNonRefactoring='" + baseCommitForNonRefactoring + '\'' +
-				", baseCommitMessageForNonRefactoring='" + baseCommitMessageForNonRefactoring + '\'' +
 				", baseLinesAdded=" + baseLinesAdded +
 				", baseLinesDeleted=" + baseLinesDeleted +
 				", baseBugFixCount=" + baseBugFixCount +

@@ -10,8 +10,16 @@ import java.util.Calendar;
 @Entity
 @Table(name = "commit_metadata")
 public class CommitMetaData {
-    //use the unique commit hash to relate from Yes and No to this one
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    //use the unique commit hash to relate from Yes and No to this one
+    // for Yes, this commit points to the commit the refactoring has happened
+    // For No, this commit points to the first commit where the class was stable
+    // (i.e., if a class has been to [1..50] commits before considered as instance
+    // of no refactoring, commitId = commit 1.
     private String commitId;
 
     //original commit message
@@ -22,7 +30,10 @@ public class CommitMetaData {
     //Date this commit was made
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar commitDate;
+
     //id of the parent commit, if none exists:
+    // the parent commit points to the commit that we calculate the code metrics
+    // (we calculate the metrics in the version of file *before* the refactoring)
     private String parentCommit;
 
     @Deprecated // hibernate purposes
@@ -39,7 +50,7 @@ public class CommitMetaData {
     public CommitMetaData(ProcessMetric clazz, Project project){
         this.commitId = clazz.getBaseCommitForNonRefactoring();
         this.commitDate = clazz.getBaseCommitDateForNonRefactoring();
-        this.commitMessage =  clazz.getBaseCommitMessageForNonRefactoring().trim();
+        this.commitMessage =  "NULL";
         this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
         //TODO: is this really useless for no refactorings?
         this.parentCommit = "NULL";
