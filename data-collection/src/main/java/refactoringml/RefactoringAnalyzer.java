@@ -13,6 +13,7 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
+import refactoringml.util.FilePathUtils;
 import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
@@ -76,6 +77,7 @@ public class RefactoringAnalyzer {
 
 				List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
 
+				//TODO: Process metrics: Track renames #19
 				// we try to match either the old or the new name of the file.
 				// this is to help us in catching renames or moves
 				Optional<DiffEntry> refactoredEntry = entries.stream()
@@ -355,6 +357,7 @@ public class RefactoringAnalyzer {
 		return list.isEmpty() ? null : list.get(0);
 	}
 
+	//TODO: on my Windows computer the tempDir is not always deleted
 	private void cleanTmpDir() throws IOException {
 		if(tempDir != null) {
 			FileUtils.deleteDirectory(new File(tempDir));
@@ -363,6 +366,7 @@ public class RefactoringAnalyzer {
 	}
 
 	private void createTmpDir() {
-		tempDir = lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
+		String unixTmpDir = FilePathUtils.enforceUnixPaths(com.google.common.io.Files.createTempDir().getAbsolutePath());
+		tempDir = lastSlashDir(unixTmpDir);
 	}
 }

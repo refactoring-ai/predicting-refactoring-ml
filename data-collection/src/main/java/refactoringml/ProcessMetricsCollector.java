@@ -11,7 +11,6 @@ import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import refactoringml.db.*;
 import refactoringml.util.*;
@@ -96,10 +95,9 @@ public class ProcessMetricsCollector {
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
 		for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
-
 			if(TrackDebugMode.ACTIVE && pm.getFileName().equals(TrackDebugMode.FILE_TO_TRACK)) {
-				log.info("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
-				log.info("[TRACK] " + pm.toString());
+				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
+				log.debug("[TRACK] " + pm.toString());
 			}
 
 			outputNonRefactoredClass(pm);
@@ -118,31 +116,36 @@ public class ProcessMetricsCollector {
 			diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
 			diffFormatter.setDetectRenames(true);
 
-			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
-				String fileName = entry.getPath(null);
+			// do not collect these numbers if not a java file (save some memory)
+			List<DiffEntry> javaDiffs = diffFormatter.scan(commitParent, commit).stream()
+					.filter(entry -> entry.getNewPath().toLowerCase().endsWith("java")).collect(Collectors.toList());
+
+			for (DiffEntry entry : javaDiffs) {
+				String fileName = entry.getNewPath();
 
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.info("[TRACK] File was changed in commit " + commit.getId().getName() + ", updating process metrics");
+					log.debug("[TRACK] File was changed in commit " + commit.getId().getName() + ", updating process metrics");
 				}
 
-				// do not collect these numbers if not a java file (save some memory)
-				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
-				if (!isAJavaFile) {
-					continue;
-				}
-
-				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
+				// if the class was deleted, we remove it from our pmDatabase, as to not mess
 				// with the refactoring counter...
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
-				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
+				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
 					pmDatabase.remove(entry.getOldPath());
-
-					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
-						continue;
+					log.debug("Removed " + entry.getOldPath() + " from PMDatabase.");
+					continue;
+				}
+				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
+				// Thus, we are not tracking class renames here, but that is also not necessary, because the PM metrics are computed for each java file anyways.
+				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
+					String oldFileName = entry.getOldPath();
+					pmDatabase.rename(oldFileName, fileName);
+					log.debug("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
 				}
 
-				// add class to our in-memory pmDatabase
+				//TODO: track class names instead of filenames for the process metrics
+				// add file () to our in-memory pmDatabase
 				if(!pmDatabase.containsKey(fileName))
 					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
 
@@ -150,9 +153,10 @@ public class ProcessMetricsCollector {
 				int linesDeleted = 0;
 				int linesAdded = 0;
 
+				//wrong, this always overrides previous results
 				for (Edit edit : diffFormatter.toFileHeader(entry).toEditList()) {
-					linesDeleted = edit.getEndA() - edit.getBeginA();
-					linesAdded = edit.getEndB() - edit.getBeginB();
+					linesDeleted += edit.getEndA() - edit.getBeginA();
+					linesAdded += edit.getEndB() - edit.getBeginB();
 				}
 
 				// update our pmDatabase entry with the information of the current commit
@@ -164,9 +168,8 @@ public class ProcessMetricsCollector {
 				currentClazz.increaseCounter();
 
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.info("[TRACK] Counter increased to " + currentClazz.counter());
+					log.debug("[TRACK] Class stability counter increased to " + currentClazz.counter() + " for file: " + fileName);
 				}
-
 			}
 		}
 	}
@@ -175,18 +178,16 @@ public class ProcessMetricsCollector {
 		Set<String> refactoredClasses = new HashSet<>();
 
 		for (Long yesId : allYeses) {
-
 			Yes yes = db.findYes(yesId);
-
+			//TODO: the filePath from yes and Diffentry do not always match, e.g.
+			// C:\Users\jange\AppData\Local\Temp\1581607643389-0\a\Animal.java and a/Animal.java from toyrepo r4
 			String fileName = yes.getFilePath();
 
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-				log.info("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName());
+				log.debug("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName() + " for file: " + fileName);
 			}
 
-
 			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
-
 			ProcessMetrics dbProcessMetrics;
 
 			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
@@ -209,7 +210,7 @@ public class ProcessMetricsCollector {
 
 				log.error("Not able to find process metrics for file " + fileName + " (commit " + commit.getName() + ")");
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.info("[TRACK] Not able to find process metrics at " + commit.getId().getName());
+					log.debug("[TRACK] Not able to find process metrics at " + commit.getId().getName() + " for file: " + fileName);
 				}
 			} else {
 
@@ -237,7 +238,8 @@ public class ProcessMetricsCollector {
 			refactoredClasses.add(fileName);
 
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-				log.info("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved() + " and counter resetted");
+				log.debug("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved()
+						+ " and class stability counter was set to 0 for file: " + fileName);
 			}
 
 		}

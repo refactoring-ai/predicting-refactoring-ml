@@ -1,7 +1,6 @@
 package integration.realprojects;
 
 import integration.IntegrationBaseTest;
-import org.hibernate.query.Query;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -32,9 +31,8 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		return 10;
 	}
 
-	/*
-	Test the isInnerClass boolean for both yes and no.
-	 */
+
+	//Test the isInnerClass boolean for both yes and no.
 	@Test
 	public void isInnerClass() {
 		List<Yes> yesList = session.createQuery("From Yes where (className = :className1 or className = :className2) and project = :project")

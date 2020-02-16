@@ -16,7 +16,7 @@ public class ProcessMetric {
 	private int bugFixCount = 0;
 	private int refactoringsInvolved = 0;
 
-
+	//counts the number of commits not refactoring this class, in order to verify the class as stable
 	private int counter = 0;
 
 	// counters at the time of the base commit
@@ -82,9 +82,7 @@ public class ProcessMetric {
 		baseCommits = commits;
 	}
 
-	public void increaseCounter() {
-		counter++;
-	}
+	public void increaseCounter() { counter++; }
 
 	public int counter() {
 		return counter;

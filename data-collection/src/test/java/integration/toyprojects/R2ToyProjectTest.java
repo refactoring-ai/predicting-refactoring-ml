@@ -41,7 +41,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		Yes extractClassRefactoring = filterCommit(yesList, extractCommit).get(0);
 		//TODO: figure out what to expect here
 		metrics = new ProcessMetrics(0, 1, 3, 1, 0, 1, 0, 0, 1);
-//		assertProcessMetrics(extractClassRefactoring, metrics);
+		assertProcessMetrics(extractClassRefactoring, metrics);
 	}
 
 	@Test
