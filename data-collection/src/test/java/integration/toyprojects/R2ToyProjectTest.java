@@ -31,7 +31,6 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, renameCommit, "Rename Class", 1);
 
 		Yes renameRefactoring = yesList.stream().filter(yes -> yes.getRefactorCommit().equals(renameCommit)).findFirst().get();
-		//TODO: figure out what to expect here
 		ProcessMetrics metrics = new ProcessMetrics(1, 5, 0, 1, 0, 1, 1.0, 0, 0);
 		assertProcessMetrics(renameRefactoring, metrics);
 
@@ -39,8 +38,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, extractCommit, "Extract Class", 1);
 
 		Yes extractClassRefactoring = filterCommit(yesList, extractCommit).get(0);
-		//TODO: figure out what to expect here
-		metrics = new ProcessMetrics(0, 1, 3, 1, 0, 1, 0, 0, 1);
+		metrics = new ProcessMetrics(5, 40, 5, 1, 0, 1, 1.0, 0, 1);
 		assertProcessMetrics(extractClassRefactoring, metrics);
 	}
 
@@ -86,6 +84,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 
 		Assert.assertEquals(4, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
 
+		//TODO: the counting of the production files is incorrect
 		Assert.assertEquals(3, project.getNumberOfProductionFiles());
 
 		Assert.assertEquals(1, project.getNumberOfTestFiles());

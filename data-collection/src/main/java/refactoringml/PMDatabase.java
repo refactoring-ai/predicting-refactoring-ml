@@ -28,9 +28,7 @@ public class PMDatabase {
 		database.put(key, value);
 	}
 
-	public ProcessMetric get (String key) {
-		return database.get(key);
-	}
+	public ProcessMetric get (String key) { return database.get(key); }
 
 	public List<ProcessMetric> refactoredLongAgo () {
 		return database.values().stream()

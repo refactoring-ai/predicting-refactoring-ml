@@ -93,9 +93,8 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(yesList, renameClassFull, "Rename Class",1);
 
 		//no check if the class metrics were tracked and set correct
-		//TODO: Should the qtyOfCommits not be 3, as it is the 4th commit changing this file?
 		ProcessMetrics doubleRenameMetrics1 = new ProcessMetrics(
-				3,
+				2,
 				34,
 				4,
 				1,
@@ -108,7 +107,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		assertProcessMetrics(filterCommit(yesList, doubleRenameCommit).get(0), doubleRenameMetrics1);
 
 		ProcessMetrics doubleRenameMetrics2 = new ProcessMetrics(
-				3,
+				2,
 				34,
 				4,
 				1,
@@ -121,7 +120,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		assertProcessMetrics(filterCommit(yesList, doubleRenameCommit).get(1), doubleRenameMetrics2);
 
 		ProcessMetrics renameClassMetrics = new ProcessMetrics(
-				5,
+				4,
 				36,
 				6,
 				2,
@@ -135,7 +134,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 		//TODO: The author owner ship metric is a bit weird with 0.4, I would expect something like 0.33
 		ProcessMetrics renameFullMetrics = new ProcessMetrics(
-				6,
+				5,
 				37,
 				7,
 				3,
@@ -160,29 +159,30 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	public void metrics() {
+		//this is the first refactoring on the class
 		List<Yes> yesList = session.createQuery("From Yes where project = :project order by commitMetaData.commitDate desc")
 				.setParameter("project", project)
 				.list();
 		ProcessMetrics methodExtract = new ProcessMetrics(
+				1,
+				26,
 				0,
+				1,
 				0,
-				0,
-				0,
-				0,
-				0,
-				0.0,
+				1,
+				1.0,
 				0,
 				0
 		);
 		assertProcessMetrics(filterCommit(yesList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0), methodExtract);
 
 		ProcessMetrics methodRename = new ProcessMetrics(
-				7,
+				6,
 				38,
 				8,
-				4,
+				3,
 				0,
-				4,
+				3,
 				0.5,
 				0,
 				5

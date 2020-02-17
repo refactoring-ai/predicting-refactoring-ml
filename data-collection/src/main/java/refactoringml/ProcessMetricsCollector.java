@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.cleanClassName;
+import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
@@ -45,7 +46,7 @@ public class ProcessMetricsCollector {
 		this.db = db;
 		this.repository = repository;
 		this.branch = branch;
-		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
+		this.fileStoragePath = enforceUnixPaths(FilePathUtils.lastSlashDir(fileStoragePath));
 		this.lastCommitToProcess = lastCommitToProcess;
 		pmDatabase = new PMDatabase(commitThreshold);
 	}
@@ -121,7 +122,7 @@ public class ProcessMetricsCollector {
 					.filter(entry -> entry.getNewPath().toLowerCase().endsWith("java")).collect(Collectors.toList());
 
 			for (DiffEntry entry : javaDiffs) {
-				String fileName = entry.getNewPath();
+				String fileName = enforceUnixPaths(entry.getNewPath());
 
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 					log.debug("[TRACK] File was changed in commit " + commit.getId().getName() + ", updating process metrics");
@@ -132,22 +133,22 @@ public class ProcessMetricsCollector {
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
 				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
-					pmDatabase.remove(entry.getOldPath());
-					log.debug("Removed " + entry.getOldPath() + " from PMDatabase.");
+					String oldFileName = enforceUnixPaths(entry.getOldPath());
+					pmDatabase.remove(oldFileName);
+					log.debug("Deleted " + oldFileName + " from PMDatabase.");
 					continue;
 				}
 				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
 				// Thus, we are not tracking class renames here, but that is also not necessary, because the PM metrics are computed for each java file anyways.
 				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
-					String oldFileName = entry.getOldPath();
+					String oldFileName = enforceUnixPaths(entry.getOldPath());
 					pmDatabase.rename(oldFileName, fileName);
 					log.debug("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
 				}
-
-				//TODO: track class names instead of filenames for the process metrics
-				// add file () to our in-memory pmDatabase
-				if(!pmDatabase.containsKey(fileName))
+				else if(!pmDatabase.containsKey(fileName)) {
 					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
+					log.debug("Put: " + fileName + " in the PMDatabase for the commit: " + commit.getName());
+				}
 
 				// collect number of lines deleted and added in that file
 				int linesDeleted = 0;
@@ -161,7 +162,7 @@ public class ProcessMetricsCollector {
 
 				// update our pmDatabase entry with the information of the current commit
 				ProcessMetric currentClazz = pmDatabase.get(fileName);
-				currentClazz.existsIn(commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
+				currentClazz.reportChanges(commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
 
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
@@ -194,7 +195,6 @@ public class ProcessMetricsCollector {
 			// however, we might not be able to find the process metrics of that class.
 			// this will happen in strange cases where we never tracked that class before...
 			// for now, let's store it as -1, so that we can still use the data point for structural metrics
-			// TODO: better track renames. As soon as a class is renamed, transfer its process metrics.
 			if(currentProcessMetrics == null) {
 				dbProcessMetrics = new ProcessMetrics(
 						-1,
@@ -357,7 +357,7 @@ public class ProcessMetricsCollector {
 			No no = new No(
 					project,
 					commitMetaData,
-					ck.getFile().replace(tempDir, ""),
+					FilePathUtils.enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 					cleanedCkClassName,
 					classMetric,
 					null,
@@ -398,7 +398,7 @@ public class ProcessMetricsCollector {
 				No noM = new No(
 						project,
 						commitMetaData,
-						ck.getFile().replace(tempDir, ""),
+						FilePathUtils.enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 						cleanedCkClassName,
 						classMetric,
 						methodMetrics,
@@ -414,7 +414,7 @@ public class ProcessMetricsCollector {
 					No noV = new No(
 							project,
 							commitMetaData,
-							ck.getFile().replace(tempDir, ""),
+							FilePathUtils.enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 							cleanedCkClassName,
 							classMetric,
 							methodMetrics,
@@ -440,7 +440,7 @@ public class ProcessMetricsCollector {
 				No noF = new No(
 						project,
 						commitMetaData,
-						ck.getFile().replace(tempDir, ""),
+						FilePathUtils.enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 						cleanedCkClassName,
 						classMetric,
 						null,

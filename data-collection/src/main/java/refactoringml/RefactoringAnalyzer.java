@@ -58,16 +58,15 @@ public class RefactoringAnalyzer {
 		}
 
 		String refactoringSummary = refactoring.toString().trim();
-		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
+		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-			log.info("[TRACK] Commit " + commit.getId().getName());
+			log.debug("[TRACK] Commit " + commit.getId().getName());
 		}
 
 		RevCommit commitParent = commit.getParent(0);
 		Set<Long> allYeses = new HashSet<Long>();
 
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
-
 			String refactoredClassFile = pair.getLeft();
 			String refactoredClassName = pair.getRight();
 
@@ -75,24 +74,24 @@ public class RefactoringAnalyzer {
 				diffFormatter.setRepository(repository);
 				diffFormatter.setDetectRenames(true);
 
+				//TODO: move this diff entry part outside the for loop, in order to improve the performance
 				List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
-
 				//TODO: Process metrics: Track renames #19
 				// we try to match either the old or the new name of the file.
 				// this is to help us in catching renames or moves
 				Optional<DiffEntry> refactoredEntry = entries.stream()
 						.filter(entry -> {
-							String oldFileName = entry.getOldPath();
-							String newFileName = entry.getNewPath();
-							return refactoredClassFile.equals(oldFileName) ||
-									refactoredClassFile.equals(newFileName);
+							String oldFile = enforceUnixPaths(entry.getOldPath());
+							String newFile = enforceUnixPaths(entry.getNewPath());
+							return refactoredClassFile.equals(oldFile) ||
+									refactoredClassFile.equals(newFile);
 						})
 						.findFirst();
 
 				// this should not happen...
 				if(!refactoredEntry.isPresent()) {
-					log.info("old classes in DiffEntry: " + entries.stream().map(x -> x.getOldPath()).collect(Collectors.toList()));
-					log.info("new classes in DiffEntry: " + entries.stream().map(x -> x.getNewPath()).collect(Collectors.toList()));
+					log.error("Old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
+					log.error("New classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
 					throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
 				}
 
@@ -100,11 +99,11 @@ public class RefactoringAnalyzer {
 				DiffEntry entry = refactoredEntry.get();
 				diffFormatter.toFileHeader(entry);
 
-				String oldFileName = entry.getOldPath();
-				String currentFileName = entry.getNewPath();
+				String oldFileName = enforceUnixPaths(entry.getOldPath());
+				String currentFileName = enforceUnixPaths(entry.getNewPath());
 
 				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-					log.info("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
+					log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
 				}
 
 				// Now, we get the contents of the file before
@@ -139,7 +138,7 @@ public class RefactoringAnalyzer {
 					log.error("YES was not created. CK did not find the class, maybe?");
 
 					if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-						log.info("[TRACK] YES instance not created!");
+						log.debug("[TRACK] YES instance not created!");
 					}
 				}
 
@@ -149,7 +148,7 @@ public class RefactoringAnalyzer {
 		}
 
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-			log.info("[TRACK] End commit " + commit.getId().getName());
+			log.debug("[TRACK] End commit " + commit.getId().getName());
 		}
 
 		return allYeses;
@@ -339,7 +338,7 @@ public class RefactoringAnalyzer {
 			Yes yes = new Yes(
 					project,
 					commitMetaData,
-					ck.getFile().replace(tempDir, ""),
+					FilePathUtils.enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 					cleanedCkClassName,
 					refactoring.getRefactoringType().getDisplayName(),
 					refactoringTypeInNumber(refactoring),

@@ -57,7 +57,7 @@ public class Yes {
 	public Yes(Project project, CommitMetaData commitMetaData, String filePath, String className, String refactoring, int refactoringLevel,
 	           String refactoringSummary, ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
 		this.project = project;
-		this.filePath = FilePathUtils.enforceUnixPaths(filePath);
+		this.filePath = filePath;
 		this.className = className;
 		this.refactoring = refactoring;
 		this.refactoringLevel = refactoringLevel;

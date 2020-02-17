@@ -5,21 +5,26 @@ import java.util.function.Predicate;
 
 //TODO: Rename this class, as it is easily confused with ProcessMetrics and the name does not describe its purpose well
 public class ProcessMetric {
-
+	//file name of this class
 	private String fileName;
 
-	// updated info about the class
+	// updated info about the class file
+	//number of commits making changes to this class
 	private int commits = 0;
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
+	//total lines added to this class file
 	private int linesAdded = 0;
+	//total lines deleted from this class file, < linesAdded
 	private int linesDeleted = 0;
+	//total count of (detected) bug fixes on this class file
 	private int bugFixCount = 0;
+	//total count of (detected) refactorings on this class file
 	private int refactoringsInvolved = 0;
 
 	//counts the number of commits not refactoring this class, in order to verify the class as stable
 	private int counter = 0;
 
-	// counters at the time of the base commit
+	//counters at the time of the base (the stable commit) commit
 	private String baseCommitForNonRefactoring;
 	private int baseLinesAdded = 0;
 	private int baseLinesDeleted = 0;
@@ -40,8 +45,8 @@ public class ProcessMetric {
 		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
 	}
 
-
-	public void existsIn (String commitMsg, String authorName, int linesAdded, int linesDeleted) {
+	//This class was changed by a commit.
+	public void reportChanges(String commitMsg, String authorName, int linesAdded, int linesDeleted) {
 		commits++;
 
 		if(!authors.containsKey(authorName)) {
@@ -66,6 +71,7 @@ public class ProcessMetric {
 		return authors.size();
 	}
 
+	//TODO: check what the unused baseCommitMessageForNonRefactoring does here
 	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, Calendar commitDate) {
 		counter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
@@ -130,9 +136,7 @@ public class ProcessMetric {
 		return baseAuthors;
 	}
 
-	public double getBaseAuthorOwnership() {
-		return baseAuthorOwnership;
-	}
+	public double getBaseAuthorOwnership() { return baseAuthorOwnership; }
 
 	public long getBaseMajorAuthors() {
 		return baseMajorAuthors;

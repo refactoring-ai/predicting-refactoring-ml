@@ -95,7 +95,6 @@ public class App {
 		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
 
 		try {
-
 			// creates the directory in the storage
 			if(storeFullSourceCode) {
 				new File(filesStoragePath).mkdirs();
@@ -135,7 +134,7 @@ public class App {
 
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
 
-				// we only analyze commits that have one parent
+				// we only analyze commits that have one parent or the first commit with 0 parents
 				// i.e., ignore merge commits
 				if(currentCommit.getParentCount() > 1)
 					continue;
@@ -181,9 +180,9 @@ public class App {
 							db.close();
 						}
 					}
-				} else {
+				} else if(currentCommit.getParentCount()==1){
 					// timeout happened, so count it as an exception
-					log.error("Refactoring Miner returned null for " + commitHash + ". Possibly this is the first commit of the project, or a timeout.");
+					log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + 20 + " seconds.");
 					exceptionsCount++;
 				}
 

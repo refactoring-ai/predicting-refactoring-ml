@@ -6,14 +6,19 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class ProcessMetrics {
 
+	//number of commits making changes to this class
 	@Column(nullable = true) private int qtyOfCommits;
+	//total lines added to this class file
 	@Column(nullable = true) private int linesAdded;
+	//total lines deleted from this class file, < linesAdded
 	@Column(nullable = true) private int linesDeleted;
 	@Column(nullable = true) private int qtyOfAuthors;
 	@Column(nullable = true) private long qtyMinorAuthors;
 	@Column(nullable = true) private long qtyMajorAuthors;
 	@Column(nullable = true) private double authorOwnership;
+	//total count of (detected) bug fixes on this class file
 	@Column(nullable = true) private int bugFixCount;
+	//total count of (detected) refactorings on this class file
 	@Column(nullable = true) private int refactoringsInvolved;
 
 	@Deprecated // hibernate purposes
