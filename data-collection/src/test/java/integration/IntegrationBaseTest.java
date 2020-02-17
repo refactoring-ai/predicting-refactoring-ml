@@ -30,6 +30,9 @@ public abstract class IntegrationBaseTest {
 	protected Project project;
 	protected Session session;
 
+	private List<RefactoringCommit> refactoringCommits;
+	private List<StableCommit> stableCommits;
+
 	@BeforeAll
 	protected void runApp() throws Exception {
 		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, drop());
@@ -83,24 +86,22 @@ public abstract class IntegrationBaseTest {
 		try {
 			Session session = sf.openSession();
 
-
 			List<Project> projects = (List<Project>) session.createQuery("from Project p where p.gitUrl = :gitUrl")
 					.setParameter("gitUrl", repo1).list();
 
 			if(!projects.isEmpty()) {
 				session.beginTransaction();
 
-				session.createQuery("delete from Yes y where project in :project")
+				session.createQuery("delete from RefactoringCommit where project in :project")
 						.setParameter("project", projects)
 						.executeUpdate();
-				session.createQuery("delete from No where project in :project")
+				session.createQuery("delete from StableCommit where project in :project")
 						.setParameter("project", projects)
 						.executeUpdate();
 
 				projects.stream().forEach(session::delete);
 				session.getTransaction().commit();
 			}
-
 
 			session.close();
 		} catch(Exception e) {
@@ -131,55 +132,68 @@ public abstract class IntegrationBaseTest {
 
 	protected abstract String getRepo();
 
-	protected List<Yes> filterCommit(List<Yes> yesList, String commit){
-		return yesList.stream().filter(yes -> yes.getRefactorCommit().equals(commit)).collect(Collectors.toList());
+	protected List<RefactoringCommit> getRefactoringCommits(){
+		if(refactoringCommits != null)
+			return refactoringCommits;
+
+		refactoringCommits = session.createQuery("From RefactoringCommit where project = :project order by commitMetaData.commitDate desc")
+				.setParameter("project", project)
+				.list();
+		return refactoringCommits;
 	}
 
-	protected List<No> filterNoCommit(List<No> noList, String commit){
-		return noList.stream().filter(no -> no.getCommit().equals(commit)).collect(Collectors.toList());
+	protected List<StableCommit> getStableCommits(){
+		if(stableCommits != null)
+			return stableCommits;
+
+		stableCommits = session.createQuery("From StableCommit where project = :project order by commitMetaData.commitDate desc")
+				.setParameter("project", project)
+				.list();
+		return stableCommits;
 	}
 
-	protected void assertRefactoring(List<Yes> yesList, String commit, String refactoring, int qty) {
-		List<Yes> inCommit = filterCommit(yesList, commit);
+	protected List<RefactoringCommit> filterCommit(List<RefactoringCommit> refactoringCommitList, String commit){
+		return refactoringCommitList.stream().filter(refactoring -> refactoring.getRefactorCommit().equals(commit)).collect(Collectors.toList());
+	}
+
+	protected List<StableCommit> filterStableCommit(List<StableCommit> stableCommitList, String commit){
+		return stableCommitList.stream().filter(stable -> stable.getCommit().equals(commit)).collect(Collectors.toList());
+	}
+
+	protected void assertRefactoring(List<RefactoringCommit> refactoringCommitList, String commit, String refactoring, int qty) {
+		List<RefactoringCommit> inCommit = filterCommit(refactoringCommitList, commit);
 
 		long count = inCommit.stream().filter(x -> x.getRefactoring().equals(refactoring)).count();
 		Assert.assertEquals(qty, count);
 	}
 
-	protected void assertNoRefactoring(List<No> noList, String... commits) {
-		Set<String> noCommits = noList.stream().map(x -> x.getCommit()).collect(Collectors.toSet());
+	protected void assertStableRefactoring(List<StableCommit> stableCommitList, String... commits) {
+		Set<String> stableCommits = stableCommitList.stream().map(x -> x.getCommit()).collect(Collectors.toSet());
 		Set<String> assertCommits = Set.of(commits);
 
-		Assert.assertEquals(noCommits, assertCommits);
+		Assert.assertEquals(stableCommits, assertCommits);
 	}
 
-	protected void assertMetaDataYes (String commit, String commitMessage, String refactoringSummary, String commitUrl){
-		Yes yes = (Yes) session.createQuery("From Yes where project = :project and commitMetaData.commitId = :refactorCommit ")
-				.setParameter("project", project)
-				.setParameter("refactorCommit", commit)
-				.list().get(0);
+	protected void assertMetaDataRefactoring(String commit, String commitMessage, String refactoringSummary, String commitUrl){
+		RefactoringCommit refactoringCommit = filterCommit(getRefactoringCommits(), commit).get(0);
 
-		Assert.assertEquals(refactoringSummary, yes.getRefactoringSummary());
-		Assert.assertEquals(commitMessage, yes.getCommitMessage());
-		Assert.assertEquals(commitUrl, yes.getCommitUrl());
+		Assert.assertEquals(refactoringSummary, refactoringCommit.getRefactoringSummary());
+		Assert.assertEquals(commitMessage, refactoringCommit.getCommitMessage());
+		Assert.assertEquals(commitUrl, refactoringCommit.getCommitUrl());
 	}
 
-	protected void assertMetaDataNo(String commit, String commitUrl) {
-		No no = (No) session.createQuery("From No where project = :project and commitMetaData.commitId = :commit ")
-				.setParameter("project", project)
-				.setParameter("commit", commit)
-				.list().get(0);
+	protected void assertMetaDataStable(String commit, String commitUrl) {
+		StableCommit stableCommit = filterStableCommit(getStableCommits(), commit).get(0);
 
-		Assert.assertEquals(commitUrl, no.getCommitUrl());
+		Assert.assertEquals(commitUrl, stableCommit.getCommitUrl());
 	}
 
-
-	protected void assertProcessMetrics(Yes yes, ProcessMetrics truth) {
-		assertProcessMetrics(yes.getProcessMetrics(), truth);
+	protected void assertProcessMetrics(RefactoringCommit refactoringCommit, ProcessMetrics truth) {
+		assertProcessMetrics(refactoringCommit.getProcessMetrics(), truth);
 	}
 
-	protected void assertProcessMetrics(No no, ProcessMetrics truth) {
-		assertProcessMetrics(no.getProcessMetrics(), truth);
+	protected void assertProcessMetrics(StableCommit stableCommit, ProcessMetrics truth) {
+		assertProcessMetrics(stableCommit.getProcessMetrics(), truth);
 	}
 
 	private void assertProcessMetrics(ProcessMetrics found, ProcessMetrics truth){

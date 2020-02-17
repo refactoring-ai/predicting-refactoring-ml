@@ -160,7 +160,7 @@ public class App {
 					miner.detectAtCommit(repo, commitHash, handler, 20);
 
 				//stores all the ck metrics for the current commit
-				Set<Long> allYeses = new HashSet<Long>();
+				Set<Long> allRefactoringCommits = new HashSet<Long>();
 
 				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
 				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
@@ -171,7 +171,7 @@ public class App {
 							CommitMetaData commitMetaData = new CommitMetaData(currentCommit, project);
 							db.persist(commitMetaData);
 
-							allYeses.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref, commitMetaData));
+							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref, commitMetaData));
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
@@ -188,7 +188,7 @@ public class App {
 				}
 
 				//collect the process metrics for the current commit
-				processMetrics.collectMetrics(currentCommit, allYeses, thereIsRefactoringToProcess);
+				processMetrics.collectMetrics(currentCommit, allRefactoringCommits, thereIsRefactoringToProcess);
 
 			}
 

@@ -5,8 +5,8 @@ import javax.persistence.*;
 
 //TODO: create a Baseclass for both Yes and No, as they share a lot of logic
 @Entity
-@Table(name = "no", indexes = {@Index(columnList = "project_id"), @Index(columnList = "type"), @Index(columnList = "isTest")})
-public class No {
+@Table(name = "StableCommit", indexes = {@Index(columnList = "project_id"), @Index(columnList = "type"), @Index(columnList = "isTest")})
+public class StableCommit {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -44,10 +44,10 @@ public class No {
 	private int type;
 
 	@Deprecated // hibernate purposes
-	public No() {}
+	public StableCommit() {}
 
-	public No(Project project, CommitMetaData commitMetaData, String filePath, String className, ClassMetric classMetrics,
-			  MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int type) {
+	public StableCommit(Project project, CommitMetaData commitMetaData, String filePath, String className, ClassMetric classMetrics,
+						MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int type) {
 		this.project = project;
 		this.commitMetaData = commitMetaData;
 		this.filePath = filePath;
@@ -81,9 +81,11 @@ public class No {
 
 	public String getCommitUrl (){return commitMetaData.getCommitUrl();}
 
+	public String getFilePath (){return filePath;}
+
 	@Override
 	public String toString() {
-		return "No{" +
+		return "StableCommit{" +
 				"id=" + id +
 				", project=" + project +
 				", commitMetaData=" + commitMetaData +

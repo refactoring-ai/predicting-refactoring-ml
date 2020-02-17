@@ -1,13 +1,12 @@
 package refactoringml.db;
 
-import org.hibernate.annotations.Type;
 import refactoringml.util.RefactoringUtils;
 import javax.persistence.*;
 
 //TODO: create a Baseclass for both Yes and No, as they share a lot of logic
 @Entity
-@Table(name = "yes", indexes = {@Index(columnList = "project_id"), @Index(columnList = "refactoringLevel"), @Index(columnList = "refactoring"), @Index(columnList = "isTest")})
-public class Yes {
+@Table(name = "RefactoringCommit", indexes = {@Index(columnList = "project_id"), @Index(columnList = "refactoringLevel"), @Index(columnList = "refactoring"), @Index(columnList = "isTest")})
+public class RefactoringCommit {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -52,10 +51,10 @@ public class Yes {
 	private ProcessMetrics processMetrics;
 
 	@Deprecated // hibernate purposes
-	public Yes() {}
+	public RefactoringCommit() {}
 
-	public Yes(Project project, CommitMetaData commitMetaData, String filePath, String className, String refactoring, int refactoringLevel,
-	           String refactoringSummary, ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
+	public RefactoringCommit(Project project, CommitMetaData commitMetaData, String filePath, String className, String refactoring, int refactoringLevel,
+							 String refactoringSummary, ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
 		this.project = project;
 		this.filePath = filePath;
 		this.className = className;
@@ -107,7 +106,7 @@ public class Yes {
 
 	@Override
 	public String toString() {
-		return "Yes{" +
+		return "RefactoringCommit{" +
 				"id=" + id +
 				", project=" + project +
 				", commitMetaData=" + commitMetaData +

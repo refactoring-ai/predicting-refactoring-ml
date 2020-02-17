@@ -63,7 +63,7 @@ public class RefactoringAnalyzer {
 		}
 
 		RevCommit commitParent = commit.getParent(0);
-		Set<Long> allYeses = new HashSet<Long>();
+		Set<Long> allRefactorings = new HashSet<Long>();
 
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
 
@@ -117,11 +117,11 @@ public class RefactoringAnalyzer {
 					out.print(sourceCodeBefore);
 				}
 
-				Yes yes = calculateCkMetrics(refactoredClassName, commitMetaData, refactoring, refactoringSummary);
+				RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, commitMetaData, refactoring, refactoringSummary);
 
-				if(yes!=null) {
+				if(refactoringCommit !=null) {
 					// mark it for the process metrics collection
-					allYeses.add(yes.getId());
+					allRefactorings.add(refactoringCommit.getId());
 
 					if(storeFullSourceCode) {
 						// let's get the source code of the file after the refactoring
@@ -131,13 +131,13 @@ public class RefactoringAnalyzer {
 						// store the before and after versions for the deep learning training
 						// note that we save the file before with the same name of the current file name,
 						// as to help in finding it (from the SQL query to the file)
-						saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, yes);
+						saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
 					}
 				} else {
-					log.error("YES was not created. CK did not find the class, maybe?");
+					log.error("RefactoringCommit was not created. CK did not find the class, maybe?");
 
 					if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-						log.info("[TRACK] YES instance not created!");
+						log.info("[TRACK] RefactoringCommit instance not created!");
 					}
 				}
 
@@ -150,38 +150,38 @@ public class RefactoringAnalyzer {
 			log.info("[TRACK] End commit " + commit.getId().getName());
 		}
 
-		return allYeses;
+		return allRefactorings;
     }
 
 	private boolean wasDeleted(String fileName) {
 		return fileName.equals("/dev/null");
 	}
 
-	private String getMethodAndOrVariableNameIfAny(Yes yes) {
-		if(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL) {
-			return yes.getMethodMetrics().getShortMethodName();
+	private String getMethodAndOrVariableNameIfAny(RefactoringCommit refactoringCommit) {
+		if(refactoringCommit.getRefactoringLevel() == TYPE_METHOD_LEVEL) {
+			return refactoringCommit.getMethodMetrics().getShortMethodName();
 		}
-		if(yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL) {
-			return yes.getMethodMetrics().getShortMethodName() + "-" + yes.getVariableMetrics().getVariableName();
+		if(refactoringCommit.getRefactoringLevel() == TYPE_VARIABLE_LEVEL) {
+			return refactoringCommit.getMethodMetrics().getShortMethodName() + "-" + refactoringCommit.getVariableMetrics().getVariableName();
 		}
-		if(yes.getRefactoringLevel() == TYPE_ATTRIBUTE_LEVEL) {
-			return yes.getFieldMetrics().getFieldName();
+		if(refactoringCommit.getRefactoringLevel() == TYPE_ATTRIBUTE_LEVEL) {
+			return refactoringCommit.getFieldMetrics().getFieldName();
 		}
 
 		// this is no method, variable, or attribute refactoring
 		return "";
 	}
 
-	private void saveSourceCode(String commit, String fileNameBefore, String sourceCodeBefore, String fileNameAfter, String sourceCodeAfter, Yes yes) throws FileNotFoundException {
+	private void saveSourceCode(String commit, String fileNameBefore, String sourceCodeBefore, String fileNameAfter, String sourceCodeAfter, RefactoringCommit refactoringCommit) throws FileNotFoundException {
 
 		createAllDirs(fileStorageDir + commit + "/before-refactoring/", fileNameBefore);
 
 		String completeFileNameBefore = String.format("%s-%d-%s-%d-%s",
 				fileNameBefore,
-				yes.getRefactoringLevel(),
-				yes.getRefactoring(),
-				(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL || yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
-				getMethodAndOrVariableNameIfAny(yes));
+				refactoringCommit.getRefactoringLevel(),
+				refactoringCommit.getRefactoring(),
+				(refactoringCommit.getRefactoringLevel() == TYPE_METHOD_LEVEL || refactoringCommit.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
+				getMethodAndOrVariableNameIfAny(refactoringCommit));
 
 		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameBefore);
 		before.print(sourceCodeBefore);
@@ -192,10 +192,10 @@ public class RefactoringAnalyzer {
 
 			String completeFileNameAfter = String.format("%s-%d-%s-%d-%s",
 					fileNameAfter,
-					yes.getRefactoringLevel(),
-					yes.getRefactoring(),
-					(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL || yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
-					getMethodAndOrVariableNameIfAny(yes));
+					refactoringCommit.getRefactoringLevel(),
+					refactoringCommit.getRefactoring(),
+					(refactoringCommit.getRefactoringLevel() == TYPE_METHOD_LEVEL || refactoringCommit.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
+					getMethodAndOrVariableNameIfAny(refactoringCommit));
 
 			PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAfter);
 			after.print(sourceCodeAfter);
@@ -204,8 +204,8 @@ public class RefactoringAnalyzer {
 
 	}
 
-	private Yes calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
-		final List<Yes> list = new ArrayList<>();
+	private RefactoringCommit calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
+		final List<RefactoringCommit> list = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 
@@ -334,7 +334,7 @@ public class RefactoringAnalyzer {
 			}
 
 			// assemble the final object
-			Yes yes = new Yes(
+			RefactoringCommit refactoringCommit = new RefactoringCommit(
 					project,
 					commitMetaData,
 					ck.getFile().replace(tempDir, ""),
@@ -346,9 +346,9 @@ public class RefactoringAnalyzer {
 					methodMetrics,
 					variableMetrics,
 					fieldMetrics);
-			list.add(yes);
+			list.add(refactoringCommit);
 
-			db.persist(yes);
+			db.persist(refactoringCommit);
 
 		});
 

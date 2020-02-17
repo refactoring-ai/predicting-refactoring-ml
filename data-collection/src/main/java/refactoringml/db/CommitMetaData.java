@@ -16,7 +16,7 @@ public class CommitMetaData {
     private int id;
 
     //use the unique commit hash to relate from Yes and No to this one
-    // for Yes, this commit points to the commit the refactoring has happened
+    // for RefactoringCommit, this commit points to the commit the refactoring has happened
     // For No, this commit points to the first commit where the class was stable
     // (i.e., if a class has been to [1..50] commits before considered as instance
     // of no refactoring, commitId = commit 1.

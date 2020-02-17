@@ -5,10 +5,11 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import refactoringml.db.No;
+import refactoringml.db.StableCommit;
 import refactoringml.db.ProcessMetrics;
-import refactoringml.db.Yes;
+import refactoringml.db.RefactoringCommit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R4ToyProjectTest extends IntegrationBaseTest {
@@ -19,54 +20,46 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
-	public void yes() {
-		List<Yes> yesList = session.createQuery("From Yes where project = :project order by commitMetaData.commitDate desc")
-				.setParameter("project", project)
-				.list();
-		Assert.assertEquals(6, yesList.size());
+	public void refactorings() {
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
+		Assert.assertEquals(6, refactoringCommitList.size());
 	}
 
 	@Test
 	public void refactoringDetails(){
 		String extractCommit = "dd9aa00b03c9456c69c5e6566040fb994d7c9d98";
 		String renameCommit = "104e39574462f9e4bd6b1cdf388ecd0334a6f2c3";
-		List<Yes> yesList = session.createQuery("From Yes where project = :project and (commitMetaData.commitId = :extractCommit or commitMetaData.commitId = :renameCommit)")
-				.setParameter("project", project)
-				.setParameter("extractCommit", extractCommit)
-				.setParameter("renameCommit", renameCommit)
-				.list();
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit ->
+						commit.getRefactorCommit().equals(extractCommit) ||
+						commit.getRefactorCommit().equals(renameCommit)).collect(Collectors.toList());
 
-		Yes extractYes = yesList.stream().filter(yes -> yes.getRefactorCommit().equals(extractCommit)).findFirst().get();
-		Assert.assertEquals("a.Animal.Dog", extractYes.getClassName());
-		assertRefactoring(yesList, extractCommit, "Extract Method", 1);
+		RefactoringCommit extractRefactoringCommit = refactoringCommitList.stream().filter(commit -> commit.getRefactorCommit().equals(extractCommit)).findFirst().get();
+		Assert.assertEquals("a.Animal.Dog", extractRefactoringCommit.getClassName());
+		assertRefactoring(refactoringCommitList, extractCommit, "Extract Method", 1);
 
-		Yes renameYes = yesList.stream().filter(yes -> yes.getRefactorCommit().equals(renameCommit)).findFirst().get();
-		Assert.assertEquals("Rename Class", renameYes.getRefactoring());
-		assertRefactoring(yesList, renameCommit, "Rename Class", 2);
+		RefactoringCommit renameRefactoringCommit = refactoringCommitList.stream().filter(commit -> commit.getRefactorCommit().equals(renameCommit)).findFirst().get();
+		Assert.assertEquals("Rename Class", renameRefactoringCommit.getRefactoring());
+		assertRefactoring(refactoringCommitList, renameCommit, "Rename Class", 2);
 	}
 
 	@Test
 	public void isSubclass(){
-		List<Yes> yesList = session.createQuery("From Yes where project = :project order by commitMetaData.commitDate asc")
-				.setParameter("project", project)
-				.list();
-		Assert.assertEquals(6, yesList.size());
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
+		Assert.assertEquals(6, refactoringCommitList.size());
 
-		assertRefactoring(yesList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98", "Extract Method", 1);
-		Assertions.assertEquals("a.Animal.Dog", yesList.get(0).getClassName());
-		Assertions.assertTrue(yesList.get(0).getClassMetrics().isInnerClass());
+		assertRefactoring(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98", "Extract Method", 1);
+		Assertions.assertEquals("a.Animal.Dog", refactoringCommitList.get(0).getClassName());
+		Assertions.assertTrue(refactoringCommitList.get(0).getClassMetrics().isInnerClass());
 
-		assertRefactoring(yesList, "d3b912566712bdeda096c60a8887dd96b76ceb7b", "Rename Method", 1);
-		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", yesList.get(5).getClassName());
+		assertRefactoring(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b", "Rename Method", 1);
+		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", refactoringCommitList.get(5).getClassName());
 	}
 
 	@Test
-	public void no() {
-		// there are no instances of no variables, as the repo is too small
-		List<No> noList = session.createQuery("From No where project = :project")
-				.setParameter("project", project)
-				.list();
-		Assert.assertEquals(0, noList.size());
+	public void stable() {
+		// there are no instances of stable variables, as the repo is too small
+		List<StableCommit> stableCommitList = getStableCommits();
+		Assert.assertEquals(0, stableCommitList.size());
 	}
 
 	/*
@@ -75,11 +68,8 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 	 */
 	@Test
 	public void classRenames(){
-		List<Yes> yesList = session.createQuery("From Yes where project = :project and refactoring = :refactoring order by commitMetaData.commitDate desc")
-				.setParameter("project", project)
-				.setParameter("refactoring", "Rename Class")
-				.list();
-		Assert.assertEquals(4, yesList.size());
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit -> commit.getRefactoring().equals("Rename Class")).collect(Collectors.toList());
+		Assert.assertEquals(4, refactoringCommitList.size());
 
 		//two renames of subclasses in one commits
 		String doubleRenameCommit = "104e39574462f9e4bd6b1cdf388ecd0334a6f2c3";
@@ -88,9 +78,9 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		//renamed both class name and filename
 		String renameClassFull = "d801d80c03ff1268010bbb43cec43da4be233dfd";
 
-		assertRefactoring(yesList, doubleRenameCommit, "Rename Class",2);
-		assertRefactoring(yesList, renameClass, "Rename Class",1);
-		assertRefactoring(yesList, renameClassFull, "Rename Class",1);
+		assertRefactoring(refactoringCommitList, doubleRenameCommit, "Rename Class",2);
+		assertRefactoring(refactoringCommitList, renameClass, "Rename Class",1);
+		assertRefactoring(refactoringCommitList, renameClassFull, "Rename Class",1);
 
 		//no check if the class metrics were tracked and set correct
 		//TODO: Should the qtyOfCommits not be 3, as it is the 4th commit changing this file?
@@ -105,7 +95,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				1
 		);
-		//assertProcessMetrics(filterCommit(yesList, doubleRenameCommit).get(0), doubleRenameMetrics1);
+		//assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(0), doubleRenameMetrics1);
 		ProcessMetrics doubleRenameMetrics2 = new ProcessMetrics(
 				3,
 				34,
@@ -117,7 +107,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				2
 		);
-//		assertProcessMetrics(filterCommit(yesList, doubleRenameCommit).get(1), doubleRenameMetrics2);
+//		assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(1), doubleRenameMetrics2);
 
 		ProcessMetrics renameClassMetrics = new ProcessMetrics(
 				5,
@@ -130,7 +120,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				3
 		);
-		//assertProcessMetrics(filterCommit(yesList, renameClass).get(0), renameClassMetrics);
+		//assertProcessMetrics(filterCommit(refactoringCommitList, renameClass).get(0), renameClassMetrics);
 		//TODO: The author owner ship metric is a bit weird with 0.4, I would expect something like 0.33
 		ProcessMetrics renameFullMetrics = new ProcessMetrics(
 				6,
@@ -143,13 +133,13 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				4
 		);
-		//assertProcessMetrics(filterCommit(yesList, renameClassFull).get(0), renameFullMetrics);
+		//assertProcessMetrics(filterCommit(refactoringCommitList, renameClassFull).get(0), renameFullMetrics);
 	}
 
 	@Test
 	public void commitMetaData(){
 		String commit = "dd9aa00b03c9456c69c5e6566040fb994d7c9d98";
-		assertMetaDataYes(
+		assertMetaDataRefactoring(
 				commit,
 				"extract method",
 				"Extract Method\tprivate print(a int, b int, c int) : void extracted from public bark() : void in class a.Animal.Dog",
@@ -158,9 +148,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	public void metrics() {
-		List<Yes> yesList = session.createQuery("From Yes where project = :project order by commitMetaData.commitDate desc")
-				.setParameter("project", project)
-				.list();
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
 		ProcessMetrics methodExtract = new ProcessMetrics(
 				0,
 				0,
@@ -172,7 +160,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				0
 		);
-		//assertProcessMetrics(filterCommit(yesList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0), methodExtract);
+		//assertProcessMetrics(filterCommit(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0), methodExtract);
 
 		//TODO: The author owner ship metric is a bit weird with 0.5, I would expect something like 0.25
 		ProcessMetrics methodRename = new ProcessMetrics(
@@ -186,7 +174,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				5
 		);
-//		assertProcessMetrics(filterCommit(yesList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0), methodRename);
+//		assertProcessMetrics(filterCommit(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0), methodRename);
 
 		// the next two assertions come directly from a 'cloc .' in the project
 		Assert.assertEquals(29, project.getJavaLoc());
