@@ -81,6 +81,8 @@ public class No {
 
 	public String getCommitUrl (){return commitMetaData.getCommitUrl();}
 
+	public boolean getIsTest(){ return isTest; }
+
 	@Override
 	public String toString() {
 		return "No{" +

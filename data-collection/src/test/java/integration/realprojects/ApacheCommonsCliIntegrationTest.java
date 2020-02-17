@@ -95,12 +95,12 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 //		String noCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
 //		assertMetaDataNo(
 //				noCommit1,
-//				"@local/repos/commons-cli/" + renameCommit);
+//				"@local/repos/commons-cli/" + noCommit1);
 //
 //		String noCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
 //		assertMetaDataNo(
 //				noCommit2,
-//				"@local/repos/commons-cli/" + renameCommit);
+//				"@local/repos/commons-cli/" + noCommit2);
 	}
 
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
@@ -156,13 +156,9 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	// check the number of test and production files as well as their LOC
 	@Test
 	public void t3() {
-
 		// the next two assertions come directly from a 'cloc .' in the project
 		Assert.assertEquals(7070L, project.getJavaLoc());
 		Assert.assertEquals(52L, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
-		// find . -name "*.java" | grep "/test/" | wc
-		Assert.assertEquals(29, project.getNumberOfTestFiles());
 
 		// 52 - 29
 		Assert.assertEquals(23, project.getNumberOfProductionFiles());
@@ -172,6 +168,29 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 		// 7070 - 4280
 		Assert.assertEquals(2790, project.getProductionLoc());
+	}
 
+	// test if test files are marked as tests, and production files are not
+	@Test
+	public void isTest(){
+		//Manually verified by Jan Gerling for commit b9ccc94008c78a59695f0c77ebe4ecf284370956
+		Assert.assertEquals(29, project.getNumberOfTestFiles());
+
+		List<No> noList = session.createQuery("From No where project = :project")
+				.setParameter("project", project)
+				.list();
+		List<No> noListTests = noList.stream().filter(no -> no.getIsTest()).collect(Collectors.toList());
+		List<No> noListNoTests = noList.stream().filter(no -> !no.getIsTest()).collect(Collectors.toList());
+		Assert.assertEquals(0, noListTests.size());
+		Assert.assertEquals(0, noListNoTests.size());
+
+		// it has been through 9 different refactorings
+		List<Yes> yesList = session.createQuery("From Yes where project = :project")
+				.setParameter("project", project)
+				.list();
+		List<Yes> yesListTests = yesList.stream().filter(yes -> yes.getIsTest()).collect(Collectors.toList());
+		List<Yes> yesListNoTests = yesList.stream().filter(yes -> !yes.getIsTest()).collect(Collectors.toList());
+		Assert.assertEquals(0, yesListTests.size());
+		Assert.assertEquals(0, yesListNoTests.size());
 	}
 }

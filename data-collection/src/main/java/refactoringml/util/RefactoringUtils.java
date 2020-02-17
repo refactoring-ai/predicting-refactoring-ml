@@ -235,9 +235,12 @@ public class RefactoringUtils {
 	}
 
 	public static boolean isTestFile(String fileName) {
+		if(!FileUtils.IsJavaFile(fileName))
+			return false;
+
+		//TODO: enforce unix style paths here, enforceUnixStyle will be introduced by PR #33
 		String normalizedFileName = fileName.toLowerCase();
-		return normalizedFileName.contains("test.java") || normalizedFileName.contains("tests.java") ||
+		return normalizedFileName.contains("test") ||
 				normalizedFileName.contains("/test/");
 	}
-
 }

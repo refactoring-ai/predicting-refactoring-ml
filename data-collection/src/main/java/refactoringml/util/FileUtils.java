@@ -27,19 +27,21 @@ public class FileUtils {
 	}
 
 	public static String[] getAllJavaFiles(String path, String regex) {
-
 		try {
 			return Files.walk(Paths.get(path))
 					.filter(Files::isRegularFile)
 					.filter(x -> !x.toAbsolutePath().toString().contains(".git"))
-					.filter(x -> x.toAbsolutePath().toString().toLowerCase().endsWith("java"))
+					.filter(x -> IsJavaFile(x.toAbsolutePath().toString()))
 					.filter(x -> (regex!=null?x.toAbsolutePath().toString().contains(regex):true))
 					.map(x -> x.toAbsolutePath().toString())
 					.toArray(String[]::new);
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
+	//Returns true if a file is a java class.
+	public static boolean IsJavaFile(String fileName){
+		return fileName.toLowerCase().endsWith("java");
+	}
 }

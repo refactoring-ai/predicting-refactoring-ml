@@ -1,6 +1,5 @@
 package refactoringml.db;
 
-import org.hibernate.annotations.Type;
 import refactoringml.util.RefactoringUtils;
 import javax.persistence.*;
 
@@ -104,6 +103,8 @@ public class Yes {
 	public ProcessMetrics getProcessMetrics()  {
 		return processMetrics;
 	}
+
+	public boolean getIsTest(){ return isTest; }
 
 	@Override
 	public String toString() {

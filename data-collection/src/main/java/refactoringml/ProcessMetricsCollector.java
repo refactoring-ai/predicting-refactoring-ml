@@ -11,7 +11,6 @@ import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import refactoringml.db.*;
 import refactoringml.util.*;
@@ -126,10 +125,8 @@ public class ProcessMetricsCollector {
 				}
 
 				// do not collect these numbers if not a java file (save some memory)
-				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
-				if (!isAJavaFile) {
+				if (refactoringml.util.FileUtils.IsJavaFile(fileName))
 					continue;
-				}
 
 				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
 				// with the refactoring counter...
