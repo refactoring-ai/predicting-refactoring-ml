@@ -82,8 +82,8 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
         Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", noList.get(0).getCommit());
 
         // then, it was refactored two times (in commit 5c40090fecdacd9366bba7e3e29d94f213cf2633)
-        Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", yesList.get(0).getRefactorCommit());
-        Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", yesList.get(1).getRefactorCommit());
+        Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", yesList.get(0).getCommit());
+        Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", yesList.get(1).getCommit());
 
 
         // It appears 3 times

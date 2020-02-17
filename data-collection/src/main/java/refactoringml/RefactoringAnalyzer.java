@@ -158,13 +158,13 @@ public class RefactoringAnalyzer {
 	}
 
 	private String getMethodAndOrVariableNameIfAny(Yes yes) {
-		if(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL) {
+		if(yes.getLevel() == TYPE_METHOD_LEVEL) {
 			return yes.getMethodMetrics().getShortMethodName();
 		}
-		if(yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL) {
+		if(yes.getLevel() == TYPE_VARIABLE_LEVEL) {
 			return yes.getMethodMetrics().getShortMethodName() + "-" + yes.getVariableMetrics().getVariableName();
 		}
-		if(yes.getRefactoringLevel() == TYPE_ATTRIBUTE_LEVEL) {
+		if(yes.getLevel() == TYPE_ATTRIBUTE_LEVEL) {
 			return yes.getFieldMetrics().getFieldName();
 		}
 
@@ -178,9 +178,9 @@ public class RefactoringAnalyzer {
 
 		String completeFileNameBefore = String.format("%s-%d-%s-%d-%s",
 				fileNameBefore,
-				yes.getRefactoringLevel(),
+				yes.getLevel(),
 				yes.getRefactoring(),
-				(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL || yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+				(yes.getLevel() == TYPE_METHOD_LEVEL || yes.getLevel() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
 				getMethodAndOrVariableNameIfAny(yes));
 
 		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameBefore);
@@ -192,9 +192,9 @@ public class RefactoringAnalyzer {
 
 			String completeFileNameAfter = String.format("%s-%d-%s-%d-%s",
 					fileNameAfter,
-					yes.getRefactoringLevel(),
+					yes.getLevel(),
 					yes.getRefactoring(),
-					(yes.getRefactoringLevel() == TYPE_METHOD_LEVEL || yes.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
+					(yes.getLevel() == TYPE_METHOD_LEVEL || yes.getLevel() == TYPE_VARIABLE_LEVEL ? yes.getMethodMetrics().getStartLine() : 0),
 					getMethodAndOrVariableNameIfAny(yes));
 
 			PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAfter);
@@ -330,7 +330,6 @@ public class RefactoringAnalyzer {
 						.mapToInt(Integer::intValue).sum();
 
 				fieldMetrics = new FieldMetric(refactoredField, totalAppearances);
-
 			}
 
 			// assemble the final object

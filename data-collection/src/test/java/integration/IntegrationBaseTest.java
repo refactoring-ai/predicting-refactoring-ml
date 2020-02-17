@@ -131,16 +131,12 @@ public abstract class IntegrationBaseTest {
 
 	protected abstract String getRepo();
 
-	protected List<Yes> filterCommit(List<Yes> yesList, String commit){
-		return yesList.stream().filter(yes -> yes.getRefactorCommit().equals(commit)).collect(Collectors.toList());
-	}
-
-	protected List<No> filterNoCommit(List<No> noList, String commit){
-		return noList.stream().filter(no -> no.getCommit().equals(commit)).collect(Collectors.toList());
+	protected List<? extends Commit> filterCommit(List<? extends Commit> commitList, String commitId){
+		return commitList.stream().filter(commit -> commit.getCommit().equals(commitId)).collect(Collectors.toList());
 	}
 
 	protected void assertRefactoring(List<Yes> yesList, String commit, String refactoring, int qty) {
-		List<Yes> inCommit = filterCommit(yesList, commit);
+		List<Yes> inCommit = (List<Yes>) filterCommit(yesList, commit);
 
 		long count = inCommit.stream().filter(x -> x.getRefactoring().equals(refactoring)).count();
 		Assert.assertEquals(qty, count);
@@ -153,36 +149,27 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(noCommits, assertCommits);
 	}
 
-	protected void assertMetaDataYes (String commit, String commitMessage, String refactoringSummary, String commitUrl){
-		Yes yes = (Yes) session.createQuery("From Yes where project = :project and commitMetaData.commitId = :refactorCommit ")
-				.setParameter("project", project)
-				.setParameter("refactorCommit", commit)
-				.list().get(0);
-
+	protected void assertMetaDataYes (String commitId, String commitMessage, String refactoringSummary, String commitUrl){
+		Yes yes = (Yes) assertMetaData(commitId, commitMessage, commitUrl, "Yes");
 		Assert.assertEquals(refactoringSummary, yes.getRefactoringSummary());
-		Assert.assertEquals(commitMessage, yes.getCommitMessage());
-		Assert.assertEquals(commitUrl, yes.getCommitUrl());
 	}
 
-	protected void assertMetaDataNo(String commit, String commitUrl) {
-		No no = (No) session.createQuery("From No where project = :project and commitMetaData.commitId = :commit ")
+	protected void assertMetaDataNo(String commitId, String commitMessage, String commitUrl) {
+		assertMetaData(commitId, commitMessage, commitUrl, "No");
+	}
+
+	private Commit assertMetaData(String commitId, String commitMessage, String commitUrl, String table){
+		Commit commit = (Commit) session.createQuery("From " + table + " where project = :project and commitMetaData.commitId = :commit ")
 				.setParameter("project", project)
-				.setParameter("commit", commit)
+				.setParameter("commit", commitId)
 				.list().get(0);
 
-		Assert.assertEquals(commitUrl, no.getCommitUrl());
+		Assert.assertEquals(commitUrl, commit.getCommitUrl());
+		Assert.assertEquals(commitMessage, commit.getCommitMessage());
+		return commit;
 	}
 
-
-	protected void assertProcessMetrics(Yes yes, ProcessMetrics truth) {
-		assertProcessMetrics(yes.getProcessMetrics(), truth);
-	}
-
-	protected void assertProcessMetrics(No no, ProcessMetrics truth) {
-		assertProcessMetrics(no.getProcessMetrics(), truth);
-	}
-
-	private void assertProcessMetrics(ProcessMetrics found, ProcessMetrics truth){
-		Assert.assertEquals(truth.toString(), found.toString());
+	protected void assertProcessMetrics(Commit commit, ProcessMetrics truth) {
+		Assert.assertEquals(truth.toString(), commit.getProcessMetrics().toString());
 	}
 }
