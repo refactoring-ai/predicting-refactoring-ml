@@ -128,10 +128,8 @@ public class ProcessMetricsCollector {
 				}
 
 				// do not collect these numbers if not a java file (save some memory)
-				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
-				if (!isAJavaFile) {
+				if (!refactoringml.util.FileUtils.IsJavaFile(fileName))
 					continue;
-				}
 
 				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
 				// with the refactoring counter...
