@@ -1,6 +1,6 @@
 package refactoringml.db;
 
-import org.hibernate.annotations.Type;
+import refactoringml.util.FilePathUtils;
 import refactoringml.util.RefactoringUtils;
 import javax.persistence.*;
 
@@ -57,7 +57,7 @@ public class Yes {
 	public Yes(Project project, CommitMetaData commitMetaData, String filePath, String className, String refactoring, int refactoringLevel,
 	           String refactoringSummary, ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
 		this.project = project;
-		this.filePath = filePath;
+		this.filePath = FilePathUtils.enforceUnixPaths(filePath);
 		this.className = className;
 		this.refactoring = refactoring;
 		this.refactoringLevel = refactoringLevel;

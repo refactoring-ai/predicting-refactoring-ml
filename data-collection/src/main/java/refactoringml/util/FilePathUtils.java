@@ -4,8 +4,7 @@ import java.io.File;
 
 public class FilePathUtils {
 	public static String classFromFileName (String fileName) {
-		fileName = fileName.replace("\\", "/");
-		String[] splittedFile = fileName.split("/");
+		String[] splittedFile = enforceUnixPaths(fileName).split("/");
 		return splittedFile[splittedFile.length-1].replace(".java", "");
 	}
 
@@ -26,7 +25,17 @@ public class FilePathUtils {
 		return new File(lastSlashDir(base) + dirsOnly(fileName)).mkdirs();
 	}
 
-	public static String lastSlashDir (String path) {
-		return path + (path.endsWith("/")?"":"/");
+	/*
+	Add a slash at the end of the path, if none exists and format the path in unix style.
+	*/
+	public static String lastSlashDir(String path) {
+		return enforceUnixPaths(path + (path.endsWith("/")?"":"/"));
 	}
+
+	/*
+		Enforce uniform path formatting for cross-platform support.
+		On Windows jgit.Diffentry.getPath() and ck.getFile use different file separator e.g.
+		yes.filePath: ...\Temp\1581608730366-0/ and diffEntry.filePath: .../Temp/1581608730366-0/
+	 */
+	public static String enforceUnixPaths(String filePath){ return filePath.replace(File.separator, "/"); }
 }

@@ -1,5 +1,6 @@
 package refactoringml.db;
 
+import refactoringml.util.FilePathUtils;
 import refactoringml.util.RefactoringUtils;
 import javax.persistence.*;
 
@@ -50,7 +51,7 @@ public class No {
 			  MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int type) {
 		this.project = project;
 		this.commitMetaData = commitMetaData;
-		this.filePath = filePath;
+		this.filePath = FilePathUtils.enforceUnixPaths(filePath);
 		this.className = className;
 		this.classMetrics = classMetrics;
 		this.methodMetrics = methodMetrics;
