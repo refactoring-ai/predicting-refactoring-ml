@@ -36,11 +36,11 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				.setParameter("renameCommit", renameCommit)
 				.list();
 
-		Yes extractYes = yesList.stream().filter(yes -> yes.getRefactorCommit().equals(extractCommit)).findFirst().get();
+		Yes extractYes = yesList.stream().filter(yes -> yes.getCommit().equals(extractCommit)).findFirst().get();
 		Assert.assertEquals("a.Animal.Dog", extractYes.getClassName());
 		assertRefactoring(yesList, extractCommit, "Extract Method", 1);
 
-		Yes renameYes = yesList.stream().filter(yes -> yes.getRefactorCommit().equals(renameCommit)).findFirst().get();
+		Yes renameYes = yesList.stream().filter(yes -> yes.getCommit().equals(renameCommit)).findFirst().get();
 		Assert.assertEquals("Rename Class", renameYes.getRefactoring());
 		assertRefactoring(yesList, renameCommit, "Rename Class", 2);
 	}
