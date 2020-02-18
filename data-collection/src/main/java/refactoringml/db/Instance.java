@@ -12,7 +12,6 @@ public abstract class Instance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected long id;
 
-
     @ManyToOne
     //project id: referencing the project information, e.g. name or gitUrl
     protected Project project;
@@ -27,24 +26,24 @@ public abstract class Instance {
     //is this commit affecting a test?
     protected boolean isTest;
 
-    //Describes the level of the class beeing affected, e.g. class level or method level refactoring
+    //Describes the level of the class being affected, e.g. class level or method level refactoring
     //For a mapping see: RefactoringUtils
     //TODO: make this an enum, for better readibility
     private int level;
 
-    @Embedded
+    @ManyToOne(cascade = CascadeType.ALL)
     protected ClassMetric classMetrics;
 
-    @Embedded
+    @ManyToOne(cascade = CascadeType.ALL)
     protected MethodMetric methodMetrics;
 
-    @Embedded
+    @ManyToOne(cascade = CascadeType.ALL)
     protected VariableMetric variableMetrics;
 
-    @Embedded
+    @ManyToOne(cascade = CascadeType.ALL)
     protected FieldMetric fieldMetrics;
 
-    @Embedded
+    @ManyToOne(cascade = CascadeType.ALL)
     protected ProcessMetrics processMetrics;
 
     @Deprecated

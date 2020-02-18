@@ -8,7 +8,6 @@ import static refactoringml.util.Counter.*;
 @Entity
 @Table(name = "project", indexes = {@Index(columnList = "datasetName"), @Index(columnList = "projectName")})
 public class Project {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;

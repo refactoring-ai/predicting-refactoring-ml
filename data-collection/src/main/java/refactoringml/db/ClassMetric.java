@@ -1,9 +1,13 @@
 package refactoringml.db;
 
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
-@Embeddable
+@Entity
+@Table(name = "ClassMetric")
 public class ClassMetric {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
 	private boolean isInnerClass;
 	private int classCbo;

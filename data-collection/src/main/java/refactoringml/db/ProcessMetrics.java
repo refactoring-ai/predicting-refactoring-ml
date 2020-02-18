@@ -1,10 +1,13 @@
 package refactoringml.db;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
-@Embeddable
+@Entity
+@Table(name = "ProcessMetrics")
 public class ProcessMetrics {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
 	@Column(nullable = true) private int qtyOfCommits;
 	@Column(nullable = true) private int linesAdded;
