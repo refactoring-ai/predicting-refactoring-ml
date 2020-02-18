@@ -77,6 +77,8 @@ public abstract class Instance {
 
     public FieldMetric getFieldMetrics() { return fieldMetrics; }
 
+    public CommitMetaData getCommitMetaData() { return commitMetaData; }
+
     public VariableMetric getVariableMetrics() { return variableMetrics; }
 
     public String getClassName() { return className; }

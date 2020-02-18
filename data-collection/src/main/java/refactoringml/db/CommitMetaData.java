@@ -56,11 +56,13 @@ public class CommitMetaData {
         this.parentCommit = "NULL";
     }
 
-    public String getCommitUrl (){return commitUrl;}
+    public String getCommitUrl (){return commitUrl; }
 
     public String getCommit() {return commitId; }
 
-    public String getCommitMessage (){return commitMessage;}
+    public String getCommitMessage () {return commitMessage; }
+
+    public String getParentCommit() {return parentCommit; }
 
     @Override
     public String toString() {

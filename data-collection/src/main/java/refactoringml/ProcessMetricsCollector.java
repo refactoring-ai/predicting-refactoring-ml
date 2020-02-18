@@ -49,7 +49,7 @@ public class ProcessMetricsCollector {
 		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		this.lastCommitToProcess = lastCommitToProcess;
-		List<Integer> commitThresholds = Arrays.asList(50);
+		List<Integer> commitThresholds = Arrays.asList(5, 50, 100);
 		pmDatabase = new PMDatabase(commitThresholds);
 	}
 

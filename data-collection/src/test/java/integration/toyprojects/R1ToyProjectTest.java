@@ -39,7 +39,8 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"inline method",
 				"Inline Method\tprivate convert(a int) : int inlined to public m1() : void in class a.Example1",
-				"@local/repos/toyrepo-r1/" + commit);
+				"@local/repos/toyrepo-r1/" + commit,
+				"a6d21e18c680431b0d4a09374e31a72144a728dc");
 	}
 
 	@Test

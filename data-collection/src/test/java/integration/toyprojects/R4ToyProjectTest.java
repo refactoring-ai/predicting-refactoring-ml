@@ -143,7 +143,8 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"extract method",
 				"Extract Method\tprivate print(a int, b int, c int) : void extracted from public bark() : void in class a.Animal.Dog",
-				"@local/repos/toyrepo-r4/" + commit);
+				"@local/repos/toyrepo-r4/" + commit,
+				"4bab290609c8d60e96ad2fa094793edc2cba023a");
 	}
 
 	@Test

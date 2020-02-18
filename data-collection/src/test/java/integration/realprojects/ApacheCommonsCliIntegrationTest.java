@@ -73,7 +73,8 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129803 13f79535-47bb-0310-9956-ffa450edef68",
 				"Extract Variable\tkey : String in method package setOpt(opt Option) : void from class org.apache.commons.cli.CommandLine",
-				"@local/repos/commons-cli/" + renameCommit);
+				"@local/repos/commons-cli/" + renameCommit,
+				"UNK");
 
 		String moveCommit = "347bbeb8f98a49744501ac50850457ba8751d545";
 		assertMetaDataRefactoring(
@@ -83,7 +84,8 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129846 13f79535-47bb-0310-9956-ffa450edef68",
 				"Rename Parameter\topts : Options to options : Options in method public parse(options Options, arguments String[], stopAtNonOption boolean) : CommandLine in class org.apache.commons.cli.Parser",
-				"@local/repos/commons-cli/" + moveCommit);
+				"@local/repos/commons-cli/" + moveCommit,
+				"UNK");
 
 		// TODO: this is wrong, the id of the commit in a 'No' is the base commit, i.e., where the class started to become 'stable' for X commits
 //		String stableCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";

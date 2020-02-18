@@ -170,18 +170,24 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(stableCommits, assertCommits);
 	}
 
-	protected void assertMetaDataRefactoring(String commit, String commitMessage, String refactoringSummary, String commitUrl){
+	protected void assertMetaDataRefactoring(String commit, String commitMessage, String refactoringSummary, String commitUrl, String parentCommit){
 		RefactoringCommit refactoringCommit = (RefactoringCommit) filterCommit(getRefactoringCommits(), commit).get(0);
 
 		Assert.assertEquals(refactoringSummary, refactoringCommit.getRefactoringSummary());
-		Assert.assertEquals(commitMessage, refactoringCommit.getCommitMessage());
-		Assert.assertEquals(commitUrl, refactoringCommit.getCommitUrl());
+		assertMetaData(refactoringCommit.getCommitMetaData(), commitUrl, parentCommit, commitMessage);
 	}
 
-	protected void assertMetaDataStable(String commit, String commitUrl) {
+	protected void assertMetaDataStable(String commit, String commitUrl, String parentCommit, String commitMessage) {
 		StableCommit stableCommit = (StableCommit) filterCommit(getStableCommits(), commit).get(0);
 
-		Assert.assertEquals(commitUrl, stableCommit.getCommitUrl());
+		assertMetaData(stableCommit.getCommitMetaData(), commitUrl, parentCommit, commitMessage);
+	}
+
+	protected void assertMetaData(CommitMetaData commitMetaData, String commitUrl, String parentCommit, String commitMessage){
+		Assert.assertEquals(commitUrl, commitMetaData.getCommitUrl());
+		if(!parentCommit.equals("UNK"))
+			Assert.assertEquals(parentCommit, commitMetaData.getParentCommit());
+		Assert.assertEquals(commitMessage, commitMetaData.getCommitMessage());
 	}
 
 	protected void assertProcessMetrics(Instance instance, ProcessMetrics truth) {

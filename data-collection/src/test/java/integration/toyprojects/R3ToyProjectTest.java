@@ -9,6 +9,7 @@ import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R3ToyProjectTest extends IntegrationBaseTest {
@@ -48,9 +49,23 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	public void stable() {
-		// there are no instances of stable variables, as the repo is too small
 		List<StableCommit> stableCommitList = getStableCommits();
-		Assert.assertEquals(0, stableCommitList.size());
+		Assert.assertEquals(3, stableCommitList.size());
+
+		List<StableCommit> highStabilityThreshold = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() >= 50).collect(Collectors.toList());
+		Assert.assertEquals(0, highStabilityThreshold.size());
+
+		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
+		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(stableCommitList, lastRefactoring);
+		Assert.assertEquals(3, filteredList.size());
+		Assert.assertEquals(5, filteredList.get(0).getCommitThreshold());
+
+		assertMetaDataStable(
+				lastRefactoring,
+				"@local/repos/toyrepo-r3/" + lastRefactoring,
+				"0e094a734239b1bcc6d6bce1436200c0e45b1e8d",
+				"rename");
 	}
 
 	@Test
@@ -60,7 +75,8 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"Move and Rename Class testing",
 				"Move And Rename Class\tAnimal moved and renamed to inheritance.superinfo.AnimalSuper",
-				"@local/repos/toyrepo-r3/" + commit);
+				"@local/repos/toyrepo-r3/" + commit,
+				"061febd820977f2b00c4926634f09908cc5b8b08");
 	}
 
 	@Test
