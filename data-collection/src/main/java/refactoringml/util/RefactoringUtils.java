@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static refactoringml.util.FilePathUtils.enforceUnixPaths;
+
 public class RefactoringUtils {
 
 	public static final int TYPE_CLASS_LEVEL = 1;
@@ -235,9 +237,11 @@ public class RefactoringUtils {
 	}
 
 	public static boolean isTestFile(String fileName) {
-		String normalizedFileName = fileName.toLowerCase();
-		return normalizedFileName.contains("test.java") || normalizedFileName.contains("tests.java") ||
+		if(!FileUtils.IsJavaFile(fileName))
+			return false;
+
+		String normalizedFileName = enforceUnixPaths(fileName.toLowerCase());
+		return normalizedFileName.contains("test") ||
 				normalizedFileName.contains("/test/");
 	}
-
 }
