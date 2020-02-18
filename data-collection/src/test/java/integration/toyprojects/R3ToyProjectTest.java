@@ -14,7 +14,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "repos/r3";
+		return "https://github.com/jan-gerling/toyrepo-r3.git";
 	}
 
 	// This test helped to check if refactoring in subclasses are working.
@@ -64,7 +64,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"Move and Rename Class testing",
 				"Move And Rename Class\tAnimal moved and renamed to inheritance.superinfo.AnimalSuper",
-				"@local/" + getRepo() + "/" + commit);
+				"@local/repos/toyrepo-r3/" + commit);
 	}
 
 	@Test

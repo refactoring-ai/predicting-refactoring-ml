@@ -29,7 +29,8 @@ public class FilePathUtils {
 	Add a slash at the end of the path, if none exists and format the path in unix style.
 	*/
 	public static String lastSlashDir(String path) {
-		return enforceUnixPaths(path + (path.endsWith("/")?"":"/"));
+		String unixPath = enforceUnixPaths(path);
+		return unixPath + (unixPath.endsWith("/")?"":"/");
 	}
 
 	/*

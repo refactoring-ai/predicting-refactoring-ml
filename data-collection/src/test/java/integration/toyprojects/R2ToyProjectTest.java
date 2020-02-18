@@ -15,7 +15,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "repos/r2";
+		return "https://github.com/jan-gerling/toyrepo-r2.git";
 	}
 
 	// This test helped us to realize (again) that when class name and file name don't match, we can't link the
@@ -76,7 +76,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"rename class",
 				"Rename Class\tPerson renamed to People",
-				"@local/" + getRepo() + "/" + commit);
+				"@local/repos/toyrepo-r2/" + commit);
 	}
 
 	@Test

@@ -15,7 +15,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "repos/r4";
+		return "https://github.com/jan-gerling/toyrepo-r4.git";
 	}
 
 	@Test
@@ -153,7 +153,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"extract method",
 				"Extract Method\tprivate print(a int, b int, c int) : void extracted from public bark() : void in class a.Animal.Dog",
-				"@local/" + getRepo() + "/" + commit);
+				"@local/repos/toyrepo-r4/" + commit);
 	}
 
 	@Test
