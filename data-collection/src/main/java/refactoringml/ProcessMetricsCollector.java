@@ -11,7 +11,6 @@ import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import refactoringml.db.*;
 import refactoringml.util.*;
@@ -53,7 +52,7 @@ public class ProcessMetricsCollector {
 		pmDatabase = new PMDatabase(commitThreshold);
 	}
 
-	public void collectMetrics(RevCommit commit, Set<Long> allYeses, boolean isRefactoring) throws IOException {
+	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 		Set<String> refactoredClasses = new HashSet<>();
 
@@ -62,7 +61,7 @@ public class ProcessMetricsCollector {
 		if (isRefactoring) {
 			try {
 				db.openSession();
-				refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit, allYeses);
+				refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
 				db.commit();
 			} catch (Exception e) {
 				log.error("Error when collecting process metrics in commit " + commit.getName(), e);
@@ -172,19 +171,18 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private Set<String> collectProcessMetricsOfRefactoredCommit(RevCommit commit, Set<Long> allYeses) {
+	private Set<String> collectProcessMetricsOfRefactoredCommit(RevCommit commit, Set<Long> allRefactoringCommits) {
 		Set<String> refactoredClasses = new HashSet<>();
 
-		for (Long yesId : allYeses) {
+		for (Long refactoringCommitId : allRefactoringCommits) {
 
-			Yes yes = db.findYes(yesId);
+			RefactoringCommit refactoringCommit = db.findRefactoringCommit(refactoringCommitId);
 
-			String fileName = yes.getFilePath();
+			String fileName = refactoringCommit.getFilePath();
 
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 				log.info("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName());
 			}
-
 
 			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
 
@@ -226,8 +224,8 @@ public class ProcessMetricsCollector {
 						currentProcessMetrics.getRefactoringsInvolved()
 				);
 			}
-			yes.setProcessMetrics(dbProcessMetrics);
-			db.update(yes);
+			refactoringCommit.setProcessMetrics(dbProcessMetrics);
+			db.update(refactoringCommit);
 
 			// update counters
 			if(currentProcessMetrics != null) {
@@ -247,9 +245,9 @@ public class ProcessMetricsCollector {
 
 	}
 
-	private void storeProcessMetric(String fileName, List<No> nos) {
+	private void storeProcessMetric(String fileName, List<StableCommit> stableCommits) {
 
-		for(No no : nos) {
+		for(StableCommit stableCommit : stableCommits) {
 
 			ProcessMetric filePm = pmDatabase.get(fileName);
 			ProcessMetrics dbProcessMetrics = new ProcessMetrics(
@@ -263,8 +261,8 @@ public class ProcessMetricsCollector {
 					filePm.getBaseBugFixCount(),
 					filePm.getBaseRefactoringsInvolved());
 
-			no.setProcessMetrics(dbProcessMetrics);
-			db.persist(no);
+			stableCommit.setProcessMetrics(dbProcessMetrics);
+			db.persist(stableCommit);
 		}
 
 	}
@@ -292,11 +290,11 @@ public class ProcessMetricsCollector {
 
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
 
-			List<No> nos = codeMetrics(commitMetaData);
+			List<StableCommit> stableCommits = codeMetrics(commitMetaData);
 
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
-			storeProcessMetric(clazz.getFileName(), nos);
+			storeProcessMetric(clazz.getFileName(), stableCommits);
 		} catch(Exception e) {
 			log.error("Failing when calculating metrics", e);
 		} finally {
@@ -305,9 +303,9 @@ public class ProcessMetricsCollector {
 
 	}
 
-	private List<No> codeMetrics(CommitMetaData commitMetaData) {
+	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData) {
 
-		List<No> nos = new ArrayList<>();
+		List<StableCommit> stableCommits = new ArrayList<>();
 
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
@@ -353,7 +351,7 @@ public class ProcessMetricsCollector {
 					ck.getUniqueWordsQty());
 
 
-			No no = new No(
+			StableCommit stableCommit = new StableCommit(
 					project,
 					commitMetaData,
 					enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
@@ -364,7 +362,7 @@ public class ProcessMetricsCollector {
 					null,
 					RefactoringUtils.TYPE_CLASS_LEVEL);
 
-			nos.add(no);
+			stableCommits.add(stableCommit);
 
 
 			for(CKMethodResult ckMethodResult : ck.getMethods()) {
@@ -394,7 +392,7 @@ public class ProcessMetricsCollector {
 						ckMethodResult.getUniqueWordsQty()
 				);
 
-				No noM = new No(
+				StableCommit stableCommitM = new StableCommit(
 						project,
 						commitMetaData,
 						enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
@@ -405,12 +403,12 @@ public class ProcessMetricsCollector {
 						null,
 						RefactoringUtils.TYPE_METHOD_LEVEL);
 
-				nos.add(noM);
+				stableCommits.add(stableCommitM);
 
 				for (Map.Entry<String, Integer> entry : ckMethodResult.getVariablesUsage().entrySet()) {
 					VariableMetric variableMetric = new VariableMetric(entry.getKey(), entry.getValue());
 
-					No noV = new No(
+					StableCommit stableCommitV = new StableCommit(
 							project,
 							commitMetaData,
 							enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
@@ -421,7 +419,7 @@ public class ProcessMetricsCollector {
 							null,
 							RefactoringUtils.TYPE_VARIABLE_LEVEL);
 
-					nos.add(noV);
+					stableCommits.add(stableCommitV);
 
 				}
 
@@ -436,7 +434,7 @@ public class ProcessMetricsCollector {
 
 				FieldMetric fieldMetrics = new FieldMetric(field, totalAppearances);
 
-				No noF = new No(
+				StableCommit stableCommitF = new StableCommit(
 						project,
 						commitMetaData,
 						enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
@@ -447,11 +445,11 @@ public class ProcessMetricsCollector {
 						fieldMetrics,
 						RefactoringUtils.TYPE_ATTRIBUTE_LEVEL);
 
-				nos.add(noF);
+				stableCommits.add(stableCommitF);
 			}
 		});
 
-		return nos;
+		return stableCommits;
 	}
 
 	private void saveFile (String commitBackThen, String sourceCodeBackThen, String fileName) throws IOException {

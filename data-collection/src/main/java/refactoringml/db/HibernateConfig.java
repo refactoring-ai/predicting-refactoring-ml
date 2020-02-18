@@ -56,8 +56,8 @@ public class HibernateConfig {
 
 			configuration.setProperties(settings);
 
-			configuration.addAnnotatedClass(Yes.class);
-			configuration.addAnnotatedClass(No.class);
+			configuration.addAnnotatedClass(RefactoringCommit.class);
+			configuration.addAnnotatedClass(StableCommit.class);
 			configuration.addAnnotatedClass(Project.class);
 			configuration.addAnnotatedClass(CommitMetaData.class);
 

@@ -3,8 +3,8 @@ package refactoringml.db;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "yes", indexes = {@Index(columnList = "project_id"), @Index(columnList = "level"), @Index(columnList = "refactoring"), @Index(columnList = "isTest")})
-public class Yes extends Instance {
+@Table(name = "RefactoringCommit", indexes = {@Index(columnList = "project_id"), @Index(columnList = "level"), @Index(columnList = "refactoring"), @Index(columnList = "isTest")})
+public class RefactoringCommit extends Instance {
 	//Describe the refactoring e.g. "Rename Class" or "Extract Method"
 	private String refactoring;
 	//Describe the content of the refactoring e.g. "Rename Pets to Cat"
@@ -12,9 +12,9 @@ public class Yes extends Instance {
 	private String refactoringSummary;
 
 	@Deprecated // hibernate purposes
-	public Yes() {}
+	public RefactoringCommit() {}
 
-	public Yes(Project project, CommitMetaData commitMetaData, String filePath, String className,
+	public RefactoringCommit(Project project, CommitMetaData commitMetaData, String filePath, String className,
 			   String refactoring, int refactoringLevel, String refactoringSummary,
 			   ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
 		super(project, commitMetaData, filePath, className, classMetrics, methodMetrics, variableMetrics, fieldMetrics, refactoringLevel);
@@ -28,7 +28,7 @@ public class Yes extends Instance {
 
 	@Override
 	public String toString() {
-		return "Yes{" +
+		return "RefactoringCommit{" +
 				"id=" + id +
 				super.toString() +
 				", refactoring='" + refactoring + '\'' +

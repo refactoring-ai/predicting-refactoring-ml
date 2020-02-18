@@ -1,12 +1,12 @@
 package integration.realprojects;
 
 import integration.IntegrationBaseTest;
-import org.hibernate.query.Query;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import refactoringml.db.No;
-import refactoringml.db.Yes;
+import refactoringml.db.RefactoringCommit;
+import refactoringml.db.StableCommit;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,46 +33,40 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	}
 
 	/*
-	Test the isInnerClass boolean for both yes and no.
+	Test the isInnerClass boolean for both refactoricommit and stablecommit.
 	 */
 	@Test
 	public void isInnerClass() {
-		List<Yes> yesList = session.createQuery("From Yes where (className = :className1 or className = :className2) and project = :project")
-				.setParameter("className1", "org.apache.commons.cli.HelpFormatter")
-				.setParameter("className2", "org.apache.commons.cli.HelpFormatter.StringBufferComparator")
-				.setParameter("project", project)
-				.list();
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
+				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
 
-		Assert.assertEquals(10, yesList.size());
-		List<Yes> areInnerClassesInYes = yesList.stream().filter(yes ->
-				yes.getClassMetrics().isInnerClass()
-						&& yes.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
-		List<Yes> areNotInnerClassesInYes = yesList.stream().filter(yes -> !yes.getClassMetrics().isInnerClass()).collect(Collectors.toList());
+		Assert.assertEquals(10, refactoringCommitList.size());
+		List<RefactoringCommit> areInnerClassesInRefactorings = refactoringCommitList.stream().filter(commit ->
+				commit.getClassMetrics().isInnerClass()
+						&& commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
+		List<RefactoringCommit> areNotInnerClassesInRefactorings = refactoringCommitList.stream().filter(commit -> !commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 
-		Assert.assertEquals(1, areInnerClassesInYes.size());
-		Assert.assertEquals(9, areNotInnerClassesInYes.size());
+		Assert.assertEquals(1, areInnerClassesInRefactorings.size());
+		Assert.assertEquals(9, areNotInnerClassesInRefactorings.size());
 
-//		Query query = session.createQuery("From No where (className = :className1 or className = :className2) and project = :project")
-//				.setParameter("className1", "org.apache.commons.cli.HelpFormatter")
-//				.setParameter("className2", "org.apache.commons.cli.HelpFormatter.StringBufferComparator")
-//				.setParameter("project", project);
-//		List<No> noList = query.list();
-//		Assert.assertEquals(927, noList.size());
+//		List<StableCommit> stableCommits = getStableCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
+//				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
+//		Assert.assertEquals(927, stableCommits.size());
 //
-//		List<No> areInnerClassesInNo = noList.stream().filter(no ->
-//				no.getClassMetrics().isInnerClass()
-//				&& no.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
-//		List<No> areNotInnerClassesInNo = noList.stream().filter(no -> !no.getClassMetrics().isInnerClass()).collect(Collectors.toList());
+//		List<StableCommit> areInnerClassesInStable = stableCommits.stream().filter(commit ->
+//				commit.getClassMetrics().isInnerClass()
+//				&& commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
+//		List<StableCommit> areNotInnerClassesInStable = stableCommits.stream().filter(commit -> !commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 //
-//		Assert.assertEquals(13, areInnerClassesInNo.size());
-//		Assert.assertEquals(914, areNotInnerClassesInNo.size());
+//		Assert.assertEquals(13, areInnerClassesInStable.size());
+//		Assert.assertEquals(914, areNotInnerClassesInStable.size());
 	}
 
 	@Test
 	public void commitMetaData(){
 		//TODO: How to check the commit url without changing IntegrationBasetest, as the
 		String renameCommit = "04490af06faa8fd1be15da88172beb32218dd336";
-		assertMetaDataYes(
+		assertMetaDataRefactoring(
 				renameCommit,
 				"bug #11457: implemented fix, javadoc added to Option\n" +
 						"\n" +
@@ -82,7 +76,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"@local/repos/commons-cli/" + renameCommit);
 
 		String moveCommit = "347bbeb8f98a49744501ac50850457ba8751d545";
-		assertMetaDataYes(
+		assertMetaDataRefactoring(
 				moveCommit,
 				"refactored the option string handling, added property support for options with an argument value\n" +
 						"\n" +
@@ -92,14 +86,14 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"@local/repos/commons-cli/" + moveCommit);
 
 		// TODO: this is wrong, the id of the commit in a 'No' is the base commit, i.e., where the class started to become 'stable' for X commits
-//		String noCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
+//		String stableCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
 //		assertMetaDataNo(
-//				noCommit1,
+//				stableCommit1,
 //				"@local/repos/commons-cli/" + renameCommit);
 //
-//		String noCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
+//		String stableCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
 //		assertMetaDataNo(
-//				noCommit2,
+//				stableCommit2,
 //				"@local/repos/commons-cli/" + renameCommit);
 	}
 
@@ -107,13 +101,11 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	// method getParsedOptionValue
 	@Test
 	public void t1() {
-		// manually verified
-		Yes instance1 = (Yes) session.createQuery("from Yes where refactoring = :refactoring and methodMetrics.fullMethodName = :method and commitMetaData.commitId = :refactorCommit and project = :project")
-				.setParameter("refactoring", "Extract Method")
-				.setParameter("method", "getParsedOptionValue/1[String]")
-				.setParameter("refactorCommit", "269eae18a911f792895d0402f5dd4e7913410523")
-				.setParameter("project", project)
-				.uniqueResult();
+		RefactoringCommit instance1 = getRefactoringCommits().stream().filter(commit ->
+				commit.getCommit().equals("269eae18a911f792895d0402f5dd4e7913410523") &&
+						commit.getRefactoring().equals("Extract Method") &&
+						commit.getMethodMetrics().getFullMethodName().equals("getParsedOptionValue/1[String]")
+		).collect(Collectors.toList()).get(0);
 
 		Assert.assertNotNull(instance1);
 
@@ -126,30 +118,26 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 	// this test follows the src/java/org/apache/commons/cli/Option.java file
 	// This test helped us to understand that we should not delete
-	// YES where variableAppearances = -1, as this happens in newly introduced variables.
+	// RefactoringCommit where variableAppearances = -1, as this happens in newly introduced variables.
 	@Test
 	public void t2() {
-		List<No> noList = session.createQuery("From No where filePath = :filePath and project = :project")
-				.setParameter("filePath", "src/java/org/apache/commons/cli/Option.java")
-				.setParameter("project", project)
-				.list();
+		List<StableCommit> stableCommitList = getStableCommits().stream().filter(commit ->
+				commit.getFilePath().equals("src/java/org/apache/commons/cli/Option.java")).collect(Collectors.toList());
 
 		// it has been through 9 different refactorings
-		List<Yes> yesList = session.createQuery("From Yes where filePath = :filePath and project = :project")
-				.setParameter("filePath", "src/java/org/apache/commons/cli/Option.java")
-				.setParameter("project", project)
-				.list();
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit ->
+				commit.getFilePath().equals("src/java/org/apache/commons/cli/Option.java")).collect(Collectors.toList());
 
-		Assert.assertEquals(9, yesList.size());
-		assertRefactoring(yesList, "04490af06faa8fd1be15da88172beb32218dd336", "Extract Variable", 1);
-		assertRefactoring(yesList, "347bbeb8f98a49744501ac50850457ba8751d545", "Extract Class", 1);
-		assertRefactoring(yesList, "347bbeb8f98a49744501ac50850457ba8751d545", "Move Method", 3);
-		assertRefactoring(yesList, "5470bcaa9d75d73fb9c687fa13e12d642c75984f", "Extract Method", 2);
-		assertRefactoring(yesList, "97744806d59820b096fb502b1d51ca54b5d0921d", "Rename Method", 1);
-		assertRefactoring(yesList, "bfe6bd8634895645aa71d6a6dc668545297d7413", "Rename Parameter", 1);
+		Assert.assertEquals(9, refactoringCommitList.size());
+		assertRefactoring(refactoringCommitList, "04490af06faa8fd1be15da88172beb32218dd336", "Extract Variable", 1);
+		assertRefactoring(refactoringCommitList, "347bbeb8f98a49744501ac50850457ba8751d545", "Extract Class", 1);
+		assertRefactoring(refactoringCommitList, "347bbeb8f98a49744501ac50850457ba8751d545", "Move Method", 3);
+		assertRefactoring(refactoringCommitList, "5470bcaa9d75d73fb9c687fa13e12d642c75984f", "Extract Method", 2);
+		assertRefactoring(refactoringCommitList, "97744806d59820b096fb502b1d51ca54b5d0921d", "Rename Method", 1);
+		assertRefactoring(refactoringCommitList, "bfe6bd8634895645aa71d6a6dc668545297d7413", "Rename Parameter", 1);
 
 		// the file should appear twice as examples of 'no'
-		assertNoRefactoring(noList, "aae50c585ec3ac33c6a9af792e80378904a73195", "5470bcaa9d75d73fb9c687fa13e12d642c75984f");
+		assertStableRefactoring(stableCommitList, "aae50c585ec3ac33c6a9af792e80378904a73195", "5470bcaa9d75d73fb9c687fa13e12d642c75984f");
 		// TODO: assertions related to the values of the No metrics
 	}
 

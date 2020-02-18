@@ -77,10 +77,10 @@ public class DatabaseProjectTest{
             if(!projects.isEmpty()) {
                 session.beginTransaction();
 
-                session.createQuery("delete from Yes y where project in :project")
+                session.createQuery("delete from RefactoringCommit y where project in :project")
                         .setParameter("project", projects)
                         .executeUpdate();
-                session.createQuery("delete from No where project in :project")
+                session.createQuery("delete from StableCommit where project in :project")
                         .setParameter("project", projects)
                         .executeUpdate();
 

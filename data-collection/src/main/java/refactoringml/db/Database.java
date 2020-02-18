@@ -4,8 +4,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import java.math.BigInteger;
-
 public class Database {
 
 	private SessionFactory sf;
@@ -48,8 +46,8 @@ public class Database {
 		}
 	}
 
-	public Yes findYes(Long yesId) {
-		return session.get(Yes.class, yesId);
+	public RefactoringCommit findRefactoringCommit(Long refactoringCommitId) {
+		return session.get(RefactoringCommit.class, refactoringCommitId);
 	}
 
 	public boolean projectExists(String gitUrl) {
