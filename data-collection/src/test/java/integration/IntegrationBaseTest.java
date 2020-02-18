@@ -45,7 +45,7 @@ public abstract class IntegrationBaseTest {
 		if(!projectAlreadyCloned)
 			new GitServiceImpl().cloneIfNotExists(repoLocalDir, getRepo());
 
-		deleteProject(getRepo());
+		deleteProject(extractProjectNameFromGitUrl(getRepo()));
 
 		if(track()!=null || commitTrack() != null) {
 			TrackDebugMode.ACTIVE = true;
@@ -82,12 +82,12 @@ public abstract class IntegrationBaseTest {
 		this.session = null;
 	}
 
-	protected void deleteProject(String repo1) {
+	protected void deleteProject(String repository) {
 		try {
 			Session session = sf.openSession();
 
-			List<Project> projects = (List<Project>) session.createQuery("from Project p where p.gitUrl = :gitUrl")
-					.setParameter("gitUrl", repo1).list();
+			List<Project> projects = (List<Project>) session.createQuery("from Project p where p.projectName = :projectName")
+					.setParameter("projectName", repository).list();
 
 			if(!projects.isEmpty()) {
 				session.beginTransaction();
