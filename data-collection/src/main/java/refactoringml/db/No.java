@@ -7,7 +7,7 @@ import javax.persistence.*;
 // Then we know for how long that refactoring was stable, have the same data and reduce the table size.
 @Entity
 @Table(name = "no", indexes = {@Index(columnList = "project_id"), @Index(columnList = "level"), @Index(columnList = "isTest")})
-public class No extends Commit{
+public class No extends Instance {
 	@Deprecated // hibernate purposes
 	public No() {}
 

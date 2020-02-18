@@ -5,7 +5,7 @@ import javax.persistence.*;
 
 //Base class for all commits saved in the DB
 @MappedSuperclass
-public abstract class Commit {
+public abstract class Instance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected long id;
@@ -46,10 +46,10 @@ public abstract class Commit {
     protected ProcessMetrics processMetrics;
 
     @Deprecated
-    public Commit(){}
+    public Instance(){}
 
-    public Commit(Project project, CommitMetaData commitMetaData, String filePath, String className, ClassMetric classMetrics,
-              MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int level) {
+    public Instance(Project project, CommitMetaData commitMetaData, String filePath, String className, ClassMetric classMetrics,
+                    MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int level) {
         this.project = project;
         this.commitMetaData = commitMetaData;
         this.filePath = filePath;

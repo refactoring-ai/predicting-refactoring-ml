@@ -131,7 +131,7 @@ public abstract class IntegrationBaseTest {
 
 	protected abstract String getRepo();
 
-	protected List<? extends Commit> filterCommit(List<? extends Commit> commitList, String commitId){
+	protected List<? extends Instance> filterCommit(List<? extends Instance> commitList, String commitId){
 		return commitList.stream().filter(commit -> commit.getCommit().equals(commitId)).collect(Collectors.toList());
 	}
 
@@ -158,18 +158,18 @@ public abstract class IntegrationBaseTest {
 		assertMetaData(commitId, commitMessage, commitUrl, "No");
 	}
 
-	private Commit assertMetaData(String commitId, String commitMessage, String commitUrl, String table){
-		Commit commit = (Commit) session.createQuery("From " + table + " where project = :project and commitMetaData.commitId = :commit ")
+	private Instance assertMetaData(String commitId, String commitMessage, String commitUrl, String table){
+		Instance instance = (Instance) session.createQuery("From " + table + " where project = :project and commitMetaData.commitId = :commit ")
 				.setParameter("project", project)
 				.setParameter("commit", commitId)
 				.list().get(0);
 
-		Assert.assertEquals(commitUrl, commit.getCommitUrl());
-		Assert.assertEquals(commitMessage, commit.getCommitMessage());
-		return commit;
+		Assert.assertEquals(commitUrl, instance.getCommitUrl());
+		Assert.assertEquals(commitMessage, instance.getCommitMessage());
+		return instance;
 	}
 
-	protected void assertProcessMetrics(Commit commit, ProcessMetrics truth) {
-		Assert.assertEquals(truth.toString(), commit.getProcessMetrics().toString());
+	protected void assertProcessMetrics(Instance instance, ProcessMetrics truth) {
+		Assert.assertEquals(truth.toString(), instance.getProcessMetrics().toString());
 	}
 }
