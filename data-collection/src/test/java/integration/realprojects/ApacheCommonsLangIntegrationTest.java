@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Disabled // still need to manually validate this one
 public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
-
-
     @Override
     protected String getLastCommit() {
         return "2ea44b2adae8da8e3e7f55cc226479f9431feda9";
@@ -57,7 +55,7 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
     @Test
     public void t2() {
         List<StableCommit> stableCommitList = getStableCommits().stream().filter(commit ->
-                commit.getFilePath().equals("src/java/org/apache/commons/lang/builder/HashCodeBuilder.java")).collect(Collectors.toList());
+                commit.getFilePath().equals("src/java/org/apache/commons/lang/builder/HashCodeBuilder.java") && commit.getLevel() == 1).collect(Collectors.toList());
         // it has been through 9 different refactorings
         List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit ->
                 commit.getFilePath().equals("src/java/org/apache/commons/lang/builder/HashCodeBuilder.java")).collect(Collectors.toList());

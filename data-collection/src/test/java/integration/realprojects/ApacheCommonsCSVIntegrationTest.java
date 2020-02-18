@@ -57,8 +57,9 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     // this test follows the src/main/java/org/apache/commons/csv/CSVFormat.java file
     @Test
     public void refactorings_CSVFormat() {
+        String fileName = "src/main/java/org/apache/commons/csv/CSVFormat.java";
         List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit ->
-                commit.getFilePath().equals("src/main/java/org/apache/commons/csv/CSVFormat.java")).collect(Collectors.toList());
+                commit.getFilePath().equals(fileName)).collect(Collectors.toList());
 
         // refactoring miner detects precisely 82 refactorings in this file
         Assert.assertEquals(82, refactoringCommitList.size());
@@ -99,14 +100,14 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
         assertRefactoring(refactoringCommitList,"afc9de71bd8bb51dfc7ab12df2aeb7a38b709ef2", "Rename Parameter", 1);
         assertRefactoring(refactoringCommitList,"ecea0c35993b2428e0a938933896329c413de40e", "Rename Parameter", 1);
         assertRefactoring(refactoringCommitList,"f80c5bd0ad8ed0739f43a2ed6392d94bbceae1c9", "Rename Parameter", 1);
-
     }
 
     // this test follows the src/main/java/org/apache/commons/csv/CSVFormat.java file
     @Test
-    public void no_CSVFormat() {
+    public void stable_CSVFormat() {
+        String fileName = "src/main/java/org/apache/commons/csv/CSVFormat.java";
         List<StableCommit> stableCommitList = getStableCommits().stream().filter(commit ->
-                commit.getFilePath().equals("src/main/java/org/apache/commons/csv/CSVFormat.java")).collect(Collectors.toList());
+                commit.getFilePath().equals(fileName) && commit.getLevel() == 1).collect(Collectors.toList());
 
         // there's just one sequence of 50 commits without refactoring
         Assert.assertEquals(1, stableCommitList.size());
@@ -130,9 +131,10 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
 
     @Test
     public void refactorings_CSVStrategy() {
+        String fileName = "src/main/java/org/apache/commons/csv/CSVStrategy.java";
         // and 10 with the old name 'CSVStrategy.java'
         List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit ->
-                commit.getFilePath().equals("src/main/java/org/apache/commons/csv/CSVFormat.java")).collect(Collectors.toList());
+                commit.getFilePath().equals(fileName)).collect(Collectors.toList());
         Assert.assertEquals(22, refactoringCommitList.size());
 
         assertRefactoring(refactoringCommitList, "42476f4b08fe4b075aa36f688f0801857f3635d9", "Rename Method", 5);
@@ -144,30 +146,31 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     }
 
     @Test
-    public void no_CSVStrategy() {
+    public void stable_CSVStrategy() {
+        String fileName = "src/main/java/org/apache/commons/csv/CSVStrategy.java";
         List<StableCommit> stableCommitList = getStableCommits().stream().filter(commit ->
-                commit.getFilePath().equals("src/main/java/org/apache/commons/csv/CSVFormat.java")).collect(Collectors.toList());
+                commit.getFilePath().equals(fileName)).collect(Collectors.toList());
         Assert.assertEquals(0, stableCommitList.size());
     }
 
     // check the number of test and production files as well as their LOC
     @Test
     public void projectSize() {
-
-        // the next two assertions come directly from a 'cloc .' in the project
-        Assert.assertEquals(6994L, project.getJavaLoc());
-        Assert.assertEquals(35L, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
         // find . -name "*.java" | grep "/test/" | wc
         Assert.assertEquals(23, project.getNumberOfTestFiles());
 
         // 35 - 23
         Assert.assertEquals(12, project.getNumberOfProductionFiles());
 
+        Assert.assertEquals(35L, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
+
         // cloc . --by-file | grep "/test/"
         Assert.assertEquals(5114, project.getTestLoc());
 
         // 6994 - 5114
         Assert.assertEquals(1880, project.getProductionLoc());
+
+        // the next two assertions come directly from a 'cloc .' in the project
+        Assert.assertEquals(6994L, project.getJavaLoc());
     }
 }
