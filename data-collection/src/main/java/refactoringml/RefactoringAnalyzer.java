@@ -15,6 +15,7 @@ import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
+import refactoringml.util.*;
 
 import java.io.*;
 import java.util.*;
@@ -89,8 +90,8 @@ public class RefactoringAnalyzer {
 
 				// this should not happen...
 				if(!refactoredEntry.isPresent()) {
-					log.info("old classes in DiffEntry: " + entries.stream().map(x -> x.getOldPath()).collect(Collectors.toList()));
-					log.info("new classes in DiffEntry: " + entries.stream().map(x -> x.getNewPath()).collect(Collectors.toList()));
+					log.info("old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
+					log.info("new classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
 					throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
 				}
 
@@ -98,8 +99,8 @@ public class RefactoringAnalyzer {
 				DiffEntry entry = refactoredEntry.get();
 				diffFormatter.toFileHeader(entry);
 
-				String oldFileName = entry.getOldPath();
-				String currentFileName = entry.getNewPath();
+				String oldFileName = enforceUnixPaths(entry.getOldPath());
+				String currentFileName = enforceUnixPaths(entry.getNewPath());
 
 				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
 					log.info("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
@@ -317,7 +318,6 @@ public class RefactoringAnalyzer {
 						variableMetrics = new VariableMetric(refactoredVariable, appearances);
 					}
 				}
-
 			}
 
 			// finally, if it's a field refactoring, we then only have class + field
@@ -336,7 +336,7 @@ public class RefactoringAnalyzer {
 			Yes yes = new Yes(
 					project,
 					commitMetaData,
-					ck.getFile().replace(tempDir, ""),
+					enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 					cleanedCkClassName,
 					refactoring.getRefactoringType().getDisplayName(),
 					refactoringTypeInNumber(refactoring),
@@ -354,6 +354,7 @@ public class RefactoringAnalyzer {
 		return list.isEmpty() ? null : list.get(0);
 	}
 
+	//TODO: on my Windows computer the tempDir is not always deleted
 	private void cleanTmpDir() throws IOException {
 		if(tempDir != null) {
 			FileUtils.deleteDirectory(new File(tempDir));
@@ -362,6 +363,7 @@ public class RefactoringAnalyzer {
 	}
 
 	private void createTmpDir() {
-		tempDir = lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
+		String rawTempDir = com.google.common.io.Files.createTempDir().getAbsolutePath();
+		tempDir = lastSlashDir(rawTempDir);
 	}
 }

@@ -3,6 +3,8 @@ package refactoringml.db;
 import refactoringml.util.RefactoringUtils;
 import javax.persistence.*;
 
+import static refactoringml.util.FilePathUtils.enforceUnixPaths;
+
 //Base class for all commits saved in the DB
 @MappedSuperclass
 public abstract class Instance {
@@ -52,7 +54,7 @@ public abstract class Instance {
                     MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int level) {
         this.project = project;
         this.commitMetaData = commitMetaData;
-        this.filePath = filePath;
+        this.filePath = enforceUnixPaths(filePath);
         this.className = className;
         this.classMetrics = classMetrics;
         this.methodMetrics = methodMetrics;

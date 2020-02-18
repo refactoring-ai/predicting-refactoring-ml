@@ -1,7 +1,0 @@
-# Ignore everything in this directory
-*
-# Except these file
-!.gitignore
-
-!r3.zip
-!r2.zip

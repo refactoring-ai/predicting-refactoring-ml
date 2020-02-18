@@ -18,7 +18,6 @@ public class Yes extends Instance {
 			   String refactoring, int refactoringLevel, String refactoringSummary,
 			   ClassMetric classMetrics, MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics) {
 		super(project, commitMetaData, filePath, className, classMetrics, methodMetrics, variableMetrics, fieldMetrics, refactoringLevel);
-
 		this.refactoring = refactoring;
 		this.refactoringSummary = refactoringSummary.trim();
 	}
