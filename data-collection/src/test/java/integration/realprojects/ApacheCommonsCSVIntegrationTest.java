@@ -39,7 +39,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     public void randomRefactoring() {
         // manually verified
         RefactoringCommit instance1 = getRefactoringCommits().stream().filter(commit ->
-                commit.getRefactorCommit().equals("b58168683d01149a568734df21568ffcc41105fe") &&
+                commit.getCommit().equals("b58168683d01149a568734df21568ffcc41105fe") &&
                         commit.getRefactoring().equals("Rename Parameter") &&
                         commit.getMethodMetrics().getFullMethodName().equals("isSet/1[int]")
         ).collect(Collectors.toList()).get(0);

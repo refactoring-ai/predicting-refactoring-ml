@@ -16,7 +16,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "repos/r2";
+		return "https://github.com/jan-gerling/toyrepo-r2.git";
 	}
 
 	// This test helped us to realize (again) that when class name and file name don't match, we can't link the
@@ -30,7 +30,8 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(refactoringCommitList, renameCommit, "Rename Class", 1);
 
 		RefactoringCommit renameRefactoring = refactoringCommitList.stream().filter(refactoringCommit ->
-				refactoringCommit.getRefactorCommit().equals(renameCommit)).findFirst().get();
+				refactoringCommit.getCommit().equals(renameCommit)).findFirst().get();
+
 		//TODO: figure out what to expect here
 		ProcessMetrics metrics = new ProcessMetrics(1, 5, 0, 1, 0, 1, 1.0, 0, 0);
 		assertProcessMetrics(renameRefactoring, metrics);
@@ -38,10 +39,10 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		String extractCommit = "515365875143aa84b5bbb5c3191e7654a942912f";
 		assertRefactoring(refactoringCommitList, extractCommit, "Extract Class", 1);
 
-		RefactoringCommit extractClassRefactoring = filterCommit(refactoringCommitList, extractCommit).get(0);
+		RefactoringCommit extractClassRefactoring = (RefactoringCommit) filterCommit(refactoringCommitList, extractCommit).get(0);
 		//TODO: figure out what to expect here
 		metrics = new ProcessMetrics(0, 1, 3, 1, 0, 1, 0, 0, 1);
-//		assertProcessMetrics(extractClassRefactoring, metrics);
+		//assertProcessMetrics(extractClassRefactoring, metrics);
 	}
 
 	@Test
@@ -72,7 +73,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"rename class",
 				"Rename Class\tPerson renamed to People",
-				"@local/" + getRepo() + "/" + commit);
+				"@local/repos/toyrepo-r2/" + commit);
 	}
 
 	@Test

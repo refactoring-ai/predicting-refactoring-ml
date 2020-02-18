@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.cleanClassName;
+import static refactoringml.util.FilePathUtils.enforceUnixPaths;
+import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
@@ -118,24 +120,23 @@ public class ProcessMetricsCollector {
 			diffFormatter.setDetectRenames(true);
 
 			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
-				String fileName = entry.getPath(null);
+				String fileName = enforceUnixPaths(entry.getNewPath());
 
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 					log.info("[TRACK] File was changed in commit " + commit.getId().getName() + ", updating process metrics");
 				}
 
 				// do not collect these numbers if not a java file (save some memory)
-				boolean isAJavaFile = fileName.toLowerCase().endsWith("java");
-				if (!isAJavaFile) {
+				if (!refactoringml.util.FileUtils.IsJavaFile(fileName))
 					continue;
-				}
 
 				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
 				// with the refactoring counter...
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
 				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
-					pmDatabase.remove(entry.getOldPath());
+					String oldFileName = enforceUnixPaths(entry.getOldPath());
+					pmDatabase.remove(oldFileName);
 
 					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
 						continue;
@@ -353,7 +354,7 @@ public class ProcessMetricsCollector {
 			StableCommit stableCommit = new StableCommit(
 					project,
 					commitMetaData,
-					ck.getFile().replace(tempDir, ""),
+					enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 					cleanedCkClassName,
 					classMetric,
 					null,
@@ -394,7 +395,7 @@ public class ProcessMetricsCollector {
 				StableCommit stableCommitM = new StableCommit(
 						project,
 						commitMetaData,
-						ck.getFile().replace(tempDir, ""),
+						enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 						cleanedCkClassName,
 						classMetric,
 						methodMetrics,
@@ -410,7 +411,7 @@ public class ProcessMetricsCollector {
 					StableCommit stableCommitV = new StableCommit(
 							project,
 							commitMetaData,
-							ck.getFile().replace(tempDir, ""),
+							enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 							cleanedCkClassName,
 							classMetric,
 							methodMetrics,
@@ -436,7 +437,7 @@ public class ProcessMetricsCollector {
 				StableCommit stableCommitF = new StableCommit(
 						project,
 						commitMetaData,
-						ck.getFile().replace(tempDir, ""),
+						enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 						cleanedCkClassName,
 						classMetric,
 						null,
@@ -467,7 +468,7 @@ public class ProcessMetricsCollector {
 	}
 
 	private void createTempDir() {
-		tempDir = FilePathUtils.lastSlashDir(Files.createTempDir().getAbsolutePath());
+		tempDir = lastSlashDir(Files.createTempDir().getAbsolutePath());
 	}
 
 	private void cleanTmpDir () throws IOException {

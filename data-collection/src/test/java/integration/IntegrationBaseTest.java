@@ -152,16 +152,12 @@ public abstract class IntegrationBaseTest {
 		return stableCommits;
 	}
 
-	protected List<RefactoringCommit> filterCommit(List<RefactoringCommit> refactoringCommitList, String commit){
-		return refactoringCommitList.stream().filter(refactoring -> refactoring.getRefactorCommit().equals(commit)).collect(Collectors.toList());
-	}
-
-	protected List<StableCommit> filterStableCommit(List<StableCommit> stableCommitList, String commit){
-		return stableCommitList.stream().filter(stable -> stable.getCommit().equals(commit)).collect(Collectors.toList());
+	protected List<? extends Instance> filterCommit(List<? extends Instance> commitList, String commitId){
+		return commitList.stream().filter(commit -> commit.getCommit().equals(commitId)).collect(Collectors.toList());
 	}
 
 	protected void assertRefactoring(List<RefactoringCommit> refactoringCommitList, String commit, String refactoring, int qty) {
-		List<RefactoringCommit> inCommit = filterCommit(refactoringCommitList, commit);
+		List<RefactoringCommit> inCommit = (List<RefactoringCommit>) filterCommit(refactoringCommitList, commit);
 
 		long count = inCommit.stream().filter(x -> x.getRefactoring().equals(refactoring)).count();
 		Assert.assertEquals(qty, count);
@@ -175,7 +171,7 @@ public abstract class IntegrationBaseTest {
 	}
 
 	protected void assertMetaDataRefactoring(String commit, String commitMessage, String refactoringSummary, String commitUrl){
-		RefactoringCommit refactoringCommit = filterCommit(getRefactoringCommits(), commit).get(0);
+		RefactoringCommit refactoringCommit = (RefactoringCommit) filterCommit(getRefactoringCommits(), commit).get(0);
 
 		Assert.assertEquals(refactoringSummary, refactoringCommit.getRefactoringSummary());
 		Assert.assertEquals(commitMessage, refactoringCommit.getCommitMessage());
@@ -183,20 +179,12 @@ public abstract class IntegrationBaseTest {
 	}
 
 	protected void assertMetaDataStable(String commit, String commitUrl) {
-		StableCommit stableCommit = filterStableCommit(getStableCommits(), commit).get(0);
+		StableCommit stableCommit = (StableCommit) filterCommit(getStableCommits(), commit).get(0);
 
 		Assert.assertEquals(commitUrl, stableCommit.getCommitUrl());
 	}
 
-	protected void assertProcessMetrics(RefactoringCommit refactoringCommit, ProcessMetrics truth) {
-		assertProcessMetrics(refactoringCommit.getProcessMetrics(), truth);
-	}
-
-	protected void assertProcessMetrics(StableCommit stableCommit, ProcessMetrics truth) {
-		assertProcessMetrics(stableCommit.getProcessMetrics(), truth);
-	}
-
-	private void assertProcessMetrics(ProcessMetrics found, ProcessMetrics truth){
-		Assert.assertEquals(truth.toString(), found.toString());
+	protected void assertProcessMetrics(Instance instance, ProcessMetrics truth) {
+		Assert.assertEquals(truth.toString(), instance.getProcessMetrics().toString());
 	}
 }

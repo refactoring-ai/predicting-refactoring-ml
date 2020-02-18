@@ -16,7 +16,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "repos/r4";
+		return "https://github.com/jan-gerling/toyrepo-r4.git";
 	}
 
 	@Test
@@ -30,14 +30,14 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		String extractCommit = "dd9aa00b03c9456c69c5e6566040fb994d7c9d98";
 		String renameCommit = "104e39574462f9e4bd6b1cdf388ecd0334a6f2c3";
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit ->
-						commit.getRefactorCommit().equals(extractCommit) ||
-						commit.getRefactorCommit().equals(renameCommit)).collect(Collectors.toList());
+						commit.getCommit().equals(extractCommit) ||
+						commit.getCommit().equals(renameCommit)).collect(Collectors.toList());
 
-		RefactoringCommit extractRefactoringCommit = refactoringCommitList.stream().filter(commit -> commit.getRefactorCommit().equals(extractCommit)).findFirst().get();
+		RefactoringCommit extractRefactoringCommit = refactoringCommitList.stream().filter(commit -> commit.getCommit().equals(extractCommit)).findFirst().get();
 		Assert.assertEquals("a.Animal.Dog", extractRefactoringCommit.getClassName());
 		assertRefactoring(refactoringCommitList, extractCommit, "Extract Method", 1);
 
-		RefactoringCommit renameRefactoringCommit = refactoringCommitList.stream().filter(commit -> commit.getRefactorCommit().equals(renameCommit)).findFirst().get();
+		RefactoringCommit renameRefactoringCommit = refactoringCommitList.stream().filter(commit -> commit.getCommit().equals(renameCommit)).findFirst().get();
 		Assert.assertEquals("Rename Class", renameRefactoringCommit.getRefactoring());
 		assertRefactoring(refactoringCommitList, renameCommit, "Rename Class", 2);
 	}
@@ -47,12 +47,12 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
 		Assert.assertEquals(6, refactoringCommitList.size());
 
-		assertRefactoring(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98", "Extract Method", 1);
-		Assertions.assertEquals("a.Animal.Dog", refactoringCommitList.get(0).getClassName());
-		Assertions.assertTrue(refactoringCommitList.get(0).getClassMetrics().isInnerClass());
-
 		assertRefactoring(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b", "Rename Method", 1);
-		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", refactoringCommitList.get(5).getClassName());
+		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", refactoringCommitList.get(0).getClassName());
+
+		assertRefactoring(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98", "Extract Method", 1);
+		Assertions.assertEquals("a.Animal.Dog", refactoringCommitList.get(5).getClassName());
+		Assertions.assertTrue(refactoringCommitList.get(5).getClassMetrics().isInnerClass());
 	}
 
 	@Test
@@ -143,7 +143,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"extract method",
 				"Extract Method\tprivate print(a int, b int, c int) : void extracted from public bark() : void in class a.Animal.Dog",
-				"@local/" + getRepo() + "/" + commit);
+				"@local/repos/toyrepo-r4/" + commit);
 	}
 
 	@Test

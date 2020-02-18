@@ -89,8 +89,8 @@ public class RefactoringAnalyzer {
 
 				// this should not happen...
 				if(!refactoredEntry.isPresent()) {
-					log.info("old classes in DiffEntry: " + entries.stream().map(x -> x.getOldPath()).collect(Collectors.toList()));
-					log.info("new classes in DiffEntry: " + entries.stream().map(x -> x.getNewPath()).collect(Collectors.toList()));
+					log.info("old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
+					log.info("new classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
 					throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
 				}
 
@@ -98,8 +98,8 @@ public class RefactoringAnalyzer {
 				DiffEntry entry = refactoredEntry.get();
 				diffFormatter.toFileHeader(entry);
 
-				String oldFileName = entry.getOldPath();
-				String currentFileName = entry.getNewPath();
+				String oldFileName = enforceUnixPaths(entry.getOldPath());
+				String currentFileName = enforceUnixPaths(entry.getNewPath());
 
 				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
 					log.info("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
@@ -158,13 +158,13 @@ public class RefactoringAnalyzer {
 	}
 
 	private String getMethodAndOrVariableNameIfAny(RefactoringCommit refactoringCommit) {
-		if(refactoringCommit.getRefactoringLevel() == TYPE_METHOD_LEVEL) {
+		if(refactoringCommit.getLevel() == TYPE_METHOD_LEVEL) {
 			return refactoringCommit.getMethodMetrics().getShortMethodName();
 		}
-		if(refactoringCommit.getRefactoringLevel() == TYPE_VARIABLE_LEVEL) {
+		if(refactoringCommit.getLevel() == TYPE_VARIABLE_LEVEL) {
 			return refactoringCommit.getMethodMetrics().getShortMethodName() + "-" + refactoringCommit.getVariableMetrics().getVariableName();
 		}
-		if(refactoringCommit.getRefactoringLevel() == TYPE_ATTRIBUTE_LEVEL) {
+		if(refactoringCommit.getLevel() == TYPE_ATTRIBUTE_LEVEL) {
 			return refactoringCommit.getFieldMetrics().getFieldName();
 		}
 
@@ -178,9 +178,10 @@ public class RefactoringAnalyzer {
 
 		String completeFileNameBefore = String.format("%s-%d-%s-%d-%s",
 				fileNameBefore,
-				refactoringCommit.getRefactoringLevel(),
+				refactoringCommit.getLevel(),
 				refactoringCommit.getRefactoring(),
-				(refactoringCommit.getRefactoringLevel() == TYPE_METHOD_LEVEL || refactoringCommit.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
+				(refactoringCommit.getLevel() == TYPE_METHOD_LEVEL
+						|| refactoringCommit.getLevel() == TYPE_VARIABLE_LEVEL ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
 				getMethodAndOrVariableNameIfAny(refactoringCommit));
 
 		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameBefore);
@@ -192,9 +193,10 @@ public class RefactoringAnalyzer {
 
 			String completeFileNameAfter = String.format("%s-%d-%s-%d-%s",
 					fileNameAfter,
-					refactoringCommit.getRefactoringLevel(),
+					refactoringCommit.getLevel(),
 					refactoringCommit.getRefactoring(),
-					(refactoringCommit.getRefactoringLevel() == TYPE_METHOD_LEVEL || refactoringCommit.getRefactoringLevel() == TYPE_VARIABLE_LEVEL ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
+					(refactoringCommit.getLevel() == TYPE_METHOD_LEVEL
+							|| refactoringCommit.getLevel() == TYPE_VARIABLE_LEVEL ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
 					getMethodAndOrVariableNameIfAny(refactoringCommit));
 
 			PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAfter);
@@ -317,7 +319,6 @@ public class RefactoringAnalyzer {
 						variableMetrics = new VariableMetric(refactoredVariable, appearances);
 					}
 				}
-
 			}
 
 			// finally, if it's a field refactoring, we then only have class + field
@@ -330,14 +331,13 @@ public class RefactoringAnalyzer {
 						.mapToInt(Integer::intValue).sum();
 
 				fieldMetrics = new FieldMetric(refactoredField, totalAppearances);
-
 			}
 
 			// assemble the final object
 			RefactoringCommit refactoringCommit = new RefactoringCommit(
 					project,
 					commitMetaData,
-					ck.getFile().replace(tempDir, ""),
+					enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 					cleanedCkClassName,
 					refactoring.getRefactoringType().getDisplayName(),
 					refactoringTypeInNumber(refactoring),
@@ -355,6 +355,7 @@ public class RefactoringAnalyzer {
 		return list.isEmpty() ? null : list.get(0);
 	}
 
+	//TODO: on my Windows computer the tempDir is not always deleted
 	private void cleanTmpDir() throws IOException {
 		if(tempDir != null) {
 			FileUtils.deleteDirectory(new File(tempDir));
@@ -363,6 +364,7 @@ public class RefactoringAnalyzer {
 	}
 
 	private void createTmpDir() {
-		tempDir = lastSlashDir(com.google.common.io.Files.createTempDir().getAbsolutePath());
+		String rawTempDir = com.google.common.io.Files.createTempDir().getAbsolutePath();
+		tempDir = lastSlashDir(rawTempDir);
 	}
 }

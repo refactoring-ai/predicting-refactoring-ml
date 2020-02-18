@@ -21,6 +21,7 @@ import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
+import refactoringml.util.FilePathUtils;
 import refactoringml.util.JGitUtils;
 
 import java.io.File;
@@ -30,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
@@ -70,13 +72,12 @@ public class App {
 
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
-		this.filesStoragePath = filesStoragePath + extractProjectNameFromGitUrl(gitUrl); // add project as subfolder
+		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
 		this.threshold = threshold;
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
 		this.storeFullSourceCode = storeFullSourceCode;
 	}
-
 
 	public Project run () throws Exception {
 		// do not run if the project is already in the database
@@ -91,8 +92,8 @@ public class App {
 		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
 
 		// creates a temp dir to store the project
-		String newTmpDir = Files.createTempDir().getAbsolutePath();
-		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : lastSlashDir(newTmpDir) + "repo").trim();
+		String newTmpDir = lastSlashDir(Files.createTempDir().getAbsolutePath());
+		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : newTmpDir + "repo").trim();
 
 		try {
 

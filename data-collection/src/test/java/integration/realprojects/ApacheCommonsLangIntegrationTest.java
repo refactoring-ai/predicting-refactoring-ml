@@ -38,7 +38,7 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
     public void t1() {
         // manually verified
         RefactoringCommit instance1 = getRefactoringCommits().stream().filter(commit ->
-                commit.getRefactorCommit().equals("5e7d64d6b2719afb1e5f4785d80d24ac5a19a782") &&
+                commit.getCommit().equals("5e7d64d6b2719afb1e5f4785d80d24ac5a19a782") &&
                         commit.getRefactoring().equals("Extract Method") &&
                         commit.getMethodMetrics().getFullMethodName().equals("isSameDay/2[Date,Date]")
         ).collect(Collectors.toList()).get(0);
@@ -68,9 +68,8 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
         Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", stableCommitList.get(0).getCommit());
 
         // then, it was refactored two times (in commit 5c40090fecdacd9366bba7e3e29d94f213cf2633)
-        Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", refactoringCommitList.get(0).getRefactorCommit());
-        Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", refactoringCommitList.get(1).getRefactorCommit());
-
+        Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", refactoringCommitList.get(0).getCommit());
+        Assert.assertEquals("5c40090fecdacd9366bba7e3e29d94f213cf2633", refactoringCommitList.get(1).getCommit());
 
         // It appears 3 times
         Assert.assertEquals("379d1bcac32d75e6c7f32661b2203f930f9989df", stableCommitList.get(1).getCommit());

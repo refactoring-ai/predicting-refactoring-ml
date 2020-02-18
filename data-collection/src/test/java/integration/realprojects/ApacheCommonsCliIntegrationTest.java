@@ -102,7 +102,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	@Test
 	public void t1() {
 		RefactoringCommit instance1 = getRefactoringCommits().stream().filter(commit ->
-				commit.getRefactorCommit().equals("269eae18a911f792895d0402f5dd4e7913410523") &&
+				commit.getCommit().equals("269eae18a911f792895d0402f5dd4e7913410523") &&
 						commit.getRefactoring().equals("Extract Method") &&
 						commit.getMethodMetrics().getFullMethodName().equals("getParsedOptionValue/1[String]")
 		).collect(Collectors.toList()).get(0);

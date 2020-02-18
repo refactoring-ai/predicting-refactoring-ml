@@ -14,7 +14,7 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "repos/r5";
+		return "https://github.com/jan-gerling/toyrepo-r5.git";
 	}
 
 	// this test was to see whether the tool would collect classes with generics
@@ -46,7 +46,7 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"extract method",
 				"Extract Method\tprivate print2() : void extracted from public print() : void in class a.Test",
-				"@local/" + getRepo() + "/" + commit);
+				"@local/repos/toyrepo-r5/" + commit);
 	}
 
 	@Test
