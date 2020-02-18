@@ -41,7 +41,7 @@ public class ProcessMetricsCollector {
 	private static final Logger log = Logger.getLogger(ProcessMetricsCollector.class);
 	private String branch;
 
-	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch, int commitThreshold,
+	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch,
 	                               String fileStoragePath, String lastCommitToProcess) {
 		this.project = project;
 		this.db = db;
@@ -49,7 +49,7 @@ public class ProcessMetricsCollector {
 		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		this.lastCommitToProcess = lastCommitToProcess;
-		pmDatabase = new PMDatabase(commitThreshold);
+		pmDatabase = new PMDatabase(Integer.valueOf(App.getProperty("stableCommitThreshold")));
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
