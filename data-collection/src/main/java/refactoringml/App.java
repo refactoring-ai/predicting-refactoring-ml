@@ -36,6 +36,9 @@ import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public class App {
+	//TODO: candidate for the config file
+	//Time in seconds until a request to the Refactoring Miner times out
+	private final int refactoringMinerTimeout = 20;
 
 	private String gitUrl;
 	private String filesStoragePath;
@@ -102,8 +105,8 @@ public class App {
 				new File(filesStoragePath).mkdirs();
 			}
 
-			log.info("Refactoring analyzer");
-			log.info("Starting project " + gitUrl + "(clone at " + clonePath + ")");
+			log.info("REFACTORING ANALYZER");
+			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
 			final Repository repo = gitService.cloneIfNotExists(clonePath, gitUrl);
 			final Git git = Git.open(new File(lastSlashDir(clonePath) + ".git"));
 
@@ -136,7 +139,7 @@ public class App {
 
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
 
-				// we only analyze commits that have one parent
+				// we only analyze commits that have one parent or the first commit with 0 parents
 				// i.e., ignore merge commits
 				if(currentCommit.getParentCount() > 1)
 					continue;
@@ -155,10 +158,9 @@ public class App {
 				refactoringsToProcess = null;
 				commitIdToProcess = null;
 
-				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
 				// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 				if(currentCommit.getParentCount()==1)
-					miner.detectAtCommit(repo, commitHash, handler, 20);
+					miner.detectAtCommit(repo, commitHash, handler, (int) refactoringMinerTimeout);
 
 				//stores all the ck metrics for the current commit
 				Set<Long> allRefactoringCommits = new HashSet<Long>();
@@ -176,27 +178,26 @@ public class App {
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
-							log.error("Error when collecting commit data", e);
+							log.error("Exception when collecting commit data: ", e);
 							db.rollback();
 						} finally {
 							db.close();
 						}
 					}
-				} else {
+				} else if(currentCommit.getParentCount()==1){
 					// timeout happened, so count it as an exception
-					log.error("Refactoring Miner returned null for " + commitHash + ". Possibly this is the first commit of the project, or a timeout.");
+					log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
 					exceptionsCount++;
 				}
 
 				//collect the process metrics for the current commit
 				processMetrics.collectMetrics(currentCommit, allRefactoringCommits, thereIsRefactoringToProcess);
-
 			}
 
 			walk.close();
 
 			long end = System.currentTimeMillis();
-			log.info(String.format("Finished in %.2f minutes", ( ( end - start ) / 1000.0 / 60.0 )));
+			log.info(String.format("Finished mining %s in %.2f minutes", gitUrl,( ( end - start ) / 1000.0 / 60.0 )));
 
 			// set finished data
 			// note that if this process crashes, finished date will be equals to null in the database
@@ -231,14 +232,13 @@ public class App {
 					exceptionsCount++;
 					log.error("RefactoringMiner could not handle commit Id " + commitId, e);
 					resetGitRepo();
-
 				}
 
 				private void resetGitRepo() {
 					try {
 						git.reset().setMode(ResetCommand.ResetType.HARD).call();
 					} catch (GitAPIException e1) {
-						log.error("Reset failed", e1);
+						log.error("Reset failed for repository: " + gitUrl + " after a commit couldn't be handled.", e1);
 					}
 				}
 			};

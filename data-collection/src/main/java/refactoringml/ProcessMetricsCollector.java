@@ -34,6 +34,7 @@ public class ProcessMetricsCollector {
 	private Database db;
 	private Repository repository;
 	private String fileStoragePath;
+	//TODO: remove lastCommitToProcess
 	private String lastCommitToProcess;
 
 	private PMDatabase pmDatabase;
@@ -64,7 +65,7 @@ public class ProcessMetricsCollector {
 				refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
 				db.commit();
 			} catch (Exception e) {
-				log.error("Error when collecting process metrics in commit " + commit.getName(), e);
+				log.error(e.getClass().getCanonicalName() + " when collecting process metrics for commit " + commit.getName(), e);
 				db.rollback();
 			} finally {
 				db.close();
@@ -99,8 +100,8 @@ public class ProcessMetricsCollector {
 		for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
 
 			if(TrackDebugMode.ACTIVE && pm.getFileName().equals(TrackDebugMode.FILE_TO_TRACK)) {
-				log.info("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
-				log.info("[TRACK] " + pm.toString());
+				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
+				log.debug("[TRACK] " + pm.toString());
 			}
 
 			outputNonRefactoredClass(pm);
@@ -123,7 +124,7 @@ public class ProcessMetricsCollector {
 				String fileName = enforceUnixPaths(entry.getNewPath());
 
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.info("[TRACK] File was changed in commit " + commit.getId().getName() + ", updating process metrics");
+					log.debug("[TRACK] File was changed in commit " + commit.getId().getName() + ", thus the process metrics are updated.");
 				}
 
 				// do not collect these numbers if not a java file (save some memory)
@@ -164,7 +165,8 @@ public class ProcessMetricsCollector {
 				currentClazz.increaseCounter();
 
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.info("[TRACK] Counter increased to " + currentClazz.counter());
+					log.debug("[TRACK] Class stability counter increased to " + currentClazz.counter()
+							+ " for class: " + currentClazz.getFileName());
 				}
 
 			}
@@ -181,7 +183,8 @@ public class ProcessMetricsCollector {
 			String fileName = refactoringCommit.getFilePath();
 
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-				log.info("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName());
+				log.debug("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName()
+						+ " for class: " + commit.getName());
 			}
 
 			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
@@ -208,7 +211,8 @@ public class ProcessMetricsCollector {
 
 				log.error("Not able to find process metrics for file " + fileName + " (commit " + commit.getName() + ")");
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.info("[TRACK] Not able to find process metrics at " + commit.getId().getName());
+					log.debug("[TRACK] Not able to find process metrics at " + commit.getId().getName()
+							+ " for class: " + commit.getName());
 				}
 			} else {
 
@@ -236,17 +240,15 @@ public class ProcessMetricsCollector {
 			refactoredClasses.add(fileName);
 
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-				log.info("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved() + " and counter resetted");
+				log.debug("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved()
+						+ " and class stability counter set to: " + currentProcessMetrics.counter() + " for class: " + commit.getName());
 			}
-
 		}
 
 		return refactoredClasses;
-
 	}
 
 	private void storeProcessMetric(String fileName, List<StableCommit> stableCommits) {
-
 		for(StableCommit stableCommit : stableCommits) {
 
 			ProcessMetric filePm = pmDatabase.get(fileName);
@@ -264,7 +266,6 @@ public class ProcessMetricsCollector {
 			stableCommit.setProcessMetrics(dbProcessMetrics);
 			db.persist(stableCommit);
 		}
-
 	}
 
 	private void outputNonRefactoredClass (ProcessMetric clazz) throws IOException {
@@ -273,13 +274,13 @@ public class ProcessMetricsCollector {
 		String commitHashBackThen = clazz.getBaseCommitForNonRefactoring();
 
 		String sourceCodeBackThen;
-		log.info("Class " + clazz.getFileName() + " is an example of not refactored (original commit " + commitHashBackThen + ")");
+		log.debug("Class " + clazz.getFileName() + " is an example of a not refactored instance with the original commit: " + commitHashBackThen);
 
 		try {
 			// we extract the source code from back then (as that's the one that never deserved a refactoring)
 			sourceCodeBackThen = SourceCodeUtils.removeComments(readFileFromGit(repository, commitHashBackThen, clazz.getFileName()));
 		} catch(Exception e) {
-			log.error("Failed when getting source code of the class... The class was probably moved or deleted...");
+			log.error(e.getClass().getCanonicalName() + " when getting source code of the class " + clazz.getFileName());
 			pmDatabase.remove(clazz);
 			return;
 		}
@@ -287,7 +288,6 @@ public class ProcessMetricsCollector {
 		try {
 			// create a temp dir to store the source code files and run CK there
 			createTempDir();
-
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
 
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData);
@@ -296,17 +296,14 @@ public class ProcessMetricsCollector {
 			// note that we print the process metrics back then (X commits ago)
 			storeProcessMetric(clazz.getFileName(), stableCommits);
 		} catch(Exception e) {
-			log.error("Failing when calculating metrics", e);
+			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + commitHashBackThen, e);
 		} finally {
 			cleanTmpDir();
 		}
-
 	}
 
 	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData) {
-
 		List<StableCommit> stableCommits = new ArrayList<>();
-
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 			ClassMetric classMetric = new ClassMetric(
@@ -349,7 +346,6 @@ public class ProcessMetricsCollector {
 					ck.getSubClassesQty(),
 					ck.getLambdasQty(),
 					ck.getUniqueWordsQty());
-
 
 			StableCommit stableCommit = new StableCommit(
 					project,
@@ -420,9 +416,7 @@ public class ProcessMetricsCollector {
 							RefactoringUtils.TYPE_VARIABLE_LEVEL);
 
 					stableCommits.add(stableCommitV);
-
 				}
-
 			}
 
 			Set<String> fields = ck.getMethods().stream().flatMap(x -> x.getFieldUsage().keySet().stream()).collect(Collectors.toSet());
