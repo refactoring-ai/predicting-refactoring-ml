@@ -41,7 +41,7 @@ public class ProcessMetricsCollector {
 	private static final Logger log = Logger.getLogger(ProcessMetricsCollector.class);
 	private String branch;
 
-	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch, int commitThreshold,
+	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch,
 	                               String fileStoragePath, String lastCommitToProcess) {
 		this.project = project;
 		this.db = db;
@@ -49,7 +49,8 @@ public class ProcessMetricsCollector {
 		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		this.lastCommitToProcess = lastCommitToProcess;
-		pmDatabase = new PMDatabase(commitThreshold);
+		List<Integer> commitThresholds = Arrays.asList(50);
+		pmDatabase = new PMDatabase(commitThresholds);
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
@@ -96,7 +97,7 @@ public class ProcessMetricsCollector {
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
-		for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
+		for(ProcessMetric pm : pmDatabase.findStableInstances()) {
 
 			if(TrackDebugMode.ACTIVE && pm.getFileName().equals(TrackDebugMode.FILE_TO_TRACK)) {
 				log.info("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
@@ -290,7 +291,7 @@ public class ProcessMetricsCollector {
 
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
 
-			List<StableCommit> stableCommits = codeMetrics(commitMetaData);
+			List<StableCommit> stableCommits = codeMetrics(commitMetaData, clazz.getCommitCounterThreshold());
 
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
@@ -300,10 +301,9 @@ public class ProcessMetricsCollector {
 		} finally {
 			cleanTmpDir();
 		}
-
 	}
 
-	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData) {
+	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, int commitThreshold) {
 
 		List<StableCommit> stableCommits = new ArrayList<>();
 
@@ -360,7 +360,8 @@ public class ProcessMetricsCollector {
 					null,
 					null,
 					null,
-					RefactoringUtils.TYPE_CLASS_LEVEL);
+					RefactoringUtils.TYPE_CLASS_LEVEL,
+					commitThreshold);
 
 			stableCommits.add(stableCommit);
 
@@ -401,7 +402,8 @@ public class ProcessMetricsCollector {
 						methodMetrics,
 						null,
 						null,
-						RefactoringUtils.TYPE_METHOD_LEVEL);
+						RefactoringUtils.TYPE_METHOD_LEVEL,
+						commitThreshold);
 
 				stableCommits.add(stableCommitM);
 
@@ -417,7 +419,8 @@ public class ProcessMetricsCollector {
 							methodMetrics,
 							variableMetric,
 							null,
-							RefactoringUtils.TYPE_VARIABLE_LEVEL);
+							RefactoringUtils.TYPE_VARIABLE_LEVEL,
+							commitThreshold);
 
 					stableCommits.add(stableCommitV);
 
@@ -443,7 +446,8 @@ public class ProcessMetricsCollector {
 						null,
 						null,
 						fieldMetrics,
-						RefactoringUtils.TYPE_ATTRIBUTE_LEVEL);
+						RefactoringUtils.TYPE_ATTRIBUTE_LEVEL,
+						commitThreshold);
 
 				stableCommits.add(stableCommitF);
 			}

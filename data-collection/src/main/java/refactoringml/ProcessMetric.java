@@ -19,6 +19,9 @@ public class ProcessMetric {
 	//number of commits affecting this class since the last refactoring
 	//Used to estimate if a class is stable
 	private int commitCounter = 0;
+	//Current highest commit threshold to be considered as stable,
+	// used to avoid double instances when we use multiple thresholds
+	private int currentCommitThreshold = 0;
 
 	// counters at the time of the base commit
 	private String baseCommitForNonRefactoring;
@@ -69,6 +72,7 @@ public class ProcessMetric {
 
 	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, Calendar commitDate) {
 		commitCounter = 0;
+		currentCommitThreshold = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 		this.baseCommitDateForNonRefactoring = commitDate;
 
@@ -83,13 +87,9 @@ public class ProcessMetric {
 		baseCommits = commits;
 	}
 
-	public void increaseCommitCounter() {
-		commitCounter++;
-	}
+	public void increaseCommitCounter() { commitCounter++; }
 
-	public int commitCounter() {
-		return commitCounter;
-	}
+	public int commitCounter() { return commitCounter; }
 
 	public String getFileName () {
 		return fileName;
@@ -181,8 +181,18 @@ public class ProcessMetric {
 		refactoringsInvolved++;
 	}
 
-	public boolean refactoredLongAgo(int commitThreshold){
-		return commitCounter >= commitThreshold;
+	public void setCommitCounterThreshold(int commitCounterThreshold) { this.currentCommitThreshold = commitCounterThreshold; }
+
+	public int getCommitCounterThreshold() { return currentCommitThreshold; }
+
+	//Was this class file not refactored in the last K commits affecting this class file?
+	public boolean isStable(int commitThreshold){
+		return commitCounter > commitThreshold;
+	}
+
+	//Filter class files that were not refactored in the last K commits and not already found with a lower K.
+	public boolean isStableThreshold(int commitThreshold){
+		return isStable(commitThreshold) && commitThreshold > currentCommitThreshold;
 	}
 
 	@Override

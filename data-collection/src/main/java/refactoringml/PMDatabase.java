@@ -1,17 +1,17 @@
 package refactoringml;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PMDatabase {
-
 	private Map<String, ProcessMetric> database;
-	private int commitThreshold;
+	private List<Integer> commitThresholds;
 
-	public PMDatabase (int commitThreshold) {
-		this.commitThreshold = commitThreshold;
+	public PMDatabase (List<Integer> commitThresholds) {
+		this.commitThresholds = commitThresholds;
 		this.database = new HashMap<>();
 	}
 
@@ -27,10 +27,18 @@ public class PMDatabase {
 		return database.get(key);
 	}
 
-	public List<ProcessMetric> refactoredLongAgo () {
-		return database.values().stream()
-				.filter(p -> p.refactoredLongAgo(commitThreshold))
-				.collect(Collectors.toList());
+	//Returns all instances that were not refactored for a long time.
+	public List<ProcessMetric> findStableInstances() {
+		//TODO: make this more efficient!
+		List<ProcessMetric> stableInstances = new ArrayList<>();
+		for (Integer threshold : commitThresholds){
+			List<ProcessMetric> currentStableInstances = database.values().stream()
+					.filter(p -> p.isStableThreshold(threshold))
+					.collect(Collectors.toList());
+			currentStableInstances.forEach(p -> p.setCommitCounterThreshold(threshold));
+			stableInstances.addAll(currentStableInstances);
+		}
+		return stableInstances;
 	}
 
 	public void remove (ProcessMetric clazz) {

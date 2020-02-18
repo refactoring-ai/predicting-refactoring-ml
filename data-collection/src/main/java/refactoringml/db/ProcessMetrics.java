@@ -14,6 +14,7 @@ public class ProcessMetrics {
 	@Column(nullable = true) private long qtyMajorAuthors;
 	@Column(nullable = true) private double authorOwnership;
 	@Column(nullable = true) private int bugFixCount;
+	@Column(nullable = true) private int commitCounter;
 	@Column(nullable = true) private int refactoringsInvolved;
 
 	@Deprecated // hibernate purposes
