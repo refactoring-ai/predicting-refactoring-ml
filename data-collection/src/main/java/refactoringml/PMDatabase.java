@@ -15,7 +15,6 @@ public class PMDatabase {
 		this.database = new HashMap<>();
 	}
 
-
 	public boolean containsKey (String fileName) {
 		return database.containsKey(fileName);
 	}
@@ -30,7 +29,7 @@ public class PMDatabase {
 
 	public List<ProcessMetric> refactoredLongAgo () {
 		return database.values().stream()
-				.filter(p -> p.counter() >= commitThreshold)
+				.filter(p -> p.refactoredLongAgo(commitThreshold))
 				.collect(Collectors.toList());
 	}
 

@@ -16,8 +16,9 @@ public class ProcessMetric {
 	private int bugFixCount = 0;
 	private int refactoringsInvolved = 0;
 
-
-	private int counter = 0;
+	//number of commits affecting this class since the last refactoring
+	//Used to estimate if a class is stable
+	private int commitCounter = 0;
 
 	// counters at the time of the base commit
 	private String baseCommitForNonRefactoring;
@@ -67,7 +68,7 @@ public class ProcessMetric {
 	}
 
 	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, Calendar commitDate) {
-		counter = 0;
+		commitCounter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 		this.baseCommitDateForNonRefactoring = commitDate;
 
@@ -82,12 +83,12 @@ public class ProcessMetric {
 		baseCommits = commits;
 	}
 
-	public void increaseCounter() {
-		counter++;
+	public void increaseCommitCounter() {
+		commitCounter++;
 	}
 
-	public int counter() {
-		return counter;
+	public int commitCounter() {
+		return commitCounter;
 	}
 
 	public String getFileName () {
@@ -180,6 +181,10 @@ public class ProcessMetric {
 		refactoringsInvolved++;
 	}
 
+	public boolean refactoredLongAgo(int commitThreshold){
+		return commitCounter >= commitThreshold;
+	}
+
 	@Override
 	public String toString() {
 		return "ProcessMetric{" +
@@ -190,7 +195,7 @@ public class ProcessMetric {
 				", linesDeleted=" + linesDeleted +
 				", bugFixCount=" + bugFixCount +
 				", refactoringsInvolved=" + refactoringsInvolved +
-				", counter=" + counter +
+				", commitCounter=" + commitCounter +
 				", baseCommitForNonRefactoring='" + baseCommitForNonRefactoring + '\'' +
 				", baseLinesAdded=" + baseLinesAdded +
 				", baseLinesDeleted=" + baseLinesDeleted +

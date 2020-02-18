@@ -161,10 +161,10 @@ public class ProcessMetricsCollector {
 
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
-				currentClazz.increaseCounter();
+				currentClazz.increaseCommitCounter();
 
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.info("[TRACK] Counter increased to " + currentClazz.counter());
+					log.info("[TRACK] Counter increased to " + currentClazz.commitCounter());
 				}
 
 			}
