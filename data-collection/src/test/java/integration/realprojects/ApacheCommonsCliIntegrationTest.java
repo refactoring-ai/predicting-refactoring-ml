@@ -74,7 +74,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129803 13f79535-47bb-0310-9956-ffa450edef68",
 				"Extract Variable\tkey : String in method package setOpt(opt Option) : void from class org.apache.commons.cli.CommandLine",
 				"@local/repos/commons-cli/" + renameCommit,
-				"UNK");
+				"469e71799a438ccb2d0925e50d4bb9dce37cdba2");
 
 		String moveCommit = "347bbeb8f98a49744501ac50850457ba8751d545";
 		assertMetaDataRefactoring(
@@ -85,18 +85,25 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129846 13f79535-47bb-0310-9956-ffa450edef68",
 				"Rename Parameter\topts : Options to options : Options in method public parse(options Options, arguments String[], stopAtNonOption boolean) : CommandLine in class org.apache.commons.cli.Parser",
 				"@local/repos/commons-cli/" + moveCommit,
-				"UNK");
+				"3b8e3de5b7599a6165d48103f94f3a830361188d");
 
-		// TODO: this is wrong, the id of the commit in a 'No' is the base commit, i.e., where the class started to become 'stable' for X commits
-//		String stableCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
-//		assertMetaDataNo(
-//				stableCommit1,
-//				"@local/repos/commons-cli/" + renameCommit);
-//
-//		String stableCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
-//		assertMetaDataNo(
-//				stableCommit2,
-//				"@local/repos/commons-cli/" + renameCommit);
+		String stableCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
+		assertMetaDataStable(
+				stableCommit1,
+				"@local/repos/commons-cli/" + renameCommit,
+				"4868ac5e7c2afd428de74a6dcbec07dc6541a1ea",
+				"moved cli over from the sandbox to commons proper\n" +
+						"\n" +
+						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68");
+
+		String stableCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
+		assertMetaDataStable(
+				stableCommit2,
+				"@local/repos/commons-cli/" + renameCommit,
+				"dde69934d7f0bee13e4cd1fc99a7d60ce95a0c78",
+				"javadoc updates\n" +
+						"\n" +
+						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68");
 	}
 
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
