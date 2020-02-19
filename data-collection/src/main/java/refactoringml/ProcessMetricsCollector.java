@@ -332,17 +332,18 @@ public class ProcessMetricsCollector {
 							enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
 							cleanedCkClassName,
 							classMetric,
+							methodMetrics,
 							null,
 							null,
-							null,
-							RefactoringUtils.TYPE_VARIABLE_LEVEL,
+							RefactoringUtils.TYPE_METHOD_LEVEL,
 							commitThreshold);
 
 					stableCommits.add(stableCommitV);
 				}
 			}
 
-			Set<String> fields = ck.getMethods().stream().flatMap(x -> x.getFieldUsage().keySet().stream()).collect(Collectors.toSet());
+			Set<String> fields = ck.getMethods().stream().flatMap(x ->
+					x.getFieldUsage().keySet().stream()).collect(Collectors.toSet());
 			for(String field : fields) {
 				int totalAppearances = ck.getMethods().stream()
 						.map(x -> x.getFieldUsage().get(field) == null ? 0 : x.getFieldUsage().get(field))
@@ -376,7 +377,7 @@ public class ProcessMetricsCollector {
 						null,
 						null,
 						null,
-						RefactoringUtils.TYPE_VARIABLE_LEVEL,
+						RefactoringUtils.TYPE_CLASS_LEVEL,
 						commitThreshold);
 
 				stableCommits.add(stableCommitV);
