@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 	@Override
-	protected String getStableCommitThreshold() {return "15,50,100";};
+	protected String getStableCommitThreshold() {return "50";};
 
 	@Override
 	protected String getLastCommit() {
@@ -53,7 +53,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		//TODO: check what to expect here
 		List<StableCommit> stableCommits = getStableCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
 				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
-		Assert.assertEquals(927, stableCommits.size());
+		Assert.assertEquals(339, stableCommits.size());
 
 		List<StableCommit> areInnerClassesInStable = stableCommits.stream().filter(commit ->
 				commit.getClassMetrics().isInnerClass()
@@ -61,7 +61,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		List<StableCommit> areNotInnerClassesInStable = stableCommits.stream().filter(commit -> !commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 
 		Assert.assertEquals(13, areInnerClassesInStable.size());
-		Assert.assertEquals(914, areNotInnerClassesInStable.size());
+		Assert.assertEquals(326, areNotInnerClassesInStable.size());
 	}
 
 	@Test
@@ -147,7 +147,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		assertRefactoring(refactoringCommitList, "bfe6bd8634895645aa71d6a6dc668545297d7413", "Rename Parameter", 1);
 
 		// the file should appear twice as examples of 'stableCommit'
-
 		assertStableCommit(stableCommitList, "5470bcaa9d75d73fb9c687fa13e12d642c75984f", "aae50c585ec3ac33c6a9af792e80378904a73195");
 		// TODO: assertions related to the values of the StableCommit metrics
 	}
