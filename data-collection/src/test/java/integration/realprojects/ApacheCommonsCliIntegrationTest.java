@@ -12,9 +12,8 @@ import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
-
 	@Override
-	protected String getStableCommitThreshold() {return "50";};
+	protected String getStableCommitThreshold() {return "10";};
 
 	@Override
 	protected String getLastCommit() {
@@ -29,10 +28,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	@Override
 	protected String track() {
 		return "src/java/org/apache/commons/cli/Option.java";
-	}
-
-	protected int threshold() {
-		return 10;
 	}
 
 	//Test the isInnerClass boolean for both yes and no.

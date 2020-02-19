@@ -56,25 +56,21 @@ public class App {
 	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
-	            int threshold,
 	            Database db, 
 	            boolean storeFullSourceCode) {
-		this(datasetName, gitUrl, filesStoragePath, threshold, db, null, storeFullSourceCode);
+		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
 
 	}
 	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
-	            int threshold,
 	            Database db,
 	            String lastCommitToProcess,
-	            boolean storeFullSourceCode
-	            ) {
+	            boolean storeFullSourceCode) {
 
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
-		this.threshold = threshold;
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
 		this.storeFullSourceCode = storeFullSourceCode;

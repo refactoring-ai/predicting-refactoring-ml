@@ -29,9 +29,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     }
 
     @Override
-    protected int threshold() {
-        return 50;
-    }
+    protected String getStableCommitThreshold() {return "50";};
 
     // this test checks the Rename Parameter that has happened in #b58168683d01149a568734df21568ffcc41105fe,
     // method isSet
@@ -51,7 +49,6 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
         Assert.assertEquals(0, instance1.getMethodMetrics().getMethodMaxNestedBlocks());
         Assert.assertEquals(1, instance1.getMethodMetrics().getMethodReturnQty());
         Assert.assertEquals(0, instance1.getMethodMetrics().getMethodTryCatchQty());
-
     }
 
     // this test follows the src/main/java/org/apache/commons/csv/CSVFormat.java file

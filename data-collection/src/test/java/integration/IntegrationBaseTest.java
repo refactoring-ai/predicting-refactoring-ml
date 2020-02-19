@@ -6,9 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
 import refactoringml.TrackDebugMode;
@@ -35,9 +33,6 @@ public abstract class IntegrationBaseTest {
 	private List<RefactoringCommit> refactoringCommits;
 	private List<StableCommit> stableCommits;
 
-	/*
-	Test
-	 */
 	protected String commitTrack() {
 		return null;
 	}
@@ -52,10 +47,6 @@ public abstract class IntegrationBaseTest {
 
 	protected String getLastCommit() {
 		return null;
-	}
-
-	protected int threshold() {
-		return 10;
 	}
 
 	protected abstract String getRepo();
@@ -80,7 +71,7 @@ public abstract class IntegrationBaseTest {
 		deleteProject(extractProjectNameFromGitUrl(getRepo()));
 
 		if(track()!=null || commitTrack() != null) {
-			TrackDebugMode.ACTIVE = true;
+			TrackDebugMode.ACTIVE = false;
 			TrackDebugMode.FILE_TO_TRACK = track();
 			TrackDebugMode.COMMIT_TO_TRACK = commitTrack();
 		}
@@ -91,7 +82,6 @@ public abstract class IntegrationBaseTest {
 		App app = new App("integration-test",
 				repoLocalDir,
 				outputDir,
-				threshold(),
 				db,
 				getLastCommit(),
 				false);
