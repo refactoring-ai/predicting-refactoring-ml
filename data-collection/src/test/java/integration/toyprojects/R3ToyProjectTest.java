@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
+	protected String getStableCommitThreshold() {return "5,50,100";};
+
+	@Override
 	protected String getRepo() {
 		return "https://github.com/jan-gerling/toyrepo-r3.git";
 	}

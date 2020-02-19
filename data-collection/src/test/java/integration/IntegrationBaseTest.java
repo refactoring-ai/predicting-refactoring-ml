@@ -53,6 +53,9 @@ public abstract class IntegrationBaseTest {
 			TrackDebugMode.COMMIT_TO_TRACK = commitTrack();
 		}
 
+		//set the stableCommitThreshold in the PMDatabase to test various configs
+		App.setProperty("stableCommitThreshold", getStableCommitThreshold());
+
 		App app = new App("integration-test",
 				repoLocalDir,
 				outputDir,
@@ -131,6 +134,8 @@ public abstract class IntegrationBaseTest {
 	}
 
 	protected abstract String getRepo();
+
+	protected String getStableCommitThreshold() {return "50";};
 
 	protected List<RefactoringCommit> getRefactoringCommits(){
 		if(refactoringCommits != null)

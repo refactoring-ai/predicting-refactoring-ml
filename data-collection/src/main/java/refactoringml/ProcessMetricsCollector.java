@@ -49,8 +49,11 @@ public class ProcessMetricsCollector {
 		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		this.lastCommitToProcess = lastCommitToProcess;
-		List<Integer> commitThresholds = Arrays.asList(5, 50, 100);
+
+		String[] rawCommitThresholds = App.getProperty("stableCommitThreshold").split(",");
+		List<Integer> commitThresholds = Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
 		pmDatabase = new PMDatabase(commitThresholds);
+		log.debug("Set PMDatabase stable commit threshold(s) to: " + commitThresholds.toString());
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
