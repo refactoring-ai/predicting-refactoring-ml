@@ -48,7 +48,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		//TODO: check what to expect here
 		List<StableCommit> stableCommits = getStableCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
 				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
-		Assert.assertEquals(339, stableCommits.size());
+		Assert.assertEquals(553, stableCommits.size());
 
 		List<StableCommit> areInnerClassesInStable = stableCommits.stream().filter(commit ->
 				commit.getClassMetrics().isInnerClass()
