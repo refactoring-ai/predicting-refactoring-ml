@@ -24,6 +24,7 @@ public class Project {
 
 	private int commits;
 
+	//TODO: refactor it to commitThresholds
 	private int threshold;
 	private long javaLoc;
 

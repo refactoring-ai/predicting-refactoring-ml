@@ -33,6 +33,36 @@ public abstract class IntegrationBaseTest {
 	private List<RefactoringCommit> refactoringCommits;
 	private List<StableCommit> stableCommits;
 
+	/*
+	Test
+	 */
+	protected String commitTrack() {
+		return null;
+	}
+
+	protected String track() {
+		return null;
+	}
+
+	protected final boolean drop() {
+		return false;
+	}
+
+	protected String getLastCommit() {
+		return null;
+	}
+
+	protected int threshold() {
+		return 10;
+	}
+
+	protected abstract String getRepo();
+
+	protected String getStableCommitThreshold() {return "50";};
+
+	/*
+	Test Behavior
+	 */
 	@BeforeAll
 	protected void runApp() throws Exception {
 		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, drop());
@@ -113,30 +143,10 @@ public abstract class IntegrationBaseTest {
 		}
 	}
 
-	protected String commitTrack() {
-		return null;
-	}
-
-	protected String track() {
-		return null;
-	}
-
-	protected final boolean drop() {
-		return false;
-	}
-
-	protected String getLastCommit() {
-		return null;
-	}
-
-	protected int threshold() {
-		return 10;
-	}
-
-	protected abstract String getRepo();
-
-	protected String getStableCommitThreshold() {return "50";};
-
+	/*
+	Test Utils
+	 */
+	//Get all RefactoringCommits from the DB as a List, use this instead of a custom query
 	protected List<RefactoringCommit> getRefactoringCommits(){
 		if(refactoringCommits != null)
 			return refactoringCommits;
@@ -147,6 +157,7 @@ public abstract class IntegrationBaseTest {
 		return refactoringCommits;
 	}
 
+	//Get all StableCommits from the DB as a List, use this instead of a custom query
 	protected List<StableCommit> getStableCommits(){
 		if(stableCommits != null)
 			return stableCommits;
@@ -157,10 +168,12 @@ public abstract class IntegrationBaseTest {
 		return stableCommits;
 	}
 
+	//Filter all commitInstances with the given commitHash
 	protected List<? extends Instance> filterCommit(List<? extends Instance> commitList, String commitId){
 		return commitList.stream().filter(commit -> commit.getCommit().equals(commitId)).collect(Collectors.toList());
 	}
 
+	//Test if all refactoring commits where found
 	protected void assertRefactoring(List<RefactoringCommit> refactoringCommitList, String commit, String refactoring, int qty) {
 		List<RefactoringCommit> inCommit = (List<RefactoringCommit>) filterCommit(refactoringCommitList, commit);
 
@@ -168,10 +181,12 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(qty, count);
 	}
 
-	protected void assertStableRefactoring(List<StableCommit> stableCommitList, String... commits) {
+	//Test if all stable commits where detected
+	protected void assertStableCommit(List<StableCommit> stableCommitList, String... commits) {
+		Assert.assertEquals(commits.length, stableCommitList.size());
+
 		Set<String> stableCommits = stableCommitList.stream().map(x -> x.getCommit()).collect(Collectors.toSet());
 		Set<String> assertCommits = Set.of(commits);
-
 		Assert.assertEquals(stableCommits, assertCommits);
 	}
 
@@ -188,7 +203,7 @@ public abstract class IntegrationBaseTest {
 		assertMetaData(stableCommit.getCommitMetaData(), commitUrl, parentCommit, commitMessage);
 	}
 
-	protected void assertMetaData(CommitMetaData commitMetaData, String commitUrl, String parentCommit, String commitMessage){
+	private void assertMetaData(CommitMetaData commitMetaData, String commitUrl, String parentCommit, String commitMessage){
 		Assert.assertEquals(commitUrl, commitMetaData.getCommitUrl());
 		if(!parentCommit.equals("UNK"))
 			Assert.assertEquals(parentCommit, commitMetaData.getParentCommit());
@@ -197,5 +212,17 @@ public abstract class IntegrationBaseTest {
 
 	protected void assertProcessMetrics(Instance instance, ProcessMetrics truth) {
 		Assert.assertEquals(truth.toString(), instance.getProcessMetrics().toString());
+	}
+
+	//Test if the project metrics are computed correctly
+	protected void assertProjectMetrics(int javaFilesCount, int productionFilesCount, int testFilesCount,
+										int javaLocCount, int productionLocCount, int testLocCount){
+		Assert.assertEquals(productionFilesCount, project.getNumberOfProductionFiles());
+		Assert.assertEquals(testFilesCount, project.getNumberOfTestFiles());
+		Assert.assertEquals(javaFilesCount, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
+
+		Assert.assertEquals(testLocCount, project.getTestLoc());
+		Assert.assertEquals(productionLocCount, project.getProductionLoc());
+		Assert.assertEquals(javaLocCount, project.getJavaLoc());
 	}
 }

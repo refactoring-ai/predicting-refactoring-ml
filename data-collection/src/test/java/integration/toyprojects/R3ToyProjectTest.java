@@ -83,14 +83,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
-	public void metrics() {
-		// the next two assertions come directly from a 'cloc .' in the project
-		Assert.assertEquals(23, project.getJavaLoc());
-		//We dont have any Test file in this toy example.
-		Assert.assertEquals(3, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
-		Assert.assertEquals(3, project.getNumberOfProductionFiles());
-
-		Assert.assertEquals(23, project.getProductionLoc());
+	public void projectMetrics() {
+		assertProjectMetrics(3, 3, 0, 23, 23, 0);
 	}
 }

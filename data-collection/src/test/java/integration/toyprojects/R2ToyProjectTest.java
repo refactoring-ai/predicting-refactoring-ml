@@ -32,17 +32,18 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		RefactoringCommit renameRefactoring = refactoringCommitList.stream().filter(refactoringCommit ->
 				refactoringCommit.getCommit().equals(renameCommit)).findFirst().get();
 
-		//TODO: figure out what to expect here
 		ProcessMetrics metrics = new ProcessMetrics(1, 5, 0, 1, 0, 1, 1.0, 0, 0);
 		assertProcessMetrics(renameRefactoring, metrics);
 
 		String extractCommit = "515365875143aa84b5bbb5c3191e7654a942912f";
 		assertRefactoring(refactoringCommitList, extractCommit, "Extract Class", 1);
 
+		//Additions:(6 + 3 + 25 + 1 + 5 = 40)
+		//Deletions:(0 + 3 +  0 + 2 + 0 =  5)
+		//TODO: Why are additions and deletions from commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 not counted?
 		RefactoringCommit extractClassRefactoring = (RefactoringCommit) filterCommit(refactoringCommitList, extractCommit).get(0);
-		//TODO: figure out what to expect here
-		metrics = new ProcessMetrics(0, 1, 3, 1, 0, 1, 0, 0, 1);
-		//assertProcessMetrics(extractClassRefactoring, metrics);
+		metrics = new ProcessMetrics(5, 40, 4, 1, 0, 1, 0, 0, 1);
+		assertProcessMetrics(extractClassRefactoring, metrics);
 	}
 
 	@Test
@@ -78,16 +79,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
-	public void metrics() {
-		// the next two assertions come directly from a 'cloc .' in the project
-		Assert.assertEquals(64, project.getJavaLoc());
-
-		Assert.assertEquals(4, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
-		Assert.assertEquals(3, project.getNumberOfProductionFiles());
-
-		Assert.assertEquals(1, project.getNumberOfTestFiles());
-
-		Assert.assertEquals(56, project.getProductionLoc());
+	public void projectMetrics() {
+		assertProjectMetrics(4, 3, 1, 64, 56, 8);
 	}
 }
