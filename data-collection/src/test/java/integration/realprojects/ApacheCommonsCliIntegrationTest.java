@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 	@Override
+	protected String getStableCommitThreshold() {return "15";};
+
+	@Override
 	protected String getLastCommit() {
 		return "b9ccc94008c78a59695f0c77ebe4ecf284370956";
 	}
