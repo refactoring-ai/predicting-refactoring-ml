@@ -86,7 +86,7 @@ public abstract class IntegrationBaseTest {
 		}
 
 		//set the stableCommitThreshold in the PMDatabase to test various configs
-		App.setProperty("stableCommitThreshold", getStableCommitThreshold());
+		App.setProperty("stableCommitThresholds", getStableCommitThreshold());
 
 		App app = new App("integration-test",
 				repoLocalDir,

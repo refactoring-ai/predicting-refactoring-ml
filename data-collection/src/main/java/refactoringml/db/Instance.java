@@ -12,7 +12,6 @@ public abstract class Instance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected long id;
 
-
     @ManyToOne
     //project id: referencing the project information, e.g. name or gitUrl
     protected Project project;

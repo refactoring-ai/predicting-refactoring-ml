@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
@@ -117,15 +118,17 @@ public class App {
 			long projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
 			int numberOfCommits = numberOfCommits(git);
 
+			String rawCommitThresholds = App.getProperty("stableCommitThresholds");
 			Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
-					numberOfCommits, threshold, lastCommitHash, counterResult, projectSize);
+					numberOfCommits, rawCommitThresholds, lastCommitHash, counterResult, projectSize);
+			log.debug("Set project stable commit threshold(s) to: " + project.getCommitCountThresholds());
 
 			db.openSession();
 			db.persist(project);
 			db.commit();
 
-
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, filesStoragePath, lastCommitToProcess);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch,
+					filesStoragePath, lastCommitToProcess, project.getCommitCountThresholds());
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
 
 			RefactoringHandler handler = getRefactoringHandler(git);

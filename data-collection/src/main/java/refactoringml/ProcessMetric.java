@@ -3,9 +3,9 @@ package refactoringml;
 import java.util.*;
 import java.util.function.Predicate;
 
+//TODO: Refactor this class by combining it with ProcessMetrics
 //TODO: Rename this class, as it is easily confused with ProcessMetrics and the name does not describe its purpose well
 public class ProcessMetric {
-
 	private String fileName;
 
 	// updated info about the class
@@ -173,6 +173,10 @@ public class ProcessMetric {
 		return bugFixCount;
 	}
 
+	public int getCommitCounter() {
+		return commitCounter;
+	}
+
 	public int getRefactoringsInvolved() {
 		return refactoringsInvolved;
 	}
@@ -181,7 +185,7 @@ public class ProcessMetric {
 		refactoringsInvolved++;
 	}
 
-	public void setCommitCounterThreshold(int commitCounterThreshold) { this.currentCommitThreshold = commitCounterThreshold; }
+	public void setCommitCounterThreshold(int commitCounterThreshold) { currentCommitThreshold = commitCounterThreshold; }
 
 	public int getCommitCounterThreshold() { return currentCommitThreshold; }
 

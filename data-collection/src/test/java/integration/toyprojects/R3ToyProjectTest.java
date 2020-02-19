@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
-	protected String getStableCommitThreshold() {return "5,50,100";};
+	protected String getStableCommitThreshold() {return "3,5,6";};
 
 	@Override
 	protected String getRepo() {
@@ -23,7 +23,6 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	// This test helped to check if refactoring in subclasses are working.
-
 	//Push Up Attribute not working see e3e605f2d76b5e8a4d85ba0d586103834822ea40
 	//I tried to create a new class named Cat. Cat and Dog had the same field "region". Then I push it up to AnimalSuper.
 	// However the Pull Up Attribute in commit 556cf904bc didnt work.
@@ -52,23 +51,52 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	public void stable() {
+		//TODO: Why are the stableCommits multiples of three? Classes are always added three times instead of once
 		List<StableCommit> stableCommitList = getStableCommits();
-		Assert.assertEquals(3, stableCommitList.size());
 
-		List<StableCommit> highStabilityThreshold = stableCommitList.stream().filter(commit ->
-				commit.getCommitThreshold() >= 50).collect(Collectors.toList());
-		Assert.assertEquals(0, highStabilityThreshold.size());
-
+		//TODO: reasonable tests here
 		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
 		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(stableCommitList, lastRefactoring);
 		Assert.assertEquals(3, filteredList.size());
-		Assert.assertEquals(5, filteredList.get(0).getCommitThreshold());
+		Assert.assertEquals(3, filteredList.get(0).getCommitThreshold());
 
 		assertMetaDataStable(
 				lastRefactoring,
 				"@local/repos/toyrepo-r3/" + lastRefactoring,
 				"0e094a734239b1bcc6d6bce1436200c0e45b1e8d",
 				"rename");
+
+		//AnimalSuper has 5 commits and Dog has 6 commits
+		//TODO: test process metrics
+	}
+
+	//Test if all refactorings with multiple Ks are detected correctly.
+	@Test
+	public void multipleKs() {
+		List<StableCommit> stableCommitList = getStableCommits();
+
+		List<StableCommit> highestStabilityThreshold = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() >= 50).collect(Collectors.toList());
+		Assert.assertEquals(0, highestStabilityThreshold.size());
+
+		//Manually Verified
+		List<StableCommit> stableCommitsHigh = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() == 6).collect(Collectors.toList());
+		Assert.assertEquals(1, stableCommitsHigh.size());
+
+		List<StableCommit> stableCommitsMedium = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() == 5).collect(Collectors.toList());
+		Assert.assertEquals(2, stableCommitsMedium.size());
+
+		List<StableCommit> stableCommitLow = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() == 3).collect(Collectors.toList());
+		Assert.assertEquals(5, stableCommitLow.size());
+
+		Assert.assertEquals(8, stableCommitList.size());
+
+		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
+		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(stableCommitList, lastRefactoring);
+		Assert.assertEquals(3, filteredList.get(0).getCommitThreshold());
 	}
 
 	@Test

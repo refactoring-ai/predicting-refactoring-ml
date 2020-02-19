@@ -1,6 +1,7 @@
 package refactoringml;
 
 import com.github.mauricioaniche.ck.CK;
+import com.github.mauricioaniche.ck.CKClassResult;
 import com.github.mauricioaniche.ck.CKMethodResult;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
@@ -21,11 +22,10 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static refactoringml.util.CKUtils.cleanClassName;
+import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
-import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
 public class ProcessMetricsCollector {
 
@@ -42,18 +42,14 @@ public class ProcessMetricsCollector {
 	private String branch;
 
 	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch,
-	                               String fileStoragePath, String lastCommitToProcess) {
+	                               String fileStoragePath, String lastCommitToProcess, List<Integer> commitThresholds) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		this.lastCommitToProcess = lastCommitToProcess;
-
-		String[] rawCommitThresholds = App.getProperty("stableCommitThreshold").split(",");
-		List<Integer> commitThresholds = Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
-		pmDatabase = new PMDatabase(commitThresholds);
-		log.debug("Set PMDatabase stable commit threshold(s) to: " + commitThresholds.toString());
+		this.pmDatabase = new PMDatabase(commitThresholds);
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
@@ -101,7 +97,6 @@ public class ProcessMetricsCollector {
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
 		for(ProcessMetric pm : pmDatabase.findStableInstances()) {
-
 			if(TrackDebugMode.ACTIVE && pm.getFileName().equals(TrackDebugMode.FILE_TO_TRACK)) {
 				log.info("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
 				log.info("[TRACK] " + pm.toString());
@@ -109,12 +104,13 @@ public class ProcessMetricsCollector {
 
 			outputNonRefactoredClass(pm);
 
-			// we then reset the counter, and start again.
+			// we reset the counter if we passed the highest threshold, and start again.
 			// it is ok to use the same class more than once, as metrics as well as
 			// its source code will/may change, and thus, they are a different instance.
-			pm.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
+			if(Collections.max(project.getCommitCountThresholds()) == pm.getCommitCounterThreshold()){
+				pm.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
+			}
 		}
-
 	}
 
 	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent) throws IOException {
@@ -242,15 +238,12 @@ public class ProcessMetricsCollector {
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 				log.info("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved() + " and counter resetted");
 			}
-
 		}
 
 		return refactoredClasses;
-
 	}
 
-	private void storeProcessMetric(String fileName, List<StableCommit> stableCommits) {
-
+	private void storeProcessMetrics(String fileName, List<StableCommit> stableCommits) {
 		for(StableCommit stableCommit : stableCommits) {
 
 			ProcessMetric filePm = pmDatabase.get(fileName);
@@ -268,7 +261,6 @@ public class ProcessMetricsCollector {
 			stableCommit.setProcessMetrics(dbProcessMetrics);
 			db.persist(stableCommit);
 		}
-
 	}
 
 	private void outputNonRefactoredClass (ProcessMetric clazz) throws IOException {
@@ -291,14 +283,12 @@ public class ProcessMetricsCollector {
 		try {
 			// create a temp dir to store the source code files and run CK there
 			createTempDir();
-
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
 
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData, clazz.getCommitCounterThreshold());
-
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
-			storeProcessMetric(clazz.getFileName(), stableCommits);
+			storeProcessMetrics(clazz.getFileName(), stableCommits);
 		} catch(Exception e) {
 			log.error("Failing when calculating metrics", e);
 		} finally {
@@ -307,112 +297,18 @@ public class ProcessMetricsCollector {
 	}
 
 	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, int commitThreshold) {
-
 		List<StableCommit> stableCommits = new ArrayList<>();
-
-		new CK().calculate(tempDir, ck -> {
+		new CK().calculate(tempDir, (CKClassResult ck) -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
-			ClassMetric classMetric = new ClassMetric(
-					CKUtils.evaluateSubclass(ck.getType()),
-					ck.getCbo(),
-					ck.getWmc(),
-					ck.getRfc(),
-					ck.getLcom(),
-					ck.getNumberOfMethods(),
-					ck.getNumberOfStaticMethods(),
-					ck.getNumberOfPublicMethods(),
-					ck.getNumberOfPrivateMethods(),
-					ck.getNumberOfProtectedMethods(),
-					ck.getNumberOfDefaultMethods(),
-					ck.getNumberOfAbstractMethods(),
-					ck.getNumberOfFinalMethods(),
-					ck.getNumberOfSynchronizedMethods(),
-					ck.getNumberOfFields(),
-					ck.getNumberOfStaticFields(),
-					ck.getNumberOfPublicFields(),
-					ck.getNumberOfPrivateFields(),
-					ck.getNumberOfProtectedFields(),
-					ck.getNumberOfDefaultFields(),
-					ck.getNumberOfFinalFields(),
-					ck.getNumberOfSynchronizedFields(),
-					ck.getNosi(),
-					ck.getLoc(),
-					ck.getReturnQty(),
-					ck.getLoopQty(),
-					ck.getComparisonsQty(),
-					ck.getTryCatchQty(),
-					ck.getParenthesizedExpsQty(),
-					ck.getStringLiteralsQty(),
-					ck.getNumbersQty(),
-					ck.getAssignmentsQty(),
-					ck.getMathOperationsQty(),
-					ck.getVariablesQty(),
-					ck.getMaxNestedBlocks(),
-					ck.getAnonymousClassesQty(),
-					ck.getSubClassesQty(),
-					ck.getLambdasQty(),
-					ck.getUniqueWordsQty());
+			ClassMetric classMetric = extractClassMetrics(ck);
 
+			Set<CKMethodResult> methods = ck.getMethods();
+			for(CKMethodResult ckMethodResult : methods) {
+				MethodMetric methodMetrics = extractMethodMetrics(ckMethodResult);
 
-			StableCommit stableCommit = new StableCommit(
-					project,
-					commitMetaData,
-					enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
-					cleanedCkClassName,
-					classMetric,
-					null,
-					null,
-					null,
-					RefactoringUtils.TYPE_CLASS_LEVEL,
-					commitThreshold);
-
-			stableCommits.add(stableCommit);
-
-
-			for(CKMethodResult ckMethodResult : ck.getMethods()) {
-				MethodMetric methodMetrics = new MethodMetric(
-						CKUtils.simplifyFullName(ckMethodResult.getMethodName()),
-						cleanMethodName(ckMethodResult.getMethodName()),
-						ckMethodResult.getStartLine(),
-						ckMethodResult.getCbo(),
-						ckMethodResult.getWmc(),
-						ckMethodResult.getRfc(),
-						ckMethodResult.getLoc(),
-						ckMethodResult.getReturnQty(),
-						ckMethodResult.getVariablesQty(),
-						ckMethodResult.getParametersQty(),
-						ckMethodResult.getLoopQty(),
-						ckMethodResult.getComparisonsQty(),
-						ckMethodResult.getTryCatchQty(),
-						ckMethodResult.getParenthesizedExpsQty(),
-						ckMethodResult.getStringLiteralsQty(),
-						ckMethodResult.getNumbersQty(),
-						ckMethodResult.getAssignmentsQty(),
-						ckMethodResult.getMathOperationsQty(),
-						ckMethodResult.getMaxNestedBlocks(),
-						ckMethodResult.getAnonymousClassesQty(),
-						ckMethodResult.getSubClassesQty(),
-						ckMethodResult.getLambdasQty(),
-						ckMethodResult.getUniqueWordsQty()
-				);
-
-				StableCommit stableCommitM = new StableCommit(
-						project,
-						commitMetaData,
-						enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
-						cleanedCkClassName,
-						classMetric,
-						methodMetrics,
-						null,
-						null,
-						RefactoringUtils.TYPE_METHOD_LEVEL,
-						commitThreshold);
-
-				stableCommits.add(stableCommitM);
-
-				for (Map.Entry<String, Integer> entry : ckMethodResult.getVariablesUsage().entrySet()) {
+				Set<Map.Entry<String, Integer>> variables = ckMethodResult.getVariablesUsage().entrySet();
+				for (Map.Entry<String, Integer> entry : variables) {
 					VariableMetric variableMetric = new VariableMetric(entry.getKey(), entry.getValue());
-
 					StableCommit stableCommitV = new StableCommit(
 							project,
 							commitMetaData,
@@ -426,13 +322,27 @@ public class ProcessMetricsCollector {
 							commitThreshold);
 
 					stableCommits.add(stableCommitV);
-
 				}
 
+				//save at least the MethodMetrics if no variable metrics exist
+				if(variables.size() == 0){
+					StableCommit stableCommitV = new StableCommit(
+							project,
+							commitMetaData,
+							enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
+							cleanedCkClassName,
+							classMetric,
+							null,
+							null,
+							null,
+							RefactoringUtils.TYPE_VARIABLE_LEVEL,
+							commitThreshold);
+
+					stableCommits.add(stableCommitV);
+				}
 			}
 
 			Set<String> fields = ck.getMethods().stream().flatMap(x -> x.getFieldUsage().keySet().stream()).collect(Collectors.toSet());
-
 			for(String field : fields) {
 				int totalAppearances = ck.getMethods().stream()
 						.map(x -> x.getFieldUsage().get(field) == null ? 0 : x.getFieldUsage().get(field))
@@ -453,6 +363,23 @@ public class ProcessMetricsCollector {
 						commitThreshold);
 
 				stableCommits.add(stableCommitF);
+			}
+
+			//save at least the class metrics, if neither a field nor a method was affected in the original commit
+			if (methods.size() == 0 && fields.size() == 0){
+				StableCommit stableCommitV = new StableCommit(
+						project,
+						commitMetaData,
+						enforceUnixPaths(ck.getFile()).replace(tempDir, ""),
+						cleanedCkClassName,
+						classMetric,
+						null,
+						null,
+						null,
+						RefactoringUtils.TYPE_VARIABLE_LEVEL,
+						commitThreshold);
+
+				stableCommits.add(stableCommitV);
 			}
 		});
 
@@ -484,5 +411,4 @@ public class ProcessMetricsCollector {
 			tempDir = null;
 		}
 	}
-
 }

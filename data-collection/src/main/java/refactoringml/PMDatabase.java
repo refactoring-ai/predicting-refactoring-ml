@@ -33,7 +33,7 @@ public class PMDatabase {
 		List<ProcessMetric> stableInstances = new ArrayList<>();
 		for (Integer threshold : commitThresholds){
 			List<ProcessMetric> currentStableInstances = database.values().stream()
-					.filter(p -> p.isStable(threshold))
+					.filter(p -> p.isStableThreshold(threshold))
 					.collect(Collectors.toList());
 			currentStableInstances.forEach(p -> p.setCommitCounterThreshold(threshold));
 			stableInstances.addAll(currentStableInstances);

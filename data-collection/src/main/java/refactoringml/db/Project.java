@@ -1,7 +1,12 @@
 package refactoringml.db;
 
+import refactoringml.App;
+
 import javax.persistence.*;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static refactoringml.util.Counter.*;
 
@@ -24,8 +29,8 @@ public class Project {
 
 	private int commits;
 
-	//TODO: refactor it to commitThresholds
-	private int threshold;
+	//Collect instances of non-refactorings with different Ks e.g, 25,50,100 commits on a file without refactorings
+	private String commitCountThresholds;
 	private long javaLoc;
 
 	private long numberOfProductionFiles;
@@ -43,13 +48,13 @@ public class Project {
 	@Deprecated // hibernate purposes
 	public Project() {}
 
-	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, int threshold, String lastCommitHash, CounterResult c, long projectSizeInBytes) {
+	public Project(String datasetName, String gitUrl, String projectName, Calendar dateOfProcessing, int commits, String commitCountThresholds, String lastCommitHash, CounterResult c, long projectSizeInBytes) {
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.projectName = projectName;
 		this.dateOfProcessing = dateOfProcessing;
 		this.commits = commits;
-		this.threshold = threshold;
+		this.commitCountThresholds = commitCountThresholds;
 		this.lastCommitHash = lastCommitHash;
 
 		this.numberOfProductionFiles = c.getQtyOfProductionFiles();
@@ -101,6 +106,11 @@ public class Project {
 
 	public boolean isLocal(){ return isLocal; }
 
+	public List<Integer> getCommitCountThresholds(){
+		String[] rawCommitThresholds = App.getProperty("stableCommitThresholds").split(",");
+		return Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
+	}
+
 	public static boolean isLocal(String gitUrl) { return !(gitUrl.startsWith("https") || gitUrl.startsWith("git")); }
 
 	@Override
@@ -113,7 +123,7 @@ public class Project {
 				", dateOfProcessing=" + dateOfProcessing +
 				", finishedDate=" + finishedDate +
 				", commits=" + commits +
-				", threshold=" + threshold +
+				", commitCountThresholds=" + commitCountThresholds +
 				", javaLoc=" + javaLoc +
 				", numberOfProductionFiles=" + numberOfProductionFiles +
 				", numberOfTestFiles=" + numberOfTestFiles +
