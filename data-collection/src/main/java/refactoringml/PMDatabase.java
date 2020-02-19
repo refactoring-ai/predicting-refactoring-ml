@@ -28,22 +28,27 @@ public class PMDatabase {
 	}
 
 	//Returns all instances that were not refactored for a long time.
+	//Assumes the commitThresholds are sorted asc
 	public List<ProcessMetric> findStableInstances() {
-		//TODO: make this more efficient!
+		//pre filter the commits with the lowest threshold
+		int lowestThreshold = commitThresholds.get(0);
+		List<ProcessMetric> stableOptions = database.values().stream()
+				.filter(p -> p.isStableThreshold(lowestThreshold))
+				.collect(Collectors.toList());
+
 		List<ProcessMetric> stableInstances = new ArrayList<>();
 		for (Integer threshold : commitThresholds){
-			List<ProcessMetric> currentStableInstances = database.values().stream()
+			List<ProcessMetric> currentStableInstances = stableOptions.stream()
 					.filter(p -> p.isStableThreshold(threshold))
 					.collect(Collectors.toList());
+
 			currentStableInstances.forEach(p -> p.setCommitCounterThreshold(threshold));
 			stableInstances.addAll(currentStableInstances);
 		}
 		return stableInstances;
 	}
 
-	public void remove (ProcessMetric clazz) {
-		remove(clazz.getFileName());
-	}
+	public void remove (ProcessMetric clazz) { remove(clazz.getFileName()); }
 
 	public void remove (String key) {
 		database.remove(key);
