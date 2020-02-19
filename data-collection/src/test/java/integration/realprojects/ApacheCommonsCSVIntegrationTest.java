@@ -107,7 +107,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
                 commit.getFilePath().equals(fileName) && commit.getLevel() == 2).collect(Collectors.toList());
 
         // there's just one sequence of 50 commits without refactoring
-        Assert.assertEquals(12, stableCommitList.size());
+        Assert.assertEquals(17, stableCommitList.size());
 
         assertStableCommit(stableCommitList, "67d150adc88b806e52470d110a438d9107e72ed5");
         Assert.assertEquals(4, stableCommitList.get(0).getProcessMetrics().getQtyOfAuthors());

@@ -170,10 +170,10 @@ public abstract class IntegrationBaseTest {
 
 	//Test if all stable commits where detected
 	protected void assertStableCommit(List<StableCommit> stableCommitList, String... commits) {
-		Assert.assertEquals(commits.length, stableCommitList.size());
-
 		Set<String> stableCommits = stableCommitList.stream().map(x -> x.getCommit()).collect(Collectors.toSet());
 		Set<String> assertCommits = Set.of(commits);
+
+		Assert.assertEquals(commits.length, stableCommits.size());
 		Assert.assertEquals(stableCommits, assertCommits);
 	}
 
