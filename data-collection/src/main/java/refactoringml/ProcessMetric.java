@@ -187,7 +187,7 @@ public class ProcessMetric {
 
 	//Was this class file not refactored in the last K commits affecting this class file?
 	public boolean isStable(int commitThreshold){
-		return commitCounter > commitThreshold;
+		return commitCounter >= commitThreshold;
 	}
 
 	//Filter class files that were not refactored in the last K commits and not already found with a lower K.

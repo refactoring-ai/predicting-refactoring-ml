@@ -131,6 +131,8 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	// RefactoringCommit where variableAppearances = -1, as this happens in newly introduced variables.
 	@Test
 	public void t2() {
+		List<StableCommit> allStableCommits = getStableCommits();
+
 		List<StableCommit> stableCommitList = getStableCommits().stream().filter(commit ->
 				commit.getFilePath().equals("src/java/org/apache/commons/cli/Option.java")).collect(Collectors.toList());
 
@@ -149,6 +151,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		// the file should appear twice as examples of 'stableCommit'
 		assertStableCommit(stableCommitList, "5470bcaa9d75d73fb9c687fa13e12d642c75984f", "aae50c585ec3ac33c6a9af792e80378904a73195");
 		// TODO: assertions related to the values of the StableCommit metrics
+		Assert.assertEquals(0, allStableCommits);
 	}
 
 	//Test if all stable commits are found, also with the correct commit thresholds
