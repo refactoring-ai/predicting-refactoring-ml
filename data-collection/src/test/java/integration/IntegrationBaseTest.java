@@ -13,6 +13,8 @@ import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
 import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
+import refactoringml.util.FilePathUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -37,8 +39,8 @@ public abstract class IntegrationBaseTest {
 	protected void runApp() throws Exception {
 		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, drop());
 		db = new Database(sf);
-		outputDir = Files.createTempDir().getAbsolutePath();
-		tmpDir = Files.createTempDir().getAbsolutePath();
+		outputDir = FilePathUtils.enforceUnixPaths(Files.createTempDir().getAbsolutePath());
+		tmpDir = FilePathUtils.enforceUnixPaths(Files.createTempDir().getAbsolutePath());
 
 		String repoLocalDir = "repos/" + extractProjectNameFromGitUrl(getRepo());
 		boolean projectAlreadyCloned = new File(repoLocalDir).exists();
@@ -72,17 +74,6 @@ public abstract class IntegrationBaseTest {
 		db.close();
 		FileUtils.deleteDirectory(new File(tmpDir));
 		FileUtils.deleteDirectory(new File(outputDir));
-	}
-
-	@BeforeEach
-	void openSession() {
-		this.session = sf.openSession();
-	}
-
-	@AfterEach
-	void closeSession() {
-		this.session.close();
-		this.session = null;
 	}
 
 	protected void deleteProject(String repository) {
@@ -141,9 +132,12 @@ public abstract class IntegrationBaseTest {
 		if(refactoringCommits != null)
 			return refactoringCommits;
 
+		this.session = sf.openSession();
 		refactoringCommits = session.createQuery("From RefactoringCommit where project = :project order by commitMetaData.commitDate desc")
 				.setParameter("project", project)
 				.list();
+		this.session.close();
+		this.session = null;
 		return refactoringCommits;
 	}
 
@@ -151,9 +145,12 @@ public abstract class IntegrationBaseTest {
 		if(stableCommits != null)
 			return stableCommits;
 
+		this.session = sf.openSession();
 		stableCommits = session.createQuery("From StableCommit where project = :project order by commitMetaData.commitDate desc")
 				.setParameter("project", project)
 				.list();
+		this.session.close();
+		this.session = null;
 		return stableCommits;
 	}
 
