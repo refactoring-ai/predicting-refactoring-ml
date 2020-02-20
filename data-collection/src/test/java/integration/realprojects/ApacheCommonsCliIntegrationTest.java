@@ -28,9 +28,9 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	@Override
 	protected String track() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
 
-	//Test the isInnerClass boolean for both yes and no.
+	//Test the isInnerClass boolean for both RefactoringCommit and StableCommit .
 	@Test
-	public void isInnerClass(){
+	public void isInnerClassRefactoring(){
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
 				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
 
@@ -42,17 +42,19 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 		Assert.assertEquals(1, areInnerClassesInRefactorings.size());
 		Assert.assertEquals(9, areNotInnerClassesInRefactorings.size());
+	}
 
-		/*
+	@Test
+	public void isInnerClassStable(){
+		//TODO:What to expect here?
 		List<StableCommit> areInnerClassesInStable = getStableCommits().stream().filter(commit ->
 				commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 		List<StableCommit> areNotInnerClassesInStable = getStableCommits().stream().filter(commit ->
 				!commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 
-		Assert.assertEquals(43, areInnerClassesInStable.size());
+		Assert.assertEquals(67, areInnerClassesInStable.size());
 		Assert.assertEquals(2484, areNotInnerClassesInStable.size());
 		Assert.assertEquals(2527, getStableCommits().size());
-		*/
 	}
 
 	//Test if the inner classes are tracked and marked correctly, with all details
@@ -121,7 +123,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	}
 
 	@Test
-	public void commitMetaData(){
+	public void commitMetaDataRefactoring(){
 		String renameCommit = "04490af06faa8fd1be15da88172beb32218dd336";
 		assertMetaDataRefactoring(
 				renameCommit,
@@ -143,8 +145,10 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"Rename Parameter\topts : Options to options : Options in method public parse(options Options, arguments String[], stopAtNonOption boolean) : CommandLine in class org.apache.commons.cli.Parser",
 				"@local/repos/commons-cli/" + moveCommit,
 				"3b8e3de5b7599a6165d48103f94f3a830361188d");
+	}
 
-		/*
+	@Test
+	public void commitMetaDataStable(){
 		String stableCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
 		assertMetaDataStable(
 				stableCommit1,
@@ -162,7 +166,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"javadoc updates\n" +
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68");
-		 */
 	}
 
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
