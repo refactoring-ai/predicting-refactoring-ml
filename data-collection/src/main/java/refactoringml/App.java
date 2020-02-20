@@ -1,6 +1,5 @@
 package refactoringml;
 
-import com.github.javaparser.utils.Log;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -22,7 +21,6 @@ import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
-import refactoringml.util.FilePathUtils;
 import refactoringml.util.JGitUtils;
 
 import java.io.File;

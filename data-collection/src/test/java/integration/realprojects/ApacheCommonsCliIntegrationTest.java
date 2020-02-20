@@ -56,7 +56,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		Assert.assertEquals(2484, areNotInnerClassesInStable.size());
 		Assert.assertEquals(2527, getStableCommits().size());
 	}
-	
+
 	//Test if the inner classes are tracked and marked correctly, with all details
 	//This test requires multipleKs to work
 	@Test
@@ -218,7 +218,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	@Test
 	public void stableCommitsClasses(){
 		List<String> noListUnique = getStableCommits().stream().map(instance -> instance.getClassName()).distinct().collect(Collectors.toList());
-		Assert.assertEquals(65, noListUnique.size());
+		Assert.assertEquals(67, noListUnique.size());
 
 		/*
 		Missing:

@@ -1,8 +1,13 @@
 package refactoringml.util;
 
+import org.apache.log4j.Logger;
+import refactoringml.App;
+
 import java.io.File;
 
 public class FilePathUtils {
+	private static final Logger log = Logger.getLogger(App.class);
+
 	public static String classFromFileName (String fileName) {
 		String[] splittedFile = enforceUnixPaths(fileName).split("/");
 		return splittedFile[splittedFile.length-1].replace(".java", "");
@@ -28,7 +33,9 @@ public class FilePathUtils {
 	/*
 	Add a slash at the end of the path, if none exists and format the path in unix style.
 	*/
+	//Fixpaths
 	public static String lastSlashDir(String path) {
+		//Disabling unixpaths here fixes the missing of classes, see ApacheCommonsCliIntegrationTest.stableCommitsClasses
 		String unixPath = enforceUnixPaths(path);
 		return unixPath + (unixPath.endsWith("/")?"":"/");
 	}
@@ -38,5 +45,7 @@ public class FilePathUtils {
 		On Windows jgit.Diffentry.getPath() and ck.getFile use different file separator e.g.
 		yes.filePath: ...\Temp\1581608730366-0/ and diffEntry.filePath: .../Temp/1581608730366-0/
 	 */
-	public static String enforceUnixPaths(String filePath){ return filePath.replace(File.separator, "/"); }
+	public static String enforceUnixPaths(String filePath){
+		return filePath.replace(File.separator, "/");
+	}
 }
