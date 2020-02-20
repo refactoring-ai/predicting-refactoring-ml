@@ -1,5 +1,6 @@
 package refactoringml;
 
+import com.github.javaparser.utils.Log;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -21,24 +22,21 @@ import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
-import refactoringml.util.FilePathUtils;
 import refactoringml.util.JGitUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public class App {
-	//TODO: candidate for the config file
-	//Time in seconds until a request to the Refactoring Miner times out
-	private final int refactoringMinerTimeout = 20;
+	//config properties for the data-collection app at resources/config.property
+	private static Properties configProperties;
+	private static String configName = "config.properties";
 
 	private String gitUrl;
 	private String filesStoragePath;
@@ -50,7 +48,6 @@ public class App {
 	private String datasetName;
 	private int exceptionsCount = 0;
 
-	
 	String commitIdToProcess;
 	List<Refactoring> refactoringsToProcess;
 	private int threshold;
@@ -58,25 +55,20 @@ public class App {
 	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
-	            int threshold,
 	            Database db, 
 	            boolean storeFullSourceCode) {
-		this(datasetName, gitUrl, filesStoragePath, threshold, db, null, storeFullSourceCode);
-
+		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
 	}
 	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
-	            int threshold,
 	            Database db,
 	            String lastCommitToProcess,
-	            boolean storeFullSourceCode
-	            ) {
+	            boolean storeFullSourceCode) {
 
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
-		this.threshold = threshold;
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
 		this.storeFullSourceCode = storeFullSourceCode;
@@ -128,7 +120,7 @@ public class App {
 			db.commit();
 
 
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, filesStoragePath, lastCommitToProcess);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
 
 			RefactoringHandler handler = getRefactoringHandler(git);
@@ -137,9 +129,11 @@ public class App {
 			RevWalk walk = JGitUtils.getReverseWalk(repo, mainBranch);
 			RevCommit currentCommit = walk.next();
 
-			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+			int refactoringMinerTimeout = Integer.valueOf(getProperty("timeout"));
+			log.debug("Set Refactoring Miner timeout to " + refactoringMinerTimeout + " seconds.");
 
-				// we only analyze commits that have one parent or the first commit with 0 parents
+			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+				// we only analyze commits that have one parent
 				// i.e., ignore merge commits
 				if(currentCommit.getParentCount() > 1)
 					continue;
@@ -160,7 +154,7 @@ public class App {
 
 				// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 				if(currentCommit.getParentCount()==1)
-					miner.detectAtCommit(repo, commitHash, handler, (int) refactoringMinerTimeout);
+					miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
 
 				//stores all the ck metrics for the current commit
 				Set<Long> allRefactoringCommits = new HashSet<Long>();
@@ -259,5 +253,29 @@ public class App {
 		return git.getRepository().getBranch();
 	}
 
+	private static Properties fetchProperties(){
+		if(configProperties!= null)
+			return configProperties;
 
+		String propertiesPath = Thread.currentThread().getContextClassLoader().getResource(configName).getPath();
+		configProperties = new Properties();
+		try{
+			configProperties.load(new FileInputStream(propertiesPath));
+		} catch (Exception e) {
+			log.error(e.getClass().getCanonicalName() + " while loading config file from: " + propertiesPath, e);
+			throw new RuntimeException("Could not load config properties.");
+		}
+		return configProperties;
+	}
+
+	//query the config properties for the given config name
+	public static String getProperty(String propertyName) {
+		return fetchProperties().getProperty(propertyName);
+	}
+
+	//Only use this for tests
+	@Deprecated
+	public static Object setProperty(String propertyName, String propertyValue){
+		return fetchProperties().setProperty(propertyName, propertyValue);
+	}
 }

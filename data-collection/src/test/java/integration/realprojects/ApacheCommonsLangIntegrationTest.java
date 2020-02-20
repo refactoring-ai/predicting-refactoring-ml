@@ -29,6 +29,8 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
         return "src/java/org/apache/commons/lang/builder/HashCodeBuilder.java";
     }
 
+    @Override
+    protected String getStableCommitThreshold() {return "10";};
 
     // this test checks the Rename Method that has happened in #5e7d64d6b2719afb1e5f4785d80d24ac5a19a782,
     // method isSet

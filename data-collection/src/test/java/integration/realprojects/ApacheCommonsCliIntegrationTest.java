@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
+	@Override
+	protected String getStableCommitThreshold() {return "10";};
 
 	@Override
 	protected String getLastCommit() {
@@ -28,13 +30,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		return "src/java/org/apache/commons/cli/Option.java";
 	}
 
-	protected int threshold() {
-		return 10;
-	}
-
-	/*
-	Test the isInnerClass boolean for both refactoricommit and stablecommit.
-	 */
+	//Test the isInnerClass boolean for both yes and no.
 	@Test
 	public void isInnerClass() {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
