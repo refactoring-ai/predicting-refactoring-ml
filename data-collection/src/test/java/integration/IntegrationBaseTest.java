@@ -200,6 +200,13 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(truth.toString(), instance.getProcessMetrics().toString());
 	}
 
+	protected void assertInnerClass(List<? extends Instance> commitList, String commitId, String className, int qty){
+		List<? extends Instance> filteredList = filterCommit(commitList, commitId).stream().filter(commit ->
+						commit.getClassMetrics().isInnerClass() &&
+						commit.getClassName().equals(className)).collect(Collectors.toList());
+		Assert.assertEquals(qty, filteredList.size());
+	}
+
 	//Test if the project metrics are computed correctly
 	protected void assertProjectMetrics(int javaFilesCount, int productionFilesCount, int testFilesCount,
 										int javaLocCount, int productionLocCount, int testLocCount){

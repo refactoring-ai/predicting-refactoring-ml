@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	@Override
-	protected String getStableCommitThreshold() {return "10";};
+	protected String getStableCommitThreshold() {return "10,50";};
 
 	@Override
 	protected String getLastCommit() {
@@ -27,12 +27,17 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 	@Override
 	protected String track() {
-		return "src/java/org/apache/commons/cli/Option.java";
+		return "src/java/org/apache/commons/cli/HelpFormatter.java";
+	}
+
+	@Override
+	protected String commitTrack(){
+		return "aae50c585ec3ac33c6a9af792e80378904a73195";
 	}
 
 	//Test the isInnerClass boolean for both yes and no.
 	@Test
-	public void isInnerClass() {
+	public void isInnerClass(){
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
 				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
 
@@ -45,20 +50,79 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		Assert.assertEquals(1, areInnerClassesInRefactorings.size());
 		Assert.assertEquals(9, areNotInnerClassesInRefactorings.size());
 
-		//TODO: check what to expect here
-		List<StableCommit> stableCommits = getStableCommits().stream().filter(commit ->
-				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
-				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.OptionComparator")).collect(Collectors.toList());
-		Assert.assertEquals(567, stableCommits.size());
 
-		List<StableCommit> areInnerClassesInStable = stableCommits.stream().filter(commit ->
-				commit.getClassMetrics().isInnerClass()
-				&& commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.OptionComparator")).collect(Collectors.toList());
-		List<StableCommit> areNotInnerClassesInStable = stableCommits.stream().filter(commit -> !commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
+		List<StableCommit> areInnerClassesInStable = getStableCommits().stream().filter(commit ->
+				commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
+		List<StableCommit> areNotInnerClassesInStable = getStableCommits().stream().filter(commit ->
+				!commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 
-		//TODO: check what to expect here
-		Assert.assertEquals(14, areInnerClassesInStable.size());
-		Assert.assertEquals(553, areNotInnerClassesInStable.size());
+		Assert.assertEquals(43, areInnerClassesInStable.size());
+		Assert.assertEquals(2484, areNotInnerClassesInStable.size());
+		Assert.assertEquals(2527, getStableCommits().size());
+	}
+
+	//Test if the inner classes are tracked and marked correctly, with all details
+	@Test
+	public void isInnerClassDetails() {
+		//org.apache.commons.cli.HelpFormatter:
+		//Refactorings at (date asc):
+		// c7127329dad2c5d6284532da09ddc0fdefd67436
+		// 6bcbf153c4497c38c4c36c3a04c1eac1f4cc153b
+		//
+		// first commit afterwards: 9b2b8038b52be022e42c8c7fdf26e236888f94c5
+
+		//ApacheCommonsCli - Stable Innerclasses - Validated on (36016e4023cb74cd1076dbd33e0d7a73a6a61993):
+		assertInnerClass(
+				getStableCommits(),
+				"cd745ecf52fb2fe8fed1c67fc9149e4be11a73f0",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				4);
+		assertInnerClass(
+				getStableCommits(),
+				"6f972cf56d7a3054bac902fecb6d3dd5ee310dea",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				4);
+		assertInnerClass(
+				getStableCommits(),
+				"d1121d3ad3154e3564e150555dcedb368ad3aa94",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				5);
+		assertInnerClass(
+				getStableCommits(),
+				"1596f3bbe57986361da4ac1a23634dd5b00d10df",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				4);
+		assertInnerClass(
+				getStableCommits(),
+				"a955324468d45eb845e05107d5b0013285c3bc0a",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				2);
+		assertInnerClass(
+				getStableCommits(),
+				"faa6455a9a0bccf29d049f0b0958eb9b2e804fc3",
+				"org.apache.commons.cli.Option.Builder",
+				20);
+		assertInnerClass(
+				getStableCommits(),
+				"cd745ecf52fb2fe8fed1c67fc9149e4be11a73f0",
+				"org.apache.commons.cli.OptionTest.TestOption",
+				5);
+		assertInnerClass(
+				getStableCommits(),
+				"cd745ecf52fb2fe8fed1c67fc9149e4be11a73f0",
+				"org.apache.commons.cli.OptionTest.DefaultOption",
+				4);
+		assertInnerClass(
+				getStableCommits(),
+				"aae50c585ec3ac33c6a9af792e80378904a73195",
+				"org.apache.commons.cli.HelpFormatter.StringBufferComparator",
+				1);
+		//Not sure if this one should show up, as it is right before a refactoring commit: 6bcbf153c4497c38c4c36c3a04c1eac1f4cc153b
+		assertInnerClass(
+				getStableCommits(),
+				"4c34483ea18c6a4f259f19a6d18637bb1fbae1e8",
+				"org.apache.commons.cli.HelpFormatter.StringBufferComparator",
+				1);
 	}
 
 	@Test
