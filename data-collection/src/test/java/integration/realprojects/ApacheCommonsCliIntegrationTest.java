@@ -156,6 +156,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"4868ac5e7c2afd428de74a6dcbec07dc6541a1ea",
 				"moved cli over from the sandbox to commons proper\n" +
 						"\n" +
+						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68");
 
 		String stableCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
@@ -164,6 +165,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"@local/repos/commons-cli/" + stableCommit2,
 				"dde69934d7f0bee13e4cd1fc99a7d60ce95a0c78",
 				"javadoc updates\n" +
+						"\n" +
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68");
 	}
