@@ -215,10 +215,29 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		Assert.assertEquals(2599, allStableCommits.size());
 	}
 
-	public void stableCommits(){
-		// TODO: check the commit meta data of the stable commits
-		// TODO: test the commit thresholds
-		Assert.assertEquals(true, false);
+	@Test
+	public void stableCommitsClasses(){
+		List<String> noListUnique = getStableCommits().stream().map(instance -> instance.getClassName()).distinct().collect(Collectors.toList());
+		Assert.assertEquals(65, noListUnique.size());
+
+		/*
+		Missing:
+			"org.apache.commons.cli.AmbiguousOptionException"
+			"org.apache.commons.cli.bug.BugCLI162Test"
+			"org.apache.commons.cli.CommandLineParser"
+			"org.apache.commons.cli.GnuParserTest"
+			"org.apache.commons.cli.HelpFormatter.StringBufferComparator"
+			"org.apache.commons.cli.OptionGroupTest"
+			"org.apache.commons.cli.ParseException"
+			"org.apache.commons.cli.PosixParserTest"
+			"org.apache.commons.cli.ValueTest"
+			"org.apache.commons.cli2.builder.SwitchBuilder"
+			"org.apache.commons.cli2.commandline.WriteableCommandLineImpl"
+			"org.apache.commons.cli2.CommandLineTestCase
+			"org.apache.commons.cli2.option.OptionImpl"
+			"org.apache.commons.cli2.validation.DateValidator"
+			"org.apache.commons.cli2.validation.DateValidatorTest"
+		 */
 	}
 
 	@Test
