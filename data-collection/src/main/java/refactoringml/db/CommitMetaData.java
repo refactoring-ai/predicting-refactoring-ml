@@ -1,7 +1,7 @@
 package refactoringml.db;
 
 import org.eclipse.jgit.revwalk.RevCommit;
-import refactoringml.ProcessMetric;
+import refactoringml.ProcessMetricTracker;
 import refactoringml.util.JGitUtils;
 
 import javax.persistence.*;
@@ -47,7 +47,7 @@ public class CommitMetaData {
         this.parentCommit = commit.getParent(0).getName();
     }
 
-    public CommitMetaData(ProcessMetric clazz, Project project){
+    public CommitMetaData(ProcessMetricTracker clazz, Project project){
         this.commitId = clazz.getBaseCommitForNonRefactoring();
         this.commitDate = clazz.getBaseCommitDateForNonRefactoring();
         //TODO: is this really useless for no refactorings?

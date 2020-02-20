@@ -1,6 +1,6 @@
 package refactoringml.db;
 
-import refactoringml.ProcessMetric;
+import refactoringml.ProcessMetricTracker;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -35,19 +35,19 @@ public class ProcessMetrics {
 	}
 
 	// TODO: better track renames. As soon as a class is renamed, transfer its process metrics.
-	public ProcessMetrics(ProcessMetric processMetrics){
+	public ProcessMetrics(ProcessMetricTracker processMetricsTracker){
 		this(-1, -1, -1, -1, -1, -1, -1, -1, -1);
 
-		if(processMetrics != null) {
-			this.qtyOfCommits = processMetrics.qtyOfCommits();
-			this.linesAdded = processMetrics.getLinesAdded();
-			this.linesDeleted = processMetrics.getLinesDeleted();
-			this.qtyOfAuthors = processMetrics.qtyOfAuthors();
-			this.qtyMinorAuthors = processMetrics.qtyMinorAuthors();
-			this.qtyMajorAuthors = processMetrics.qtyMajorAuthors();
-			this.authorOwnership = processMetrics.authorOwnership();
-			this.bugFixCount = processMetrics.getBugFixCount();
-			this.refactoringsInvolved = processMetrics.getRefactoringsInvolved();
+		if(processMetricsTracker != null) {
+			this.qtyOfCommits = processMetricsTracker.qtyOfCommits();
+			this.linesAdded = processMetricsTracker.getLinesAdded();
+			this.linesDeleted = processMetricsTracker.getLinesDeleted();
+			this.qtyOfAuthors = processMetricsTracker.qtyOfAuthors();
+			this.qtyMinorAuthors = processMetricsTracker.qtyMinorAuthors();
+			this.qtyMajorAuthors = processMetricsTracker.qtyMajorAuthors();
+			this.authorOwnership = processMetricsTracker.authorOwnership();
+			this.bugFixCount = processMetricsTracker.getBugFixCount();
+			this.refactoringsInvolved = processMetricsTracker.getRefactoringsInvolved();
 		}
 	}
 

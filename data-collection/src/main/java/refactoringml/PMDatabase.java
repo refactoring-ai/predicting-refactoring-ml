@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PMDatabase {
-	private Map<String, ProcessMetric> database;
+	private Map<String, ProcessMetricTracker> database;
 	private int commitThreshold;
 
 	public PMDatabase (int commitThreshold) {
@@ -18,21 +18,21 @@ public class PMDatabase {
 		return database.containsKey(fileName);
 	}
 
-	public void put (String key, ProcessMetric value) {
+	public void put (String key, ProcessMetricTracker value) {
 		database.put(key, value);
 	}
 
-	public ProcessMetric get (String key) {
+	public ProcessMetricTracker get (String key) {
 		return database.get(key);
 	}
 
-	public List<ProcessMetric> refactoredLongAgo () {
+	public List<ProcessMetricTracker> refactoredLongAgo () {
 		return database.values().stream()
 				.filter(p -> p.getCommitCounter() >= commitThreshold)
 				.collect(Collectors.toList());
 	}
 
-	public void remove (ProcessMetric clazz) {
+	public void remove (ProcessMetricTracker clazz) {
 		remove(clazz.getFileName());
 	}
 
@@ -40,7 +40,7 @@ public class PMDatabase {
 		database.remove(key);
 	}
 
-	public Map<String, ProcessMetric> getDatabase() {
+	public Map<String, ProcessMetricTracker> getDatabase() {
 		return database;
 	}
 }

@@ -96,7 +96,7 @@ public class ProcessMetricsCollector {
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
-		for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
+		for(ProcessMetricTracker pm : pmDatabase.refactoredLongAgo()) {
 
 			if(TrackDebugMode.ACTIVE && pm.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK)) {
 				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
@@ -145,7 +145,7 @@ public class ProcessMetricsCollector {
 
 				// add class to our in-memory pmDatabase
 				if(!pmDatabase.containsKey(fileName))
-					pmDatabase.put(fileName, new ProcessMetric(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
+					pmDatabase.put(fileName, new ProcessMetricTracker(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
 
 				// collect number of lines deleted and added in that file
 				int linesDeleted = 0;
@@ -157,7 +157,7 @@ public class ProcessMetricsCollector {
 				}
 
 				// update our pmDatabase entry with the information of the current commit
-				ProcessMetric currentClazz = pmDatabase.get(fileName);
+				ProcessMetricTracker currentClazz = pmDatabase.get(fileName);
 				currentClazz.existsIn(commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
 
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
@@ -182,33 +182,33 @@ public class ProcessMetricsCollector {
 						+ " for class: " + commit.getName());
 			}
 
-			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
+			ProcessMetricTracker currentProcessMetricsTracker = pmDatabase.get(fileName);
 
 			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
 			// however, we might not be able to find the process metrics of that class.
 			// this will happen in strange cases where we never tracked that class before...
 			// for now, let's store it as -1, so that we can still use the data point for structural metrics
-			ProcessMetrics dbProcessMetrics  = new ProcessMetrics(currentProcessMetrics);
+			ProcessMetrics dbProcessMetrics  = new ProcessMetrics(currentProcessMetricsTracker);
 
 			refactoringCommit.setProcessMetrics(dbProcessMetrics);
 			db.update(refactoringCommit);
 
 			// update counters
-			if(currentProcessMetrics != null) {
-				currentProcessMetrics.increaseRefactoringsInvolved();
-				currentProcessMetrics.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
+			if(currentProcessMetricsTracker != null) {
+				currentProcessMetricsTracker.increaseRefactoringsInvolved();
+				currentProcessMetricsTracker.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
 			}
 
 			if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
-				log.debug("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved()
-						+ " and class stability counter set to: " + currentProcessMetrics.getCommitCounter() + " for class: " + commit.getName());
+				log.debug("[TRACK] Number of refactorings involved increased to " + currentProcessMetricsTracker.getRefactoringsInvolved()
+						+ " and class stability counter set to: " + currentProcessMetricsTracker.getCommitCounter() + " for class: " + commit.getName());
 			}
 		}
 	}
 
 	private void storeProcessMetric(String fileName, List<StableCommit> stableCommits) {
 		for(StableCommit stableCommit : stableCommits) {
-			ProcessMetric filePm = pmDatabase.get(fileName);
+			ProcessMetricTracker filePm = pmDatabase.get(fileName);
 			ProcessMetrics dbProcessMetrics = new ProcessMetrics(filePm);
 
 			stableCommit.setProcessMetrics(dbProcessMetrics);
@@ -216,7 +216,7 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private void outputNonRefactoredClass (ProcessMetric clazz) throws IOException {
+	private void outputNonRefactoredClass (ProcessMetricTracker clazz) throws IOException {
 		CommitMetaData commitMetaData = new CommitMetaData(clazz, project);
 		String commitHashBackThen = clazz.getBaseCommitForNonRefactoring();
 

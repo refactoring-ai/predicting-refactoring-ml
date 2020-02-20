@@ -6,12 +6,12 @@ import org.junit.Test;
 import java.util.Calendar;
 import java.util.Random;
 
-public class ProcessMetricTest {
+public class ProcessMetricTrackerTest {
 
 	@Test
 	public void authorOwnership() {
 		//TODO: What commit message should I use here?
-		ProcessMetric pm = new ProcessMetric("a.Java", "123", Calendar.getInstance());
+		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", "123", Calendar.getInstance());
 
 		for(int i = 0; i < 90; i++) {
 			pm.existsIn("commit","Mauricio", 10, 20);
@@ -35,10 +35,10 @@ public class ProcessMetricTest {
 
 	@Test
 	public void countBugFixes() {
-		int qtyKeywords = ProcessMetric.bugKeywords.length;
+		int qtyKeywords = ProcessMetricTracker.bugKeywords.length;
 		Random rnd = new Random();
 
-		ProcessMetric pm = new ProcessMetric("a.Java", "123", Calendar.getInstance());
+		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", "123", Calendar.getInstance());
 
 		pm.existsIn( "bug fix here","Rafael", 10, 20);
 
@@ -46,7 +46,7 @@ public class ProcessMetricTest {
 		for(int i = 0; i < 500; i++) {
 			String keywordHere = "";
 			if(rnd.nextBoolean()) {
-				keywordHere = ProcessMetric.bugKeywords[rnd.nextInt(qtyKeywords - 1)];
+				keywordHere = ProcessMetricTracker.bugKeywords[rnd.nextInt(qtyKeywords - 1)];
 				qty++;
 			}
 

@@ -4,8 +4,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 //TODO: Refactor this class, e.g. by combining it with ProcessMetrics?
-//TODO: Rename this class, as it is easily confused with ProcessMetrics and the name does not describe its purpose well
-public class ProcessMetric {
+public class ProcessMetricTracker {
 	private String fileName;
 
 	// updated info about the class
@@ -35,7 +34,7 @@ public class ProcessMetric {
 	public static String[] bugKeywords = {"bug", "error", "mistake", "fault", "wrong", "fail", "fix"};
 	private Calendar baseCommitDateForNonRefactoring;
 
-	public ProcessMetric (String fileName, String baseCommitForNonRefactoring, Calendar baseCommitDateForNonRefactoring) {
+	public ProcessMetricTracker(String fileName, String baseCommitForNonRefactoring, Calendar baseCommitDateForNonRefactoring) {
 		this.fileName = fileName;
 		this.baseCommitForNonRefactoring = baseCommitForNonRefactoring;
 		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
