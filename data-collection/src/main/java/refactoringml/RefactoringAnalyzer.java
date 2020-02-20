@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static refactoringml.util.CKUtils.cleanClassName;
+import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.*;
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
-
 
 public class RefactoringAnalyzer {
 	private String tempDir;
@@ -50,16 +50,15 @@ public class RefactoringAnalyzer {
 	}
 
 	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring, CommitMetaData commitMetaData ) throws IOException {
-
+		//TODO: remove this check, because it is not necessary anymore
 		if (!studied(refactoring)) {
-			//TODO: check if this is correct and desired behavior
 			return new HashSet<Long>();
 		}
 
 		String refactoringSummary = refactoring.toString().trim();
-		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
+		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-			log.info("[TRACK] Commit " + commit.getId().getName());
+			log.debug("[TRACK] Commit " + commit.getId().getName());
 		}
 
 		RevCommit commitParent = commit.getParent(0);
@@ -89,8 +88,8 @@ public class RefactoringAnalyzer {
 
 				// this should not happen...
 				if(!refactoredEntry.isPresent()) {
-					log.info("old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
-					log.info("new classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
+					log.error("Old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
+					log.error("New classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
 					throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
 				}
 
@@ -101,8 +100,8 @@ public class RefactoringAnalyzer {
 				String oldFileName = enforceUnixPaths(entry.getOldPath());
 				String currentFileName = enforceUnixPaths(entry.getNewPath());
 
-				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-					log.info("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
+				if(TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
+					log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
 				}
 
 				// Now, we get the contents of the file before
@@ -111,7 +110,7 @@ public class RefactoringAnalyzer {
 				// save the old version of the file in a temp dir to execute the CK tool
 				// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
 				// but later we notice it might do in cases of file renames and refactorings in the same commit.
-				createTmpDir();
+				tempDir = createTmpDir();
 				createAllDirs(tempDir, oldFileName);
 				try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
 					out.print(sourceCodeBefore);
@@ -134,11 +133,8 @@ public class RefactoringAnalyzer {
 						saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
 					}
 				} else {
-					log.error("RefactoringCommit was not created. CK did not find the class, maybe?");
-
-					if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-						log.info("[TRACK] RefactoringCommit instance not created!");
-					}
+					//TODO: investigate this case to write a better log message
+					log.error("RefactoringCommit instance was not created. CK did not find the class, maybe?");
 				}
 
 				cleanTmpDir();
@@ -147,7 +143,7 @@ public class RefactoringAnalyzer {
 		}
 
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-			log.info("[TRACK] End commit " + commit.getId().getName());
+			log.debug("[TRACK] End commit " + commit.getId().getName());
 		}
 
 		return allRefactorings;
@@ -203,7 +199,6 @@ public class RefactoringAnalyzer {
 			after.print(sourceCodeAfter);
 			after.close();
 		}
-
 	}
 
 	private RefactoringCommit calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
@@ -215,51 +210,8 @@ public class RefactoringAnalyzer {
 			if(!cleanedCkClassName.equals(refactoredClass))
 				return;
 
-			boolean isSubclass = CKUtils.evaluateSubclass(ck.getType());
-
 			// collect the class level metrics
-			ClassMetric classMetric = new ClassMetric(
-					isSubclass,
-					ck.getCbo(),
-					ck.getWmc(),
-					ck.getRfc(),
-					ck.getLcom(),
-					ck.getNumberOfMethods(),
-					ck.getNumberOfStaticMethods(),
-					ck.getNumberOfPublicMethods(),
-					ck.getNumberOfPrivateMethods(),
-					ck.getNumberOfProtectedMethods(),
-					ck.getNumberOfDefaultMethods(),
-					ck.getNumberOfAbstractMethods(),
-					ck.getNumberOfFinalMethods(),
-					ck.getNumberOfSynchronizedMethods(),
-					ck.getNumberOfFields(),
-					ck.getNumberOfStaticFields(),
-					ck.getNumberOfPublicFields(),
-					ck.getNumberOfPrivateFields(),
-					ck.getNumberOfProtectedFields(),
-					ck.getNumberOfDefaultFields(),
-					ck.getNumberOfFinalFields(),
-					ck.getNumberOfSynchronizedFields(),
-					ck.getNosi(),
-					ck.getLoc(),
-					ck.getReturnQty(),
-					ck.getLoopQty(),
-					ck.getComparisonsQty(),
-					ck.getTryCatchQty(),
-					ck.getParenthesizedExpsQty(),
-					ck.getStringLiteralsQty(),
-					ck.getNumbersQty(),
-					ck.getAssignmentsQty(),
-					ck.getMathOperationsQty(),
-					ck.getVariablesQty(),
-					ck.getMaxNestedBlocks(),
-					ck.getAnonymousClassesQty(),
-					ck.getSubClassesQty(),
-					ck.getLambdasQty(),
-					ck.getUniqueWordsQty());
-
-
+			ClassMetric classMetric = extractClassMetrics(ck);
 			MethodMetric methodMetrics = null;
 			VariableMetric variableMetrics = null;
 
@@ -272,40 +224,13 @@ public class RefactoringAnalyzer {
 
 				if(!ckMethod.isPresent()) {
 					// for some reason we did not find the method, let's remove it from the list.
-					log.error("CK did not find the refactored method: " + fullRefactoredMethod);
-
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
-					log.error("All methods in CK: " + methods);
+					log.error("CK did not find the refactored method: " + fullRefactoredMethod + "\n" +
+							"All methods found by CK: " + methods);
 					return;
 				} else {
-
 					CKMethodResult ckMethodResult = ckMethod.get();
-
-					methodMetrics = new MethodMetric(
-							CKUtils.simplifyFullName(ckMethodResult.getMethodName()),
-							cleanMethodName(ckMethodResult.getMethodName()),
-							ckMethodResult.getStartLine(),
-							ckMethodResult.getCbo(),
-							ckMethodResult.getWmc(),
-							ckMethodResult.getRfc(),
-							ckMethodResult.getLoc(),
-							ckMethodResult.getReturnQty(),
-							ckMethodResult.getVariablesQty(),
-							ckMethodResult.getParametersQty(),
-							ckMethodResult.getLoopQty(),
-							ckMethodResult.getComparisonsQty(),
-							ckMethodResult.getTryCatchQty(),
-							ckMethodResult.getParenthesizedExpsQty(),
-							ckMethodResult.getStringLiteralsQty(),
-							ckMethodResult.getNumbersQty(),
-							ckMethodResult.getAssignmentsQty(),
-							ckMethodResult.getMathOperationsQty(),
-							ckMethodResult.getMaxNestedBlocks(),
-							ckMethodResult.getAnonymousClassesQty(),
-							ckMethodResult.getSubClassesQty(),
-							ckMethodResult.getLambdasQty(),
-							ckMethodResult.getUniqueWordsQty()
-					);
+					methodMetrics = extractMethodMetrics(ckMethodResult);
 
 					if(isVariableLevelRefactoring(refactoring)) {
 						String refactoredVariable = getRefactoredVariableOrAttribute(refactoring);
@@ -361,10 +286,5 @@ public class RefactoringAnalyzer {
 			FileUtils.deleteDirectory(new File(tempDir));
 			tempDir = null;
 		}
-	}
-
-	private void createTmpDir() {
-		String rawTempDir = com.google.common.io.Files.createTempDir().getAbsolutePath();
-		tempDir = lastSlashDir(rawTempDir);
 	}
 }

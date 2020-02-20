@@ -1,7 +1,7 @@
 package refactoringml.db;
 
 import org.eclipse.jgit.revwalk.RevCommit;
-import refactoringml.ProcessMetric;
+import refactoringml.ProcessMetricTracker;
 import refactoringml.util.JGitUtils;
 
 import javax.persistence.*;
@@ -47,13 +47,12 @@ public class CommitMetaData {
         this.parentCommit = commit.getParent(0).getName();
     }
 
-    public CommitMetaData(ProcessMetric clazz, Project project){
+    public CommitMetaData(ProcessMetricTracker clazz, Project project){
         this.commitId = clazz.getBaseCommitForNonRefactoring();
         this.commitDate = clazz.getBaseCommitDateForNonRefactoring();
-        this.commitMessage =  "NULL";
+        this.commitMessage = clazz.getBaseCommitMessageForNonRefactoring().trim();
         this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
-        //TODO: is this really useless for no refactorings?
-        this.parentCommit = "NULL";
+        this.parentCommit = clazz.getParentCommit();
     }
 
     public String getCommitUrl (){return commitUrl;}
@@ -61,6 +60,8 @@ public class CommitMetaData {
     public String getCommit() {return commitId; }
 
     public String getCommitMessage (){return commitMessage;}
+
+    public String getParentCommit() {return parentCommit; }
 
     @Override
     public String toString() {

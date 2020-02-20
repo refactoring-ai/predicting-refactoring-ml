@@ -1,6 +1,7 @@
 package refactoringml.db;
 
 import javax.persistence.*;
+import refactoringml.ProcessMetricTracker;
 
 @Entity
 @Table(name = "ProcessMetrics")
@@ -35,6 +36,23 @@ public class ProcessMetrics {
 		this.refactoringsInvolved = refactoringsInvolved;
 	}
 
+	// TODO: better track renames. As soon as a class is renamed, transfer its process metrics.
+	public ProcessMetrics(ProcessMetricTracker processMetricsTracker){
+		this(-1, -1, -1, -1, -1, -1, -1, -1, -1);
+
+		if(processMetricsTracker != null) {
+			this.qtyOfCommits = processMetricsTracker.qtyOfCommits();
+			this.linesAdded = processMetricsTracker.getLinesAdded();
+			this.linesDeleted = processMetricsTracker.getLinesDeleted();
+			this.qtyOfAuthors = processMetricsTracker.qtyOfAuthors();
+			this.qtyMinorAuthors = processMetricsTracker.qtyMinorAuthors();
+			this.qtyMajorAuthors = processMetricsTracker.qtyMajorAuthors();
+			this.authorOwnership = processMetricsTracker.authorOwnership();
+			this.bugFixCount = processMetricsTracker.getBugFixCount();
+			this.refactoringsInvolved = processMetricsTracker.getRefactoringsInvolved();
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "ProcessMetrics{" +
@@ -50,39 +68,21 @@ public class ProcessMetrics {
 				'}';
 	}
 
-	public int getQtyOfCommits() {
-		return qtyOfCommits;
-	}
+	public int getQtyOfCommits() { return qtyOfCommits; }
 
-	public int getLinesAdded() {
-		return linesAdded;
-	}
+	public int getLinesAdded() { return linesAdded; }
 
-	public int getLinesDeleted() {
-		return linesDeleted;
-	}
+	public int getLinesDeleted() { return linesDeleted; }
 
-	public int getQtyOfAuthors() {
-		return qtyOfAuthors;
-	}
+	public int getQtyOfAuthors() { return qtyOfAuthors; }
 
-	public long getQtyMinorAuthors() {
-		return qtyMinorAuthors;
-	}
+	public long getQtyMinorAuthors() { return qtyMinorAuthors; }
 
-	public long getQtyMajorAuthors() {
-		return qtyMajorAuthors;
-	}
+	public long getQtyMajorAuthors() { return qtyMajorAuthors; }
 
-	public double getAuthorOwnership() {
-		return authorOwnership;
-	}
+	public double getAuthorOwnership() { return authorOwnership; }
 
-	public int getBugFixCount() {
-		return bugFixCount;
-	}
+	public int getBugFixCount() { return bugFixCount; }
 
-	public int getRefactoringsInvolved() {
-		return refactoringsInvolved;
-	}
+	public int getRefactoringsInvolved() { return refactoringsInvolved; }
 }

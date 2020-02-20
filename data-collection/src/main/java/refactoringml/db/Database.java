@@ -40,7 +40,7 @@ public class Database {
 				session.close();
 		} catch(Exception e) {
 			// what to do? this really shouldn't happen.
-			log.error("error when closing the connection", e);
+			log.error("Error when closing the connection to the Database: ", e);
 		} finally {
 			this.session = null;
 		}
