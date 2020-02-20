@@ -50,7 +50,6 @@ public class App {
 
 	String commitIdToProcess;
 	List<Refactoring> refactoringsToProcess;
-	private int threshold;
 
 	public App (String datasetName,
 	            String gitUrl,
@@ -113,7 +112,8 @@ public class App {
 			int numberOfCommits = numberOfCommits(git);
 
 			Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
-					numberOfCommits, threshold, lastCommitHash, counterResult, projectSize);
+					numberOfCommits, getProperty("stableCommitThresholds"), lastCommitHash, counterResult, projectSize);
+			log.debug("Set project stable commit threshold(s) to: " + project.getCommitCountThresholds());
 
 			db.openSession();
 			db.persist(project);
