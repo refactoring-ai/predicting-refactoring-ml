@@ -19,7 +19,8 @@ public class ProcessMetricTracker {
 	//Used to estimate if a class is stable
 	private int commitCounter = 0;
 
-	// counters at the time of the base commit
+	private String parentCommit;
+	private String baseCommitMessageForNonRefactoring;
 	private String baseCommitForNonRefactoring;
 	private int baseLinesAdded = 0;
 	private int baseLinesDeleted = 0;
@@ -34,10 +35,12 @@ public class ProcessMetricTracker {
 	public static String[] bugKeywords = {"bug", "error", "mistake", "fault", "wrong", "fail", "fix"};
 	private Calendar baseCommitDateForNonRefactoring;
 
-	public ProcessMetricTracker(String fileName, String baseCommitForNonRefactoring, Calendar baseCommitDateForNonRefactoring) {
+	public ProcessMetricTracker(String fileName, String baseCommitForNonRefactoring, String baseCommitMessageForNonRefactoring, String parentCommit, Calendar baseCommitDateForNonRefactoring) {
 		this.fileName = fileName;
+		this.baseCommitMessageForNonRefactoring = baseCommitMessageForNonRefactoring;
 		this.baseCommitForNonRefactoring = baseCommitForNonRefactoring;
 		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
+		this.parentCommit = parentCommit;
 	}
 
 	public void existsIn (String commitMsg, String authorName, int linesAdded, int linesDeleted) {
@@ -65,10 +68,12 @@ public class ProcessMetricTracker {
 		return authors.size();
 	}
 
-	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, Calendar commitDate) {
+	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, String parentCommit, Calendar commitDate) {
 		commitCounter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 		this.baseCommitDateForNonRefactoring = commitDate;
+		this.baseCommitMessageForNonRefactoring = baseCommitMessageForNonRefactoring;
+		this.parentCommit = parentCommit;
 
 		baseLinesAdded = linesAdded;
 		baseLinesDeleted = linesDeleted;
@@ -169,6 +174,8 @@ public class ProcessMetricTracker {
 		return refactoringsInvolved;
 	}
 
+	public String getBaseCommitMessageForNonRefactoring() {return baseCommitMessageForNonRefactoring; }
+
 	public void increaseRefactoringsInvolved() {
 		refactoringsInvolved++;
 	}
@@ -179,6 +186,8 @@ public class ProcessMetricTracker {
 	}
 
 	public int getCommitCounter() { return commitCounter; }
+
+	public String getParentCommit() { return parentCommit; }
 
 	@Override
 	public String toString() {

@@ -11,7 +11,7 @@ public class ProcessMetricTrackerTest {
 	@Test
 	public void authorOwnership() {
 		//TODO: What commit message should I use here?
-		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", "123", Calendar.getInstance());
+		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", "","", "123", Calendar.getInstance());
 
 		for(int i = 0; i < 90; i++) {
 			pm.existsIn("commit","Mauricio", 10, 20);
@@ -38,7 +38,7 @@ public class ProcessMetricTrackerTest {
 		int qtyKeywords = ProcessMetricTracker.bugKeywords.length;
 		Random rnd = new Random();
 
-		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", "123", Calendar.getInstance());
+		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", "","","123", Calendar.getInstance());
 
 		pm.existsIn( "bug fix here","Rafael", 10, 20);
 

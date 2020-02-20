@@ -108,7 +108,7 @@ public class ProcessMetricsCollector {
 			// we then reset the counter, and start again.
 			// it is ok to use the same class more than once, as metrics as well as
 			// its source code will/may change, and thus, they are a different instance.
-			pm.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
+			pm.resetCounter(commit.getName(), commit.getFullMessage(), commit.getParent(0).getName(), JGitUtils.getGregorianCalendar(commit));
 		}
 
 	}
@@ -144,8 +144,10 @@ public class ProcessMetricsCollector {
 				}
 
 				// add class to our in-memory pmDatabase
-				if(!pmDatabase.containsKey(fileName))
-					pmDatabase.put(fileName, new ProcessMetricTracker(fileName, commit.getName(), JGitUtils.getGregorianCalendar(commit)));
+				if(!pmDatabase.containsKey(fileName)) {
+					String parentCommit = commit.getParentCount() > 0 ? commit.getParent(0).getName() : "Null";
+					pmDatabase.put(fileName, new ProcessMetricTracker(fileName, commit.getName(), commit.getFullMessage(), parentCommit, JGitUtils.getGregorianCalendar(commit)));
+				}
 
 				// collect number of lines deleted and added in that file
 				int linesDeleted = 0;
@@ -196,7 +198,7 @@ public class ProcessMetricsCollector {
 			// update counters
 			if(currentProcessMetricsTracker != null) {
 				currentProcessMetricsTracker.increaseRefactoringsInvolved();
-				currentProcessMetricsTracker.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
+				currentProcessMetricsTracker.resetCounter(commit.getName(), commit.getFullMessage(), commit.getParent(0).getName(), JGitUtils.getGregorianCalendar(commit));
 			}
 
 			if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {

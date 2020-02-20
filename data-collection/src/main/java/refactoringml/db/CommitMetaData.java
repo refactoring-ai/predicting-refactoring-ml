@@ -50,11 +50,9 @@ public class CommitMetaData {
     public CommitMetaData(ProcessMetricTracker clazz, Project project){
         this.commitId = clazz.getBaseCommitForNonRefactoring();
         this.commitDate = clazz.getBaseCommitDateForNonRefactoring();
-        //TODO: is this really useless for no refactorings?
-        this.commitMessage =  "NULL";
+        this.commitMessage = clazz.getBaseCommitMessageForNonRefactoring().trim();
         this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
-        //TODO: is this really useless for no refactorings?
-        this.parentCommit = "NULL";
+        this.parentCommit = clazz.getParentCommit();
     }
 
     public String getCommitUrl (){return commitUrl;}
