@@ -15,6 +15,6 @@ public class StableCommit extends Instance{
 
 	@Override
 	public String toString() {
-		return "No{" + "id=" + id + super.toString() + '}';
+		return "StableCommit{" + "id=" + id + super.toString() + '}';
 	}
 }
