@@ -25,7 +25,6 @@ import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
-import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
 public class ProcessMetricsCollector {
 
@@ -51,9 +50,8 @@ public class ProcessMetricsCollector {
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		this.lastCommitToProcess = lastCommitToProcess;
 
-		int stableCommitThreshold = Integer.valueOf(App.getProperty("stableCommitThreshold"));
+		int stableCommitThreshold = project.getCommitCountThresholds().get(0);
 		pmDatabase = new PMDatabase(stableCommitThreshold);
-		log.debug("Set PMDatabase stable commit threshold to " + stableCommitThreshold);
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {

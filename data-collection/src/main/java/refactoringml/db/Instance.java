@@ -93,6 +93,8 @@ public abstract class Instance {
 
     public long getId() { return id; }
 
+    public CommitMetaData getCommitMetaData() { return commitMetaData; }
+
     @Override
     public String toString() {
         return
