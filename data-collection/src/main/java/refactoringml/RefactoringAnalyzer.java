@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static refactoringml.util.CKUtils.cleanClassName;
+import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
@@ -57,7 +57,7 @@ public class RefactoringAnalyzer {
 		}
 
 		String refactoringSummary = refactoring.toString().trim();
-		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
+		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
 			log.info("[TRACK] Commit " + commit.getId().getName());
 		}
@@ -203,7 +203,6 @@ public class RefactoringAnalyzer {
 			after.print(sourceCodeAfter);
 			after.close();
 		}
-
 	}
 
 	private RefactoringCommit calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
@@ -215,51 +214,8 @@ public class RefactoringAnalyzer {
 			if(!cleanedCkClassName.equals(refactoredClass))
 				return;
 
-			boolean isSubclass = CKUtils.evaluateSubclass(ck.getType());
-
 			// collect the class level metrics
-			ClassMetric classMetric = new ClassMetric(
-					isSubclass,
-					ck.getCbo(),
-					ck.getWmc(),
-					ck.getRfc(),
-					ck.getLcom(),
-					ck.getNumberOfMethods(),
-					ck.getNumberOfStaticMethods(),
-					ck.getNumberOfPublicMethods(),
-					ck.getNumberOfPrivateMethods(),
-					ck.getNumberOfProtectedMethods(),
-					ck.getNumberOfDefaultMethods(),
-					ck.getNumberOfAbstractMethods(),
-					ck.getNumberOfFinalMethods(),
-					ck.getNumberOfSynchronizedMethods(),
-					ck.getNumberOfFields(),
-					ck.getNumberOfStaticFields(),
-					ck.getNumberOfPublicFields(),
-					ck.getNumberOfPrivateFields(),
-					ck.getNumberOfProtectedFields(),
-					ck.getNumberOfDefaultFields(),
-					ck.getNumberOfFinalFields(),
-					ck.getNumberOfSynchronizedFields(),
-					ck.getNosi(),
-					ck.getLoc(),
-					ck.getReturnQty(),
-					ck.getLoopQty(),
-					ck.getComparisonsQty(),
-					ck.getTryCatchQty(),
-					ck.getParenthesizedExpsQty(),
-					ck.getStringLiteralsQty(),
-					ck.getNumbersQty(),
-					ck.getAssignmentsQty(),
-					ck.getMathOperationsQty(),
-					ck.getVariablesQty(),
-					ck.getMaxNestedBlocks(),
-					ck.getAnonymousClassesQty(),
-					ck.getSubClassesQty(),
-					ck.getLambdasQty(),
-					ck.getUniqueWordsQty());
-
-
+			ClassMetric classMetric = extractClassMetrics(ck);
 			MethodMetric methodMetrics = null;
 			VariableMetric variableMetrics = null;
 
@@ -278,34 +234,8 @@ public class RefactoringAnalyzer {
 					log.error("All methods in CK: " + methods);
 					return;
 				} else {
-
 					CKMethodResult ckMethodResult = ckMethod.get();
-
-					methodMetrics = new MethodMetric(
-							CKUtils.simplifyFullName(ckMethodResult.getMethodName()),
-							cleanMethodName(ckMethodResult.getMethodName()),
-							ckMethodResult.getStartLine(),
-							ckMethodResult.getCbo(),
-							ckMethodResult.getWmc(),
-							ckMethodResult.getRfc(),
-							ckMethodResult.getLoc(),
-							ckMethodResult.getReturnQty(),
-							ckMethodResult.getVariablesQty(),
-							ckMethodResult.getParametersQty(),
-							ckMethodResult.getLoopQty(),
-							ckMethodResult.getComparisonsQty(),
-							ckMethodResult.getTryCatchQty(),
-							ckMethodResult.getParenthesizedExpsQty(),
-							ckMethodResult.getStringLiteralsQty(),
-							ckMethodResult.getNumbersQty(),
-							ckMethodResult.getAssignmentsQty(),
-							ckMethodResult.getMathOperationsQty(),
-							ckMethodResult.getMaxNestedBlocks(),
-							ckMethodResult.getAnonymousClassesQty(),
-							ckMethodResult.getSubClassesQty(),
-							ckMethodResult.getLambdasQty(),
-							ckMethodResult.getUniqueWordsQty()
-					);
+					methodMetrics = extractMethodMetrics(ckMethodResult);
 
 					if(isVariableLevelRefactoring(refactoring)) {
 						String refactoredVariable = getRefactoredVariableOrAttribute(refactoring);

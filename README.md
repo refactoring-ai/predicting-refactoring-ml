@@ -42,10 +42,6 @@ You can run the data collection by simply running the `RunSingleProject.java` cl
 
 1. _Database password_: Database password. 
 
-1. _K threshold_: Threshold used to determine non-refactoring instances.
-
-1. _Test files only?_: False  if you want to analyse only production files; True if you want to analyze only test files.
-
 1. _Store full source code?_: True if you want to store the source code before and after in the storage path.
 
 These parameters can be passed via command-line, if you exported a JAR file. 

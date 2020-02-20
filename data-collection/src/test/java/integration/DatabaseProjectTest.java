@@ -101,8 +101,8 @@ public class DatabaseProjectTest{
     */
     @Test
     public void different() throws Exception {
-        new App("repo1", repo1, outputDir, 50, db, false).run();
-        new App("repo2", repo2, outputDir, 50, db, false).run();
+        new App("repo1", repo1, outputDir, db, false).run();
+        new App("repo2", repo2, outputDir, db, false).run();
     }
 
     /*
@@ -110,10 +110,10 @@ public class DatabaseProjectTest{
     */
     @Test
     public void twice() throws Exception {
-        new App("repo1", repo1, outputDir, 50, db, false).run();
+        new App("repo1", repo1, outputDir, db, false).run();
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            new App("repo1", repo1, outputDir, 50, db, false).run();
+            new App("repo1", repo1, outputDir, db, false).run();
         });
         String expectedMessage = "already in the database";
         String passedMessage = exception.getMessage();
@@ -127,10 +127,10 @@ public class DatabaseProjectTest{
     */
     @Test @Disabled
     public void alternating() throws Exception {
-        new App("repo1", repo1, outputDir, 50, db, false).run();
-        new App("repo2", repo2, outputDir, 50, db, false).run();
+        new App("repo1", repo1, outputDir, db, false).run();
+        new App("repo2", repo2, outputDir, db, false).run();
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            new App("repo1", repo1, outputDir, 50, db, false).run();
+            new App("repo1", repo1, outputDir, db, false).run();
         });
         String expectedMessage = "already in the database";
         String passedMessage = exception.getMessage();

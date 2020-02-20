@@ -11,7 +11,6 @@ public class RunSingleProject {
 	private static final Logger log = Logger.getLogger(RunSingleProject.class);
 
 	public static void main(String[] args) throws Exception {
-
 		// do we want to get data from the vars or not?
 		// i.e., is this a local IDE test?
 		boolean test = (args == null || args.length == 0);
@@ -22,7 +21,6 @@ public class RunSingleProject {
 		String url;
 		String user;
 		String pwd;
-		int threshold;
 		boolean storeFullSourceCode;
 
 		if(test) {
@@ -34,12 +32,11 @@ public class RunSingleProject {
 			url = "jdbc:mysql://localhost:3306/refactoring2?useSSL=false";
 			user = "root";
 			pwd = "";
-			threshold = 50;
 			storeFullSourceCode = true;
 
 		} else {
-			if (args == null || args.length != 8) {
-				System.out.println("8 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (threshold) (true|false: store full source code?)");
+			if (args == null || args.length != 7) {
+				System.out.println("7 arguments: (dataset name) (git url or project directory) (output path) (database url) (database user) (database pwd) (true|false: store full source code?)");
 				System.exit(-1);
 			}
 
@@ -51,24 +48,19 @@ public class RunSingleProject {
 			url = args[3] + "?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC"; // our servers config.
 			user = args[4];
 			pwd = args[5];
-			threshold = Integer.parseInt(args[6]);
 
 			// store full analysed source code?
-			storeFullSourceCode = Boolean.parseBoolean(args[7]);
+			storeFullSourceCode = Boolean.parseBoolean(args[6]);
 			System.out.println("Store full source code? " + storeFullSourceCode);
-
 		}
 
 		Database db = null;
 		try {
 			db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
-
-		}catch(Exception e) {
+		} catch(Exception e) {
 			log.error("Error when connecting to the db", e);
 		}
 
-		new App(datasetName, gitUrl, storagePath, threshold, db, storeFullSourceCode).run();
+		new App(datasetName, gitUrl, storagePath, db, storeFullSourceCode).run();
 	}
-
-
 }
