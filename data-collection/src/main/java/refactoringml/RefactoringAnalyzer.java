@@ -57,7 +57,7 @@ public class RefactoringAnalyzer {
 		}
 
 		String refactoringSummary = refactoring.toString().trim();
-		log.info("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
+		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
 			log.info("[TRACK] Commit " + commit.getId().getName());
 		}

@@ -5,7 +5,6 @@ import java.util.function.Predicate;
 
 //TODO: Rename this class, as it is easily confused with ProcessMetrics and the name does not describe its purpose well
 public class ProcessMetric {
-
 	private String fileName;
 
 	// updated info about the class
@@ -15,7 +14,6 @@ public class ProcessMetric {
 	private int linesDeleted = 0;
 	private int bugFixCount = 0;
 	private int refactoringsInvolved = 0;
-
 
 	private int counter = 0;
 
@@ -39,7 +37,6 @@ public class ProcessMetric {
 		this.baseCommitForNonRefactoring = baseCommitForNonRefactoring;
 		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
 	}
-
 
 	public void existsIn (String commitMsg, String authorName, int linesAdded, int linesDeleted) {
 		commits++;
