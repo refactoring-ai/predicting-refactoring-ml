@@ -54,14 +54,13 @@ public class ProcessMetricsCollector {
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
-		Set<String> refactoredClasses = new HashSet<>();
 
 		//if this commit contained a refactoring, then collect its process metrics,
 		//otherwise only update the file process metrics
 		if (isRefactoring) {
 			try {
 				db.openSession();
-				refactoredClasses = collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
+				collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
 				db.commit();
 			} catch (Exception e) {
 				log.error("Error when collecting process metrics in commit " + commit.getName(), e);
@@ -78,7 +77,7 @@ public class ProcessMetricsCollector {
 		// update classes that were not refactored on this commit
 		try {
 			db.openSession();
-			updateAndPrintExamplesOfNonRefactoredClasses(commit, refactoredClasses);
+			updateAndPrintExamplesOfNonRefactoredClasses(commit);
 			db.commit();
 		} catch (Exception e) {
 			log.error("Error when collecting process metrics in commit " + commit.getName(), e);
@@ -88,7 +87,7 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, Set<String> refactoredClasses) throws IOException {
+	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit) throws IOException {
 		// if there are classes over the threshold, we output them as an examples of not refactored classes,
 		// and we reset their counter.
 		// note that we have a lot of failures here, as X commits later, the class might had been
@@ -134,6 +133,7 @@ public class ProcessMetricsCollector {
 				// with the refactoring counter...
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
+				//TODO: track moves e.g. src/java/org/apache/commons/cli/HelpFormatter.java to src/main/java/org/apache/commons/cli/HelpFormatter.java
 				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
 					pmDatabase.remove(oldFileName);
@@ -166,18 +166,13 @@ public class ProcessMetricsCollector {
 				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 					log.info("[TRACK] Counter increased to " + currentClazz.commitCounter());
 				}
-
 			}
 		}
 	}
 
-	private Set<String> collectProcessMetricsOfRefactoredCommit(RevCommit commit, Set<Long> allRefactoringCommits) {
-		Set<String> refactoredClasses = new HashSet<>();
-
+	private void collectProcessMetricsOfRefactoredCommit(RevCommit commit, Set<Long> allRefactoringCommits) {
 		for (Long refactoringCommitId : allRefactoringCommits) {
-
 			RefactoringCommit refactoringCommit = db.findRefactoringCommit(refactoringCommitId);
-
 			String fileName = refactoringCommit.getFilePath();
 
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
@@ -186,44 +181,11 @@ public class ProcessMetricsCollector {
 
 			ProcessMetric currentProcessMetrics = pmDatabase.get(fileName);
 
-			ProcessMetrics dbProcessMetrics;
-
 			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
 			// however, we might not be able to find the process metrics of that class.
 			// this will happen in strange cases where we never tracked that class before...
 			// for now, let's store it as -1, so that we can still use the data point for structural metrics
-			// TODO: better track renames. As soon as a class is renamed, transfer its process metrics.
-			if(currentProcessMetrics == null) {
-				dbProcessMetrics = new ProcessMetrics(
-						-1,
-						-1,
-						-1,
-						-1,
-						-1,
-						-1,
-						-1,
-						-1,
-						-1
-				);
-
-				log.error("Not able to find process metrics for file " + fileName + " (commit " + commit.getName() + ")");
-				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.info("[TRACK] Not able to find process metrics at " + commit.getId().getName());
-				}
-			} else {
-
-				dbProcessMetrics = new ProcessMetrics(
-						currentProcessMetrics.qtyOfCommits(),
-						currentProcessMetrics.getLinesAdded(),
-						currentProcessMetrics.getLinesDeleted(),
-						currentProcessMetrics.qtyOfAuthors(),
-						currentProcessMetrics.qtyMinorAuthors(),
-						currentProcessMetrics.qtyMajorAuthors(),
-						currentProcessMetrics.authorOwnership(),
-						currentProcessMetrics.getBugFixCount(),
-						currentProcessMetrics.getRefactoringsInvolved()
-				);
-			}
+			ProcessMetrics dbProcessMetrics  = new ProcessMetrics(currentProcessMetrics);
 			refactoringCommit.setProcessMetrics(dbProcessMetrics);
 			db.update(refactoringCommit);
 
@@ -233,30 +195,16 @@ public class ProcessMetricsCollector {
 				currentProcessMetrics.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
 			}
 
-			refactoredClasses.add(fileName);
-
 			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
 				log.info("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved() + " and counter resetted");
 			}
 		}
-
-		return refactoredClasses;
 	}
 
 	private void storeProcessMetrics(String fileName, List<StableCommit> stableCommits) {
 		for(StableCommit stableCommit : stableCommits) {
-
 			ProcessMetric filePm = pmDatabase.get(fileName);
-			ProcessMetrics dbProcessMetrics = new ProcessMetrics(
-					filePm.getBaseCommits(),
-					filePm.getBaseLinesAdded(),
-					filePm.getBaseLinesDeleted(),
-					filePm.getBaseAuthors(),
-					filePm.getBaseMinorAuthors(),
-					filePm.getBaseMajorAuthors(),
-					filePm.getBaseAuthorOwnership(),
-					filePm.getBaseBugFixCount(),
-					filePm.getBaseRefactoringsInvolved());
+			ProcessMetrics dbProcessMetrics = new ProcessMetrics(filePm);
 
 			stableCommit.setProcessMetrics(dbProcessMetrics);
 			db.persist(stableCommit);
@@ -265,7 +213,6 @@ public class ProcessMetricsCollector {
 
 	private void outputNonRefactoredClass (ProcessMetric clazz) throws IOException {
 		CommitMetaData commitMetaData = new CommitMetaData(clazz, project);
-
 		String commitHashBackThen = clazz.getBaseCommitForNonRefactoring();
 
 		String sourceCodeBackThen;

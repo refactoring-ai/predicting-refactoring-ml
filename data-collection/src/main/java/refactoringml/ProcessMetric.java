@@ -1,5 +1,7 @@
 package refactoringml;
 
+import refactoringml.db.ProcessMetrics;
+
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -43,7 +45,6 @@ public class ProcessMetric {
 		this.baseCommitForNonRefactoring = baseCommitForNonRefactoring;
 		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
 	}
-
 
 	public void existsIn (String commitMsg, String authorName, int linesAdded, int linesDeleted) {
 		commits++;
@@ -195,6 +196,8 @@ public class ProcessMetric {
 	}
 
 	//Filter class files that were not refactored in the last K commits and not already found with a lower K.
+	//TODO: If a class has an inner class only one instance is stored in the database
+	// The fix (>= instead of > : currentCommitThreshold) leads stable commits duplicates in the DB in case of multiple refactorings in the current commit
 	public boolean isStableThreshold(int commitThreshold){
 		return isStable(commitThreshold) && commitThreshold > currentCommitThreshold;
 	}

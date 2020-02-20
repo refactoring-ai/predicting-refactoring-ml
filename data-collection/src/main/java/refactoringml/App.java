@@ -59,7 +59,6 @@ public class App {
 	            Database db, 
 	            boolean storeFullSourceCode) {
 		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
-
 	}
 	public App (String datasetName,
 	            String gitUrl,
@@ -137,7 +136,6 @@ public class App {
 			log.debug("Set Refactoring Miner timeout to " + refactoringMinerTimeout + " seconds.");
 
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
-
 				// we only analyze commits that have one parent
 				// i.e., ignore merge commits
 				if(currentCommit.getParentCount() > 1)
@@ -192,7 +190,6 @@ public class App {
 
 				//collect the process metrics for the current commit
 				processMetrics.collectMetrics(currentCommit, allRefactoringCommits, thereIsRefactoringToProcess);
-
 			}
 
 			walk.close();
