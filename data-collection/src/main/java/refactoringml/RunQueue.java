@@ -58,8 +58,8 @@ public class RunQueue {
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(host);
 
-		while (true) {
-			log.info("Waiting for the queue!");
+		while(true) {
+			log.debug("Waiting for new element from the queue...");
 			try (Connection connection = factory.newConnection();
 				 Channel channel = connection.createChannel()) {
 
@@ -67,7 +67,7 @@ public class RunQueue {
 				if (chResponse != null) {
 					byte[] body = chResponse.getBody();
 					String message = new String(body);
-					log.info("Got from queue: " + message);
+					log.debug("Got new element from queue: " + message);
 					doWork(message);
 				}
 			}
@@ -80,7 +80,7 @@ public class RunQueue {
 		String dataset = msg[2];
 		String gitUrl = msg[1];
 
-		log.info("Dataset: " + dataset + ", Git URL: " + gitUrl);
+		log.debug("Mine dataset: " + dataset + " with git url: " + gitUrl);
 		try {
 			new App(dataset, gitUrl, storagePath, db, storeFullSourceCode).run();
 		} catch (Exception e) {

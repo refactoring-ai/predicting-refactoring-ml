@@ -50,16 +50,15 @@ public class RefactoringAnalyzer {
 	}
 
 	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring, CommitMetaData commitMetaData ) throws IOException {
-
+		//TODO: remove this check, because it is not necessary anymore
 		if (!studied(refactoring)) {
-			//TODO: check if this is correct and desired behavior
 			return new HashSet<Long>();
 		}
 
 		String refactoringSummary = refactoring.toString().trim();
 		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-			log.info("[TRACK] Commit " + commit.getId().getName());
+			log.debug("[TRACK] Commit " + commit.getId().getName());
 		}
 
 		RevCommit commitParent = commit.getParent(0);
@@ -89,8 +88,8 @@ public class RefactoringAnalyzer {
 
 				// this should not happen...
 				if(!refactoredEntry.isPresent()) {
-					log.info("old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
-					log.info("new classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
+					log.error("Old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
+					log.error("New classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
 					throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
 				}
 
@@ -102,7 +101,7 @@ public class RefactoringAnalyzer {
 				String currentFileName = enforceUnixPaths(entry.getNewPath());
 
 				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-					log.info("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
+					log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
 				}
 
 				// Now, we get the contents of the file before
@@ -134,11 +133,8 @@ public class RefactoringAnalyzer {
 						saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
 					}
 				} else {
-					log.error("RefactoringCommit was not created. CK did not find the class, maybe?");
-
-					if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
-						log.info("[TRACK] RefactoringCommit instance not created!");
-					}
+					//TODO: investigate this case to write a better log message
+					log.error("RefactoringCommit instance was not created. CK did not find the class, maybe?");
 				}
 
 				cleanTmpDir();
@@ -147,7 +143,7 @@ public class RefactoringAnalyzer {
 		}
 
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-			log.info("[TRACK] End commit " + commit.getId().getName());
+			log.debug("[TRACK] End commit " + commit.getId().getName());
 		}
 
 		return allRefactorings;
@@ -228,10 +224,9 @@ public class RefactoringAnalyzer {
 
 				if(!ckMethod.isPresent()) {
 					// for some reason we did not find the method, let's remove it from the list.
-					log.error("CK did not find the refactored method: " + fullRefactoredMethod);
-
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
-					log.error("All methods in CK: " + methods);
+					log.error("CK did not find the refactored method: " + fullRefactoredMethod + "\n" +
+							"All methods found by CK: " + methods);
 					return;
 				} else {
 					CKMethodResult ckMethodResult = ckMethod.get();

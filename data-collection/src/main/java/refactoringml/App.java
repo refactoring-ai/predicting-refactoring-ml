@@ -97,8 +97,8 @@ public class App {
 				new File(filesStoragePath).mkdirs();
 			}
 
-			log.info("Refactoring analyzer");
-			log.info("Starting project " + gitUrl + "(clone at " + clonePath + ")");
+			log.info("REFACTORING ANALYZER");
+			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
 			final Repository repo = gitService.cloneIfNotExists(clonePath, gitUrl);
 			final Git git = Git.open(new File(lastSlashDir(clonePath) + ".git"));
 
@@ -152,7 +152,6 @@ public class App {
 				refactoringsToProcess = null;
 				commitIdToProcess = null;
 
-				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
 				// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 				if(currentCommit.getParentCount()==1)
 					miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
@@ -173,15 +172,15 @@ public class App {
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
-							log.error("Error when collecting commit data", e);
+							log.error("Exception when collecting commit data: ", e);
 							db.rollback();
 						} finally {
 							db.close();
 						}
 					}
-				} else {
+				} else if(currentCommit.getParentCount()==1){
 					// timeout happened, so count it as an exception
-					log.error("Refactoring Miner returned null for " + commitHash + ". Possibly this is the first commit of the project, or a timeout.");
+					log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
 					exceptionsCount++;
 				}
 
@@ -192,7 +191,7 @@ public class App {
 			walk.close();
 
 			long end = System.currentTimeMillis();
-			log.info(String.format("Finished in %.2f minutes", ( ( end - start ) / 1000.0 / 60.0 )));
+			log.info(String.format("Finished mining %s in %.2f minutes", gitUrl,( ( end - start ) / 1000.0 / 60.0 )));
 
 			// set finished data
 			// note that if this process crashes, finished date will be equals to null in the database
@@ -227,14 +226,13 @@ public class App {
 					exceptionsCount++;
 					log.error("RefactoringMiner could not handle commit Id " + commitId, e);
 					resetGitRepo();
-
 				}
 
 				private void resetGitRepo() {
 					try {
 						git.reset().setMode(ResetCommand.ResetType.HARD).call();
 					} catch (GitAPIException e1) {
-						log.error("Reset failed", e1);
+						log.error("Reset failed for repository: " + gitUrl + " after a commit couldn't be handled.", e1);
 					}
 				}
 			};

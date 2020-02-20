@@ -58,7 +58,7 @@ public class RunSingleProject {
 		try {
 			db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
 		} catch(Exception e) {
-			log.error("Error when connecting to the db", e);
+			log.error("Error when connecting to the Database: ", e);
 		}
 
 		new App(datasetName, gitUrl, storagePath, db, storeFullSourceCode).run();
