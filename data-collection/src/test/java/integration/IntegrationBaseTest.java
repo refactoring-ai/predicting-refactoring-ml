@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public abstract class IntegrationBaseTest {
@@ -60,8 +61,8 @@ public abstract class IntegrationBaseTest {
 	protected void runApp() throws Exception {
 		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, drop());
 		db = new Database(sf);
-		outputDir = FilePathUtils.enforceUnixPaths(Files.createTempDir().getAbsolutePath());
-		tmpDir = FilePathUtils.enforceUnixPaths(Files.createTempDir().getAbsolutePath());
+		outputDir = createTmpDir();
+		tmpDir = createTmpDir();
 
 		String repoLocalDir = "repos/" + extractProjectNameFromGitUrl(getRepo());
 		boolean projectAlreadyCloned = new File(repoLocalDir).exists();

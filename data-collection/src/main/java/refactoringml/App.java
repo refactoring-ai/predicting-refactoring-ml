@@ -31,6 +31,7 @@ import java.util.*;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public class App {
@@ -86,7 +87,7 @@ public class App {
 		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
 
 		// creates a temp dir to store the project
-		String newTmpDir = lastSlashDir(Files.createTempDir().getAbsolutePath());
+		String newTmpDir = createTmpDir();
 		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : newTmpDir + "repo").trim();
 
 		try {

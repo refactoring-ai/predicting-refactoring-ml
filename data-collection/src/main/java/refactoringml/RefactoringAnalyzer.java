@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.*;
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
 
@@ -110,7 +111,7 @@ public class RefactoringAnalyzer {
 				// save the old version of the file in a temp dir to execute the CK tool
 				// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
 				// but later we notice it might do in cases of file renames and refactorings in the same commit.
-				createTmpDir();
+				tempDir = createTmpDir();
 				createAllDirs(tempDir, oldFileName);
 				try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
 					out.print(sourceCodeBefore);
@@ -286,10 +287,5 @@ public class RefactoringAnalyzer {
 			FileUtils.deleteDirectory(new File(tempDir));
 			tempDir = null;
 		}
-	}
-
-	private void createTmpDir() {
-		String rawTempDir = com.google.common.io.Files.createTempDir().getAbsolutePath();
-		tempDir = lastSlashDir(rawTempDir);
 	}
 }

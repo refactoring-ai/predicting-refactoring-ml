@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static refactoringml.util.FileUtils.createTmpDir;
 
 /*
     Test if a project can be added twice to a database both for the Single and Queue version of the data collection.
@@ -38,8 +39,8 @@ public class DatabaseProjectTest{
 
     @BeforeAll
     private void initTests() throws InterruptedException {
-        outputDir = Files.createTempDir().getAbsolutePath();
-        tmpDir = Files.createTempDir().getAbsolutePath();
+        outputDir = createTmpDir();
+        tmpDir = createTmpDir();
 
         sf = new HibernateConfig().getSessionFactory(URL, USER, PASSWORD, false);
         db = new Database(sf);

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
-import static refactoringml.util.FilePathUtils.lastSlashDir;
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 
 public class ProcessMetricsCollector {
@@ -235,7 +235,7 @@ public class ProcessMetricsCollector {
 
 		try {
 			// create a temp dir to store the source code files and run CK there
-			createTempDir();
+			tempDir = createTmpDir();
 			saveFile(commitHashBackThen, sourceCodeBackThen, clazz.getFileName());
 
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData);
@@ -344,10 +344,6 @@ public class ProcessMetricsCollector {
 		ps = new PrintStream(tempDir + fileName);
 		ps.print(sourceCodeBackThen);
 		ps.close();
-	}
-
-	private void createTempDir() {
-		tempDir = lastSlashDir(Files.createTempDir().getAbsolutePath());
 	}
 
 	private void cleanTmpDir () throws IOException {
