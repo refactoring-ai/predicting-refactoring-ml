@@ -21,7 +21,7 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static refactoringml.util.CKUtils.cleanClassName;
+import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
@@ -258,47 +258,7 @@ public class ProcessMetricsCollector {
 
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
-			ClassMetric classMetric = new ClassMetric(
-					CKUtils.evaluateSubclass(ck.getType()),
-					ck.getCbo(),
-					ck.getWmc(),
-					ck.getRfc(),
-					ck.getLcom(),
-					ck.getNumberOfMethods(),
-					ck.getNumberOfStaticMethods(),
-					ck.getNumberOfPublicMethods(),
-					ck.getNumberOfPrivateMethods(),
-					ck.getNumberOfProtectedMethods(),
-					ck.getNumberOfDefaultMethods(),
-					ck.getNumberOfAbstractMethods(),
-					ck.getNumberOfFinalMethods(),
-					ck.getNumberOfSynchronizedMethods(),
-					ck.getNumberOfFields(),
-					ck.getNumberOfStaticFields(),
-					ck.getNumberOfPublicFields(),
-					ck.getNumberOfPrivateFields(),
-					ck.getNumberOfProtectedFields(),
-					ck.getNumberOfDefaultFields(),
-					ck.getNumberOfFinalFields(),
-					ck.getNumberOfSynchronizedFields(),
-					ck.getNosi(),
-					ck.getLoc(),
-					ck.getReturnQty(),
-					ck.getLoopQty(),
-					ck.getComparisonsQty(),
-					ck.getTryCatchQty(),
-					ck.getParenthesizedExpsQty(),
-					ck.getStringLiteralsQty(),
-					ck.getNumbersQty(),
-					ck.getAssignmentsQty(),
-					ck.getMathOperationsQty(),
-					ck.getVariablesQty(),
-					ck.getMaxNestedBlocks(),
-					ck.getAnonymousClassesQty(),
-					ck.getSubClassesQty(),
-					ck.getLambdasQty(),
-					ck.getUniqueWordsQty());
-
+			ClassMetric classMetric = extractClassMetrics(ck);
 
 			StableCommit stableCommit = new StableCommit(
 					project,
@@ -315,31 +275,7 @@ public class ProcessMetricsCollector {
 
 
 			for(CKMethodResult ckMethodResult : ck.getMethods()) {
-				MethodMetric methodMetrics = new MethodMetric(
-						CKUtils.simplifyFullName(ckMethodResult.getMethodName()),
-						cleanMethodName(ckMethodResult.getMethodName()),
-						ckMethodResult.getStartLine(),
-						ckMethodResult.getCbo(),
-						ckMethodResult.getWmc(),
-						ckMethodResult.getRfc(),
-						ckMethodResult.getLoc(),
-						ckMethodResult.getReturnQty(),
-						ckMethodResult.getVariablesQty(),
-						ckMethodResult.getParametersQty(),
-						ckMethodResult.getLoopQty(),
-						ckMethodResult.getComparisonsQty(),
-						ckMethodResult.getTryCatchQty(),
-						ckMethodResult.getParenthesizedExpsQty(),
-						ckMethodResult.getStringLiteralsQty(),
-						ckMethodResult.getNumbersQty(),
-						ckMethodResult.getAssignmentsQty(),
-						ckMethodResult.getMathOperationsQty(),
-						ckMethodResult.getMaxNestedBlocks(),
-						ckMethodResult.getAnonymousClassesQty(),
-						ckMethodResult.getSubClassesQty(),
-						ckMethodResult.getLambdasQty(),
-						ckMethodResult.getUniqueWordsQty()
-				);
+				MethodMetric methodMetrics = extractMethodMetrics(ckMethodResult);
 
 				StableCommit stableCommitM = new StableCommit(
 						project,
