@@ -3,6 +3,7 @@ package refactoringml;
 import java.util.*;
 import java.util.function.Predicate;
 
+//TODO: Refactor this class, e.g. by combining it with ProcessMetrics?
 //TODO: Rename this class, as it is easily confused with ProcessMetrics and the name does not describe its purpose well
 public class ProcessMetric {
 	private String fileName;
@@ -15,7 +16,9 @@ public class ProcessMetric {
 	private int bugFixCount = 0;
 	private int refactoringsInvolved = 0;
 
-	private int counter = 0;
+	//number of commits affecting this class since the last refactoring
+	//Used to estimate if a class is stable
+	private int commitCounter = 0;
 
 	// counters at the time of the base commit
 	private String baseCommitForNonRefactoring;
@@ -64,7 +67,7 @@ public class ProcessMetric {
 	}
 
 	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, Calendar commitDate) {
-		counter = 0;
+		commitCounter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 		this.baseCommitDateForNonRefactoring = commitDate;
 
@@ -80,11 +83,11 @@ public class ProcessMetric {
 	}
 
 	public void increaseCounter() {
-		counter++;
+		commitCounter++;
 	}
 
 	public int counter() {
-		return counter;
+		return commitCounter;
 	}
 
 	public String getFileName () {
@@ -177,6 +180,13 @@ public class ProcessMetric {
 		refactoringsInvolved++;
 	}
 
+	//Was this class file not refactored in the last K commits affecting this class file?
+	public boolean isStable(int commitThreshold){
+		return commitCounter >= commitThreshold;
+	}
+
+	public int getCommitCounter() { return commitCounter; }
+
 	@Override
 	public String toString() {
 		return "ProcessMetric{" +
@@ -187,7 +197,7 @@ public class ProcessMetric {
 				", linesDeleted=" + linesDeleted +
 				", bugFixCount=" + bugFixCount +
 				", refactoringsInvolved=" + refactoringsInvolved +
-				", counter=" + counter +
+				", commitCounter=" + commitCounter +
 				", baseCommitForNonRefactoring='" + baseCommitForNonRefactoring + '\'' +
 				", baseLinesAdded=" + baseLinesAdded +
 				", baseLinesDeleted=" + baseLinesDeleted +
