@@ -3,9 +3,8 @@ package refactoringml;
 import java.util.*;
 import java.util.function.Predicate;
 
-//TODO: Rename this class, as it is easily confused with ProcessMetrics and the name does not describe its purpose well
-public class ProcessMetric {
-
+//TODO: Refactor this class, e.g. by combining it with ProcessMetrics?
+public class ProcessMetricTracker {
 	private String fileName;
 
 	// updated info about the class
@@ -16,10 +15,12 @@ public class ProcessMetric {
 	private int bugFixCount = 0;
 	private int refactoringsInvolved = 0;
 
+	//number of commits affecting this class since the last refactoring
+	//Used to estimate if a class is stable
+	private int commitCounter = 0;
 
-	private int counter = 0;
-
-	// counters at the time of the base commit
+	private String parentCommit;
+	private String baseCommitMessageForNonRefactoring;
 	private String baseCommitForNonRefactoring;
 	private int baseLinesAdded = 0;
 	private int baseLinesDeleted = 0;
@@ -34,12 +35,13 @@ public class ProcessMetric {
 	public static String[] bugKeywords = {"bug", "error", "mistake", "fault", "wrong", "fail", "fix"};
 	private Calendar baseCommitDateForNonRefactoring;
 
-	public ProcessMetric (String fileName, String baseCommitForNonRefactoring, Calendar baseCommitDateForNonRefactoring) {
+	public ProcessMetricTracker(String fileName, String baseCommitForNonRefactoring, String baseCommitMessageForNonRefactoring, String parentCommit, Calendar baseCommitDateForNonRefactoring) {
 		this.fileName = fileName;
+		this.baseCommitMessageForNonRefactoring = baseCommitMessageForNonRefactoring;
 		this.baseCommitForNonRefactoring = baseCommitForNonRefactoring;
 		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
+		this.parentCommit = parentCommit;
 	}
-
 
 	public void existsIn (String commitMsg, String authorName, int linesAdded, int linesDeleted) {
 		commits++;
@@ -66,10 +68,12 @@ public class ProcessMetric {
 		return authors.size();
 	}
 
-	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, Calendar commitDate) {
-		counter = 0;
+	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, String parentCommit, Calendar commitDate) {
+		commitCounter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 		this.baseCommitDateForNonRefactoring = commitDate;
+		this.baseCommitMessageForNonRefactoring = baseCommitMessageForNonRefactoring;
+		this.parentCommit = parentCommit;
 
 		baseLinesAdded = linesAdded;
 		baseLinesDeleted = linesDeleted;
@@ -82,13 +86,7 @@ public class ProcessMetric {
 		baseCommits = commits;
 	}
 
-	public void increaseCounter() {
-		counter++;
-	}
-
-	public int counter() {
-		return counter;
-	}
+	public void increaseCommitCounter() { commitCounter++; }
 
 	public String getFileName () {
 		return fileName;
@@ -176,9 +174,20 @@ public class ProcessMetric {
 		return refactoringsInvolved;
 	}
 
+	public String getBaseCommitMessageForNonRefactoring() {return baseCommitMessageForNonRefactoring; }
+
 	public void increaseRefactoringsInvolved() {
 		refactoringsInvolved++;
 	}
+
+	//Was this class file not refactored in the last K commits affecting this class file?
+	public boolean isStable(int commitThreshold){
+		return commitCounter >= commitThreshold;
+	}
+
+	public int getCommitCounter() { return commitCounter; }
+
+	public String getParentCommit() { return parentCommit; }
 
 	@Override
 	public String toString() {
@@ -190,7 +199,7 @@ public class ProcessMetric {
 				", linesDeleted=" + linesDeleted +
 				", bugFixCount=" + bugFixCount +
 				", refactoringsInvolved=" + refactoringsInvolved +
-				", counter=" + counter +
+				", commitCounter=" + commitCounter +
 				", baseCommitForNonRefactoring='" + baseCommitForNonRefactoring + '\'' +
 				", baseLinesAdded=" + baseLinesAdded +
 				", baseLinesDeleted=" + baseLinesDeleted +

@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static refactoringml.util.FileUtils.createTmpDir;
 
 /*
     Test if a project can be added twice to a database both for the Single and Queue version of the data collection.
@@ -38,8 +39,8 @@ public class DatabaseProjectTest{
 
     @BeforeAll
     private void initTests() throws InterruptedException {
-        outputDir = Files.createTempDir().getAbsolutePath();
-        tmpDir = Files.createTempDir().getAbsolutePath();
+        outputDir = createTmpDir();
+        tmpDir = createTmpDir();
 
         sf = new HibernateConfig().getSessionFactory(URL, USER, PASSWORD, false);
         db = new Database(sf);
@@ -101,8 +102,8 @@ public class DatabaseProjectTest{
     */
     @Test
     public void different() throws Exception {
-        new App("repo1", repo1, outputDir, 50, db, false).run();
-        new App("repo2", repo2, outputDir, 50, db, false).run();
+        new App("repo1", repo1, outputDir, db, false).run();
+        new App("repo2", repo2, outputDir, db, false).run();
     }
 
     /*
@@ -110,10 +111,10 @@ public class DatabaseProjectTest{
     */
     @Test
     public void twice() throws Exception {
-        new App("repo1", repo1, outputDir, 50, db, false).run();
+        new App("repo1", repo1, outputDir, db, false).run();
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            new App("repo1", repo1, outputDir, 50, db, false).run();
+            new App("repo1", repo1, outputDir, db, false).run();
         });
         String expectedMessage = "already in the database";
         String passedMessage = exception.getMessage();
@@ -127,10 +128,10 @@ public class DatabaseProjectTest{
     */
     @Test @Disabled
     public void alternating() throws Exception {
-        new App("repo1", repo1, outputDir, 50, db, false).run();
-        new App("repo2", repo2, outputDir, 50, db, false).run();
+        new App("repo1", repo1, outputDir, db, false).run();
+        new App("repo2", repo2, outputDir, db, false).run();
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            new App("repo1", repo1, outputDir, 50, db, false).run();
+            new App("repo1", repo1, outputDir, db, false).run();
         });
         String expectedMessage = "already in the database";
         String passedMessage = exception.getMessage();

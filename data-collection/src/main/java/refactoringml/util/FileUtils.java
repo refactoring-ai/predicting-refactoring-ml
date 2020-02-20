@@ -1,7 +1,11 @@
 package refactoringml.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import static refactoringml.util.FilePathUtils.lastSlashDir;
 
 public class FileUtils {
 
@@ -43,5 +47,10 @@ public class FileUtils {
 	//Returns true if a file is a java file.
 	public static boolean IsJavaFile(String fileName){
 		return fileName.toLowerCase().endsWith("java");
+	}
+
+	public static String createTmpDir() {
+		String rawTempDir = com.google.common.io.Files.createTempDir().getAbsolutePath();
+		return lastSlashDir(rawTempDir);
 	}
 }

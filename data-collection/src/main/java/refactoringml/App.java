@@ -1,5 +1,6 @@
 package refactoringml;
 
+import com.github.javaparser.utils.Log;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -21,21 +22,22 @@ import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
-import refactoringml.util.FilePathUtils;
 import refactoringml.util.JGitUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public class App {
+	//config properties for the data-collection app at resources/config.property
+	private static Properties configProperties;
+	private static String configName = "config.properties";
 
 	private String gitUrl;
 	private String filesStoragePath;
@@ -47,33 +49,26 @@ public class App {
 	private String datasetName;
 	private int exceptionsCount = 0;
 
-	
 	String commitIdToProcess;
 	List<Refactoring> refactoringsToProcess;
-	private int threshold;
 
 	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
-	            int threshold,
 	            Database db, 
 	            boolean storeFullSourceCode) {
-		this(datasetName, gitUrl, filesStoragePath, threshold, db, null, storeFullSourceCode);
-
+		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
 	}
 	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
-	            int threshold,
 	            Database db,
 	            String lastCommitToProcess,
-	            boolean storeFullSourceCode
-	            ) {
+	            boolean storeFullSourceCode) {
 
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
-		this.threshold = threshold;
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
 		this.storeFullSourceCode = storeFullSourceCode;
@@ -92,7 +87,7 @@ public class App {
 		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
 
 		// creates a temp dir to store the project
-		String newTmpDir = lastSlashDir(Files.createTempDir().getAbsolutePath());
+		String newTmpDir = createTmpDir();
 		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : newTmpDir + "repo").trim();
 
 		try {
@@ -102,8 +97,8 @@ public class App {
 				new File(filesStoragePath).mkdirs();
 			}
 
-			log.info("Refactoring analyzer");
-			log.info("Starting project " + gitUrl + "(clone at " + clonePath + ")");
+			log.info("REFACTORING ANALYZER");
+			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
 			final Repository repo = gitService.cloneIfNotExists(clonePath, gitUrl);
 			final Git git = Git.open(new File(lastSlashDir(clonePath) + ".git"));
 
@@ -118,14 +113,15 @@ public class App {
 			int numberOfCommits = numberOfCommits(git);
 
 			Project project = new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
-					numberOfCommits, threshold, lastCommitHash, counterResult, projectSize);
+					numberOfCommits, getProperty("stableCommitThresholds"), lastCommitHash, counterResult, projectSize);
+			log.debug("Set project stable commit threshold(s) to: " + project.getCommitCountThresholds());
 
 			db.openSession();
 			db.persist(project);
 			db.commit();
 
 
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, threshold, filesStoragePath, lastCommitToProcess);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, filesStoragePath, lastCommitToProcess);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
 
 			RefactoringHandler handler = getRefactoringHandler(git);
@@ -134,8 +130,10 @@ public class App {
 			RevWalk walk = JGitUtils.getReverseWalk(repo, mainBranch);
 			RevCommit currentCommit = walk.next();
 
-			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+			int refactoringMinerTimeout = Integer.valueOf(getProperty("timeout"));
+			log.debug("Set Refactoring Miner timeout to " + refactoringMinerTimeout + " seconds.");
 
+			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
 				// we only analyze commits that have one parent
 				// i.e., ignore merge commits
 				if(currentCommit.getParentCount() > 1)
@@ -155,10 +153,9 @@ public class App {
 				refactoringsToProcess = null;
 				commitIdToProcess = null;
 
-				// we define a timeout of 20 seconds for RefactoringMiner to find a refactoring.
 				// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 				if(currentCommit.getParentCount()==1)
-					miner.detectAtCommit(repo, commitHash, handler, 20);
+					miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
 
 				//stores all the ck metrics for the current commit
 				Set<Long> allRefactoringCommits = new HashSet<Long>();
@@ -176,27 +173,26 @@ public class App {
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
-							log.error("Error when collecting commit data", e);
+							log.error("Exception when collecting commit data: ", e);
 							db.rollback();
 						} finally {
 							db.close();
 						}
 					}
-				} else {
+				} else if(currentCommit.getParentCount()==1){
 					// timeout happened, so count it as an exception
-					log.error("Refactoring Miner returned null for " + commitHash + ". Possibly this is the first commit of the project, or a timeout.");
+					log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
 					exceptionsCount++;
 				}
 
 				//collect the process metrics for the current commit
 				processMetrics.collectMetrics(currentCommit, allRefactoringCommits, thereIsRefactoringToProcess);
-
 			}
 
 			walk.close();
 
 			long end = System.currentTimeMillis();
-			log.info(String.format("Finished in %.2f minutes", ( ( end - start ) / 1000.0 / 60.0 )));
+			log.info(String.format("Finished mining %s in %.2f minutes", gitUrl,( ( end - start ) / 1000.0 / 60.0 )));
 
 			// set finished data
 			// note that if this process crashes, finished date will be equals to null in the database
@@ -231,14 +227,13 @@ public class App {
 					exceptionsCount++;
 					log.error("RefactoringMiner could not handle commit Id " + commitId, e);
 					resetGitRepo();
-
 				}
 
 				private void resetGitRepo() {
 					try {
 						git.reset().setMode(ResetCommand.ResetType.HARD).call();
 					} catch (GitAPIException e1) {
-						log.error("Reset failed", e1);
+						log.error("Reset failed for repository: " + gitUrl + " after a commit couldn't be handled.", e1);
 					}
 				}
 			};
@@ -259,5 +254,29 @@ public class App {
 		return git.getRepository().getBranch();
 	}
 
+	private static Properties fetchProperties(){
+		if(configProperties!= null)
+			return configProperties;
 
+		String propertiesPath = Thread.currentThread().getContextClassLoader().getResource(configName).getPath();
+		configProperties = new Properties();
+		try{
+			configProperties.load(new FileInputStream(propertiesPath));
+		} catch (Exception e) {
+			log.error(e.getClass().getCanonicalName() + " while loading config file from: " + propertiesPath, e);
+			throw new RuntimeException("Could not load config properties.");
+		}
+		return configProperties;
+	}
+
+	//query the config properties for the given config name
+	public static String getProperty(String propertyName) {
+		return fetchProperties().getProperty(propertyName);
+	}
+
+	//Only use this for tests
+	@Deprecated
+	public static Object setProperty(String propertyName, String propertyValue){
+		return fetchProperties().setProperty(propertyName, propertyValue);
+	}
 }
