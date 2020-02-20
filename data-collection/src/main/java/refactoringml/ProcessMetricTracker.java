@@ -1,219 +1,80 @@
 package refactoringml;
 
+import refactoringml.db.CommitMetaData;
+import refactoringml.db.ProcessMetrics;
 import java.util.*;
-import java.util.function.Predicate;
 
-//TODO: Refactor this class, e.g. by combining it with ProcessMetrics?
 public class ProcessMetricTracker {
+	//filename of the class file, does not distinguish between subclasses
 	private String fileName;
+	//Either: the last commit refactoring the class file or the first one creating the class file
+	private CommitMetaData baseCommitMetaData;
+	//Reference commit to be considered stable, if it passes a certain threshold
+	private ProcessMetrics baseProcessMetrics;
+	//The process metrics till the latest commit affecting the class file, use this for refactorings
+	private ProcessMetrics currentProcessMetrics;
 
-	// updated info about the class
-	private int commits = 0;
-	private Map<String, Integer> authors = new HashMap<String, Integer>();
-	private int linesAdded = 0;
-	private int linesDeleted = 0;
-	private int bugFixCount = 0;
-	private int refactoringsInvolved = 0;
-
-	//number of commits affecting this class since the last refactoring
-	//Used to estimate if a class is stable
-	private int commitCounter = 0;
-
-	private String parentCommit;
-	private String baseCommitMessageForNonRefactoring;
-	private String baseCommitForNonRefactoring;
-	private int baseLinesAdded = 0;
-	private int baseLinesDeleted = 0;
-	private int baseBugFixCount = 0;
-	private int baseRefactoringsInvolved = 0;
-	private long baseMinorAuthors = 0;
-	private long baseMajorAuthors = 0;
-	private double baseAuthorOwnership = 0;
-	private int baseAuthors = 0;
-	private int baseCommits = 0;
-
+	//TODO: move to utils
 	public static String[] bugKeywords = {"bug", "error", "mistake", "fault", "wrong", "fail", "fix"};
-	private Calendar baseCommitDateForNonRefactoring;
-
-	public ProcessMetricTracker(String fileName, String baseCommitForNonRefactoring, String baseCommitMessageForNonRefactoring, String parentCommit, Calendar baseCommitDateForNonRefactoring) {
-		this.fileName = fileName;
-		this.baseCommitMessageForNonRefactoring = baseCommitMessageForNonRefactoring;
-		this.baseCommitForNonRefactoring = baseCommitForNonRefactoring;
-		this.baseCommitDateForNonRefactoring = baseCommitDateForNonRefactoring;
-		this.parentCommit = parentCommit;
-	}
-
-	public void existsIn (String commitMsg, String authorName, int linesAdded, int linesDeleted) {
-		commits++;
-
-		if(!authors.containsKey(authorName)) {
-			authors.put(authorName, 0);
-		}
-		authors.put(authorName, authors.get(authorName)+1);
-
-		this.linesAdded += linesAdded;
-		this.linesDeleted += linesDeleted;
-
-		if(isBugFix(commitMsg))
-			bugFixCount++;
-	}
-
-	private boolean isBugFix(String commitMsg) {
+	private static boolean isBugFix(String commitMsg) {
 		String cleanCommitMsg = commitMsg.toLowerCase();
 		return Arrays.stream(bugKeywords).filter(keyword -> cleanCommitMsg.contains(keyword))
 				.count() > 0;
 	}
 
-	public int qtyOfAuthors() {
-		return authors.size();
+	public ProcessMetricTracker(String fileName, CommitMetaData commitMetaData) {
+		this.fileName = fileName;
+		this.baseCommitMetaData = commitMetaData;
+		this.baseProcessMetrics = new ProcessMetrics(0, 0, 0, 0, 0);
+		this.currentProcessMetrics =  new ProcessMetrics(0, 0, 0, 0, 0);
 	}
 
-	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, String parentCommit, Calendar commitDate) {
-		commitCounter = 0;
-		this.baseCommitForNonRefactoring = commitHash;
-		this.baseCommitDateForNonRefactoring = commitDate;
-		this.baseCommitMessageForNonRefactoring = baseCommitMessageForNonRefactoring;
-		this.parentCommit = parentCommit;
+	//public tracker interaction
+	public void reportCommit(String commitMsg, String authorName, int linesAdded, int linesDeleted) {
+		currentProcessMetrics.qtyOfCommits++;
 
-		baseLinesAdded = linesAdded;
-		baseLinesDeleted = linesDeleted;
-		baseBugFixCount = bugFixCount;
-		baseRefactoringsInvolved = refactoringsInvolved;
-		baseMinorAuthors = qtyMinorAuthors();
-		baseMajorAuthors = qtyMajorAuthors();
-		baseAuthorOwnership = authorOwnership();
-		baseAuthors = qtyOfAuthors();
-		baseCommits = commits;
+		if(!currentProcessMetrics.allAuthors.containsKey(authorName)) {
+			currentProcessMetrics.allAuthors.put(authorName, 0);
+		}
+		currentProcessMetrics.allAuthors.put(authorName, currentProcessMetrics.allAuthors.get(authorName)+1);
+
+		currentProcessMetrics.linesAdded += linesAdded;
+		currentProcessMetrics.linesDeleted += linesDeleted;
+
+		if(isBugFix(commitMsg))
+			currentProcessMetrics.bugFixCount++;
 	}
 
-	public void increaseCommitCounter() { commitCounter++; }
+	//Reset the tracker with latest refactoring and its commit meta data
+	//the commitCounter will be zero again
+	public void resetCounter(CommitMetaData commitMetaData) {
+		currentProcessMetrics.refactoringsInvolved ++;
 
-	public String getFileName () {
-		return fileName;
+		this.baseCommitMetaData = commitMetaData;
+		this.baseProcessMetrics = new ProcessMetrics(currentProcessMetrics);
 	}
 
-	public String getBaseCommitForNonRefactoring () { return baseCommitForNonRefactoring; }
+	//filename of the class file, does not distinguish between subclasses
+	public String getFileName () { return fileName; }
 
-	public Calendar getBaseCommitDateForNonRefactoring() { return baseCommitDateForNonRefactoring; }
+	//Number of commits affecting this class since the last refactoring
+	//Used to estimate if the class is stable
+	public int getCommitCounter() { return currentProcessMetrics.qtyOfCommits - baseProcessMetrics.qtyOfCommits; }
 
-	public long qtyMinorAuthors() {
-		return countAuthors(author -> authors.get(author) < fivePercent());
-	}
+	public CommitMetaData getBaseCommitMetaData() { return baseCommitMetaData; }
 
-	public long qtyMajorAuthors() {
-		return countAuthors(author -> authors.get(author) >= fivePercent());
-	}
+	public ProcessMetrics getBaseProcessMetrics() { return baseProcessMetrics; }
 
-	public double authorOwnership() {
-		if(authors.entrySet().isEmpty()) return 0;
-
-		String mostRecurrentAuthor = Collections.max(authors.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
-
-		return authors.get(mostRecurrentAuthor) / (double) commits;
-	}
-
-	private double fivePercent () {
-		return commits * 0.05;
-	}
-
-	private long countAuthors (Predicate<String> predicate) {
-		return authors.keySet().stream()
-				.filter(predicate)
-				.count();
-	}
-
-	public int getBaseCommits() {
-		return baseCommits;
-	}
-
-	public int getBaseAuthors() {
-		return baseAuthors;
-	}
-
-	public double getBaseAuthorOwnership() {
-		return baseAuthorOwnership;
-	}
-
-	public long getBaseMajorAuthors() {
-		return baseMajorAuthors;
-	}
-
-	public long getBaseMinorAuthors() {
-		return baseMinorAuthors;
-	}
-
-	public int getBaseRefactoringsInvolved() {
-		return baseRefactoringsInvolved;
-	}
-
-	public int getBaseBugFixCount() {
-		return baseBugFixCount;
-	}
-
-	public int getBaseLinesDeleted() {
-		return baseLinesDeleted;
-	}
-
-	public int getBaseLinesAdded() {
-		return baseLinesAdded;
-	}
-
-	public int getLinesDeleted() {
-		return linesDeleted;
-	}
-
-	public int getLinesAdded() {
-		return linesAdded;
-	}
-
-	public int getBugFixCount() {
-		return bugFixCount;
-	}
-
-	public int getRefactoringsInvolved() {
-		return refactoringsInvolved;
-	}
-
-	public String getBaseCommitMessageForNonRefactoring() {return baseCommitMessageForNonRefactoring; }
-
-	public void increaseRefactoringsInvolved() {
-		refactoringsInvolved++;
-	}
-
-	//Was this class file not refactored in the last K commits affecting this class file?
-	public boolean isStable(int commitThreshold){
-		return commitCounter >= commitThreshold;
-	}
-
-	public int getCommitCounter() { return commitCounter; }
-
-	public String getParentCommit() { return parentCommit; }
+	public ProcessMetrics getCurrentProcessMetrics() { return currentProcessMetrics; }
 
 	@Override
 	public String toString() {
-		return "ProcessMetric{" +
+		return "ProcessMetricTracker{" +
 				"fileName='" + fileName + '\'' +
-				", commits=" + commits +
-				", authors=" + authors +
-				", linesAdded=" + linesAdded +
-				", linesDeleted=" + linesDeleted +
-				", bugFixCount=" + bugFixCount +
-				", refactoringsInvolved=" + refactoringsInvolved +
-				", commitCounter=" + commitCounter +
-				", baseCommitForNonRefactoring='" + baseCommitForNonRefactoring + '\'' +
-				", baseLinesAdded=" + baseLinesAdded +
-				", baseLinesDeleted=" + baseLinesDeleted +
-				", baseBugFixCount=" + baseBugFixCount +
-				", baseRefactoringsInvolved=" + baseRefactoringsInvolved +
-				", baseMinorAuthors=" + baseMinorAuthors +
-				", baseMajorAuthors=" + baseMajorAuthors +
-				", baseAuthorOwnership=" + baseAuthorOwnership +
-				", baseAuthors=" + baseAuthors +
-				", baseCommits=" + baseCommits +
+				", commitCounter=" + getCommitCounter() +
+				", baseCommitMetaData=" + baseCommitMetaData.toString() +
+				", baseProcessMetrics=" + baseProcessMetrics.toString() +
+				", currentProcessMetrics=" + currentProcessMetrics.toString() +
 				'}';
-	}
-
-	public int qtyOfCommits() {
-		return this.commits;
 	}
 }

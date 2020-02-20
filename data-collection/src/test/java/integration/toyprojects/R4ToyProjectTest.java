@@ -84,7 +84,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 		//no check if the class metrics were tracked and set correct
 		//TODO: Should the qtyOfCommits not be 3, as it is the 4th commit changing this file?
-		ProcessMetrics doubleRenameMetrics1 = new ProcessMetrics(
+		String doubleRenameMetrics1 = ProcessMetrics.toString(
 				2,
 				34,
 				4,
@@ -96,7 +96,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				1
 		);
 		//assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(0), doubleRenameMetrics1);
-		ProcessMetrics doubleRenameMetrics2 = new ProcessMetrics(
+		String doubleRenameMetrics2 = ProcessMetrics.toString(
 				2,
 				34,
 				4,
@@ -109,7 +109,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		);
 //		assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(1), doubleRenameMetrics2);
 
-		ProcessMetrics renameClassMetrics = new ProcessMetrics(
+		String renameClassMetrics = ProcessMetrics.toString(
 				4,
 				36,
 				6,
@@ -121,7 +121,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				3
 		);
 		//assertProcessMetrics(filterCommit(refactoringCommitList, renameClass).get(0), renameClassMetrics);
-		ProcessMetrics renameFullMetrics = new ProcessMetrics(
+		String renameFullMetrics = ProcessMetrics.toString(
 				5,
 				37,
 				7,
@@ -149,7 +149,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void renames(){
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
-		ProcessMetrics methodExtract = new ProcessMetrics(
+		String methodExtract = ProcessMetrics.toString(
 				1,
 				26,
 				0,
@@ -162,7 +162,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		);
 		//assertProcessMetrics(filterCommit(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0), methodExtract);
 
-		ProcessMetrics methodRename = new ProcessMetrics(
+		String methodRename = ProcessMetrics.toString(
 				6,
 				38,
 				8,
@@ -174,7 +174,6 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				5
 		);
 		//assertProcessMetrics(filterCommit(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0), methodRename);
-
 	}
 
 	@Test

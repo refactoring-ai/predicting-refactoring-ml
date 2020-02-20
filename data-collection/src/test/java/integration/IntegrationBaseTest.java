@@ -192,8 +192,8 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(commitMessage, commitMetaData.getCommitMessage());
 	}
 
-	protected void assertProcessMetrics(Instance instance, ProcessMetrics truth) {
-		Assert.assertEquals(truth.toString(), instance.getProcessMetrics().toString());
+	protected void assertProcessMetrics(Instance instance, String truth) {
+		Assert.assertEquals(truth, instance.getProcessMetrics().toString());
 	}
 
 	protected void assertInnerClass(List<? extends Instance> commitList, String commitId, String className, int qty){
