@@ -46,26 +46,12 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"extract method",
 				"Extract Method\tprivate print2() : void extracted from public print() : void in class a.Test",
-				"@local/repos/toyrepo-r5/" + commit);
+				"@local/repos/toyrepo-r5/" + commit,
+				"3f56031b1be69cb8db1779ef79645c2ab93a1616");
 	}
 
 	@Test
-	public void metrics() {
-
-		// the next two assertions come directly from a 'cloc .' in the project
-		Assert.assertEquals(19, project.getJavaLoc());
-
-		Assert.assertEquals(1, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
-		Assert.assertEquals(0, project.getNumberOfProductionFiles());
-
-		Assert.assertEquals(1, project.getNumberOfTestFiles());
-
-		Assert.assertEquals(0, project.getProductionLoc());
-
-		Assert.assertEquals(19, project.getTestLoc());
-
+	public void projectMetrics() {
+		assertProjectMetrics(1, 0, 1, 19, 0, 19);
 	}
-
-
 }

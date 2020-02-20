@@ -39,20 +39,12 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"inline method",
 				"Inline Method\tprivate convert(a int) : int inlined to public m1() : void in class a.Example1",
-				"@local/repos/toyrepo-r1/" + commit);
+				"@local/repos/toyrepo-r1/" + commit,
+				"a6d21e18c680431b0d4a09374e31a72144a728dc");
 	}
 
 	@Test
-	public void metrics() {
-		// the next two assertions come directly from a 'cloc .' in the project
-		Assert.assertEquals(9, project.getJavaLoc());
-
-		Assert.assertEquals(1, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
-		Assert.assertEquals(1, project.getNumberOfProductionFiles());
-
-		Assert.assertEquals(0, project.getNumberOfTestFiles());
-
-		Assert.assertEquals(9, project.getProductionLoc());
+	public void projectMetrics() {
+		assertProjectMetrics(1, 1, 0, 9, 9, 0);
 	}
 }

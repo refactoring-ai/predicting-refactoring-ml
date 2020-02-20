@@ -79,25 +79,7 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
 
     // check the number of test and production files as well as their LOC
     @Test
-    public void t3() {
-        // the next two assertions come directly from a 'cloc .' in the project
-        Assert.assertEquals(78054L, project.getJavaLoc());
-        Assert.assertEquals(340L, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
-        // find . -name "*.java" | grep "/test/" | wc
-        Assert.assertEquals(179, project.getNumberOfTestFiles());
-
-        // 340 - 179
-        Assert.assertEquals(161, project.getNumberOfProductionFiles());
-
-        // cloc . --by-file | grep "/test/"
-        Assert.assertEquals(49632, project.getTestLoc());
-
-        // 78054L - 49632
-        Assert.assertEquals(28422, project.getProductionLoc());
-
-
-        // Assert.assertEquals(33120617L, project.getProjectSizeInBytes());
+    public void projectMetrics() {
+        assertProjectMetrics(340, 161, 179, 78054, 28422, 49632);
     }
-
 }
