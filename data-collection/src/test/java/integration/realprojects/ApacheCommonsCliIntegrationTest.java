@@ -26,13 +26,11 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	}
 
 	@Override
-	protected String track() {
-		return "src/java/org/apache/commons/cli/Option.java";
-	}
+	protected String track() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
 
 	//Test the isInnerClass boolean for both yes and no.
 	@Test
-	public void isInnerClass() {
+	public void isInnerClass(){
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
 				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
 
@@ -45,22 +43,85 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		Assert.assertEquals(1, areInnerClassesInRefactorings.size());
 		Assert.assertEquals(9, areNotInnerClassesInRefactorings.size());
 
-//		List<StableCommit> stableCommits = getStableCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
-//				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
-//		Assert.assertEquals(927, stableCommits.size());
-//
-//		List<StableCommit> areInnerClassesInStable = stableCommits.stream().filter(commit ->
-//				commit.getClassMetrics().isInnerClass()
-//				&& commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
-//		List<StableCommit> areNotInnerClassesInStable = stableCommits.stream().filter(commit -> !commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
-//
-//		Assert.assertEquals(13, areInnerClassesInStable.size());
-//		Assert.assertEquals(914, areNotInnerClassesInStable.size());
+		/*
+		List<StableCommit> areInnerClassesInStable = getStableCommits().stream().filter(commit ->
+				commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
+		List<StableCommit> areNotInnerClassesInStable = getStableCommits().stream().filter(commit ->
+				!commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
+
+		Assert.assertEquals(43, areInnerClassesInStable.size());
+		Assert.assertEquals(2484, areNotInnerClassesInStable.size());
+		Assert.assertEquals(2527, getStableCommits().size());
+		*/
+	}
+
+	//Test if the inner classes are tracked and marked correctly, with all details
+	//This test requires multipleKs to work
+	@Test
+	public void isInnerClassDetails() {
+		//org.apache.commons.cli.HelpFormatter:
+		//Refactorings at (date asc):
+		// c7127329dad2c5d6284532da09ddc0fdefd67436
+		// 6bcbf153c4497c38c4c36c3a04c1eac1f4cc153b
+		//
+		// first commit afterwards: 9b2b8038b52be022e42c8c7fdf26e236888f94c5
+
+		//ApacheCommonsCli - Stable Innerclasses - Validated on (36016e4023cb74cd1076dbd33e0d7a73a6a61993):
+		assertInnerClass(
+				getStableCommits(),
+				"cd745ecf52fb2fe8fed1c67fc9149e4be11a73f0",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				4);
+		assertInnerClass(
+				getStableCommits(),
+				"6f972cf56d7a3054bac902fecb6d3dd5ee310dea",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				4);
+		assertInnerClass(
+				getStableCommits(),
+				"d1121d3ad3154e3564e150555dcedb368ad3aa94",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				5);
+		assertInnerClass(
+				getStableCommits(),
+				"1596f3bbe57986361da4ac1a23634dd5b00d10df",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				4);
+		assertInnerClass(
+				getStableCommits(),
+				"a955324468d45eb845e05107d5b0013285c3bc0a",
+				"org.apache.commons.cli.HelpFormatter.OptionComparator",
+				2);
+		assertInnerClass(
+				getStableCommits(),
+				"faa6455a9a0bccf29d049f0b0958eb9b2e804fc3",
+				"org.apache.commons.cli.Option.Builder",
+				20);
+		assertInnerClass(
+				getStableCommits(),
+				"cd745ecf52fb2fe8fed1c67fc9149e4be11a73f0",
+				"org.apache.commons.cli.OptionTest.TestOption",
+				5);
+		assertInnerClass(
+				getStableCommits(),
+				"cd745ecf52fb2fe8fed1c67fc9149e4be11a73f0",
+				"org.apache.commons.cli.OptionTest.DefaultOption",
+				4);
+		assertInnerClass(
+				getStableCommits(),
+				"aae50c585ec3ac33c6a9af792e80378904a73195",
+				"org.apache.commons.cli.HelpFormatter.StringBufferComparator",
+				1);
+		//Not sure if this one should show up, as it is right before a refactoring commit: 6bcbf153c4497c38c4c36c3a04c1eac1f4cc153b
+		assertInnerClass(
+				getStableCommits(),
+				"4c34483ea18c6a4f259f19a6d18637bb1fbae1e8",
+				"org.apache.commons.cli.HelpFormatter.StringBufferComparator",
+				1);
 	}
 
 	@Test
 	public void commitMetaData(){
-		//TODO: How to check the commit url without changing IntegrationBasetest, as the
 		String renameCommit = "04490af06faa8fd1be15da88172beb32218dd336";
 		assertMetaDataRefactoring(
 				renameCommit,
@@ -69,7 +130,8 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129803 13f79535-47bb-0310-9956-ffa450edef68",
 				"Extract Variable\tkey : String in method package setOpt(opt Option) : void from class org.apache.commons.cli.CommandLine",
-				"@local/repos/commons-cli/" + renameCommit);
+				"@local/repos/commons-cli/" + renameCommit,
+				"469e71799a438ccb2d0925e50d4bb9dce37cdba2");
 
 		String moveCommit = "347bbeb8f98a49744501ac50850457ba8751d545";
 		assertMetaDataRefactoring(
@@ -79,24 +141,34 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129846 13f79535-47bb-0310-9956-ffa450edef68",
 				"Rename Parameter\topts : Options to options : Options in method public parse(options Options, arguments String[], stopAtNonOption boolean) : CommandLine in class org.apache.commons.cli.Parser",
-				"@local/repos/commons-cli/" + moveCommit);
+				"@local/repos/commons-cli/" + moveCommit,
+				"3b8e3de5b7599a6165d48103f94f3a830361188d");
 
-		// TODO: this is wrong, the id of the commit in a 'No' is the base commit, i.e., where the class started to become 'stable' for X commits
-//		String stableCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
-//		assertMetaDataNo(
-//				stableCommit1,
-//				"@local/repos/commons-cli/" + renameCommit);
-//
-//		String stableCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
-//		assertMetaDataNo(
-//				stableCommit2,
-//				"@local/repos/commons-cli/" + renameCommit);
+		/*
+		String stableCommit1 = "aae50c585ec3ac33c6a9af792e80378904a73195";
+		assertMetaDataStable(
+				stableCommit1,
+				"@local/repos/commons-cli/" + stableCommit1,
+				"4868ac5e7c2afd428de74a6dcbec07dc6541a1ea",
+				"moved cli over from the sandbox to commons proper\n" +
+						"\n" +
+						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68");
+
+		String stableCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
+		assertMetaDataStable(
+				stableCommit2,
+				"@local/repos/commons-cli/" + stableCommit2,
+				"dde69934d7f0bee13e4cd1fc99a7d60ce95a0c78",
+				"javadoc updates\n" +
+						"\n" +
+						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68");
+		 */
 	}
 
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
 	// method getParsedOptionValue
 	@Test
-	public void t1() {
+	public void refactoringDetected1() {
 		RefactoringCommit instance1 = getRefactoringCommits().stream().filter(commit ->
 				commit.getCommit().equals("269eae18a911f792895d0402f5dd4e7913410523") &&
 						commit.getRefactoring().equals("Extract Method") &&
@@ -117,6 +189,8 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	// RefactoringCommit where variableAppearances = -1, as this happens in newly introduced variables.
 	@Test
 	public void t2() {
+		List<StableCommit> allStableCommits = getStableCommits();
+
 		List<StableCommit> stableCommitList = getStableCommits().stream().filter(commit ->
 				commit.getFilePath().equals("src/java/org/apache/commons/cli/Option.java")).collect(Collectors.toList());
 
@@ -132,30 +206,20 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		assertRefactoring(refactoringCommitList, "97744806d59820b096fb502b1d51ca54b5d0921d", "Rename Method", 1);
 		assertRefactoring(refactoringCommitList, "bfe6bd8634895645aa71d6a6dc668545297d7413", "Rename Parameter", 1);
 
-		// the file should appear twice as examples of 'no'
-		assertStableRefactoring(stableCommitList, "aae50c585ec3ac33c6a9af792e80378904a73195", "5470bcaa9d75d73fb9c687fa13e12d642c75984f");
-		// TODO: assertions related to the values of the No metrics
+		// the file should appear twice as examples of 'stableCommit'
+		assertStableCommit(stableCommitList, "5470bcaa9d75d73fb9c687fa13e12d642c75984f", "aae50c585ec3ac33c6a9af792e80378904a73195");
+		// TODO: assertions related to the values of the StableCommit metrics, What to expect here?
+		Assert.assertEquals(2599, allStableCommits.size());
 	}
 
-	// check the number of test and production files as well as their LOC
+	public void stableCommits(){
+		// TODO: check the commit meta data of the stable commits
+		// TODO: test the commit thresholds
+		Assert.assertEquals(true, false);
+	}
+
 	@Test
-	public void t3() {
-
-		// the next two assertions come directly from a 'cloc .' in the project
-		Assert.assertEquals(7070L, project.getJavaLoc());
-		Assert.assertEquals(52L, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
-		// find . -name "*.java" | grep "/test/" | wc
-		Assert.assertEquals(29, project.getNumberOfTestFiles());
-
-		// 52 - 29
-		Assert.assertEquals(23, project.getNumberOfProductionFiles());
-
-		// cloc . --by-file | grep "/test/"
-		Assert.assertEquals(4280, project.getTestLoc());
-
-		// 7070 - 4280
-		Assert.assertEquals(2790, project.getProductionLoc());
-
+	public void projectMetrics() {
+		assertProjectMetrics(52, 23, 29, 7070, 2790, 4280);
 	}
 }
