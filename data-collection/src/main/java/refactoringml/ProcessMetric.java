@@ -82,13 +82,7 @@ public class ProcessMetric {
 		baseCommits = commits;
 	}
 
-	public void increaseCounter() {
-		commitCounter++;
-	}
-
-	public int counter() {
-		return commitCounter;
-	}
+	public void increaseCommitCounter() { commitCounter++; }
 
 	public String getFileName () {
 		return fileName;

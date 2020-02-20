@@ -26,7 +26,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	}
 
 	@Override
-	protected String track() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
+	protected String trackFileName() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
 
 	//Test the isInnerClass boolean for both RefactoringCommit and StableCommit .
 	@Test

@@ -24,7 +24,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     }
 
     @Override
-    protected String track() {
+    protected String trackFileName() {
         return "src/main/java/org/apache/commons/csv/CSVFormat.java";
     }
 

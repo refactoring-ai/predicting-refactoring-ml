@@ -2,7 +2,6 @@ package refactoringml;
 
 import com.github.mauricioaniche.ck.CK;
 import com.github.mauricioaniche.ck.CKMethodResult;
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -99,7 +98,7 @@ public class ProcessMetricsCollector {
 		// but that's not a big deal.
 		for(ProcessMetric pm : pmDatabase.refactoredLongAgo()) {
 
-			if(TrackDebugMode.ACTIVE && pm.getFileName().equals(TrackDebugMode.FILE_TO_TRACK)) {
+			if(TrackDebugMode.ACTIVE && pm.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK)) {
 				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
 				log.debug("[TRACK] " + pm.toString());
 			}
@@ -123,7 +122,7 @@ public class ProcessMetricsCollector {
 			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
 				String fileName = enforceUnixPaths(entry.getNewPath());
 
-				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
+				if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
 					log.debug("[TRACK] File was changed in commit " + commit.getId().getName() + ", thus the process metrics are updated.");
 				}
 
@@ -163,10 +162,10 @@ public class ProcessMetricsCollector {
 
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
-				currentClazz.increaseCounter();
+				currentClazz.increaseCommitCounter();
 
-				if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
-					log.debug("[TRACK] Class stability counter increased to " + currentClazz.counter()
+				if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
+					log.debug("[TRACK] Class stability counter increased to " + currentClazz.getCommitCounter()
 							+ " for class: " + currentClazz.getFileName());
 				}
 			}
@@ -178,7 +177,7 @@ public class ProcessMetricsCollector {
 			RefactoringCommit refactoringCommit = db.findRefactoringCommit(refactoringCommitId);
 			String fileName = refactoringCommit.getFilePath();
 
-			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
+			if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
 				log.debug("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName()
 						+ " for class: " + commit.getName());
 			}
@@ -200,9 +199,9 @@ public class ProcessMetricsCollector {
 				currentProcessMetrics.resetCounter(commit.getName(), commit.getFullMessage(), JGitUtils.getGregorianCalendar(commit));
 			}
 
-			if(TrackDebugMode.ACTIVE && fileName.equals(TrackDebugMode.FILE_TO_TRACK)) {
+			if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
 				log.debug("[TRACK] Number of refactorings involved increased to " + currentProcessMetrics.getRefactoringsInvolved()
-						+ " and class stability counter set to: " + currentProcessMetrics.counter() + " for class: " + commit.getName());
+						+ " and class stability counter set to: " + currentProcessMetrics.getCommitCounter() + " for class: " + commit.getName());
 			}
 		}
 	}

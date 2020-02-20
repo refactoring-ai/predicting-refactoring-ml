@@ -1,6 +1,5 @@
 package integration;
 
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,7 +10,6 @@ import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
 import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
-import refactoringml.util.FilePathUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +36,7 @@ public abstract class IntegrationBaseTest {
 		return null;
 	}
 
-	protected String track() {
+	protected String trackFileName() {
 		return null;
 	}
 
@@ -71,9 +69,9 @@ public abstract class IntegrationBaseTest {
 
 		deleteProject(extractProjectNameFromGitUrl(getRepo()));
 
-		if(track()!=null || commitTrack() != null) {
+		if(trackFileName()!=null || commitTrack() != null) {
 			TrackDebugMode.ACTIVE = false;
-			TrackDebugMode.FILE_TO_TRACK = track();
+			TrackDebugMode.FILENAME_TO_TRACK = trackFileName();
 			TrackDebugMode.COMMIT_TO_TRACK = commitTrack();
 		}
 

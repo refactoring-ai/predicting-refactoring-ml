@@ -101,7 +101,7 @@ public class RefactoringAnalyzer {
 				String oldFileName = enforceUnixPaths(entry.getOldPath());
 				String currentFileName = enforceUnixPaths(entry.getNewPath());
 
-				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
+				if(TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
 					log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
 				}
 

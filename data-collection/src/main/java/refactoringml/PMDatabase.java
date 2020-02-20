@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PMDatabase {
-
 	private Map<String, ProcessMetric> database;
 	private int commitThreshold;
 
@@ -14,7 +13,6 @@ public class PMDatabase {
 		this.commitThreshold = commitThreshold;
 		this.database = new HashMap<>();
 	}
-
 
 	public boolean containsKey (String fileName) {
 		return database.containsKey(fileName);
@@ -30,7 +28,7 @@ public class PMDatabase {
 
 	public List<ProcessMetric> refactoredLongAgo () {
 		return database.values().stream()
-				.filter(p -> p.counter() >= commitThreshold)
+				.filter(p -> p.getCommitCounter() >= commitThreshold)
 				.collect(Collectors.toList());
 	}
 
