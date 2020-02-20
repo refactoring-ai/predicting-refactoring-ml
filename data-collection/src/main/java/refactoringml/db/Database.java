@@ -4,8 +4,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import java.math.BigInteger;
-
 public class Database {
 
 	private SessionFactory sf;
@@ -42,14 +40,14 @@ public class Database {
 				session.close();
 		} catch(Exception e) {
 			// what to do? this really shouldn't happen.
-			log.error("error when closing the connection", e);
+			log.error("Error when closing the connection to the Database: ", e);
 		} finally {
 			this.session = null;
 		}
 	}
 
-	public Yes findYes(Long yesId) {
-		return session.get(Yes.class, yesId);
+	public RefactoringCommit findRefactoringCommit(Long refactoringCommitId) {
+		return session.get(RefactoringCommit.class, refactoringCommitId);
 	}
 
 	public boolean projectExists(String gitUrl) {

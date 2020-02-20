@@ -3,6 +3,7 @@ package refactoringml;
 import java.util.*;
 import java.util.function.Predicate;
 
+//TODO: Refactor this class, e.g. by combining it with ProcessMetrics?
 //TODO: Rename this class, as it is easily confused with ProcessMetrics and the name does not describe its purpose well
 public class ProcessMetric {
 	//file name of this class
@@ -21,8 +22,9 @@ public class ProcessMetric {
 	//total count of (detected) refactorings on this class file
 	private int refactoringsInvolved = 0;
 
-	//counts the number of commits not refactoring this class, in order to verify the class as stable
-	private int counter = 0;
+	//number of commits affecting this class since the last refactoring
+	//Used to estimate if a class is stable
+	private int commitCounter = 0;
 
 	//counters at the time of the base (the stable commit) commit
 	private String baseCommitForNonRefactoring;
@@ -46,7 +48,7 @@ public class ProcessMetric {
 	}
 
 	//This class was changed by a commit.
-	public void reportChanges(String commitMsg, String authorName, int linesAdded, int linesDeleted) {
+	public void reportChanges (String commitMsg, String authorName, int linesAdded, int linesDeleted) {
 		commits++;
 
 		if(!authors.containsKey(authorName)) {
@@ -73,7 +75,7 @@ public class ProcessMetric {
 
 	//TODO: check what the unused baseCommitMessageForNonRefactoring does here
 	public void resetCounter(String commitHash, String baseCommitMessageForNonRefactoring, Calendar commitDate) {
-		counter = 0;
+		commitCounter = 0;
 		this.baseCommitForNonRefactoring = commitHash;
 		this.baseCommitDateForNonRefactoring = commitDate;
 
@@ -88,10 +90,13 @@ public class ProcessMetric {
 		baseCommits = commits;
 	}
 
-	public void increaseCounter() { counter++; }
+
+	public void increaseCounter() {
+		commitCounter++;
+	}
 
 	public int counter() {
-		return counter;
+		return commitCounter;
 	}
 
 	public String getFileName () {
@@ -182,6 +187,13 @@ public class ProcessMetric {
 		refactoringsInvolved++;
 	}
 
+	//Was this class file not refactored in the last K commits affecting this class file?
+	public boolean isStable(int commitThreshold){
+		return commitCounter >= commitThreshold;
+	}
+
+	public int getCommitCounter() { return commitCounter; }
+
 	@Override
 	public String toString() {
 		return "ProcessMetric{" +
@@ -192,7 +204,7 @@ public class ProcessMetric {
 				", linesDeleted=" + linesDeleted +
 				", bugFixCount=" + bugFixCount +
 				", refactoringsInvolved=" + refactoringsInvolved +
-				", counter=" + counter +
+				", commitCounter=" + commitCounter +
 				", baseCommitForNonRefactoring='" + baseCommitForNonRefactoring + '\'' +
 				", baseLinesAdded=" + baseLinesAdded +
 				", baseLinesDeleted=" + baseLinesDeleted +

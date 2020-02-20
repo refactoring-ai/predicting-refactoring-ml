@@ -42,10 +42,6 @@ You can run the data collection by simply running the `RunSingleProject.java` cl
 
 1. _Database password_: Database password. 
 
-1. _K threshold_: Threshold used to determine non-refactoring instances.
-
-1. _Test files only?_: False  if you want to analyse only production files; True if you want to analyze only test files.
-
 1. _Store full source code?_: True if you want to store the source code before and after in the storage path.
 
 These parameters can be passed via command-line, if you exported a JAR file. 
@@ -86,8 +82,8 @@ When running in scale, e.g., in thousands of projects, some projects might fail 
 We use the following queries to remove half-baked projects completely from our database:
 
 ```
-delete from yes where project_id in (select id from project where finishedDate is null);
-delete from no where project_id in (select id from project where finishedDate is null);
+delete from refactoringCommit where project_id in (select id from project where finishedDate is null);
+delete from stablecommit where project_id in (select id from project where finishedDate is null);
 delete from project where finishedDate is null;
 ```
 

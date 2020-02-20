@@ -18,17 +18,19 @@ public class FilePathUtils {
 	}
 
 	public static String fileNameOnly (String fileName) {
-		return new File(fileName).getName();
+		return new File(enforceUnixPaths(fileName)).getName();
 	}
 
 	public static boolean createAllDirs (String base, String fileName) {
 		return new File(lastSlashDir(base) + dirsOnly(fileName)).mkdirs();
 	}
 
-	public static String lastSlashDir (String path) {
-		//TODO: causes problems on Windows machines: C:\Users\test is made to C:\Users\test/
-		// Solution: enforce unix-style paths are only unix OSs
-		return path + (path.endsWith("/")?"":"/");
+	/*
+	Add a slash at the end of the path, if none exists and format the path in unix style.
+	*/
+	public static String lastSlashDir(String path) {
+		String unixPath = enforceUnixPaths(path);
+		return unixPath + (unixPath.endsWith("/")?"":"/");
 	}
 
 	/*

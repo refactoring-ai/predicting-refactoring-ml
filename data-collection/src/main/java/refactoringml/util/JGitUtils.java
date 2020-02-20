@@ -1,9 +1,7 @@
 package refactoringml.util;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
@@ -20,7 +18,7 @@ public class JGitUtils {
 	private static final Logger log = Logger.getLogger(JGitUtils.class);
 
 	public static String readFileFromGit (Repository repo, RevCommit commit, String filepath) throws IOException {
-		log.debug("reading file " + filepath + " in commit " + commit.getName());
+		log.debug("Reading file " + filepath + " in commit " + commit.getName());
 
 		try (TreeWalk walk = TreeWalk.forPath(repo, filepath, commit.getTree())) {
 			if (walk != null) {
@@ -63,7 +61,7 @@ public class JGitUtils {
 
 	//Generate the commit url with repository url and the commit ID
 	//Local repositories without remote are formatted as: @local/repository/commit Id
-	//TODO: evaluate if this pattern works for other repo hoster as well, e.g. bitbucket
+	//TODO: evaluate if this pattern works for other repo hosters as well, e.g. BitBucket
 	public static String generateCommitUrl(String repositoryUrl, String commitId, boolean isLocal){
 		if (isLocal){
 			return String.format("@local/%s/%s", repositoryUrl, commitId);
