@@ -13,6 +13,11 @@ import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R2ToyProjectTest extends IntegrationBaseTest {
+	@Override
+	protected String trackCommit(){return "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46";}
+
+	@Override
+	protected String trackFileName(){return "Person.java";}
 
 	@Override
 	protected String getRepo() {
@@ -37,8 +42,8 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		//TODO: Why are additions and deletions from commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 not counted?
 		RefactoringCommit extractClassRefactoring = (RefactoringCommit) filterCommit(refactoringCommitList, extractCommit).get(0);
 
-		//Additions:(6 + 3 + 25 + 1 + 5 = 40)
-		//Deletions:(0 + 3 +  0 + 2 + 0 =  5)
+		//Additions:(5 + 1 + 25 + 3 + 6 = 40)
+		//Deletions:(0 + 2 +  0 + 3 + 0 =  5)
 		assertProcessMetrics(extractClassRefactoring, ProcessMetrics.toString(5, 40, 5, 1, 0, 1, 1.0, 0, 1));
 		assertProcessMetrics(renameRefactoring, ProcessMetrics.toString(1, 5, 0, 1, 0, 1, 1.0, 0, 0));
 	}

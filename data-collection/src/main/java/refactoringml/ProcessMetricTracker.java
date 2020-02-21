@@ -1,5 +1,6 @@
 package refactoringml;
 
+import org.apache.log4j.Logger;
 import refactoringml.db.CommitMetaData;
 import refactoringml.db.ProcessMetrics;
 import java.util.*;

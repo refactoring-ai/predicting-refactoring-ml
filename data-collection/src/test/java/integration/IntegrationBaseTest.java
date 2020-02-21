@@ -32,12 +32,12 @@ public abstract class IntegrationBaseTest {
 	private List<RefactoringCommit> refactoringCommits;
 	private List<StableCommit> stableCommits;
 
-	protected String commitTrack() {
-		return null;
+	protected String trackCommit() {
+		return "null";
 	}
 
 	protected String trackFileName() {
-		return null;
+		return "null";
 	}
 
 	protected final boolean drop() {
@@ -69,10 +69,10 @@ public abstract class IntegrationBaseTest {
 
 		deleteProject(extractProjectNameFromGitUrl(getRepo()));
 
-		if(trackFileName()!=null || commitTrack() != null) {
-			TrackDebugMode.ACTIVE = false;
+		if(trackFileName() !=null || trackCommit() != null) {
+			TrackDebugMode.ACTIVE = true;
 			TrackDebugMode.FILENAME_TO_TRACK = trackFileName();
-			TrackDebugMode.COMMIT_TO_TRACK = commitTrack();
+			TrackDebugMode.COMMIT_TO_TRACK = trackCommit();
 		}
 
 		//set the stableCommitThreshold in the PMDatabase to test various configs

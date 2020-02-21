@@ -104,7 +104,6 @@ public class ProcessMetricsCollector {
 			// however, we might not be able to find the process metrics of that class.
 			// this will happen in strange cases where we never tracked that class before...
 			// for now, let's store it as -1, so that we can still use the data point for structural metrics
-			log.info(currentProcessMetricsTracker != null ? currentProcessMetricsTracker.toString() : "");
 			ProcessMetrics dbProcessMetrics  = currentProcessMetricsTracker != null ?
 					new ProcessMetrics(currentProcessMetricsTracker.getCurrentProcessMetrics()) :
 					new ProcessMetrics(-1, -1, -1, -1, -1);
@@ -123,7 +122,6 @@ public class ProcessMetricsCollector {
 			}
 		}
 	}
-
 
 	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit) throws IOException {
 		// if there are classes over the threshold, we output them as an examples of not refactored classes,
@@ -189,6 +187,7 @@ public class ProcessMetricsCollector {
 				int linesDeleted = 0;
 				int linesAdded = 0;
 
+				//TODO refactor to utils
 				for (Edit edit : diffFormatter.toFileHeader(entry).toEditList()) {
 					linesDeleted = edit.getEndA() - edit.getBeginA();
 					linesAdded = edit.getEndB() - edit.getBeginB();
@@ -200,9 +199,14 @@ public class ProcessMetricsCollector {
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
 				currentClazz.reportCommit(commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
 
+				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
+					log.info("[TRACK] Reported commit " + commit.getName() + " to pmTracker affecting class file: " + fileName + "\n" +
+							"\t\t\t\t\t\t\tlinesAdded: " + linesAdded + ", linesDeleted: " + linesDeleted + ", author: " + commit.getAuthorIdent().getName());
+				}
+
 				if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
 					log.debug("[TRACK] Class stability counter increased to " + currentClazz.getCommitCounter()
-							+ " for class: " + currentClazz.getFileName());
+							+ " for class: " + fileName);
 				}
 			}
 		}
