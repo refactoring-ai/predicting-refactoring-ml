@@ -3,6 +3,7 @@ package refactoringml.util;
 import gr.uom.java.xmi.UMLOperation;
 import gr.uom.java.xmi.UMLType;
 import gr.uom.java.xmi.diff.*;
+import org.eclipse.jgit.diff.Edit;
 import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringType;
 
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 
 public class RefactoringUtils {
 
@@ -90,6 +93,23 @@ public class RefactoringUtils {
 				isClassLevelRefactoring(refactoring) ||
 				isVariableLevelRefactoring(refactoring);
 	}
+
+	public static int calculateLinesAdded(List<Edit> editList){
+		int linesAdded = 0;
+		for (Edit edit : editList) {
+			linesAdded += edit.getLengthB();
+		}
+		return linesAdded;
+	}
+
+	public static int calculateLinesDeleted(List<Edit> editList) {
+		int linesDeleted = 0;
+		for (Edit edit : editList) {
+			linesDeleted += edit.getLengthA();
+		}
+		return linesDeleted;
+	}
+
 
 	// TODO: maybe in here we can find a way to add the full qualified names of types
 	// one needs to explore this 'UMLOperation' object a bit more
@@ -232,15 +252,5 @@ public class RefactoringUtils {
 		if(isVariableLevelRefactoring(refactoring)) return TYPE_VARIABLE_LEVEL;
 		if(isAttributeLevelRefactoring(refactoring)) return TYPE_ATTRIBUTE_LEVEL;
 		return -1;
-	}
-
-	public static boolean isTestFile(String fileName) {
-		if(!FileUtils.IsJavaFile(fileName))
-			return false;
-
-		//TODO: enforce unix style paths here, enforceUnixStyle will be introduced by PR #33
-		String normalizedFileName = fileName.toLowerCase();
-		return normalizedFileName.contains("test") ||
-				normalizedFileName.contains("/test/");
 	}
 }

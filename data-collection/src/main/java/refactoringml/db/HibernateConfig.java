@@ -6,6 +6,8 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 
+import javax.persistence.CascadeType;
+import javax.persistence.ManyToOne;
 import java.util.Properties;
 
 public class HibernateConfig {
@@ -56,10 +58,17 @@ public class HibernateConfig {
 
 			configuration.setProperties(settings);
 
-			configuration.addAnnotatedClass(Yes.class);
-			configuration.addAnnotatedClass(No.class);
+			configuration.addAnnotatedClass(RefactoringCommit.class);
+			configuration.addAnnotatedClass(StableCommit.class);
 			configuration.addAnnotatedClass(Project.class);
+
+			//features of Instance for DB normalization
 			configuration.addAnnotatedClass(CommitMetaData.class);
+			configuration.addAnnotatedClass(ClassMetric.class);
+			configuration.addAnnotatedClass(MethodMetric.class);
+			configuration.addAnnotatedClass(VariableMetric.class);
+			configuration.addAnnotatedClass(FieldMetric.class);
+			configuration.addAnnotatedClass(ProcessMetrics.class);
 
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
 					.applySettings(configuration.getProperties()).build();
