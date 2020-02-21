@@ -24,6 +24,8 @@ import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
+import static refactoringml.util.RefactoringUtils.calculateLinesAdded;
+import static refactoringml.util.RefactoringUtils.calculateLinesDeleted;
 
 public class ProcessMetricsCollector {
 
@@ -93,11 +95,6 @@ public class ProcessMetricsCollector {
 			RefactoringCommit refactoringCommit = db.findRefactoringCommit(refactoringCommitId);
 			String fileName = refactoringCommit.getFilePath();
 
-			if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
-				log.debug("[TRACK] Collecting process metrics at refactoring commit " + commit.getId().getName()
-						+ " for class: " + commit.getName());
-			}
-
 			ProcessMetricTracker currentProcessMetricsTracker = pmDatabase.get(fileName);
 
 			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
@@ -111,12 +108,18 @@ public class ProcessMetricsCollector {
 			refactoringCommit.setProcessMetrics(dbProcessMetrics);
 			db.update(refactoringCommit);
 
+			if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
+				log.debug("[TRACK] Collected process metrics at refactoring commit " + commit.getId().getName()
+						+ " for class: " + commit.getName() + "\n" +
+						"\t\t\t\t\t\t\tRefactoringCommit ProcessMetrics: " + refactoringCommit.getProcessMetrics());
+			}
+
 			// update counters
 			if(currentProcessMetricsTracker != null) {
 				currentProcessMetricsTracker.resetCounter(new CommitMetaData(commit, project));
 			}
 
-			if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
+			if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 				log.debug("[TRACK] Number of refactorings involved increased to " + currentProcessMetricsTracker.getCurrentProcessMetrics().refactoringsInvolved
 						+ " and class stability counter was reduced to: " + currentProcessMetricsTracker.getCommitCounter() + " for class: " + currentProcessMetricsTracker.getFileName());
 			}
@@ -133,7 +136,7 @@ public class ProcessMetricsCollector {
 		// but that's not a big deal.
 		for(ProcessMetricTracker pm : pmDatabase.refactoredLongAgo()) {
 
-			if(TrackDebugMode.ACTIVE && pm.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK)) {
+			if(TrackDebugMode.ACTIVE && (pm.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
 				log.debug("[TRACK] " + pm.toString());
 			}
@@ -156,13 +159,13 @@ public class ProcessMetricsCollector {
 			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
 				String fileName = enforceUnixPaths(entry.getNewPath());
 
-				if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
-					log.debug("[TRACK] File was changed in commit " + commit.getId().getName() + ", thus the process metrics are updated.");
-				}
-
 				// do not collect these numbers if not a java file (save some memory)
 				if (!refactoringml.util.FileUtils.IsJavaFile(fileName))
 					continue;
+
+				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
+					log.debug("[TRACK] File was changed in commit " + commit.getId().getName() + ", thus the process metrics are updated.");
+				}
 
 				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
 				// with the refactoring counter...
@@ -179,19 +182,13 @@ public class ProcessMetricsCollector {
 
 				// add class to our in-memory pmDatabase
 				if(!pmDatabase.containsKey(fileName)) {
-					String parentCommit = commit.getParentCount() > 0 ? commit.getParent(0).getName() : "Null";
 					pmDatabase.put(fileName, new ProcessMetricTracker(fileName, new CommitMetaData(commit, project)));
 				}
 
 				// collect number of lines deleted and added in that file
-				int linesDeleted = 0;
-				int linesAdded = 0;
-
-				//TODO refactor to utils
-				for (Edit edit : diffFormatter.toFileHeader(entry).toEditList()) {
-					linesDeleted = edit.getEndA() - edit.getBeginA();
-					linesAdded = edit.getEndB() - edit.getBeginB();
-				}
+				List<Edit> editList = diffFormatter.toFileHeader(entry).toEditList();
+				int linesDeleted = calculateLinesDeleted(editList);
+				int linesAdded = calculateLinesAdded(editList);
 
 				// update our pmDatabase entry with the information of the current commit
 				ProcessMetricTracker currentClazz = pmDatabase.get(fileName);
@@ -200,13 +197,13 @@ public class ProcessMetricsCollector {
 				currentClazz.reportCommit(commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
 
 				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
-					log.info("[TRACK] Reported commit " + commit.getName() + " to pmTracker affecting class file: " + fileName + "\n" +
+					log.debug("[TRACK] Reported commit " + commit.getName() + " to pmTracker affecting class file: " + fileName + "\n" +
 							"\t\t\t\t\t\t\tlinesAdded: " + linesAdded + ", linesDeleted: " + linesDeleted + ", author: " + commit.getAuthorIdent().getName());
 				}
 
-				if(TrackDebugMode.ACTIVE && fileName.contains(TrackDebugMode.FILENAME_TO_TRACK)) {
-					log.debug("[TRACK] Class stability counter increased to " + currentClazz.getCommitCounter()
-							+ " for class: " + fileName);
+				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
+					log.debug("[TRACK] Class stability counter increased to " + currentClazz.getCommitCounter() + " for class: " + fileName + "\n" +
+							"\t\t\t\t\t\t\tcurrent ProcessMetrics: " + currentClazz.getCurrentProcessMetrics());
 				}
 			}
 		}

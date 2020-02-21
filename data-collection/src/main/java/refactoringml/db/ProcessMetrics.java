@@ -20,9 +20,14 @@ public class ProcessMetrics {
 	@Column(nullable = true) public int bugFixCount = 0;
 	@Column(nullable = true) public int refactoringsInvolved = 0;
 
+	@Column(nullable = true) private int qtyOfAuthors;
+	@Column(nullable = true) private int qtyMinorAuthors;
+	@Column(nullable = true) private int qtyMajorAuthors;
+	@Column(nullable = true) private double authorOwnership;
+
 	//all authors with commits affecting this class file
 	@Transient
-	public Map<String, Integer> allAuthors = new HashMap<>();
+	private Map<String, Integer> allAuthors = new HashMap<>();
 
 	@Deprecated // hibernate purposes
 	public ProcessMetrics() {}
@@ -38,18 +43,27 @@ public class ProcessMetrics {
 	//Deep copy the ProcessMetrics collected by ProcessMetricTracker
 	public ProcessMetrics(ProcessMetrics pm){
 		this(pm.qtyOfCommits, pm.linesAdded, pm.linesDeleted, pm.bugFixCount, pm.refactoringsInvolved);
-		this.allAuthors = new HashMap<>(pm.allAuthors);
+		this.allAuthors = new HashMap<>(pm.getAllAuthors());
+		updateAuthors();
+	}
+
+	public void updateAuthorCommits(String authorName){
+		if(!allAuthors.containsKey(authorName)) {
+			allAuthors.put(authorName, 1);
+		} else{
+			allAuthors.put(authorName, allAuthors.get(authorName) + 1);
+		}
+		updateAuthors();
 	}
 
 	//Properties
-	@Column(nullable = true)
 	public int qtyOfAuthors() { return allAuthors.size(); }
 
-	public long qtyMinorAuthors() {
+	public int qtyMinorAuthors() {
 		return countAuthors(author -> allAuthors.get(author) < fivePercent());
 	}
 
-	public long qtyMajorAuthors() {
+	public int qtyMajorAuthors() {
 		return countAuthors(author -> allAuthors.get(author) >= fivePercent());
 	}
 
@@ -61,21 +75,30 @@ public class ProcessMetrics {
 		return allAuthors.get(mostRecurrentAuthor) / (double) qtyOfCommits;
 	}
 
+	public Map<String, Integer> getAllAuthors(){return allAuthors;}
+
 	//utils
 	private double fivePercent () {
 		return qtyOfCommits * 0.05;
 	}
 
-	private long countAuthors (Predicate<String> predicate) {
-		return allAuthors.keySet().stream()
+	private int countAuthors (Predicate<String> predicate) {
+		return (int) allAuthors.keySet().stream()
 				.filter(predicate)
 				.count();
 	}
 
+	private void updateAuthors(){
+		this.qtyOfAuthors = qtyOfAuthors();
+		this.qtyMinorAuthors = qtyMinorAuthors();
+		this.qtyMajorAuthors = qtyMajorAuthors();
+		this.authorOwnership = authorOwnership();
+	}
+
 	@Override
 	public String toString() {
-		return toString(qtyOfCommits, linesAdded, linesDeleted, qtyOfAuthors(), qtyMinorAuthors(),
-				qtyMajorAuthors(), authorOwnership(), bugFixCount, refactoringsInvolved);
+		return toString(qtyOfCommits, linesAdded, linesDeleted, qtyOfAuthors, qtyMinorAuthors,
+				qtyMajorAuthors, authorOwnership, bugFixCount, refactoringsInvolved);
 	}
 
 	//for testing

@@ -44,8 +44,10 @@ public class ProcessMetricTrackerTest {
 
 		//22 commits affected a.Java, thus the current process metrics should look like this:
 		ProcessMetrics currentProcessMetrics = new ProcessMetrics(22, 31, 26, 1, 0);
-		currentProcessMetrics.allAuthors.put("Mauricio", 21);
-		currentProcessMetrics.allAuthors.put("Jan", 1);
+		for(int i = 0; i < 21; i++) {
+			currentProcessMetrics.updateAuthorCommits("Mauricio");
+		}
+		currentProcessMetrics.updateAuthorCommits("Jan");
 		Assert.assertEquals(currentProcessMetrics.toString(), pm.getCurrentProcessMetrics().toString());
 
 		//Assert if the tracker is counting the commits since the last refactoring correct
@@ -77,8 +79,10 @@ public class ProcessMetricTrackerTest {
 		//Assert if the values of the deep base process metrics are correct
 		//22 commits affected a.Java, thus the current process metrics should look like this:
 		ProcessMetrics currentProcessMetrics = new ProcessMetrics(22, 31, 26, 1, 1);
-		currentProcessMetrics.allAuthors.put("Mauricio", 21);
-		currentProcessMetrics.allAuthors.put("Jan", 1);
+		for(int i = 0; i < 21; i++) {
+			currentProcessMetrics.updateAuthorCommits("Mauricio");
+		}
+		currentProcessMetrics.updateAuthorCommits("Jan");
 		Assert.assertEquals(currentProcessMetrics.toString(), pm.getCurrentProcessMetrics().toString());
 
 		//Assert if the tracker is counting the commits since the last refactoring correct

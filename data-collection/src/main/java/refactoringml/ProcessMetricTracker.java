@@ -34,10 +34,7 @@ public class ProcessMetricTracker {
 	public void reportCommit(String commitMsg, String authorName, int linesAdded, int linesDeleted) {
 		currentProcessMetrics.qtyOfCommits++;
 
-		if(!currentProcessMetrics.allAuthors.containsKey(authorName)) {
-			currentProcessMetrics.allAuthors.put(authorName, 0);
-		}
-		currentProcessMetrics.allAuthors.put(authorName, currentProcessMetrics.allAuthors.get(authorName)+1);
+		currentProcessMetrics.updateAuthorCommits(authorName);
 
 		currentProcessMetrics.linesAdded += linesAdded;
 		currentProcessMetrics.linesDeleted += linesDeleted;

@@ -8,7 +8,6 @@ public class UtilsTest {
 
 	@Test
 	public void classFromFileName() {
-
 		Assert.assertEquals("File", FilePathUtils.classFromFileName("/some/dir/File.java"));
 		Assert.assertEquals("File", FilePathUtils.classFromFileName("c:\\some\\dir\\File.java"));
 		Assert.assertEquals("File", FilePathUtils.classFromFileName("/File.java"));
@@ -17,9 +16,17 @@ public class UtilsTest {
 
 	@Test
 	public void classFromFullName() {
-
 		Assert.assertEquals("File", FilePathUtils.classFromFullName(".some.pack.File"));
 		Assert.assertEquals("File", FilePathUtils.classFromFullName("File"));
+	}
+
+	@Test
+	public void calculateLinesAdded(){
+
+	}
+
+	@Test
+	public void calculateLinesDeleted(){
 
 	}
 }
