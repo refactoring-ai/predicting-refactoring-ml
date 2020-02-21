@@ -1,7 +1,6 @@
 package refactoringml.db;
 
 import org.eclipse.jgit.revwalk.RevCommit;
-import refactoringml.ProcessMetricTracker;
 import refactoringml.util.JGitUtils;
 
 import javax.persistence.*;
@@ -10,7 +9,6 @@ import java.util.Calendar;
 @Entity
 @Table(name = "commit_metadata")
 public class CommitMetaData {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -44,15 +42,7 @@ public class CommitMetaData {
         this.commitDate = JGitUtils.getGregorianCalendar(commit);
         this.commitMessage = commit.getFullMessage().trim();
         this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
-        this.parentCommit = commit.getParent(0).getName();
-    }
-
-    public CommitMetaData(ProcessMetricTracker clazz, Project project){
-        this.commitId = clazz.getBaseCommitForNonRefactoring();
-        this.commitDate = clazz.getBaseCommitDateForNonRefactoring();
-        this.commitMessage = clazz.getBaseCommitMessageForNonRefactoring().trim();
-        this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
-        this.parentCommit = clazz.getParentCommit();
+        this.parentCommit = commit.getParentCount() == 0 ? "Null" : commit.getParent(0).getName();
     }
 
     public String getCommitUrl (){return commitUrl;}

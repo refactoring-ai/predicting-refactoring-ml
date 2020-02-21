@@ -32,12 +32,12 @@ public abstract class IntegrationBaseTest {
 	private List<RefactoringCommit> refactoringCommits;
 	private List<StableCommit> stableCommits;
 
-	protected String commitTrack() {
-		return null;
+	protected String trackCommit() {
+		return "null";
 	}
 
 	protected String trackFileName() {
-		return null;
+		return "null";
 	}
 
 	protected final boolean drop() {
@@ -69,10 +69,10 @@ public abstract class IntegrationBaseTest {
 
 		deleteProject(extractProjectNameFromGitUrl(getRepo()));
 
-		if(trackFileName()!=null || commitTrack() != null) {
-			TrackDebugMode.ACTIVE = false;
+		if(trackFileName() !=null || trackCommit() != null) {
+			TrackDebugMode.ACTIVE = true;
 			TrackDebugMode.FILENAME_TO_TRACK = trackFileName();
-			TrackDebugMode.COMMIT_TO_TRACK = commitTrack();
+			TrackDebugMode.COMMIT_TO_TRACK = trackCommit();
 		}
 
 		//set the stableCommitThreshold in the PMDatabase to test various configs
@@ -192,8 +192,8 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(commitMessage, commitMetaData.getCommitMessage());
 	}
 
-	protected void assertProcessMetrics(Instance instance, ProcessMetrics truth) {
-		Assert.assertEquals(truth.toString(), instance.getProcessMetrics().toString());
+	protected void assertProcessMetrics(Instance instance, String truth) {
+		Assert.assertEquals(truth, instance.getProcessMetrics().toString());
 	}
 
 	protected void assertInnerClass(List<? extends Instance> commitList, String commitId, String className, int qty){
