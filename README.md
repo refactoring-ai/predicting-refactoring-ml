@@ -32,17 +32,17 @@ You can run the data collection by simply running the `RunSingleProject.java` cl
 
 1. _The dataset name_: A hard-coded string with the name of the dataset (e.g., "apache", "fdroid"). This information appears in the generated data later on, so that you can use it as a filter.
 
-2. _The git URL_: The git url of the project to be analyzed. Your local machine must have all the permissions to clone it (i.e., _git clone url_ should work). Cloning will happen in a temporary directory.
+1. _The git URL_: The git url of the project to be analyzed. Your local machine must have all the permissions to clone it (i.e., _git clone url_ should work). Cloning will happen in a temporary directory.
 
-3. _Storage path_: The directory where the tool is going to store the source code before and after the refactoring. This step is important if you plan to do later analysis on the refactored files. The directory structure basically contains the hash of the refactoring, as well as the file before and after. The name of the file also contains the refactoring it suffered, to facilitate parsing. For more details on the name of the file, see our implementation.
+1. _Storage path_: The directory where the tool is going to store the source code before and after the refactoring. This step is important if you plan to do later analysis on the refactored files. The directory structure basically contains the hash of the refactoring, as well as the file before and after. The name of the file also contains the refactoring it suffered, to facilitate parsing. For more details on the name of the file, see our implementation.
 
-4. _Database URL_: JDBC URL that points to your MySQL. The database must exist and be empty. The tool will create the required tables.
+1. _Database URL_: JDBC URL that points to your MySQL. The database must exist and be empty. The tool will create the required tables.
 
-5. _Database user_: Database user.
+1. _Database user_: Database user.
 
-6. _Database password_: Database password. 
+1. _Database password_: Database password. 
 
-7. _Store full source code?_: True if you want to store the source code before and after in the storage path.
+1. _Store full source code?_: True if you want to store the source code before and after in the storage path.
 
 These parameters can be passed via command-line, if you exported a JAR file. 
 Example:
