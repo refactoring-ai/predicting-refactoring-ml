@@ -1,6 +1,5 @@
 package refactoringml.db;
 
-import refactoringml.util.RefactoringUtils;
 import javax.persistence.*;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;

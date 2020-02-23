@@ -129,7 +129,7 @@ public abstract class IntegrationBaseTest {
 			return refactoringCommits;
 
 		this.session = sf.openSession();
-		refactoringCommits = session.createQuery("From RefactoringCommit where project = :project order by commitMetaData.commitDate desc")
+		refactoringCommits = session.createQuery("From RefactoringCommit where project = :project order by id asc")
 				.setParameter("project", project)
 				.list();
 		this.session.close();
@@ -143,7 +143,7 @@ public abstract class IntegrationBaseTest {
 			return stableCommits;
 
 		this.session = sf.openSession();
-		stableCommits = session.createQuery("From StableCommit where project = :project order by commitMetaData.commitDate desc")
+		stableCommits = session.createQuery("From StableCommit where project = :project order by id asc")
 				.setParameter("project", project)
 				.list();
 		this.session.close();

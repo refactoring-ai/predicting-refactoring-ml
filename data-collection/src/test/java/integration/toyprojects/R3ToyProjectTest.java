@@ -30,7 +30,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void refactorings() {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
-		Assert.assertEquals(14, refactoringCommitList.size());
+		Assert.assertEquals(17, refactoringCommitList.size());
 
 		assertRefactoring(refactoringCommitList, "074881da657ed0a11527cb8b14bba12e4111c704", "Rename Class", 1);
 		assertRefactoring(refactoringCommitList, "d025fed92a7253953a148f7264de28a85bc9af4e", "Rename Method", 2);

@@ -166,10 +166,7 @@ public class App {
 					for (Refactoring ref : refactoringsToProcess) {
 						try {
 							db.openSession();
-							CommitMetaData commitMetaData = new CommitMetaData(currentCommit, project);
-							db.persist(commitMetaData);
-
-							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref, commitMetaData));
+							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref));
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;

@@ -2,6 +2,7 @@ package refactoringml.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -65,5 +66,18 @@ public class FileUtils {
 	public static String createTmpDir() {
 		String rawTempDir = com.google.common.io.Files.createTempDir().getAbsolutePath();
 		return lastSlashDir(rawTempDir);
+	}
+
+	public static void writeFile(String path, String fileName, String content) throws IOException {
+		new File(path).mkdirs();
+		PrintStream ps = new PrintStream(path  + "/" + fileName);
+		ps.print(content);
+		ps.close();
+	}
+
+	public static void cleanTempDir (String tempDir) throws IOException {
+		if(tempDir != null) {
+			org.apache.commons.io.FileUtils.deleteDirectory(new File(tempDir));
+		}
 	}
 }

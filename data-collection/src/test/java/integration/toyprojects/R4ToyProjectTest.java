@@ -48,11 +48,11 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(6, refactoringCommitList.size());
 
 		assertRefactoring(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b", "Rename Method", 1);
-		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", refactoringCommitList.get(0).getClassName());
+		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", filterCommit(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0).getClassName());
 
 		assertRefactoring(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98", "Extract Method", 1);
-		Assertions.assertEquals("a.Animal.Dog", refactoringCommitList.get(5).getClassName());
-		Assertions.assertTrue(refactoringCommitList.get(5).getClassMetrics().isInnerClass());
+		Assertions.assertEquals("a.Animal.Dog", refactoringCommitList.get(0).getClassName());
+		Assertions.assertTrue(filterCommit(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0).getClassMetrics().isInnerClass());
 	}
 
 	@Test
