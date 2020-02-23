@@ -50,11 +50,6 @@ public class RefactoringAnalyzer {
 	}
 
 	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring, CommitMetaData commitMetaData ) throws IOException {
-		//TODO: remove this check, because it is not necessary anymore
-		if (!studied(refactoring)) {
-			return new HashSet<Long>();
-		}
-
 		String refactoringSummary = refactoring.toString().trim();
 		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {

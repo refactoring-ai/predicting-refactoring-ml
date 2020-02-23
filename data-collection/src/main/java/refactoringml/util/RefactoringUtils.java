@@ -88,12 +88,6 @@ public class RefactoringUtils {
 		return variableLevelRefactorings.contains(refactoring.getRefactoringType());
 	}
 
-	public static boolean studied(Refactoring refactoring) {
-		return isMethodLevelRefactoring(refactoring) ||
-				isClassLevelRefactoring(refactoring) ||
-				isVariableLevelRefactoring(refactoring);
-	}
-
 	public static int calculateLinesAdded(List<Edit> editList){
 		int linesAdded = 0;
 		for (Edit edit : editList) {
