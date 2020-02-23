@@ -60,7 +60,6 @@ public class RefactoringAnalyzer {
 		Set<Long> allRefactorings = new HashSet<Long>();
 
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
-
 			String refactoredClassFile = pair.getLeft();
 			String refactoredClassName = pair.getRight();
 

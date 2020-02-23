@@ -157,6 +157,8 @@ public class App {
 				if(currentCommit.getParentCount()==1)
 					miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
 
+				//TODO: test how many elements are  in allRefactoringCommits if multiple refactorings are in one commit,
+				// are they than applied multiple times to the same class file, as we can't separate between subclasses for the process metrics
 				//stores all the ck metrics for the current commit
 				Set<Long> allRefactoringCommits = new HashSet<Long>();
 

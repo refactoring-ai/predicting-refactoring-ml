@@ -67,7 +67,7 @@ public class PMDatabaseTest {
     public void reportRefactoring(){
         PMDatabase pmDatabase = new PMDatabase(10);
 
-        pmDatabase.reportRefactoring("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
+        pmDatabase.reportRefactoring("a.Java", new CommitMetaData("1", "null", "null", "0"));
         Assert.assertNotNull(pmDatabase.find("a.Java"));
         Assert.assertEquals(0, pmDatabase.find("a.Java").getCommitCounter());
         Assert.assertEquals(
@@ -84,7 +84,7 @@ public class PMDatabaseTest {
         Assert.assertEquals(1, pmDatabase.find("a.Java").getCommitCounter());
         Assert.assertEquals(1, pmDatabase.find("A.Java").getCommitCounter());
 
-        pmDatabase.reportRefactoring("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
+        pmDatabase.reportRefactoring("a.Java", new CommitMetaData("1", "null", "null", "0"));
         Assert.assertEquals(0, pmDatabase.find("a.Java").getCommitCounter());
         Assert.assertEquals(
                 pmDatabase.find("a.Java").getCurrentProcessMetrics().toString(),
@@ -215,7 +215,7 @@ public class PMDatabaseTest {
             Assert.assertEquals(0, pm.findStableInstances().size());
         }
 
-        pm.reportRefactoring("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
+        pm.reportRefactoring("a.Java", new CommitMetaData("1", "null", "null", "0"));
         Assert.assertEquals(0, pm.find("a.Java").getCommitCounter());
         Assert.assertEquals(0, pm.findStableInstances().size());
 

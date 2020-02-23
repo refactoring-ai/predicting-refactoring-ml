@@ -54,11 +54,11 @@ public class PMDatabase {
 
 	//Reset the tracker with latest refactoring and its commit meta data
 	//the commitCounter will be zero again
-	public void reportRefactoring(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
-		reportChanges(fileName, commitMetaData, authorName, linesAdded, linesDeleted);
-
-		ProcessMetricTracker pmTracker = database.get(fileName);
+	public void reportRefactoring(String fileName, CommitMetaData commitMetaData) {
+		ProcessMetricTracker pmTracker = database.getOrDefault(fileName, new ProcessMetricTracker(fileName, commitMetaData));
 		pmTracker.resetCounter(commitMetaData);
+
+		database.put(fileName, pmTracker);
 	}
 
 	public String toString(){
