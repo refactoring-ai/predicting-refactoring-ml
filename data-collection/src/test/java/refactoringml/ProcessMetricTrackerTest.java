@@ -2,13 +2,13 @@ package refactoringml;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
 import refactoringml.db.CommitMetaData;
 import refactoringml.db.ProcessMetrics;
 
 import java.util.Random;
 
-//Tests both the ProcessMetricTracker and ProcessMetrics classes
+//Tests the ProcessMetricTracker and ProcessMetrics classes
+//Closely linked to PMDatabaseTest
 public class ProcessMetricTrackerTest {
 	//Test if the constructor of the ProcessMetricTracker works as intended
 	@Test
@@ -155,12 +155,5 @@ public class ProcessMetricTrackerTest {
 		}
 
 		Assert.assertEquals(qty, pm.getCurrentProcessMetrics().bugFixCount);
-	}
-
-
-	@Test
-	@Disabled
-	public void isStable(){
-		//TODO: write a test to test the ProcessMetricTracker isStable function
 	}
 }

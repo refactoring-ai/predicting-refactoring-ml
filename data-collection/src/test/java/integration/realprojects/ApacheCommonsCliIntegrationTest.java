@@ -156,6 +156,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"4868ac5e7c2afd428de74a6dcbec07dc6541a1ea",
 				"moved cli over from the sandbox to commons proper\n" +
 						"\n" +
+						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68");
 
 		String stableCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
@@ -164,6 +165,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"@local/repos/commons-cli/" + stableCommit2,
 				"dde69934d7f0bee13e4cd1fc99a7d60ce95a0c78",
 				"javadoc updates\n" +
+						"\n" +
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68");
 	}
@@ -243,19 +245,16 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	// test if test files are marked as tests, and production files are not
 	@Test
 	public void isTest() {
-		//Manually verified by for commit b9ccc94008c78a59695f0c77ebe4ecf284370956
-		Assert.assertEquals(29, project.getNumberOfTestFiles());
-
-		List<StableCommit> stableCommitListTests =  getStableCommits().stream().filter(stable -> stable.getIsTest()).collect(Collectors.toList());
-		List<StableCommit> stableCommitListNoTests =  getStableCommits().stream().filter(stable -> !stable.getIsTest()).collect(Collectors.toList());
-		Assert.assertEquals(0, stableCommitListTests.size());
-		Assert.assertEquals(0, stableCommitListNoTests.size());
-
 		// it has been through 9 different refactorings
 		List<RefactoringCommit> yesListTests = getRefactoringCommits().stream().filter(refactoring -> refactoring.getIsTest()).collect(Collectors.toList());
 		List<RefactoringCommit> yesListNoTests = getRefactoringCommits().stream().filter(refactoring -> !refactoring.getIsTest()).collect(Collectors.toList());
 		Assert.assertEquals(0, yesListTests.size());
 		Assert.assertEquals(0, yesListNoTests.size());
+
+		List<StableCommit> stableCommitListTests =  getStableCommits().stream().filter(stable -> stable.getIsTest()).collect(Collectors.toList());
+		List<StableCommit> stableCommitListNoTests =  getStableCommits().stream().filter(stable -> !stable.getIsTest()).collect(Collectors.toList());
+		Assert.assertEquals(0, stableCommitListTests.size());
+		Assert.assertEquals(0, stableCommitListNoTests.size());
 	}
 
 	@Test

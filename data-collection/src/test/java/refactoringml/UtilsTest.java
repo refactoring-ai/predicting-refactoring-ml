@@ -11,7 +11,6 @@ import static refactoringml.util.FileUtils.IsJavaFile;
 import static refactoringml.util.FileUtils.IsTestFile;
 
 public class UtilsTest {
-
 	@Test
 	public void classFromFileName() {
 		Assert.assertEquals("File", FilePathUtils.classFromFileName("/some/dir/File.java"));

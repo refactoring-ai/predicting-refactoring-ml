@@ -75,7 +75,7 @@ public class ProcessMetricsCollector {
 
 		// we go now change by change in the commit to update the process metrics there
 		// (no need for db here, as this update happens only locally)
-		updateProcessMetrics(commit, commitParent);
+		updateProcessMetrics(commit, commitParent, new CommitMetaData(commit, project));
 
 		// update classes that were not refactored on this commit
 		try {
@@ -95,7 +95,7 @@ public class ProcessMetricsCollector {
 			RefactoringCommit refactoringCommit = db.findRefactoringCommit(refactoringCommitId);
 			String fileName = refactoringCommit.getFilePath();
 
-			ProcessMetricTracker currentProcessMetricsTracker = pmDatabase.get(fileName);
+			ProcessMetricTracker currentProcessMetricsTracker = pmDatabase.find(fileName);
 
 			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
 			// however, we might not be able to find the process metrics of that class.
@@ -134,7 +134,7 @@ public class ProcessMetricsCollector {
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
-		for(ProcessMetricTracker pm : pmDatabase.refactoredLongAgo()) {
+		for(ProcessMetricTracker pm : pmDatabase.findStableInstances()) {
 
 			if(TrackDebugMode.ACTIVE && (pm.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter");
@@ -150,7 +150,7 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent) throws IOException {
+	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent, CommitMetaData commitMetaData) throws IOException {
 		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 			diffFormatter.setRepository(repository);
 			diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
@@ -174,15 +174,10 @@ public class ProcessMetricsCollector {
 				//TODO: track moves e.g. src/java/org/apache/commons/cli/HelpFormatter.java to src/main/java/org/apache/commons/cli/HelpFormatter.java
 				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
-					pmDatabase.remove(oldFileName);
+					pmDatabase.removeFile(oldFileName);
 
 					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
 						continue;
-				}
-
-				// add class to our in-memory pmDatabase
-				if(!pmDatabase.containsKey(fileName)) {
-					pmDatabase.put(fileName, new ProcessMetricTracker(fileName, new CommitMetaData(commit, project)));
 				}
 
 				// collect number of lines deleted and added in that file
@@ -190,11 +185,9 @@ public class ProcessMetricsCollector {
 				int linesDeleted = calculateLinesDeleted(editList);
 				int linesAdded = calculateLinesAdded(editList);
 
-				// update our pmDatabase entry with the information of the current commit
-				ProcessMetricTracker currentClazz = pmDatabase.get(fileName);
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
-				currentClazz.reportCommit(commit.getFullMessage(), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
+				pmDatabase.reportChanges(fileName, commitMetaData, commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
 
 				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 					log.debug("[TRACK] Reported commit " + commit.getName() + " to pmTracker affecting class file: " + fileName + "\n" +
@@ -202,6 +195,7 @@ public class ProcessMetricsCollector {
 				}
 
 				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
+					ProcessMetricTracker currentClazz = pmDatabase.find(fileName);
 					log.debug("[TRACK] Class stability counter increased to " + currentClazz.getCommitCounter() + " for class: " + fileName + "\n" +
 							"\t\t\t\t\t\t\tcurrent ProcessMetrics: " + currentClazz.getCurrentProcessMetrics());
 				}
@@ -211,7 +205,7 @@ public class ProcessMetricsCollector {
 
 	private void storeProcessMetric(String fileName, List<StableCommit> stableCommits) {
 		for(StableCommit stableCommit : stableCommits) {
-			ProcessMetricTracker filePm = pmDatabase.get(fileName);
+			ProcessMetricTracker filePm = pmDatabase.find(fileName);
 			ProcessMetrics dbProcessMetrics = filePm != null ?
 					new ProcessMetrics(filePm.getBaseProcessMetrics()) :
 					new ProcessMetrics(-1, -1, -1, -1, -1);
@@ -233,7 +227,7 @@ public class ProcessMetricsCollector {
 			sourceCodeBackThen = SourceCodeUtils.removeComments(readFileFromGit(repository, commitHashBackThen, clazz.getFileName()));
 		} catch(Exception e) {
 			log.error(e.getClass().getCanonicalName() + " when getting source code of the class " + clazz.getFileName());
-			pmDatabase.remove(clazz);
+			pmDatabase.removeFile(clazz.getFileName());
 			return;
 		}
 

@@ -5,6 +5,7 @@ import refactoringml.util.JGitUtils;
 
 import javax.persistence.*;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 @Entity
 @Table(name = "commit_metadata")
@@ -36,6 +37,15 @@ public class CommitMetaData {
 
     @Deprecated // hibernate purposes
     public CommitMetaData() {this.commitId = "";}
+
+    @Deprecated //testing purposes
+    public CommitMetaData(String commitId, String fullMessage, String url, String parentId) {
+        this.commitId = commitId;
+        this.commitDate = new GregorianCalendar();
+        this.commitMessage = fullMessage.trim();
+        this.commitUrl = url;
+        this.parentCommit = parentId;
+    }
 
     public CommitMetaData(RevCommit commit, Project project){
         this.commitId = commit.getName();
