@@ -13,6 +13,11 @@ import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R2ToyProjectTest extends IntegrationBaseTest {
+	@Override
+	protected String trackCommit(){return "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46";}
+
+	@Override
+	protected String trackFileName(){return "Person.java";}
 
 	@Override
 	protected String getRepo() {
@@ -24,7 +29,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void refactorings() {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
-		Assert.assertEquals(2, refactoringCommitList.size());
+		Assert.assertEquals(10, refactoringCommitList.size());
 
 		String renameCommit = "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46";
 		assertRefactoring(refactoringCommitList, renameCommit, "Rename Class", 1);
@@ -32,24 +37,21 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		RefactoringCommit renameRefactoring = refactoringCommitList.stream().filter(refactoringCommit ->
 				refactoringCommit.getCommit().equals(renameCommit)).findFirst().get();
 
-		ProcessMetrics metrics = new ProcessMetrics(1, 5, 0, 1, 0, 1, 1.0, 0, 0);
-		assertProcessMetrics(renameRefactoring, metrics);
-
 		String extractCommit = "515365875143aa84b5bbb5c3191e7654a942912f";
 		assertRefactoring(refactoringCommitList, extractCommit, "Extract Class", 1);
-
-		//Additions:(6 + 3 + 25 + 1 + 5 = 40)
-		//Deletions:(0 + 3 +  0 + 2 + 0 =  5)
 		//TODO: Why are additions and deletions from commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 not counted?
-		RefactoringCommit extractClassRefactoring = (RefactoringCommit) filterCommit(refactoringCommitList, extractCommit).get(0);
-		metrics = new ProcessMetrics(5, 40, 4, 1, 0, 1, 0, 0, 1);
-		assertProcessMetrics(extractClassRefactoring, metrics);
+		RefactoringCommit extractClassRefactoring = (RefactoringCommit) filterCommit(refactoringCommitList, extractCommit).get(2);
+
+		//Additions:(5 + 1 + 25 + 3 + 6 = 40)
+		//Deletions:(0 + 2 +  0 + 3 + 0 =  5)
+		assertProcessMetrics(extractClassRefactoring, ProcessMetrics.toString(5, 40, 5, 1, 0, 1, 1.0, 0, 6));
+		assertProcessMetrics(renameRefactoring, ProcessMetrics.toString(1, 5, 0, 1, 0, 1, 1.0, 0, 0));
 	}
 
 	@Test
 	public void isSubclass() {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
-		Assert.assertEquals(2, refactoringCommitList.size());
+		Assert.assertEquals(10, refactoringCommitList.size());
 
 		List<RefactoringCommit> areSubclasses = refactoringCommitList.stream().filter(refactoringCommit ->
 				refactoringCommit.getClassMetrics().isInnerClass() &&
@@ -57,7 +59,7 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 		List<RefactoringCommit> areNoSubclasses = refactoringCommitList.stream().filter(yes -> !yes.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 
 		Assert.assertEquals(0, areSubclasses.size());
-		Assert.assertEquals(2, areNoSubclasses.size());
+		Assert.assertEquals(10, areNoSubclasses.size());
 	}
 
 	@Test

@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.*;
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
-
 
 public class RefactoringAnalyzer {
 	private String tempDir;
@@ -50,12 +50,7 @@ public class RefactoringAnalyzer {
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 	}
 
-	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring, CommitMetaData commitMetaData ) throws IOException {
-		//TODO: remove this check, because it is not necessary anymore
-		if (!studied(refactoring)) {
-			return new HashSet<Long>();
-		}
-
+	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
 		String refactoringSummary = refactoring.toString().trim();
 		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
@@ -101,7 +96,7 @@ public class RefactoringAnalyzer {
 				String oldFileName = enforceUnixPaths(entry.getOldPath());
 				String currentFileName = enforceUnixPaths(entry.getNewPath());
 
-				if(TrackDebugMode.ACTIVE && (oldFileName.equals(TrackDebugMode.FILE_TO_TRACK) || currentFileName.equals(TrackDebugMode.FILE_TO_TRACK))) {
+				if(TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
 					log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
 				}
 
@@ -111,13 +106,13 @@ public class RefactoringAnalyzer {
 				// save the old version of the file in a temp dir to execute the CK tool
 				// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
 				// but later we notice it might do in cases of file renames and refactorings in the same commit.
-				createTmpDir();
+				tempDir = createTmpDir();
 				createAllDirs(tempDir, oldFileName);
 				try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
 					out.print(sourceCodeBefore);
 				}
 
-				RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, commitMetaData, refactoring, refactoringSummary);
+				RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, new CommitMetaData(commit, project), refactoring, refactoringSummary);
 
 				if(refactoringCommit !=null) {
 					// mark it for the process metrics collection
@@ -287,10 +282,5 @@ public class RefactoringAnalyzer {
 			FileUtils.deleteDirectory(new File(tempDir));
 			tempDir = null;
 		}
-	}
-
-	private void createTmpDir() {
-		String rawTempDir = com.google.common.io.Files.createTempDir().getAbsolutePath();
-		tempDir = lastSlashDir(rawTempDir);
 	}
 }

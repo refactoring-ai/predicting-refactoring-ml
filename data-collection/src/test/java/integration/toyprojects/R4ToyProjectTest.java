@@ -48,18 +48,17 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		Assert.assertEquals(6, refactoringCommitList.size());
 
 		assertRefactoring(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b", "Rename Method", 1);
-		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", refactoringCommitList.get(0).getClassName());
+		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", filterCommit(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0).getClassName());
 
 		assertRefactoring(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98", "Extract Method", 1);
-		Assertions.assertEquals("a.Animal.Dog", refactoringCommitList.get(5).getClassName());
-		Assertions.assertTrue(refactoringCommitList.get(5).getClassMetrics().isInnerClass());
+		Assertions.assertEquals("a.Animal.Dog", refactoringCommitList.get(0).getClassName());
+		Assertions.assertTrue(filterCommit(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0).getClassMetrics().isInnerClass());
 	}
 
 	@Test
 	public void stable() {
 		// there are no instances of stable variables, as the repo is too small
-		List<StableCommit> stableCommitList = getStableCommits();
-		Assert.assertEquals(0, stableCommitList.size());
+		Assert.assertEquals(0, getStableCommits().size());
 	}
 
 	/*
@@ -83,7 +82,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		assertRefactoring(refactoringCommitList, renameClassFull, "Rename Class",1);
 
 		//no check if the class metrics were tracked and set correct
-		ProcessMetrics doubleRenameMetrics1 = new ProcessMetrics(
+		String doubleRenameMetrics1 = ProcessMetrics.toString(
 				2,
 				34,
 				4,
@@ -94,9 +93,9 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				1
 		);
-		//assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(0), doubleRenameMetrics1);
+		assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(0), doubleRenameMetrics1);
 
-		ProcessMetrics doubleRenameMetrics2 = new ProcessMetrics(
+		String doubleRenameMetrics2 = ProcessMetrics.toString(
 				2,
 				34,
 				4,
@@ -107,9 +106,9 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				2
 		);
-		//assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(1), doubleRenameMetrics2);
+		assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(1), doubleRenameMetrics2);
 
-		ProcessMetrics renameClassMetrics = new ProcessMetrics(
+		String renameClassMetrics = ProcessMetrics.toString(
 				4,
 				36,
 				6,
@@ -120,8 +119,8 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				3
 		);
-		//assertProcessMetrics(filterCommit(refactoringCommitList, renameClass).get(0), renameClassMetrics);
-		ProcessMetrics renameFullMetrics = new ProcessMetrics(
+		assertProcessMetrics(filterCommit(refactoringCommitList, renameClass).get(0), renameClassMetrics);
+		String renameFullMetrics = ProcessMetrics.toString(
 				5,
 				37,
 				7,
@@ -132,7 +131,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				4
 		);
-		//assertProcessMetrics(filterCommit(refactoringCommitList, renameClassFull).get(0), renameFullMetrics);
+		assertProcessMetrics(filterCommit(refactoringCommitList, renameClassFull).get(0), renameFullMetrics);
 	}
 
 	@Test
@@ -149,7 +148,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void renames(){
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
-		ProcessMetrics methodExtract = new ProcessMetrics(
+		String methodExtract = ProcessMetrics.toString(
 				1,
 				26,
 				0,
@@ -160,9 +159,9 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				0
 		);
-		//assertProcessMetrics(filterCommit(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0), methodExtract);
+		assertProcessMetrics(filterCommit(refactoringCommitList, "dd9aa00b03c9456c69c5e6566040fb994d7c9d98").get(0), methodExtract);
 
-		ProcessMetrics methodRename = new ProcessMetrics(
+		String methodRename = ProcessMetrics.toString(
 				6,
 				38,
 				8,
@@ -173,8 +172,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				5
 		);
-
-		//assertProcessMetrics(filterCommit(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0), methodRename);
+		assertProcessMetrics(filterCommit(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0), methodRename);
 	}
 
 	@Test

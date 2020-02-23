@@ -26,7 +26,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	}
 
 	@Override
-	protected String track() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
+	protected String trackFileName() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
 
 	//Test the isInnerClass boolean for both RefactoringCommit and StableCommit .
 	@Test
@@ -34,14 +34,14 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit -> commit.getClassName().equals("org.apache.commons.cli.HelpFormatter")||
 				commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
 
-		Assert.assertEquals(10, refactoringCommitList.size());
+		Assert.assertEquals(26, refactoringCommitList.size());
 		List<RefactoringCommit> areInnerClassesInRefactorings = refactoringCommitList.stream().filter(commit ->
 				commit.getClassMetrics().isInnerClass()
 						&& commit.getClassName().equals("org.apache.commons.cli.HelpFormatter.StringBufferComparator")).collect(Collectors.toList());
 		List<RefactoringCommit> areNotInnerClassesInRefactorings = refactoringCommitList.stream().filter(commit -> !commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 
 		Assert.assertEquals(1, areInnerClassesInRefactorings.size());
-		Assert.assertEquals(9, areNotInnerClassesInRefactorings.size());
+		Assert.assertEquals(25, areNotInnerClassesInRefactorings.size());
 	}
 
 	@Test
@@ -52,9 +52,9 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		List<StableCommit> areNotInnerClassesInStable = getStableCommits().stream().filter(commit ->
 				!commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
 
-		Assert.assertEquals(67, areInnerClassesInStable.size());
-		Assert.assertEquals(2484, areNotInnerClassesInStable.size());
-		Assert.assertEquals(2527, getStableCommits().size());
+		Assert.assertEquals(65, areInnerClassesInStable.size());
+		Assert.assertEquals(2219, areNotInnerClassesInStable.size());
+		Assert.assertEquals(2284, getStableCommits().size());
 	}
 
 	//Test if the inner classes are tracked and marked correctly, with all details
@@ -156,6 +156,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"4868ac5e7c2afd428de74a6dcbec07dc6541a1ea",
 				"moved cli over from the sandbox to commons proper\n" +
 						"\n" +
+						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129767 13f79535-47bb-0310-9956-ffa450edef68");
 
 		String stableCommit2 = "745d1a535c9cf45d24455afc150b808981c8e0df";
@@ -164,6 +165,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				"@local/repos/commons-cli/" + stableCommit2,
 				"dde69934d7f0bee13e4cd1fc99a7d60ce95a0c78",
 				"javadoc updates\n" +
+						"\n" +
 						"\n" +
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68");
 	}
@@ -201,7 +203,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit ->
 				commit.getFilePath().equals("src/java/org/apache/commons/cli/Option.java")).collect(Collectors.toList());
 
-		Assert.assertEquals(9, refactoringCommitList.size());
+		Assert.assertEquals(22, refactoringCommitList.size());
 		assertRefactoring(refactoringCommitList, "04490af06faa8fd1be15da88172beb32218dd336", "Extract Variable", 1);
 		assertRefactoring(refactoringCommitList, "347bbeb8f98a49744501ac50850457ba8751d545", "Extract Class", 1);
 		assertRefactoring(refactoringCommitList, "347bbeb8f98a49744501ac50850457ba8751d545", "Move Method", 3);
@@ -209,10 +211,10 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		assertRefactoring(refactoringCommitList, "97744806d59820b096fb502b1d51ca54b5d0921d", "Rename Method", 1);
 		assertRefactoring(refactoringCommitList, "bfe6bd8634895645aa71d6a6dc668545297d7413", "Rename Parameter", 1);
 
+		Assert.assertEquals(2599, allStableCommits.size());
 		// the file should appear twice as examples of 'stableCommit'
 		assertStableCommit(stableCommitList, "5470bcaa9d75d73fb9c687fa13e12d642c75984f", "aae50c585ec3ac33c6a9af792e80378904a73195");
 		// TODO: assertions related to the values of the StableCommit metrics, What to expect here?
-		Assert.assertEquals(2599, allStableCommits.size());
 	}
 
 	@Test
@@ -221,7 +223,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		Assert.assertEquals(67, noListUnique.size());
 
 		/*
-		Missing:
+		TODO: evaluate of these files are rightfully missing in the stable commits?:
 			"org.apache.commons.cli.AmbiguousOptionException"
 			"org.apache.commons.cli.bug.BugCLI162Test"
 			"org.apache.commons.cli.CommandLineParser"
@@ -238,6 +240,25 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 			"org.apache.commons.cli2.validation.DateValidator"
 			"org.apache.commons.cli2.validation.DateValidatorTest"
 		 */
+	}
+
+	// test if test files are marked as tests, and production files are not
+	@Test
+	public void isTest() {
+		// it has been through 9 different refactorings
+		List<String> refactoringCommitsTests = getRefactoringCommits().stream().filter(refactoring -> refactoring.getIsTest()).map(
+				refactoringCommit -> refactoringCommit.getClassName()).distinct().collect(Collectors.toList());
+		List<String> refactoringCommitsNoTests = getRefactoringCommits().stream().filter(refactoring -> !refactoring.getIsTest()).map(
+				refactoringCommit -> refactoringCommit.getClassName()).distinct().collect(Collectors.toList());
+		Assert.assertEquals(47, refactoringCommitsTests.size());
+		Assert.assertEquals(42, refactoringCommitsNoTests.size());
+
+		List<String> stableCommitListTests =  getStableCommits().stream().filter(stable -> stable.getIsTest()).map(
+				refactoringCommit -> refactoringCommit.getClassName()).distinct().collect(Collectors.toList());
+		List<String> stableCommitListNoTests =  getStableCommits().stream().filter(stable -> !stable.getIsTest()).map(
+				refactoringCommit -> refactoringCommit.getClassName()).distinct().collect(Collectors.toList());
+		Assert.assertEquals(11, stableCommitListTests.size());
+		Assert.assertEquals(27, stableCommitListNoTests.size());
 	}
 
 	@Test

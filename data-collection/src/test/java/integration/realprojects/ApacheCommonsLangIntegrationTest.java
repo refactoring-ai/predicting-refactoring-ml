@@ -25,7 +25,7 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
     }
 
     @Override
-    protected String track() {
+    protected String trackFileName() {
         return "src/java/org/apache/commons/lang/builder/HashCodeBuilder.java";
     }
 

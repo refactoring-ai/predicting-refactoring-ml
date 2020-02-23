@@ -30,6 +30,7 @@ import java.util.*;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public class App {
@@ -85,7 +86,7 @@ public class App {
 		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
 
 		// creates a temp dir to store the project
-		String newTmpDir = lastSlashDir(Files.createTempDir().getAbsolutePath());
+		String newTmpDir = createTmpDir();
 		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : newTmpDir + "repo").trim();
 
 		try {
@@ -118,7 +119,7 @@ public class App {
 			db.commit();
 
 
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, mainBranch, filesStoragePath, lastCommitToProcess);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, filesStoragePath);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
 
 			RefactoringHandler handler = getRefactoringHandler(git);
@@ -163,10 +164,7 @@ public class App {
 					for (Refactoring ref : refactoringsToProcess) {
 						try {
 							db.openSession();
-							CommitMetaData commitMetaData = new CommitMetaData(currentCommit, project);
-							db.persist(commitMetaData);
-
-							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref, commitMetaData));
+							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref));
 							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;

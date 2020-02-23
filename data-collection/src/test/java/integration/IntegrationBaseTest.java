@@ -1,6 +1,5 @@
 package integration;
 
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,7 +10,6 @@ import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
 import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
-import refactoringml.util.FilePathUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 public abstract class IntegrationBaseTest {
@@ -33,12 +32,12 @@ public abstract class IntegrationBaseTest {
 	private List<RefactoringCommit> refactoringCommits;
 	private List<StableCommit> stableCommits;
 
-	protected String commitTrack() {
-		return null;
+	protected String trackCommit() {
+		return "null";
 	}
 
-	protected String track() {
-		return null;
+	protected String trackFileName() {
+		return "null";
 	}
 
 	protected final boolean drop() {
@@ -60,8 +59,8 @@ public abstract class IntegrationBaseTest {
 	protected void runApp() throws Exception {
 		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, drop());
 		db = new Database(sf);
-		outputDir = FilePathUtils.enforceUnixPaths(Files.createTempDir().getAbsolutePath());
-		tmpDir = FilePathUtils.enforceUnixPaths(Files.createTempDir().getAbsolutePath());
+		outputDir = createTmpDir();
+		tmpDir = createTmpDir();
 
 		String repoLocalDir = "repos/" + extractProjectNameFromGitUrl(getRepo());
 		boolean projectAlreadyCloned = new File(repoLocalDir).exists();
@@ -70,10 +69,10 @@ public abstract class IntegrationBaseTest {
 
 		deleteProject(extractProjectNameFromGitUrl(getRepo()));
 
-		if(track()!=null || commitTrack() != null) {
-			TrackDebugMode.ACTIVE = false;
-			TrackDebugMode.FILE_TO_TRACK = track();
-			TrackDebugMode.COMMIT_TO_TRACK = commitTrack();
+		if(trackFileName() !=null || trackCommit() != null) {
+			TrackDebugMode.ACTIVE = true;
+			TrackDebugMode.FILENAME_TO_TRACK = trackFileName();
+			TrackDebugMode.COMMIT_TO_TRACK = trackCommit();
 		}
 
 		//set the stableCommitThreshold in the PMDatabase to test various configs
@@ -130,7 +129,7 @@ public abstract class IntegrationBaseTest {
 			return refactoringCommits;
 
 		this.session = sf.openSession();
-		refactoringCommits = session.createQuery("From RefactoringCommit where project = :project order by commitMetaData.commitDate desc")
+		refactoringCommits = session.createQuery("From RefactoringCommit where project = :project order by id asc")
 				.setParameter("project", project)
 				.list();
 		this.session.close();
@@ -144,7 +143,7 @@ public abstract class IntegrationBaseTest {
 			return stableCommits;
 
 		this.session = sf.openSession();
-		stableCommits = session.createQuery("From StableCommit where project = :project order by commitMetaData.commitDate desc")
+		stableCommits = session.createQuery("From StableCommit where project = :project order by id asc")
 				.setParameter("project", project)
 				.list();
 		this.session.close();
@@ -193,8 +192,8 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(commitMessage, commitMetaData.getCommitMessage());
 	}
 
-	protected void assertProcessMetrics(Instance instance, ProcessMetrics truth) {
-		Assert.assertEquals(truth.toString(), instance.getProcessMetrics().toString());
+	protected void assertProcessMetrics(Instance instance, String truth) {
+		Assert.assertEquals(truth, instance.getProcessMetrics().toString());
 	}
 
 	protected void assertInnerClass(List<? extends Instance> commitList, String commitId, String className, int qty){
