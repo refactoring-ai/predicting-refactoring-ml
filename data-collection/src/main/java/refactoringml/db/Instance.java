@@ -4,6 +4,7 @@ import refactoringml.util.RefactoringUtils;
 import javax.persistence.*;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
+import static refactoringml.util.FileUtils.IsTestFile;
 
 //Base class for all commits saved in the DB
 @MappedSuperclass
@@ -61,7 +62,7 @@ public abstract class Instance {
         this.fieldMetrics = fieldMetrics;
         this.level = level;
 
-        this.isTest = RefactoringUtils.isTestFile(this.filePath);
+        this.isTest = IsTestFile(this.filePath);
     }
 
     public void setProcessMetrics(ProcessMetrics processMetrics) { this.processMetrics = processMetrics; }

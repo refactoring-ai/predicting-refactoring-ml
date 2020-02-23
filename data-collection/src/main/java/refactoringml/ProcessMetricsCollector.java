@@ -212,7 +212,6 @@ public class ProcessMetricsCollector {
 	private void storeProcessMetric(String fileName, List<StableCommit> stableCommits) {
 		for(StableCommit stableCommit : stableCommits) {
 			ProcessMetricTracker filePm = pmDatabase.get(fileName);
-			log.info(filePm != null ? filePm.toString() : "");
 			ProcessMetrics dbProcessMetrics = filePm != null ?
 					new ProcessMetrics(filePm.getBaseProcessMetrics()) :
 					new ProcessMetrics(-1, -1, -1, -1, -1);

@@ -253,13 +253,4 @@ public class RefactoringUtils {
 		if(isAttributeLevelRefactoring(refactoring)) return TYPE_ATTRIBUTE_LEVEL;
 		return -1;
 	}
-
-	public static boolean isTestFile(String fileName) {
-		if(!FileUtils.IsJavaFile(fileName))
-			return false;
-
-		String normalizedFileName = enforceUnixPaths(fileName.toLowerCase());
-		return normalizedFileName.contains("test") ||
-				normalizedFileName.contains("/test/");
-	}
 }

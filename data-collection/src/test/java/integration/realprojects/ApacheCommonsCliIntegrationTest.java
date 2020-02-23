@@ -221,7 +221,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		Assert.assertEquals(65, noListUnique.size());
 
 		/*
-		Missing:
+		TODO: evaluate of these files are rightfully missing in the stable commits?:
 			"org.apache.commons.cli.AmbiguousOptionException"
 			"org.apache.commons.cli.bug.BugCLI162Test"
 			"org.apache.commons.cli.CommandLineParser"
@@ -238,6 +238,24 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 			"org.apache.commons.cli2.validation.DateValidator"
 			"org.apache.commons.cli2.validation.DateValidatorTest"
 		 */
+	}
+
+	// test if test files are marked as tests, and production files are not
+	@Test
+	public void isTest() {
+		//Manually verified by for commit b9ccc94008c78a59695f0c77ebe4ecf284370956
+		Assert.assertEquals(29, project.getNumberOfTestFiles());
+
+		List<StableCommit> stableCommitListTests =  getStableCommits().stream().filter(stable -> stable.getIsTest()).collect(Collectors.toList());
+		List<StableCommit> stableCommitListNoTests =  getStableCommits().stream().filter(stable -> !stable.getIsTest()).collect(Collectors.toList());
+		Assert.assertEquals(0, stableCommitListTests.size());
+		Assert.assertEquals(0, stableCommitListNoTests.size());
+
+		// it has been through 9 different refactorings
+		List<RefactoringCommit> yesListTests = getRefactoringCommits().stream().filter(refactoring -> refactoring.getIsTest()).collect(Collectors.toList());
+		List<RefactoringCommit> yesListNoTests = getRefactoringCommits().stream().filter(refactoring -> !refactoring.getIsTest()).collect(Collectors.toList());
+		Assert.assertEquals(0, yesListTests.size());
+		Assert.assertEquals(0, yesListNoTests.size());
 	}
 
 	@Test
