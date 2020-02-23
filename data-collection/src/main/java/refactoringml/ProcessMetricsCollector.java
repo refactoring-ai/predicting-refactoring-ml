@@ -34,22 +34,15 @@ public class ProcessMetricsCollector {
 	private Database db;
 	private Repository repository;
 	private String fileStoragePath;
-	//TODO: remove lastCommitToProcess
-	private String lastCommitToProcess;
-
 	private PMDatabase pmDatabase;
 
 	private static final Logger log = Logger.getLogger(ProcessMetricsCollector.class);
-	private String branch;
 
-	public ProcessMetricsCollector(Project project, Database db, Repository repository, String branch,
-	                               String fileStoragePath, String lastCommitToProcess) {
+	public ProcessMetricsCollector(Project project, Database db, Repository repository, String fileStoragePath) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
-		this.branch = branch;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-		this.lastCommitToProcess = lastCommitToProcess;
 
 		int stableCommitThreshold = project.getCommitCountThresholds().get(0);
 		pmDatabase = new PMDatabase(stableCommitThreshold);
