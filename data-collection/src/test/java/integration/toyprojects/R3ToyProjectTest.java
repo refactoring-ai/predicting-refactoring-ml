@@ -9,9 +9,13 @@ import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R3ToyProjectTest extends IntegrationBaseTest {
+
+	@Override
+	protected String getStableCommitThreshold() {return "3,5,6";};
 
 	@Override
 	protected String getRepo() {
@@ -19,7 +23,6 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	// This test helped to check if refactoring in subclasses are working.
-
 	//Push Up Attribute not working see e3e605f2d76b5e8a4d85ba0d586103834822ea40
 	//I tried to create a new class named Cat. Cat and Dog had the same field "region". Then I push it up to AnimalSuper.
 	// However the Pull Up Attribute in commit 556cf904bc didnt work.
@@ -27,7 +30,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void refactorings() {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
-		Assert.assertEquals(14, refactoringCommitList.size());
+		Assert.assertEquals(17, refactoringCommitList.size());
 
 		assertRefactoring(refactoringCommitList, "074881da657ed0a11527cb8b14bba12e4111c704", "Rename Class", 1);
 		assertRefactoring(refactoringCommitList, "d025fed92a7253953a148f7264de28a85bc9af4e", "Rename Method", 2);
@@ -46,11 +49,56 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		}
 	}
 
+	//Test if various commits are found correctly, requires the multiple Ks feature to work correct
 	@Test
-	public void stable() {
-		// there are no instances of stable variables, as the repo is too small
+	public void stableCommits() {
+		//TODO: Why are the stableCommits multiples of three? Classes are always added three times instead of once
 		List<StableCommit> stableCommitList = getStableCommits();
-		Assert.assertEquals(0, stableCommitList.size());
+
+		//TODO: reasonable tests here
+		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
+		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(stableCommitList, lastRefactoring);
+		//TODO: Activate to test multipleKs
+		//Assert.assertEquals(3, filteredList.size());
+		//Assert.assertEquals(3, filteredList.get(0).getCommitThreshold());
+
+		assertMetaDataStable(
+				lastRefactoring,
+				"@local/repos/toyrepo-r3/" + lastRefactoring,
+				"0e094a734239b1bcc6d6bce1436200c0e45b1e8d",
+				"rename");
+
+		//AnimalSuper has 5 commits and Dog has 6 commits
+		//TODO: test process metrics
+	}
+
+	//Test if all refactorings with multiple Ks are detected correctly.
+	@Test
+	public void stableThresholds() {
+		List<StableCommit> stableCommitList = getStableCommits();
+
+		List<StableCommit> highestStabilityThreshold = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() >= 50).collect(Collectors.toList());
+		Assert.assertEquals(0, highestStabilityThreshold.size());
+
+		//Manually Verified
+		List<StableCommit> stableCommitsHigh = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() == 6).collect(Collectors.toList());
+		Assert.assertEquals(1, stableCommitsHigh.size());
+
+		List<StableCommit> stableCommitsMedium = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() == 5).collect(Collectors.toList());
+		Assert.assertEquals(2, stableCommitsMedium.size());
+
+		List<StableCommit> stableCommitLow = stableCommitList.stream().filter(commit ->
+				commit.getCommitThreshold() == 3).collect(Collectors.toList());
+		Assert.assertEquals(5, stableCommitLow.size());
+
+		Assert.assertEquals(8, stableCommitList.size());
+
+		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
+		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(stableCommitList, lastRefactoring);
+		Assert.assertEquals(3, filteredList.get(0).getCommitThreshold());
 	}
 
 	@Test
@@ -60,18 +108,12 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 				commit,
 				"Move and Rename Class testing",
 				"Move And Rename Class\tAnimal moved and renamed to inheritance.superinfo.AnimalSuper",
-				"@local/repos/toyrepo-r3/" + commit);
+				"@local/repos/toyrepo-r3/" + commit,
+				"061febd820977f2b00c4926634f09908cc5b8b08");
 	}
 
 	@Test
-	public void metrics() {
-		// the next two assertions come directly from a 'cloc .' in the project
-		Assert.assertEquals(23, project.getJavaLoc());
-		//We dont have any Test file in this toy example.
-		Assert.assertEquals(3, project.getNumberOfProductionFiles() + project.getNumberOfTestFiles());
-
-		Assert.assertEquals(3, project.getNumberOfProductionFiles());
-
-		Assert.assertEquals(23, project.getProductionLoc());
+	public void projectMetrics() {
+		assertProjectMetrics(3, 3, 0, 23, 23, 0);
 	}
 }

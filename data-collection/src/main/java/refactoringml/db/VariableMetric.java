@@ -1,10 +1,13 @@
 package refactoringml.db;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
-@Embeddable
+@Entity
+@Table(name = "VariableMetric")
 public class VariableMetric {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
 	@Column(nullable = true) private String variableName;
 	@Column(nullable = true) private int variableAppearances;

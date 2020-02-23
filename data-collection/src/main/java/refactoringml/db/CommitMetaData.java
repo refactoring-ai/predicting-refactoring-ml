@@ -1,16 +1,15 @@
 package refactoringml.db;
 
 import org.eclipse.jgit.revwalk.RevCommit;
-import refactoringml.ProcessMetric;
 import refactoringml.util.JGitUtils;
 
 import javax.persistence.*;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 @Entity
 @Table(name = "commit_metadata")
 public class CommitMetaData {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -39,21 +38,21 @@ public class CommitMetaData {
     @Deprecated // hibernate purposes
     public CommitMetaData() {this.commitId = "";}
 
+    @Deprecated //testing purposes
+    public CommitMetaData(String commitId, String fullMessage, String url, String parentId) {
+        this.commitId = commitId;
+        this.commitDate = new GregorianCalendar();
+        this.commitMessage = fullMessage.trim();
+        this.commitUrl = url;
+        this.parentCommit = parentId;
+    }
+
     public CommitMetaData(RevCommit commit, Project project){
         this.commitId = commit.getName();
         this.commitDate = JGitUtils.getGregorianCalendar(commit);
         this.commitMessage = commit.getFullMessage().trim();
         this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
-        this.parentCommit = commit.getParent(0).getName();
-    }
-
-    public CommitMetaData(ProcessMetric clazz, Project project){
-        this.commitId = clazz.getBaseCommitForNonRefactoring();
-        this.commitDate = clazz.getBaseCommitDateForNonRefactoring();
-        this.commitMessage =  "NULL";
-        this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
-        //TODO: is this really useless for no refactorings?
-        this.parentCommit = "NULL";
+        this.parentCommit = commit.getParentCount() == 0 ? "Null" : commit.getParent(0).getName();
     }
 
     public String getCommitUrl (){return commitUrl;}
@@ -61,6 +60,8 @@ public class CommitMetaData {
     public String getCommit() {return commitId; }
 
     public String getCommitMessage (){return commitMessage;}
+
+    public String getParentCommit() {return parentCommit; }
 
     @Override
     public String toString() {

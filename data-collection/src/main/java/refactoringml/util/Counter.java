@@ -8,13 +8,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Counter {
+import static refactoringml.util.FileUtils.IsTestFile;
 
+public class Counter {
 	public static CounterResult countProductionAndTestFiles(String srcPath) {
 		String[] allFiles = FileUtils.getAllJavaFiles(srcPath);
 
-		List<String> productionFiles = Arrays.stream(allFiles).filter(x -> !RefactoringUtils.isTestFile(x)).collect(Collectors.toList());
-		List<String> testFiles = Arrays.stream(allFiles).filter(x -> RefactoringUtils.isTestFile(x)).collect(Collectors.toList());
+		List<String> productionFiles = Arrays.stream(allFiles).filter(x -> !IsTestFile(x)).collect(Collectors.toList());
+		List<String> testFiles = Arrays.stream(allFiles).filter(x -> IsTestFile(x)).collect(Collectors.toList());
 
 		Long productionLoc = productionFiles.stream().map(x -> countLines(x)).reduce(0L, (a, b) -> a + b);
 		Long testLoc = testFiles.stream().map(x -> countLines(x)).reduce(0L, (a, b) -> a + b);
@@ -60,6 +61,4 @@ public class Counter {
 			return locTestFiles;
 		}
 	}
-
-
 }
