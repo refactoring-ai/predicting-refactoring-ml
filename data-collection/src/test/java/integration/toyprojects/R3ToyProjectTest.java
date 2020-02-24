@@ -3,6 +3,7 @@ package integration.toyprojects;
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.RefactoringCommit;
@@ -77,6 +78,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	//Test if all refactorings with multiple Ks are detected correctly.
 	@Test
+	@Disabled
 	public void stableThresholds() {
 		List<StableCommit> stableCommitList = getStableCommits();
 

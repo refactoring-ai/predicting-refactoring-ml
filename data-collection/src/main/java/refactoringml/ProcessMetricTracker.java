@@ -33,8 +33,8 @@ public class ProcessMetricTracker {
 	public ProcessMetricTracker(ProcessMetricTracker oldPMTracker) {
 		this.fileName = oldPMTracker.getFileName();
 		this.baseCommitMetaData = oldPMTracker.getBaseCommitMetaData();
-		this.baseProcessMetrics = oldPMTracker.getBaseProcessMetrics();
-		this.currentProcessMetrics = oldPMTracker.getCurrentProcessMetrics();
+		this.baseProcessMetrics = new ProcessMetrics(oldPMTracker.getBaseProcessMetrics());
+		this.currentProcessMetrics = new ProcessMetrics(oldPMTracker.getCurrentProcessMetrics());
 	}
 
 	//public tracker interaction
