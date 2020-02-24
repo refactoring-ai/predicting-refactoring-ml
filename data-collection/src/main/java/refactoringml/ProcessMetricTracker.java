@@ -29,6 +29,14 @@ public class ProcessMetricTracker {
 		this.currentProcessMetrics =  new ProcessMetrics(0, 0, 0, 0, 0);
 	}
 
+	//Deep copy the ProcessMetrics in order to have a new object after renames
+	public ProcessMetricTracker(ProcessMetricTracker oldPMTracker) {
+		this.fileName = oldPMTracker.getFileName();
+		this.baseCommitMetaData = oldPMTracker.getBaseCommitMetaData();
+		this.baseProcessMetrics = oldPMTracker.getBaseProcessMetrics();
+		this.currentProcessMetrics = oldPMTracker.getCurrentProcessMetrics();
+	}
+
 	//public tracker interaction
 	public void reportCommit(String commitMsg, String authorName, int linesAdded, int linesDeleted) {
 		currentProcessMetrics.qtyOfCommits++;
@@ -51,8 +59,10 @@ public class ProcessMetricTracker {
 		this.baseProcessMetrics = new ProcessMetrics(currentProcessMetrics);
 	}
 
-	//filename of the class file, does not distinguish between subclasses
-	public String getFileName () { return fileName; }
+	//current filename of the class file, does not distinguish between subclasses
+	public String getFileName() { return fileName; }
+
+	public void setFileName(String newFileName) {fileName = newFileName;}
 
 	//Number of commits affecting this class since the last refactoring
 	//Used to estimate if the class is stable

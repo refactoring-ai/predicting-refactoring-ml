@@ -69,7 +69,7 @@ public abstract class IntegrationBaseTest {
 
 		deleteProject(extractProjectNameFromGitUrl(getRepo()));
 
-		if(trackFileName() !=null || trackCommit() != null) {
+		if(!trackFileName().equals("null") || !trackCommit().equals("null")) {
 			TrackDebugMode.ACTIVE = true;
 			TrackDebugMode.FILENAME_TO_TRACK = trackFileName();
 			TrackDebugMode.COMMIT_TO_TRACK = trackCommit();
@@ -188,7 +188,7 @@ public abstract class IntegrationBaseTest {
 
 	private void assertMetaData(CommitMetaData commitMetaData, String commitUrl, String parentCommit, String commitMessage){
 		Assert.assertEquals(commitUrl, commitMetaData.getCommitUrl());
-		Assert.assertEquals(parentCommit, commitMetaData.getParentCommit());
+		Assert.assertEquals(parentCommit, commitMetaData.getParentCommitId());
 		Assert.assertEquals(commitMessage, commitMetaData.getCommitMessage());
 	}
 

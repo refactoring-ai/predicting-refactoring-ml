@@ -23,7 +23,6 @@ import static refactoringml.util.CKUtils.cleanClassName;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 
 import static refactoringml.util.CKUtils.*;
-import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.calculateLinesAdded;
@@ -197,7 +196,7 @@ public class ProcessMetricsCollector {
 	}
 
 	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
-		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommit();
+		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
 		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the original commit: " + commitHashBackThen);
 
 		String tempDir = null;

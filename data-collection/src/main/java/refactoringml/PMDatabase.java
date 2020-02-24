@@ -36,7 +36,9 @@ public class PMDatabase {
 	2. Rename Person.java to Human.java: Human -> People_ProcessMetrics
 	 */
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
-		ProcessMetricTracker pmTracker = database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData));
+		ProcessMetricTracker pmTracker = new ProcessMetricTracker(database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData)));
+		pmTracker.setFileName(newFileName);
+
 		ProcessMetricTracker oldPMTracker = removeFile(oldFileName);
 
 		database.put(newFileName, pmTracker);

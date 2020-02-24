@@ -40,28 +40,28 @@ public class CommitMetaData {
 
     @Deprecated //testing purposes
     public CommitMetaData(String commitId, String fullMessage, String url, String parentId) {
-        this.commitId = commitId;
+        this.commitId = commitId.trim();
         this.commitDate = new GregorianCalendar();
         this.commitMessage = fullMessage.trim();
         this.commitUrl = url;
-        this.parentCommit = parentId;
+        this.parentCommit = parentId.trim();
     }
 
     public CommitMetaData(RevCommit commit, Project project){
-        this.commitId = commit.getName();
+        this.commitId = commit.getName().trim();
         this.commitDate = JGitUtils.getGregorianCalendar(commit);
         this.commitMessage = commit.getFullMessage().trim();
         this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
-        this.parentCommit = commit.getParentCount() == 0 ? "Null" : commit.getParent(0).getName();
+        this.parentCommit = commit.getParentCount() == 0 ? "Null" : commit.getParent(0).getName().trim();
     }
 
     public String getCommitUrl (){return commitUrl;}
 
-    public String getCommit() {return commitId; }
+    public String getCommitId() {return commitId; }
 
     public String getCommitMessage (){return commitMessage;}
 
-    public String getParentCommit() {return parentCommit; }
+    public String getParentCommitId() {return parentCommit; }
 
     @Override
     public String toString() {

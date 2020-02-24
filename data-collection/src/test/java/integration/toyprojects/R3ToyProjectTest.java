@@ -22,6 +22,9 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		return "https://github.com/jan-gerling/toyrepo-r3.git";
 	}
 
+	@Override
+	protected String trackFileName(){ return "Do.java"; }
+
 	// This test helped to check if refactoring in subclasses are working.
 	//Push Up Attribute not working see e3e605f2d76b5e8a4d85ba0d586103834822ea40
 	//I tried to create a new class named Cat. Cat and Dog had the same field "region". Then I push it up to AnimalSuper.
