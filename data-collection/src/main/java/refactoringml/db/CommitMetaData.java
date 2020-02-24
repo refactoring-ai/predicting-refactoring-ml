@@ -12,7 +12,7 @@ import java.util.GregorianCalendar;
 public class CommitMetaData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     //use the unique commit hash to relate from Yes and No to this one
     // for RefactoringCommit, this commit points to the commit the refactoring has happened
