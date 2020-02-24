@@ -3,6 +3,7 @@ package integration.toyprojects;
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.RefactoringCommit;
@@ -21,6 +22,9 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	protected String getRepo() {
 		return "https://github.com/jan-gerling/toyrepo-r3.git";
 	}
+
+	@Override
+	protected String trackFileName(){ return "Do.java"; }
 
 	// This test helped to check if refactoring in subclasses are working.
 	//Push Up Attribute not working see e3e605f2d76b5e8a4d85ba0d586103834822ea40
@@ -74,6 +78,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	//Test if all refactorings with multiple Ks are detected correctly.
 	@Test
+	@Disabled
 	public void stableThresholds() {
 		List<StableCommit> stableCommitList = getStableCommits();
 

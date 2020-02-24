@@ -13,6 +13,7 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
+import refactoringml.util.FilePathUtils;
 import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
@@ -60,7 +61,6 @@ public class RefactoringAnalyzer {
 		Set<Long> allRefactorings = new HashSet<Long>();
 
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
-
 			String refactoredClassFile = pair.getLeft();
 			String refactoredClassName = pair.getRight();
 
@@ -68,16 +68,17 @@ public class RefactoringAnalyzer {
 				diffFormatter.setRepository(repository);
 				diffFormatter.setDetectRenames(true);
 
+				//TODO: move this diff entry part outside the for loop, in order to improve the performance
 				List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
-
+				//TODO: Process metrics: Track renames #19
 				// we try to match either the old or the new name of the file.
 				// this is to help us in catching renames or moves
 				Optional<DiffEntry> refactoredEntry = entries.stream()
 						.filter(entry -> {
-							String oldFileName = entry.getOldPath();
-							String newFileName = entry.getNewPath();
-							return refactoredClassFile.equals(oldFileName) ||
-									refactoredClassFile.equals(newFileName);
+							String oldFile = enforceUnixPaths(entry.getOldPath());
+							String newFile = enforceUnixPaths(entry.getNewPath());
+							return refactoredClassFile.equals(oldFile) ||
+									refactoredClassFile.equals(newFile);
 						})
 						.findFirst();
 

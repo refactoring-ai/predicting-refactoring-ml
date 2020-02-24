@@ -26,7 +26,7 @@
     </logger>
 
     <logger name="refactoringml">
-        <level value="INFO"/>
+        <level value="ERROR"/>
         <appender-ref ref="console"/>
     </logger>
 

@@ -66,7 +66,7 @@ public abstract class Instance {
 
     public void setProcessMetrics(ProcessMetrics processMetrics) { this.processMetrics = processMetrics; }
 
-    public String getCommit() { return commitMetaData.getCommit(); }
+    public String getCommit() { return commitMetaData.getCommitId(); }
 
     public ProcessMetrics getProcessMetrics() { return processMetrics; }
 

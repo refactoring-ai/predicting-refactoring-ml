@@ -220,7 +220,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	@Test
 	public void stableCommitsClasses(){
 		List<String> noListUnique = getStableCommits().stream().map(instance -> instance.getClassName()).distinct().collect(Collectors.toList());
-		Assert.assertEquals(65, noListUnique.size());
+		Assert.assertEquals(67, noListUnique.size());
 
 		/*
 		TODO: evaluate of these files are rightfully missing in the stable commits?:
@@ -257,7 +257,7 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 				refactoringCommit -> refactoringCommit.getClassName()).distinct().collect(Collectors.toList());
 		List<String> stableCommitListNoTests =  getStableCommits().stream().filter(stable -> !stable.getIsTest()).map(
 				refactoringCommit -> refactoringCommit.getClassName()).distinct().collect(Collectors.toList());
-		Assert.assertEquals(16, stableCommitListTests.size());
+		Assert.assertEquals(11, stableCommitListTests.size());
 		Assert.assertEquals(27, stableCommitListNoTests.size());
 	}
 

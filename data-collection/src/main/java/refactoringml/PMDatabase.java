@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PMDatabase {
+	// Map class files onto their original process metrics.
 	private Map<String, ProcessMetricTracker> database;
 	private int commitThreshold;
 
@@ -28,10 +29,16 @@ public class PMDatabase {
 				.collect(Collectors.toList());
 	}
 
-	//Remove the given fileName in the process metrics database to the new one, to keep track of renames
-	//Returns the process metrics tracker before the rename, if any existed in the database
+	/*
+	Report the rename of a file in order to track its process metrics.
+	In case of (various renames), the names are replaced, e.g.
+	1. Rename People.java to Person.java: Person -> People_ProcessMetrics
+	2. Rename Person.java to Human.java: Human -> People_ProcessMetrics
+	 */
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
-		ProcessMetricTracker pmTracker = database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData));
+		ProcessMetricTracker pmTracker = new ProcessMetricTracker(database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData)));
+		pmTracker.setFileName(newFileName);
+
 		ProcessMetricTracker oldPMTracker = removeFile(oldFileName);
 
 		database.put(newFileName, pmTracker);

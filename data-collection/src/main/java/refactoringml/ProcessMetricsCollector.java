@@ -19,8 +19,10 @@ import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static refactoringml.util.CKUtils.*;
+import static refactoringml.util.CKUtils.cleanClassName;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
+
+import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.calculateLinesAdded;
@@ -40,7 +42,6 @@ public class ProcessMetricsCollector {
 		this.db = db;
 		this.repository = repository;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-
 		int stableCommitThreshold = project.getCommitCountThresholds().get(0);
 		pmDatabase = new PMDatabase(stableCommitThreshold);
 	}
@@ -144,17 +145,22 @@ public class ProcessMetricsCollector {
 				if (!refactoringml.util.FileUtils.IsJavaFile(fileName))
 					continue;
 
-				// if the class was either removed or deleted, we remove it from our pmDatabase, as to not mess
-				// with the refactoring counter...
+				// if the class was deleted, we remove it from our pmDatabase
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
 				//TODO: track moves e.g. src/java/org/apache/commons/cli/HelpFormatter.java to src/main/java/org/apache/commons/cli/HelpFormatter.java
-				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE || entry.getChangeType() == DiffEntry.ChangeType.RENAME) {
+				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
 					pmDatabase.removeFile(oldFileName);
-
-					if(entry.getChangeType() == DiffEntry.ChangeType.DELETE)
-						continue;
+					log.debug("Deleted " + oldFileName + " from PMDatabase.");
+					continue;
+				}
+				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
+				// Thus, we are not tracking class renames here, but that is also not necessary, because the PM metrics are computed for each java file anyways.
+				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
+					String oldFileName = enforceUnixPaths(entry.getOldPath());
+					pmDatabase.renameFile(oldFileName, fileName, new CommitMetaData(commit, project));
+					log.debug("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
 				}
 
 				// collect number of lines deleted and added in that file
@@ -190,7 +196,7 @@ public class ProcessMetricsCollector {
 	}
 
 	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
-		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommit();
+		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
 		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the original commit: " + commitHashBackThen);
 
 		String tempDir = null;

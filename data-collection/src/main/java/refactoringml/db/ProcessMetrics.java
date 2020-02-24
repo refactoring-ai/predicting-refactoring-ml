@@ -14,10 +14,15 @@ public class ProcessMetrics {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
+	//number of commits making changes to this class
 	@Column(nullable = true) public int qtyOfCommits = 0;
+	//total lines added to this class file
 	@Column(nullable = true) public int linesAdded = 0;
+	//total lines deleted from this class file
 	@Column(nullable = true) public int linesDeleted = 0;
+	//total count of (detected) bug fixes on this class file
 	@Column(nullable = true) public int bugFixCount = 0;
+	//total count of (detected) refactorings on this class file
 	@Column(nullable = true) public int refactoringsInvolved = 0;
 
 	@Column(nullable = true) private int qtyOfAuthors;

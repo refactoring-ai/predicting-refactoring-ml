@@ -1,6 +1,5 @@
 package refactoringml;
 
-import com.github.javaparser.utils.Log;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -91,7 +90,6 @@ public class App {
 		String clonePath = (Project.isLocal(gitUrl) ? gitUrl : newTmpDir + "repo").trim();
 
 		try {
-
 			// creates the directory in the storage
 			if(storeFullSourceCode) {
 				new File(filesStoragePath).mkdirs();
@@ -133,8 +131,8 @@ public class App {
 			int refactoringMinerTimeout = Integer.valueOf(getProperty("timeout"));
 			log.debug("Set Refactoring Miner timeout to " + refactoringMinerTimeout + " seconds.");
 
+			// we only analyze commits that have one parent or the first commit with 0 parents
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
-				// we only analyze commits that have one parent
 				// i.e., ignore merge commits
 				if(currentCommit.getParentCount() > 1)
 					continue;
