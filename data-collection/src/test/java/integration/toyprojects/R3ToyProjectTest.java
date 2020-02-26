@@ -3,9 +3,9 @@ package integration.toyprojects;
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestTemplate;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
 
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
-	protected String getStableCommitThreshold() {return "3,5,6";};
+	protected String getStableCommitThreshold() {return "3, 5";}
 
 	@Override
 	protected String getRepo() {
@@ -24,7 +24,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Override
-	protected String trackFileName(){ return "Do.java"; }
+	protected String trackFileName(){ return "Dog.java"; }
 
 	// This test helped to check if refactoring in subclasses are working.
 	//Push Up Attribute not working see e3e605f2d76b5e8a4d85ba0d586103834822ea40
@@ -50,6 +50,20 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 
 		for (RefactoringCommit refactoringCommit : refactoringCommitList){
 			Assertions.assertFalse(refactoringCommit.getClassMetrics().isInnerClass());
+		}
+	}
+
+	@Test
+	public void commitCount(){
+		List<Integer> qtyOfCommitsDogList = getRefactoringCommits().stream()
+				.filter(refactoring -> refactoring.getClassName().equals("Dog"))
+				.map(refactoring -> refactoring.getProcessMetrics().qtyOfCommits)
+				.distinct().collect(Collectors.toList());
+
+		//commit counts of the dog class file at the six refactorings we detect
+		List<Integer> refactoringCommitCountsDog = List.of(2, 4, 12, 13, 15, 17);
+		for (int qtyOfCommits : refactoringCommitCountsDog){
+			Assert.assertTrue(qtyOfCommitsDogList.contains(qtyOfCommits));
 		}
 	}
 
@@ -79,29 +93,27 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	//Test if all refactorings with multiple Ks are detected correctly.
 	@Test
 	public void stableThresholds() {
-		List<StableCommit> stableCommitList = getStableCommits();
-
-		List<StableCommit> highestStabilityThreshold = stableCommitList.stream().filter(commit ->
+		List<StableCommit> highestStabilityThreshold = getStableCommits().stream().filter(commit ->
 				commit.getCommitThreshold() >= 50).collect(Collectors.toList());
 		Assert.assertEquals(0, highestStabilityThreshold.size());
 
 		//Manually Verified
-		List<StableCommit> stableCommitsHigh = stableCommitList.stream().filter(commit ->
-				commit.getCommitThreshold() == 6).collect(Collectors.toList());
-		Assert.assertEquals(1, stableCommitsHigh.size());
-
-		List<StableCommit> stableCommitsMedium = stableCommitList.stream().filter(commit ->
-				commit.getCommitThreshold() == 5).collect(Collectors.toList());
-		Assert.assertEquals(2, stableCommitsMedium.size());
-
-		List<StableCommit> stableCommitLow = stableCommitList.stream().filter(commit ->
+		List<StableCommit> stableCommitLow = getStableCommits().stream().filter(commit ->
 				commit.getCommitThreshold() == 3).collect(Collectors.toList());
-		Assert.assertEquals(5, stableCommitLow.size());
+		Assert.assertEquals(12, stableCommitLow.size());
 
-		Assert.assertEquals(8, stableCommitList.size());
+		List<StableCommit> stableCommitsMedium = getStableCommits().stream().filter(commit ->
+				commit.getCommitThreshold() == 5).collect(Collectors.toList());
+		Assert.assertEquals(3, stableCommitsMedium.size());
+
+		List<StableCommit> stableCommitsHigh = getStableCommits().stream().filter(commit ->
+				commit.getCommitThreshold() == 6).collect(Collectors.toList());
+		Assert.assertEquals(3, stableCommitsHigh.size());
+
+		Assert.assertEquals(18, getStableCommits().size());
 
 		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
-		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(stableCommitList, lastRefactoring);
+		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(getStableCommits(), lastRefactoring);
 		Assert.assertEquals(3, filteredList.get(0).getCommitThreshold());
 	}
 

@@ -68,10 +68,11 @@ public class Project {
 		this.projectSizeInBytes = projectSizeInBytes;
 		this.javaLoc = this.productionLoc + this.testLoc;
 		this.isLocal = isLocal(gitUrl);
+		//clean the string to be more robust
+		this.commitCountThresholds = commitCountThresholds.replaceAll("[^\\d,.]", "");
 
-		String[] rawCommitThresholds = commitCountThresholds.split(",");
-		this.commitCountThresholds = commitCountThresholds;
-		this.commitCountThresholdsInt =  Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
+		List<String> rawCommitThresholds = Arrays.asList(this.commitCountThresholds.split(","));
+		this.commitCountThresholdsInt =  rawCommitThresholds.stream().map(Integer::parseInt).collect(Collectors.toList());
 		this.maxCommitThreshold = Collections.max(this.commitCountThresholdsInt);
 	}
 

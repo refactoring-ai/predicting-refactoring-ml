@@ -119,7 +119,7 @@ public class ProcessMetricsCollector {
 		// but that's not a big deal.
 		for(ProcessMetricTracker pmTracker : pmDatabase.findStableInstances()) {
 			if(TrackDebugMode.ACTIVE && (pmTracker.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
-				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter\n" +
+				log.debug("[TRACK] Marking class file " + pmTracker.getFileName() + " as a non-refactoring instance.\n" +
 						pmTracker.toString());
 			}
 
@@ -128,7 +128,9 @@ public class ProcessMetricsCollector {
 			// we then reset the counter, and start again.
 			// it is ok to use the same class more than once, as metrics as well as
 			// its source code will/may change, and thus, they are a different instance.
-			if(pmTracker.getCommitCountThreshold() >= project.getMaxCommitThreshold()){
+			if(pmTracker.getCommitCountThreshold() == project.getMaxCommitThreshold()){
+				log.debug("Reset pmTracker for class " + pmTracker.getFileName() + " with threshold: " + pmTracker.getCommitCountThreshold() +
+						" because it is the max threshold(" + project.getMaxCommitThreshold() + ").");
 				pmTracker.resetCounter(new CommitMetaData(commit, project));
 			}
 		}
@@ -150,7 +152,6 @@ public class ProcessMetricsCollector {
 				// if the class was deleted, we remove it from our pmDatabase
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
-				//TODO: track moves e.g. src/java/org/apache/commons/cli/HelpFormatter.java to src/main/java/org/apache/commons/cli/HelpFormatter.java
 				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
 					pmDatabase.removeFile(oldFileName);
@@ -185,7 +186,8 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private void storeProcessMetric(String fileName, List<StableCommit> stableCommits) {
+	//Store the process metrics of a stable class file
+	private void storeStableProcessMetric(String fileName, List<StableCommit> stableCommits) {
 		for(StableCommit stableCommit : stableCommits) {
 			ProcessMetricTracker filePm = pmDatabase.find(fileName);
 			ProcessMetrics dbProcessMetrics = filePm != null ?
@@ -199,7 +201,7 @@ public class ProcessMetricsCollector {
 
 	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
 		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
-		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the original commit: " + commitHashBackThen);
+		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitHashBackThen);
 
 		String tempDir = null;
 		try {
@@ -214,11 +216,10 @@ public class ProcessMetricsCollector {
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir, pmTracker.getCommitCountThreshold());
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
-			storeProcessMetric(pmTracker.getFileName(), stableCommits);
+			storeStableProcessMetric(pmTracker.getFileName(), stableCommits);
 		} catch(Exception e) {
 			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + commitHashBackThen, e);
 		} finally {
-			pmDatabase.removeFile(pmTracker.getFileName());
 			cleanTempDir(tempDir);
 		}
 	}

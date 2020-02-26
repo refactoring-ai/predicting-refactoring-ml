@@ -135,16 +135,15 @@ public class App {
 				if(currentCommit.getParentCount() > 1)
 					continue;
 
-				log.debug("Visiting commit " + currentCommit.getId().getName());
+				String commitHash = currentCommit.getId().getName();
+				if(TrackDebugMode.ACTIVE && commitHash.contains(TrackDebugMode.COMMIT_TO_TRACK)) {
+					log.debug("[Track] Visiting commit " + commitHash);
+				}
 
 				// did we find the last commit to process?
 				// if so, process it and then stop
 				if (currentCommit.equals(lastCommitToProcess))
 					endFound = true;
-
-				String commitHash = currentCommit.getId().getName();
-
-				log.debug("Invoking refactoring miner for commit " + commitHash);
 
 				refactoringsToProcess = null;
 				commitIdToProcess = null;

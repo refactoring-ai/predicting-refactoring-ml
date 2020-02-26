@@ -5,6 +5,7 @@ import org.junit.Test;
 import refactoringml.db.CommitMetaData;
 import refactoringml.db.ProcessMetrics;
 
+import java.util.List;
 import java.util.Random;
 
 //Tests the ProcessMetricTracker and ProcessMetrics classes
@@ -155,5 +156,27 @@ public class ProcessMetricTrackerTest {
 		}
 
 		Assert.assertEquals(qty, pm.getCurrentProcessMetrics().bugFixCount);
+	}
+
+	@Test
+	public void countQtyOfCommits(){
+		PMDatabase pmDatabase = new PMDatabase(List.of(10, 20));
+
+		for(int i = 0; i < 20; i++) {
+			pmDatabase.reportChanges("a.Java", new CommitMetaData("1", "n", "n", "0"), "R", 1, 1);
+		}
+		pmDatabase.reportRefactoring("a.Java", new CommitMetaData("1", "n", "n", "0"));
+
+		ProcessMetricTracker pmTracker = pmDatabase.find("a.Java");
+		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);
+		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
+		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
+
+
+
+		pmTracker = pmDatabase.find("a.Java");
+		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);
+		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
+		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
 	}
 }

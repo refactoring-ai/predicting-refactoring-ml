@@ -7,6 +7,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import refactoringml.TrackDebugMode;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +19,9 @@ public class JGitUtils {
 	private static final Logger log = Logger.getLogger(JGitUtils.class);
 
 	public static String readFileFromGit (Repository repo, RevCommit commit, String filepath) throws IOException {
-		log.debug("Reading file " + filepath + " in commit " + commit.getName());
+		if(TrackDebugMode.ACTIVE && (filepath.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
+			log.debug("[Track] Reading file " + filepath + " in commit " + commit.getName());
+		}
 
 		try (TreeWalk walk = TreeWalk.forPath(repo, filepath, commit.getTree())) {
 			if (walk != null) {
