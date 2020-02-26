@@ -3,6 +3,7 @@ package refactoringml.db;
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,9 +27,14 @@ public class Project {
 
 	private int commits;
 
+	//Collect instances of non-refactorings with different Ks e.g, 25,50,100 commits on a file without refactorings, this is for hibernate
+	private String commitCountThresholds;
 	//Collect instances of non-refactorings with different Ks e.g, 25,50,100 commits on a file without refactorings
-	@ElementCollection
-	private List<Integer> commitCountThresholds;
+	@Transient
+	private List<Integer> commitCountThresholdsInt;
+	//this is only used by the ProcessMetricsCollector, in order to reset the stable commits after the highest K was fulfilled
+	@Transient
+	private int maxCommitThreshold;
 
 	private long javaLoc;
 
@@ -64,7 +70,9 @@ public class Project {
 		this.isLocal = isLocal(gitUrl);
 
 		String[] rawCommitThresholds = commitCountThresholds.split(",");
-		this.commitCountThresholds =  Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
+		this.commitCountThresholds = commitCountThresholds;
+		this.commitCountThresholdsInt =  Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
+		this.maxCommitThreshold = Collections.max(this.commitCountThresholdsInt);
 	}
 
 	public void setFinishedDate(Calendar finishedDate) {
@@ -109,7 +117,9 @@ public class Project {
 
 	public static boolean isLocal(String gitUrl) {return !(gitUrl.startsWith("https") || gitUrl.startsWith("git")); }
 
-	public List<Integer> getCommitCountThresholds() {return commitCountThresholds;}
+	public List<Integer> getCommitCountThresholds() {return commitCountThresholdsInt;}
+
+	public int getMaxCommitThreshold() {return maxCommitThreshold;}
 
 	@Override
 	public String toString() {

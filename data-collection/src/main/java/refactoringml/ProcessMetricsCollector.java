@@ -117,18 +117,20 @@ public class ProcessMetricsCollector {
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
-		for(ProcessMetricTracker pm : pmDatabase.findStableInstances()) {
-			if(TrackDebugMode.ACTIVE && (pm.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
+		for(ProcessMetricTracker pmTracker : pmDatabase.findStableInstances()) {
+			if(TrackDebugMode.ACTIVE && (pmTracker.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter\n" +
-				pm.toString());
+						pmTracker.toString());
 			}
 
-			outputNonRefactoredClass(pm);
+			outputNonRefactoredClass(pmTracker);
 
 			// we then reset the counter, and start again.
 			// it is ok to use the same class more than once, as metrics as well as
 			// its source code will/may change, and thus, they are a different instance.
-			pm.resetCounter(new CommitMetaData(commit, project));
+			if(pmTracker.getCommitCountThreshold() >= project.getMaxCommitThreshold()){
+				pmTracker.resetCounter(new CommitMetaData(commit, project));
+			}
 		}
 	}
 
