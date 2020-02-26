@@ -1,10 +1,7 @@
 package refactoringml.db;
 
 import javax.persistence.*;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static refactoringml.util.Counter.*;
@@ -68,11 +65,14 @@ public class Project {
 		this.projectSizeInBytes = projectSizeInBytes;
 		this.javaLoc = this.productionLoc + this.testLoc;
 		this.isLocal = isLocal(gitUrl);
-		//clean the string to be more robust
-		this.commitCountThresholds = commitCountThresholds.replaceAll("[^\\d,.]", "");
 
-		List<String> rawCommitThresholds = Arrays.asList(this.commitCountThresholds.split(","));
-		this.commitCountThresholdsInt =  rawCommitThresholds.stream().map(Integer::parseInt).collect(Collectors.toList());
+		//clean the string to be more robust
+		String cleanCommitCountThresholds = commitCountThresholds.replaceAll("[^\\d,.]", "");
+		List<String> rawCommitThresholds = Arrays.asList(cleanCommitCountThresholds.split(","));
+
+		this.commitCountThresholdsInt = rawCommitThresholds.stream().map(Integer::parseInt)
+				.sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+		this.commitCountThresholds = commitCountThresholdsInt.toString();
 		this.maxCommitThreshold = Collections.max(this.commitCountThresholdsInt);
 	}
 

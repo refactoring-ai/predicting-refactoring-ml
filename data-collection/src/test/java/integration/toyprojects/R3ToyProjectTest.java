@@ -5,7 +5,6 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestTemplate;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
 
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
-	protected String getStableCommitThreshold() {return "3, 5";}
+	protected String getStableCommitThreshold() {return List.of(3, 5, 6).toString();}
 
 	@Override
 	protected String getRepo() {
@@ -100,7 +99,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		//Manually Verified
 		List<StableCommit> stableCommitLow = getStableCommits().stream().filter(commit ->
 				commit.getCommitThreshold() == 3).collect(Collectors.toList());
-		Assert.assertEquals(12, stableCommitLow.size());
+		Assert.assertEquals(9, stableCommitLow.size());
 
 		List<StableCommit> stableCommitsMedium = getStableCommits().stream().filter(commit ->
 				commit.getCommitThreshold() == 5).collect(Collectors.toList());
@@ -110,7 +109,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 				commit.getCommitThreshold() == 6).collect(Collectors.toList());
 		Assert.assertEquals(3, stableCommitsHigh.size());
 
-		Assert.assertEquals(18, getStableCommits().size());
+		Assert.assertEquals(15, getStableCommits().size());
 
 		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
 		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(getStableCommits(), lastRefactoring);

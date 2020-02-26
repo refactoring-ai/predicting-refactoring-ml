@@ -186,19 +186,6 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	//Store the process metrics of a stable class file
-	private void storeStableProcessMetric(String fileName, List<StableCommit> stableCommits) {
-		for(StableCommit stableCommit : stableCommits) {
-			ProcessMetricTracker filePm = pmDatabase.find(fileName);
-			ProcessMetrics dbProcessMetrics = filePm != null ?
-					new ProcessMetrics(filePm.getBaseProcessMetrics()) :
-					new ProcessMetrics(-1, -1, -1, -1, -1);
-
-			stableCommit.setProcessMetrics(dbProcessMetrics);
-			db.persist(stableCommit);
-		}
-	}
-
 	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
 		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
 		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitHashBackThen);
@@ -212,11 +199,15 @@ public class ProcessMetricsCollector {
 			tempDir = createTmpDir();
 			saveFile(commitHashBackThen, sourceCodeBackThen, pmTracker.getFileName(), tempDir);
 
-			CommitMetaData commitMetaData = pmTracker.getBaseCommitMetaData();
+			CommitMetaData commitMetaData = new CommitMetaData(pmTracker.getBaseCommitMetaData());
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir, pmTracker.getCommitCountThreshold());
+
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
-			storeStableProcessMetric(pmTracker.getFileName(), stableCommits);
+			for(StableCommit stableCommit : stableCommits) {
+				stableCommit.setProcessMetrics(new ProcessMetrics(pmTracker.getBaseProcessMetrics()));
+				db.persist(stableCommit);
+			}
 		} catch(Exception e) {
 			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + commitHashBackThen, e);
 		} finally {
