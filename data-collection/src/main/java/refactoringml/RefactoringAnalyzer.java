@@ -52,21 +52,20 @@ public class RefactoringAnalyzer {
 
 	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
 		String refactoringSummary = refactoring.toString().trim();
-		//log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
+		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 
 		RevCommit commitParent = commit.getParent(0);
 		Set<Long> allRefactorings = new HashSet<Long>();
 
-		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
-			String refactoredClassFile = pair.getLeft();
-			String refactoredClassName = pair.getRight();
+		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+			diffFormatter.setRepository(repository);
+			diffFormatter.setDetectRenames(true);
+			List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
 
-			try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-				diffFormatter.setRepository(repository);
-				diffFormatter.setDetectRenames(true);
+			for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
+				String refactoredClassFile = pair.getLeft();
+				String refactoredClassName = pair.getRight();
 
-				//TODO: move this diff entry part outside the for loop, in order to improve the performance
-				List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
 				Optional<DiffEntry> refactoredEntry = entries.stream()
 						.filter(entry -> {
 							String oldFile = enforceUnixPaths(entry.getOldPath());
@@ -76,61 +75,60 @@ public class RefactoringAnalyzer {
 						})
 						.findFirst();
 
-				// this should not happen...
-				if(!refactoredEntry.isPresent()) {
-					log.error("Old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
-					log.error("New classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
-					throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
-				}
-
-				// we found the file, let's get its metrics!
-				DiffEntry entry = refactoredEntry.get();
-				diffFormatter.toFileHeader(entry);
-
-				String oldFileName = enforceUnixPaths(entry.getOldPath());
-				String currentFileName = enforceUnixPaths(entry.getNewPath());
-
-				if(TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
-					log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
-				}
-
-				// Now, we get the contents of the file before
-				String sourceCodeBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
-
-				// save the old version of the file in a temp dir to execute the CK tool
-				// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
-				// but later we notice it might do in cases of file renames and refactorings in the same commit.
-				tempDir = createTmpDir();
-				createAllDirs(tempDir, oldFileName);
-				try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
-					out.print(sourceCodeBefore);
-				}
-
-				RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, new CommitMetaData(commit, project), refactoring, refactoringSummary);
-
-				if(refactoringCommit !=null) {
-					// mark it for the process metrics collection
-					allRefactorings.add(refactoringCommit.getId());
-
-					if(storeFullSourceCode) {
-						// let's get the source code of the file after the refactoring
-						// but only if not deleted
-						String sourceCodeAfter = !wasDeleted(currentFileName) ? SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName)) : "";
-
-						// store the before and after versions for the deep learning training
-						// note that we save the file before with the same name of the current file name,
-						// as to help in finding it (from the SQL query to the file)
-						saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
+					// this should not happen...
+					if(refactoredEntry.isEmpty()) {
+						log.error("Old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
+						log.error("New classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
+						throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
 					}
-				} else {
-					//TODO: investigate this case to write a better log message
-					log.error("RefactoringCommit instance was not created. CK did not find the class, maybe?");
-				}
 
-				cleanTmpDir();
-			}//end if
+					// we found the file, let's get its metrics!
+					DiffEntry entry = refactoredEntry.get();
+					diffFormatter.toFileHeader(entry);
 
-		}
+					String oldFileName = enforceUnixPaths(entry.getOldPath());
+					String currentFileName = enforceUnixPaths(entry.getNewPath());
+
+					if(TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
+						log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
+					}
+
+					// Now, we get the contents of the file before
+					String sourceCodeBefore = SourceCodeUtils.removeComments(readFileFromGit(repository, commitParent, oldFileName));
+
+					// save the old version of the file in a temp dir to execute the CK tool
+					// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
+					// but later we notice it might do in cases of file renames and refactorings in the same commit.
+					tempDir = createTmpDir();
+					createAllDirs(tempDir, oldFileName);
+					try (PrintStream out = new PrintStream(new FileOutputStream(tempDir + oldFileName))) {
+						out.print(sourceCodeBefore);
+					}
+
+					RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, new CommitMetaData(commit, project), refactoring, refactoringSummary);
+
+					if(refactoringCommit !=null) {
+						// mark it for the process metrics collection
+						allRefactorings.add(refactoringCommit.getId());
+
+						if(storeFullSourceCode) {
+							// let's get the source code of the file after the refactoring
+							// but only if not deleted
+							String sourceCodeAfter = !wasDeleted(currentFileName) ? SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName)) : "";
+
+							// store the before and after versions for the deep learning training
+							// note that we save the file before with the same name of the current file name,
+							// as to help in finding it (from the SQL query to the file)
+							saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
+						}
+					} else {
+						//TODO: investigate this case to write a better log message
+						log.error("RefactoringCommit instance was not created. CK did not find the class, maybe?");
+					}
+
+					cleanTmpDir();
+				}//end if
+			}
 
 		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
 			log.debug("[TRACK] End commit " + commit.getId().getName());
