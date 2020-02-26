@@ -52,10 +52,7 @@ public class RefactoringAnalyzer {
 
 	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
 		String refactoringSummary = refactoring.toString().trim();
-		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
-		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-			log.debug("[TRACK] Commit " + commit.getId().getName());
-		}
+		//log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 
 		RevCommit commitParent = commit.getParent(0);
 		Set<Long> allRefactorings = new HashSet<Long>();
@@ -70,9 +67,6 @@ public class RefactoringAnalyzer {
 
 				//TODO: move this diff entry part outside the for loop, in order to improve the performance
 				List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
-				//TODO: Process metrics: Track renames #19
-				// we try to match either the old or the new name of the file.
-				// this is to help us in catching renames or moves
 				Optional<DiffEntry> refactoredEntry = entries.stream()
 						.filter(entry -> {
 							String oldFile = enforceUnixPaths(entry.getOldPath());

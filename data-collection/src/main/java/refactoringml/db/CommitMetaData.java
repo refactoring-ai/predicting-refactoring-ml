@@ -33,7 +33,7 @@ public class CommitMetaData {
     //id of the parent commit, if none exists:
     // the parent commit points to the commit that we calculate the code metrics
     // (we calculate the metrics in the version of file *before* the refactoring)
-    private String parentCommit;
+    private String parentCommitId;
 
     @Deprecated // hibernate purposes
     public CommitMetaData() {this.commitId = "";}
@@ -44,7 +44,7 @@ public class CommitMetaData {
         this.commitDate = new GregorianCalendar();
         this.commitMessage = fullMessage.trim();
         this.commitUrl = url;
-        this.parentCommit = parentId.trim();
+        this.parentCommitId = parentId.trim();
     }
 
     public CommitMetaData(RevCommit commit, Project project){
@@ -52,7 +52,11 @@ public class CommitMetaData {
         this.commitDate = JGitUtils.getGregorianCalendar(commit);
         this.commitMessage = commit.getFullMessage().trim();
         this.commitUrl = JGitUtils.generateCommitUrl(project.getGitUrl(), commitId, project.isLocal());
-        this.parentCommit = commit.getParentCount() == 0 ? "Null" : commit.getParent(0).getName().trim();
+        this.parentCommitId = commit.getParentCount() == 0 ? "Null" : commit.getParent(0).getName().trim();
+    }
+
+    public CommitMetaData(CommitMetaData commitMetaData){
+        this(commitMetaData.commitId, commitMetaData.commitMessage, commitMetaData.commitUrl, commitMetaData.parentCommitId);
     }
 
     public String getCommitUrl (){return commitUrl;}
@@ -61,7 +65,7 @@ public class CommitMetaData {
 
     public String getCommitMessage (){return commitMessage;}
 
-    public String getParentCommitId() {return parentCommit; }
+    public String getParentCommitId() {return parentCommitId; }
 
     @Override
     public String toString() {
@@ -70,7 +74,7 @@ public class CommitMetaData {
                 ", commitDate=" + commitDate +
                 ", commitMessage=" + commitMessage +
                 ", commitUrl=" + commitUrl +
-                ", parentCommit='" + parentCommit + '\'' +
+                ", parentCommit='" + parentCommitId + '\'' +
                 '}';
     }
 }

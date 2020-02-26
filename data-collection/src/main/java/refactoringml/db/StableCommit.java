@@ -12,8 +12,9 @@ public class StableCommit extends Instance{
 	public StableCommit() {}
 
 	public StableCommit(Project project, CommitMetaData commitMetaData, String filePath, String className, ClassMetric classMetrics,
-			  MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int level) {
+			  MethodMetric methodMetrics, VariableMetric variableMetrics, FieldMetric fieldMetrics, int level, int commitThreshold) {
 		super(project, commitMetaData, filePath, className, classMetrics, methodMetrics, variableMetrics, fieldMetrics, level);
+		this.commitThreshold = commitThreshold;
 	}
 
 	public int getCommitThreshold(){ return commitThreshold; }

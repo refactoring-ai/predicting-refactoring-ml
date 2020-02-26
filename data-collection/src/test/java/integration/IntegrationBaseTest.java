@@ -112,10 +112,6 @@ public abstract class IntegrationBaseTest {
 						.setParameter("projectIds", projectIds)
 						.executeUpdate();
 
-				session.createQuery("DELETE FROM Project WHERE id IN :projectIds")
-						.setParameter("projectIds", projectIds)
-						.executeUpdate();
-
 				List<Long> metaData = (List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM RefactoringCommit").list();
 				metaData.addAll((List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM StableCommit").list());
 				if(!metaData.isEmpty()){
@@ -253,7 +249,7 @@ public abstract class IntegrationBaseTest {
 	protected void assertInnerClass(List<? extends Instance> commitList, String commitId, String className, int qty){
 		List<? extends Instance> filteredList = filterCommit(commitList, commitId).stream().filter(commit ->
 				commit.getClassMetrics().isInnerClass() &&
-						commit.getClassName().equals(className)).collect(Collectors.toList());
+						commit.getClassName().contains(className)).collect(Collectors.toList());
 		Assert.assertEquals(qty, filteredList.size());
 	}
 

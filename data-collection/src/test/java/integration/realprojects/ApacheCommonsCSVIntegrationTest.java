@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.StableCommit;
 import refactoringml.db.RefactoringCommit;
-
 import java.util.List;
 import java.util.stream.Collectors;
 

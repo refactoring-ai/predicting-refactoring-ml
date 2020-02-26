@@ -1,9 +1,7 @@
 package refactoringml.db;
 
 import javax.persistence.*;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static refactoringml.util.Counter.*;
@@ -26,8 +24,14 @@ public class Project {
 
 	private int commits;
 
-	//Collect instances of non-refactorings with different Ks e.g, 25,50,100 commits on a file without refactorings
+	//Collect instances of non-refactorings with different Ks e.g, 25,50,100 commits on a file without refactorings, this is for hibernate
 	private String commitCountThresholds;
+	//Collect instances of non-refactorings with different Ks e.g, 25,50,100 commits on a file without refactorings
+	@Transient
+	private List<Integer> commitCountThresholdsInt;
+	//this is only used by the ProcessMetricsCollector, in order to reset the stable commits after the highest K was fulfilled
+	@Transient
+	private int maxCommitThreshold;
 
 	private long javaLoc;
 
@@ -61,7 +65,15 @@ public class Project {
 		this.projectSizeInBytes = projectSizeInBytes;
 		this.javaLoc = this.productionLoc + this.testLoc;
 		this.isLocal = isLocal(gitUrl);
-		this.commitCountThresholds = commitCountThresholds;
+
+		//clean the string to be more robust
+		String cleanCommitCountThresholds = commitCountThresholds.replaceAll("[^\\d,.]", "");
+		List<String> rawCommitThresholds = Arrays.asList(cleanCommitCountThresholds.split(","));
+
+		this.commitCountThresholdsInt = rawCommitThresholds.stream().map(Integer::parseInt)
+				.sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+		this.commitCountThresholds = commitCountThresholdsInt.toString();
+		this.maxCommitThreshold = Collections.max(this.commitCountThresholdsInt);
 	}
 
 	public void setFinishedDate(Calendar finishedDate) {
@@ -104,12 +116,11 @@ public class Project {
 
 	public boolean isLocal(){ return isLocal; }
 
-	public static boolean isLocal(String gitUrl) { return !(gitUrl.startsWith("https") || gitUrl.startsWith("git")); }
+	public static boolean isLocal(String gitUrl) {return !(gitUrl.startsWith("https") || gitUrl.startsWith("git")); }
 
-	public List<Integer> getCommitCountThresholds(){
-		String[] rawCommitThresholds = commitCountThresholds.split(",");
-		return Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
-	}
+	public List<Integer> getCommitCountThresholds() {return commitCountThresholdsInt;}
+
+	public int getMaxCommitThreshold() {return maxCommitThreshold;}
 
 	@Override
 	public String toString() {
@@ -121,7 +132,7 @@ public class Project {
 				", dateOfProcessing=" + dateOfProcessing +
 				", finishedDate=" + finishedDate +
 				", commits=" + commits +
-				", commitCountThresholds=" + commitCountThresholds +
+				", commitCountThresholds=" + commitCountThresholds.toString() +
 				", javaLoc=" + javaLoc +
 				", numberOfProductionFiles=" + numberOfProductionFiles +
 				", numberOfTestFiles=" + numberOfTestFiles +

@@ -1,6 +1,5 @@
 package refactoringml;
 
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
@@ -16,7 +15,6 @@ import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
-import refactoringml.db.CommitMetaData;
 import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;
@@ -137,16 +135,15 @@ public class App {
 				if(currentCommit.getParentCount() > 1)
 					continue;
 
-				log.debug("Visiting commit " + currentCommit.getId().getName());
+				String commitHash = currentCommit.getId().getName();
+				if(TrackDebugMode.ACTIVE && commitHash.contains(TrackDebugMode.COMMIT_TO_TRACK)) {
+					log.debug("[Track] Visiting commit " + commitHash);
+				}
 
 				// did we find the last commit to process?
 				// if so, process it and then stop
 				if (currentCommit.equals(lastCommitToProcess))
 					endFound = true;
-
-				String commitHash = currentCommit.getId().getName();
-
-				log.debug("Invoking refactoring miner for commit " + commitHash);
 
 				refactoringsToProcess = null;
 				commitIdToProcess = null;
