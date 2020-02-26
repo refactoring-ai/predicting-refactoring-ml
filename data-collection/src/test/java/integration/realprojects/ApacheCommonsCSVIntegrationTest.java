@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.StableCommit;
 import refactoringml.db.RefactoringCommit;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -147,13 +146,6 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
         List<StableCommit> stableCommitList = getStableCommits().stream().filter(commit ->
                 commit.getFilePath().equals(fileName)).collect(Collectors.toList());
         Assert.assertEquals(0, stableCommitList.size());
-    }
-
-    @Test
-    public void commitCount(){
-        for(RefactoringCommit commit : getRefactoringCommits()){
-            Assert.assertTrue(commit.getProcessMetrics().qtyOfCommits >= commit.getProcessMetrics().refactoringsInvolved);
-        }
     }
 
     // check the number of test and production files as well as their LOC
