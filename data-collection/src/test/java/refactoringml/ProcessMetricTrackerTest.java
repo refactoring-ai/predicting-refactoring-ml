@@ -35,9 +35,9 @@ public class ProcessMetricTrackerTest {
 		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", commitMetaData);
 
 		for(int i = 0; i < 21; i++) {
-			pm.reportCommit("commit #" + i,"Mauricio", 1, 1);
+			pm.reportCommit("#" + i,"commit #" + i,"Mauricio", 1, 1);
 		}
-		pm.reportCommit("Bug fix in commit #" + 22, "Jan", 10, 5);
+		pm.reportCommit("#22","Bug fix in commit #" + 22, "Jan", 10, 5);
 
 		//no refactoring was done on a.Java, thus the base commit process metrics should be empty
 		ProcessMetrics baseProcessMetrics = new ProcessMetrics(0, 0, 0, 0, 0);
@@ -62,9 +62,9 @@ public class ProcessMetricTrackerTest {
 		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", commitMetaData);
 
 		for(int i = 0; i < 21; i++) {
-			pm.reportCommit("commit #" + i,"Mauricio", 1, 1);
+			pm.reportCommit("#" + i,"commit #" + i,"Mauricio", 1, 1);
 		}
-		pm.reportCommit("Bug fix in commit #" + 22, "Jan", 10, 5);
+		pm.reportCommit("#22","Bug fix in commit #" + 22, "Jan", 10, 5);
 
 		//Reset the tracker counter, because a refactoring happened in this commit
 		CommitMetaData refactoringCommitMetaData = new CommitMetaData();
@@ -96,15 +96,15 @@ public class ProcessMetricTrackerTest {
 		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", new CommitMetaData());
 
 		for(int i = 0; i < 90; i++) {
-			pm.reportCommit("commit","Mauricio", 10, 20);
+			pm.reportCommit("#" + i, "commit","Mauricio", 10, 20);
 		}
 
 		for(int i = 0; i < 6; i++) {
-			pm.reportCommit("commit","Diogo", 10, 20);
+			pm.reportCommit("#" + i, "commit","Diogo", 10, 20);
 		}
 
 		for(int i = 0; i < 4; i++) {
-			pm.reportCommit("commit","Rafael", 10, 20);
+			pm.reportCommit("#" + i,"commit","Rafael", 10, 20);
 		}
 
 		Assert.assertEquals(3, pm.getCurrentProcessMetrics().qtyOfAuthors(), 0.0001);
@@ -118,7 +118,7 @@ public class ProcessMetricTrackerTest {
 		CommitMetaData refactoringCommitMetaData = new CommitMetaData();
 		pm.resetCounter(refactoringCommitMetaData);
 
-		pm.reportCommit("bug fix in commit","Michael", 10, 20);
+		pm.reportCommit("#101","bug fix in commit","Michael", 10, 20);
 
 		Assert.assertEquals(3, pm.getBaseProcessMetrics().qtyOfAuthors(), 0.0001);
 		Assert.assertEquals(100, pm.getBaseProcessMetrics().qtyOfCommits, 0.0001);
@@ -142,7 +142,7 @@ public class ProcessMetricTrackerTest {
 
 		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", new CommitMetaData());
 
-		pm.reportCommit( "bug fix here","Rafael", 10, 20);
+		pm.reportCommit( "#1","bug fix here","Rafael", 10, 20);
 
 		int qty = 1;
 		for(int i = 0; i < 500; i++) {
@@ -152,7 +152,7 @@ public class ProcessMetricTrackerTest {
 				qty++;
 			}
 
-			pm.reportCommit("bla bla " + (keywordHere) + "ble ble","Rafael", 10, 20);
+			pm.reportCommit("#" + (i + 2), "bla bla " + (keywordHere) + "ble ble","Rafael", 10, 20);
 		}
 
 		Assert.assertEquals(qty, pm.getCurrentProcessMetrics().bugFixCount);
@@ -163,9 +163,9 @@ public class ProcessMetricTrackerTest {
 		PMDatabase pmDatabase = new PMDatabase(List.of(10, 20));
 
 		for(int i = 0; i < 20; i++) {
-			pmDatabase.reportChanges("a.Java", new CommitMetaData("1", "n", "n", "0"), "R", 1, 1);
+			pmDatabase.reportChanges("a.Java", new CommitMetaData("#" + i, "n", "n", "0"), "R", 1, 1);
 		}
-		pmDatabase.reportRefactoring("a.Java", new CommitMetaData("1", "n", "n", "0"));
+		pmDatabase.reportRefactoring("a.Java", new CommitMetaData("#21", "n", "n", "0"));
 
 		ProcessMetricTracker pmTracker = pmDatabase.find("a.Java");
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);

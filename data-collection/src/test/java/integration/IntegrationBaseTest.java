@@ -249,7 +249,7 @@ public abstract class IntegrationBaseTest {
 	protected void assertInnerClass(List<? extends Instance> commitList, String commitId, String className, int qty){
 		List<? extends Instance> filteredList = filterCommit(commitList, commitId).stream().filter(commit ->
 				commit.getClassMetrics().isInnerClass() &&
-						commit.getClassName().equals(className)).collect(Collectors.toList());
+						commit.getClassName().contains(className)).collect(Collectors.toList());
 		Assert.assertEquals(qty, filteredList.size());
 	}
 

@@ -41,7 +41,7 @@ public class ProcessMetricTracker {
 	}
 
 	//public tracker interaction
-	public void reportCommit(String commitMsg, String authorName, int linesAdded, int linesDeleted) {
+	public void reportCommit(String commitId, String commitMsg, String authorName, int linesAdded, int linesDeleted) {
 		currentProcessMetrics.qtyOfCommits++;
 		currentProcessMetrics.updateAuthorCommits(authorName);
 

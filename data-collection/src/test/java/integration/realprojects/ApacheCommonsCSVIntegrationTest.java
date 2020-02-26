@@ -149,6 +149,13 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
         Assert.assertEquals(0, stableCommitList.size());
     }
 
+    @Test
+    public void commitCount(){
+        for(RefactoringCommit commit : getRefactoringCommits()){
+            Assert.assertTrue(commit.getProcessMetrics().qtyOfCommits >= commit.getProcessMetrics().refactoringsInvolved);
+        }
+    }
+
     // check the number of test and production files as well as their LOC
     @Test
     public void projectMetrics() {
