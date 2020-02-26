@@ -1,6 +1,5 @@
 package refactoringml;
 
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
@@ -16,7 +15,6 @@ import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
-import refactoringml.db.CommitMetaData;
 import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.util.Counter;

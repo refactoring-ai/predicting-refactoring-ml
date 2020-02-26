@@ -112,10 +112,6 @@ public abstract class IntegrationBaseTest {
 						.setParameter("projectIds", projectIds)
 						.executeUpdate();
 
-				session.createQuery("DELETE FROM Project WHERE id IN :projectIds")
-						.setParameter("projectIds", projectIds)
-						.executeUpdate();
-
 				List<Long> metaData = (List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM RefactoringCommit").list();
 				metaData.addAll((List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM StableCommit").list());
 				if(!metaData.isEmpty()){

@@ -27,7 +27,8 @@ public class Project {
 	private int commits;
 
 	//Collect instances of non-refactorings with different Ks e.g, 25,50,100 commits on a file without refactorings
-	private String commitCountThresholds;
+	@ElementCollection
+	private List<Integer> commitCountThresholds;
 
 	private long javaLoc;
 
@@ -61,7 +62,9 @@ public class Project {
 		this.projectSizeInBytes = projectSizeInBytes;
 		this.javaLoc = this.productionLoc + this.testLoc;
 		this.isLocal = isLocal(gitUrl);
-		this.commitCountThresholds = commitCountThresholds;
+
+		String[] rawCommitThresholds = commitCountThresholds.split(",");
+		this.commitCountThresholds =  Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
 	}
 
 	public void setFinishedDate(Calendar finishedDate) {
@@ -104,12 +107,9 @@ public class Project {
 
 	public boolean isLocal(){ return isLocal; }
 
-	public static boolean isLocal(String gitUrl) { return !(gitUrl.startsWith("https") || gitUrl.startsWith("git")); }
+	public static boolean isLocal(String gitUrl) {return !(gitUrl.startsWith("https") || gitUrl.startsWith("git")); }
 
-	public List<Integer> getCommitCountThresholds(){
-		String[] rawCommitThresholds = commitCountThresholds.split(",");
-		return Arrays.stream(rawCommitThresholds).map(string -> Integer.valueOf(string)).collect(Collectors.toList());
-	}
+	public List<Integer> getCommitCountThresholds() {return commitCountThresholds;}
 
 	@Override
 	public String toString() {
@@ -121,7 +121,7 @@ public class Project {
 				", dateOfProcessing=" + dateOfProcessing +
 				", finishedDate=" + finishedDate +
 				", commits=" + commits +
-				", commitCountThresholds=" + commitCountThresholds +
+				", commitCountThresholds=" + commitCountThresholds.toString() +
 				", javaLoc=" + javaLoc +
 				", numberOfProductionFiles=" + numberOfProductionFiles +
 				", numberOfTestFiles=" + numberOfTestFiles +

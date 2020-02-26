@@ -42,8 +42,8 @@ public class ProcessMetricsCollector {
 		this.db = db;
 		this.repository = repository;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-		int stableCommitThreshold = project.getCommitCountThresholds().get(0);
-		pmDatabase = new PMDatabase(stableCommitThreshold);
+		List<Integer> stableCommitThresholds = project.getCommitCountThresholds();
+		pmDatabase = new PMDatabase(stableCommitThresholds);
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
@@ -209,7 +209,7 @@ public class ProcessMetricsCollector {
 			saveFile(commitHashBackThen, sourceCodeBackThen, pmTracker.getFileName(), tempDir);
 
 			CommitMetaData commitMetaData = pmTracker.getBaseCommitMetaData();
-			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir);
+			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir, pmTracker.getCommitCountThreshold());
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
 			storeProcessMetric(pmTracker.getFileName(), stableCommits);
@@ -237,12 +237,11 @@ public class ProcessMetricsCollector {
 		ps.close();
 	}
 
-	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir) {
+	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir, int commitThreshold) {
 		List<StableCommit> stableCommits = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 			ClassMetric classMetric = extractClassMetrics(ck);
-
 			StableCommit stableCommit = new StableCommit(
 					project,
 					commitMetaData,
@@ -252,7 +251,8 @@ public class ProcessMetricsCollector {
 					null,
 					null,
 					null,
-					RefactoringUtils.TYPE_CLASS_LEVEL);
+					RefactoringUtils.TYPE_CLASS_LEVEL,
+					commitThreshold);
 
 			stableCommits.add(stableCommit);
 
@@ -268,7 +268,8 @@ public class ProcessMetricsCollector {
 						methodMetrics,
 						null,
 						null,
-						RefactoringUtils.TYPE_METHOD_LEVEL);
+						RefactoringUtils.TYPE_METHOD_LEVEL,
+						commitThreshold);
 
 				stableCommits.add(stableCommitM);
 
@@ -284,7 +285,8 @@ public class ProcessMetricsCollector {
 							methodMetrics,
 							variableMetric,
 							null,
-							RefactoringUtils.TYPE_VARIABLE_LEVEL);
+							RefactoringUtils.TYPE_VARIABLE_LEVEL,
+							commitThreshold);
 
 					stableCommits.add(stableCommitV);
 				}
@@ -308,7 +310,8 @@ public class ProcessMetricsCollector {
 						null,
 						null,
 						fieldMetrics,
-						RefactoringUtils.TYPE_ATTRIBUTE_LEVEL);
+						RefactoringUtils.TYPE_ATTRIBUTE_LEVEL,
+						commitThreshold);
 
 				stableCommits.add(stableCommitF);
 			}

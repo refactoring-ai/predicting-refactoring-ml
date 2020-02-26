@@ -78,7 +78,6 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	//Test if all refactorings with multiple Ks are detected correctly.
 	@Test
-	@Disabled
 	public void stableThresholds() {
 		List<StableCommit> stableCommitList = getStableCommits();
 

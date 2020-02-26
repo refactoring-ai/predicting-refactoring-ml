@@ -4,7 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import refactoringml.db.CommitMetaData;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 //Test the PMDatabase class
 //Closely linked to the
@@ -12,11 +14,11 @@ public class PMDatabaseTest {
     @Test
     public void constructor(){
         Map<String, ProcessMetricTracker> database = new HashMap<>();
-        PMDatabase pmDatabase = new PMDatabase(10);
+        PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
 
         String expected = "PMDatabase{" +
                 "database=" + database.toString() + ",\n" +
-                "commitThreshold=" + 10 +
+                "commitThreshold=" + List.of(10, 25) +
                 "}";
         Assert.assertEquals(expected, pmDatabase.toString());
     }
@@ -25,7 +27,7 @@ public class PMDatabaseTest {
     //Be aware: .Java and .java are equal for java
     @Test
     public void caseSensitivity(){
-        PMDatabase pmDatabase = new PMDatabase(10);
+        PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
 
         pmDatabase.reportChanges("a.Java", new CommitMetaData("1", "n", "n", "0"), "R", 1, 1);
         pmDatabase.reportChanges("A.Java", new CommitMetaData("1", "n", "n", "0"), "R", 1, 1);
@@ -37,7 +39,7 @@ public class PMDatabaseTest {
 
     @Test
     public void reportChanges(){
-        PMDatabase pmDatabase = new PMDatabase(10);
+        PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
 
         //test if a new pm tracker is created with the right values
         pmDatabase.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
@@ -65,7 +67,7 @@ public class PMDatabaseTest {
 
     @Test
     public void reportRefactoring(){
-        PMDatabase pmDatabase = new PMDatabase(10);
+        PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
 
         pmDatabase.reportRefactoring("a.Java", new CommitMetaData("1", "null", "null", "0"));
         Assert.assertNotNull(pmDatabase.find("a.Java"));
@@ -99,13 +101,13 @@ public class PMDatabaseTest {
     //take care of case sensitivity
     @Test
     public void removeFile1(){
-        PMDatabase pmDatabase = new PMDatabase(10);
+        PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
         Map<String, ProcessMetricTracker> database = new HashMap<>();
 
         pmDatabase.removeFile("a.Java");
         String expected = "PMDatabase{" +
                 "database=" + database.toString() + ",\n" +
-                "commitThreshold=" + 10 +
+                "commitThreshold=" + List.of(10, 25) +
                 "}";
         Assert.assertEquals(expected, pmDatabase.toString());
 
@@ -120,7 +122,7 @@ public class PMDatabaseTest {
     //take care of case sensitivity
     @Test
     public void renameFile(){
-        PMDatabase pmDatabase = new PMDatabase(10);
+        PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
 
         ProcessMetricTracker oldPMTracker = pmDatabase.renameFile("a.Java", "A.Java",
                 new CommitMetaData("1", "null", "null", "0"));
@@ -160,7 +162,7 @@ public class PMDatabaseTest {
     //take care of case sensitivity
     @Test
     public void renameFile2(){
-        PMDatabase pmDatabase = new PMDatabase(10);
+        PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
         pmDatabase.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
         pmDatabase.renameFile("a.Java", "a.Java", new CommitMetaData("1", "null", "null", "0"));
 
@@ -174,7 +176,7 @@ public class PMDatabaseTest {
     //take care of renamed files
     @Test
     public void removeFile2(){
-        PMDatabase pmDatabase = new PMDatabase(10);
+        PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
         pmDatabase.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
         pmDatabase.renameFile("a.Java", "A.Java", new CommitMetaData("1", "null", "null", "0"));
 
@@ -186,7 +188,7 @@ public class PMDatabaseTest {
 
     @Test
     public void isStable1(){
-        PMDatabase pm = new PMDatabase(10);
+        PMDatabase pm = new PMDatabase(List.of(10, 25));
 
         for(int i = 0; i < 9; i++) {
             pm.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
@@ -200,18 +202,29 @@ public class PMDatabaseTest {
         Assert.assertEquals(10, pm.find("b.Java").getCommitCounter());
         Assert.assertEquals(1, pm.findStableInstances().size());
 
-        for(int i = 0; i < 12; i++) {
+        for(int i = 0; i < 14; i++) {
             pm.reportChanges("b.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
-            Assert.assertEquals(1, pm.findStableInstances().size());
+            Assert.assertEquals(0, pm.findStableInstances().size());
         }
 
         pm.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
+        Assert.assertEquals(1, pm.findStableInstances().size());
+        Assert.assertEquals(10, pm.findStableInstances().get(0).getCommitCountThreshold());
+
+        pm.reportChanges("b.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
         Assert.assertEquals(2, pm.findStableInstances().size());
+        Assert.assertEquals(25, pm.findStableInstances().stream().filter(pmTracker -> pmTracker.getFileName().equals("b.Java")).collect(Collectors.toList()).get(0).getCommitCountThreshold());
+
+        pm.reportRefactoring("b.Java", new CommitMetaData("1", "null", "null", "0"));
+        Assert.assertEquals(1, pm.findStableInstances().size());
+
+        Assert.assertEquals(1, pm.findStableInstances().size());
+        Assert.assertEquals(10, pm.findStableInstances().get(0).getCommitCountThreshold());
     }
 
     @Test
     public void isStable2(){
-        PMDatabase pm = new PMDatabase(10);
+        PMDatabase pm = new PMDatabase(List.of(10, 25));
         for(int i = 0; i < 9; i++) {
             pm.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
             pm.reportChanges("b.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
@@ -238,5 +251,36 @@ public class PMDatabaseTest {
 
         pm.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
         Assert.assertEquals(2, pm.findStableInstances().size());
+    }
+
+    @Test
+    public void multipleKs1(){
+        PMDatabase pm = new PMDatabase(List.of(10, 25));
+
+        for(int i = 0; i < 9; i++) {
+            pm.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
+        }
+        pm.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
+        Assert.assertEquals(1, pm.findStableInstances().size());
+        Assert.assertEquals(10, pm.findStableInstances().get(0).getCommitCountThreshold());
+
+        pm.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
+        Assert.assertEquals(0, pm.findStableInstances().size());
+
+        for(int i = 0; i < 14; i++) {
+            pm.reportChanges("a.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
+        }
+        Assert.assertEquals(1, pm.findStableInstances().size());
+        Assert.assertEquals(25, pm.findStableInstances().get(0).getCommitCountThreshold());
+
+        pm.reportRefactoring("a.Java", new CommitMetaData("1", "null", "null", "0"));
+        Assert.assertEquals(0, pm.findStableInstances().size());
+    }
+
+    @Test
+    public void multipleKs2(){
+        PMDatabase pm = new PMDatabase(List.of(10, 25));
+
+
     }
 }
