@@ -12,28 +12,29 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static refactoringml.util.FilePathUtils.enforceUnixPaths;
-
 public class RefactoringUtils {
+	public enum Level {
+		CLASS,
+		METHOD,
+		VARIABLE,
+		ATTRIBUTE,
+		OTHER
+	}
 
-	public static final int TYPE_CLASS_LEVEL = 1;
-	public static final int TYPE_METHOD_LEVEL = 2;
-	public static final int TYPE_VARIABLE_LEVEL = 3;
-	public static final int TYPE_ATTRIBUTE_LEVEL = 4;
-
-	private static Set<RefactoringType> methodLevelRefactorings;
-	private static Set<RefactoringType> classLevelRefactorings;
-	private static Set<RefactoringType> variableLevelRefactorings;
+	private static final Set<RefactoringType> methodLevelRefactorings;
+	private static final Set<RefactoringType> classLevelRefactorings;
+	private static final Set<RefactoringType> variableLevelRefactorings;
 	private static final Set<RefactoringType> attributeLevelRefactorings;
+	private static final Set<RefactoringType> otherRefactorings;
 
 	static {
 		classLevelRefactorings = new HashSet<>() {{
+			add(RefactoringType.EXTRACT_INTERFACE);
 			add(RefactoringType.MOVE_CLASS);
 			add(RefactoringType.RENAME_CLASS);
 			add(RefactoringType.EXTRACT_CLASS);
 			add(RefactoringType.EXTRACT_SUBCLASS);
 			add(RefactoringType.EXTRACT_SUPERCLASS);
-			add(RefactoringType.EXTRACT_INTERFACE);
 			add(RefactoringType.MOVE_RENAME_CLASS);
 			add(RefactoringType.CONVERT_ANONYMOUS_CLASS_TO_TYPE);
 			add(RefactoringType.INTRODUCE_POLYMORPHISM);
@@ -43,6 +44,8 @@ public class RefactoringUtils {
 		// there's no detection for merge operation (i suppose it's still under development)
 		// there's also no change method signature refactoring (this is a 'relationship', i need to understand it better)
 		methodLevelRefactorings = new HashSet<>() {{
+			add(RefactoringType.CHANGE_RETURN_TYPE);
+			add(RefactoringType.MERGE_OPERATION);
 			add(RefactoringType.RENAME_METHOD);
 			add(RefactoringType.MOVE_OPERATION);
 			add(RefactoringType.EXTRACT_AND_MOVE_OPERATION);
@@ -50,15 +53,24 @@ public class RefactoringUtils {
 			add(RefactoringType.PULL_UP_OPERATION);
 			add(RefactoringType.PUSH_DOWN_OPERATION);
 			add(RefactoringType.INLINE_OPERATION);
+			add(RefactoringType.MOVE_AND_INLINE_OPERATION);
+			add(RefactoringType.MOVE_AND_RENAME_OPERATION);
+			add(RefactoringType.CHANGE_METHOD_SIGNATURE);
 		}};
 
 		variableLevelRefactorings = new HashSet<>() {{
+			add(RefactoringType.CHANGE_VARIABLE_TYPE);
+			add(RefactoringType.SPLIT_VARIABLE);
 			add(RefactoringType.EXTRACT_VARIABLE);
 			add(RefactoringType.INLINE_VARIABLE);
 			add(RefactoringType.PARAMETERIZE_VARIABLE);
 			add(RefactoringType.RENAME_VARIABLE);
 			add(RefactoringType.REPLACE_VARIABLE_WITH_ATTRIBUTE);
 			add(RefactoringType.RENAME_PARAMETER);
+			add(RefactoringType.MERGE_PARAMETER);
+			add(RefactoringType.CHANGE_PARAMETER_TYPE);
+			add(RefactoringType.SPLIT_PARAMETER);
+			add(RefactoringType.MERGE_VARIABLE);
 		}};
 
 		attributeLevelRefactorings = new HashSet<>() {{
@@ -68,9 +80,17 @@ public class RefactoringUtils {
 			add(RefactoringType.PUSH_DOWN_ATTRIBUTE);
 			add(RefactoringType.REPLACE_ATTRIBUTE);
 			add(RefactoringType.RENAME_ATTRIBUTE);
+			add(RefactoringType.MERGE_ATTRIBUTE);
+			add(RefactoringType.EXTRACT_ATTRIBUTE);
+			add(RefactoringType.SPLIT_ATTRIBUTE);
+			add(RefactoringType.CHANGE_ATTRIBUTE_TYPE);
+		}};
+
+		otherRefactorings = new HashSet<>() {{
+			add(RefactoringType.MOVE_SOURCE_FOLDER);
+			add(RefactoringType.RENAME_PACKAGE);
 		}};
 	}
-
 
 	public static boolean isAttributeLevelRefactoring(Refactoring refactoring) {
 		return attributeLevelRefactorings.contains(refactoring.getRefactoringType());
@@ -86,6 +106,10 @@ public class RefactoringUtils {
 
 	public static boolean isVariableLevelRefactoring(Refactoring refactoring) {
 		return variableLevelRefactorings.contains(refactoring.getRefactoringType());
+	}
+
+	public static boolean isOtherRefactoring(Refactoring refactoring) {
+		return otherRefactorings.contains(refactoring.getRefactoringType());
 	}
 
 	public static int calculateLinesAdded(List<Edit> editList){
@@ -241,10 +265,12 @@ public class RefactoringUtils {
 	}
 
 	public static int refactoringTypeInNumber(Refactoring refactoring) {
-		if(isClassLevelRefactoring(refactoring)) return TYPE_CLASS_LEVEL;
-		if(isMethodLevelRefactoring(refactoring)) return TYPE_METHOD_LEVEL;
-		if(isVariableLevelRefactoring(refactoring)) return TYPE_VARIABLE_LEVEL;
-		if(isAttributeLevelRefactoring(refactoring)) return TYPE_ATTRIBUTE_LEVEL;
+		if(isClassLevelRefactoring(refactoring)) return Level.CLASS.ordinal();
+		if(isMethodLevelRefactoring(refactoring)) return Level.METHOD.ordinal();
+		if(isVariableLevelRefactoring(refactoring)) return Level.VARIABLE.ordinal();
+		if(isAttributeLevelRefactoring(refactoring)) return Level.ATTRIBUTE.ordinal();
+		if(isOtherRefactoring(refactoring)) return Level.OTHER.ordinal();
+
 		return -1;
 	}
 }
