@@ -142,13 +142,13 @@ public class RefactoringAnalyzer {
 	}
 
 	private String getMethodAndOrVariableNameIfAny(RefactoringCommit refactoringCommit) {
-		if(refactoringCommit.getLevel() == TYPE_METHOD_LEVEL) {
+		if(refactoringCommit.getLevel() == Level.METHOD.ordinal()) {
 			return refactoringCommit.getMethodMetrics().getShortMethodName();
 		}
-		if(refactoringCommit.getLevel() == TYPE_VARIABLE_LEVEL) {
+		if(refactoringCommit.getLevel() == Level.VARIABLE.ordinal()) {
 			return refactoringCommit.getMethodMetrics().getShortMethodName() + "-" + refactoringCommit.getVariableMetrics().getVariableName();
 		}
-		if(refactoringCommit.getLevel() == TYPE_ATTRIBUTE_LEVEL) {
+		if(refactoringCommit.getLevel() == Level.ATTRIBUTE.ordinal()) {
 			return refactoringCommit.getFieldMetrics().getFieldName();
 		}
 
@@ -164,8 +164,8 @@ public class RefactoringAnalyzer {
 				fileNameBefore,
 				refactoringCommit.getLevel(),
 				refactoringCommit.getRefactoring(),
-				(refactoringCommit.getLevel() == TYPE_METHOD_LEVEL
-						|| refactoringCommit.getLevel() == TYPE_VARIABLE_LEVEL ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
+				(refactoringCommit.getLevel() == Level.METHOD.ordinal()
+						|| refactoringCommit.getLevel() == Level.VARIABLE.ordinal() ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
 				getMethodAndOrVariableNameIfAny(refactoringCommit));
 
 		PrintStream before = new PrintStream(fileStorageDir + commit + "/before-refactoring/" + completeFileNameBefore);
@@ -179,8 +179,8 @@ public class RefactoringAnalyzer {
 					fileNameAfter,
 					refactoringCommit.getLevel(),
 					refactoringCommit.getRefactoring(),
-					(refactoringCommit.getLevel() == TYPE_METHOD_LEVEL
-							|| refactoringCommit.getLevel() == TYPE_VARIABLE_LEVEL ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
+					(refactoringCommit.getLevel() == Level.METHOD.ordinal()
+							|| refactoringCommit.getLevel() == Level.VARIABLE.ordinal() ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
 					getMethodAndOrVariableNameIfAny(refactoringCommit));
 
 			PrintStream after = new PrintStream(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAfter);

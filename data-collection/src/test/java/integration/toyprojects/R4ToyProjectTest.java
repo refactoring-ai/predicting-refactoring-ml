@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import refactoringml.db.Instance;
 import refactoringml.db.StableCommit;
 import refactoringml.db.ProcessMetrics;
 import refactoringml.db.RefactoringCommit;
@@ -93,7 +94,9 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				1
 		);
-		assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(0), doubleRenameMetrics1);
+		Instance renameRefactoring1 = filterCommit(refactoringCommitList, doubleRenameCommit).stream()
+				.filter(instance -> instance.getProcessMetrics().refactoringsInvolved == 1).collect(Collectors.toList()).get(0);
+		assertProcessMetrics(renameRefactoring1, doubleRenameMetrics1);
 
 		String doubleRenameMetrics2 = ProcessMetrics.toString(
 				2,
@@ -106,7 +109,9 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				0,
 				2
 		);
-		assertProcessMetrics(filterCommit(refactoringCommitList, doubleRenameCommit).get(1), doubleRenameMetrics2);
+		Instance renameRefactoring2 = filterCommit(refactoringCommitList, doubleRenameCommit).stream()
+				.filter(instance -> instance.getProcessMetrics().refactoringsInvolved == 2).collect(Collectors.toList()).get(0);
+		assertProcessMetrics(renameRefactoring2, doubleRenameMetrics2);
 
 		String renameClassMetrics = ProcessMetrics.toString(
 				4,

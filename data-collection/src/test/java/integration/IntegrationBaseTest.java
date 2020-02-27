@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
 import refactoringml.TrackDebugMode;
@@ -263,5 +264,14 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(testLocCount, project.getTestLoc());
 		Assert.assertEquals(productionLocCount, project.getProductionLoc());
 		Assert.assertEquals(javaLocCount, project.getJavaLoc());
+	}
+
+
+	//Test if all Refactorings were classified
+	@Test
+	public void refactoringLevel(){
+		List<RefactoringCommit> refactoringCommitsNoLevel = getRefactoringCommits().stream().filter(refactoringCommit ->
+				refactoringCommit.getLevel() < 0).collect(Collectors.toList());
+		Assert.assertEquals(0, refactoringCommitsNoLevel.size());
 	}
 }

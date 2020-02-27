@@ -25,8 +25,7 @@ import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
-import static refactoringml.util.RefactoringUtils.calculateLinesAdded;
-import static refactoringml.util.RefactoringUtils.calculateLinesDeleted;
+import static refactoringml.util.RefactoringUtils.*;
 
 public class ProcessMetricsCollector {
 	private Project project;
@@ -231,6 +230,7 @@ public class ProcessMetricsCollector {
 		ps.close();
 	}
 
+	//TODO:
 	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir, int commitThreshold) {
 		List<StableCommit> stableCommits = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
@@ -245,7 +245,7 @@ public class ProcessMetricsCollector {
 					null,
 					null,
 					null,
-					RefactoringUtils.TYPE_CLASS_LEVEL,
+					RefactoringUtils.Level.CLASS.ordinal(),
 					commitThreshold);
 
 			stableCommits.add(stableCommit);
@@ -262,7 +262,7 @@ public class ProcessMetricsCollector {
 						methodMetrics,
 						null,
 						null,
-						RefactoringUtils.TYPE_METHOD_LEVEL,
+						RefactoringUtils.Level.METHOD.ordinal(),
 						commitThreshold);
 
 				stableCommits.add(stableCommitM);
@@ -279,7 +279,7 @@ public class ProcessMetricsCollector {
 							methodMetrics,
 							variableMetric,
 							null,
-							RefactoringUtils.TYPE_VARIABLE_LEVEL,
+							RefactoringUtils.Level.VARIABLE.ordinal(),
 							commitThreshold);
 
 					stableCommits.add(stableCommitV);
@@ -304,7 +304,7 @@ public class ProcessMetricsCollector {
 						null,
 						null,
 						fieldMetrics,
-						RefactoringUtils.TYPE_ATTRIBUTE_LEVEL,
+						RefactoringUtils.Level.ATTRIBUTE.ordinal(),
 						commitThreshold);
 
 				stableCommits.add(stableCommitF);
