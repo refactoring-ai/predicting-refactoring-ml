@@ -10,11 +10,8 @@ import java.util.stream.Collectors;
 public class PMDatabase {
 	//Map class files onto their original process metrics.
 	private Map<String, ProcessMetricTracker> database;
-	//All commit thresholds for this project for considering a class file as stable
-	private List<Integer> commitThresholds;
 
-	public PMDatabase (List<Integer> commitThresholds) {
-		this.commitThresholds = commitThresholds;
+	public PMDatabase () {
 		this.database = new HashMap<>();
 	}
 
@@ -27,7 +24,7 @@ public class PMDatabase {
 	//Find all stable instances in the database
 	//Don't use these, because it is very inefficient
 	@Deprecated
-	public List<ProcessMetricTracker> findStableInstances() {
+	public List<ProcessMetricTracker> findStableInstances(List<Integer> commitThresholds) {
 		return database.values().stream()
 				.filter(pmTracker -> pmTracker.calculateStability(commitThresholds))
 				.collect(Collectors.toList());
@@ -61,10 +58,8 @@ public class PMDatabase {
 		ProcessMetricTracker pmTracker = database.getOrDefault(fileName, new ProcessMetricTracker(fileName, commitMetaData));
 		pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
 
-		boolean isStable = pmTracker.calculateStability(commitThresholds);
 		database.put(fileName, pmTracker);
-
-		return isStable? pmTracker : null;
+		return pmTracker;
 	}
 
 	//Reset the tracker with latest refactoring and its commit meta data
@@ -78,8 +73,6 @@ public class PMDatabase {
 
 	public String toString(){
 		return "PMDatabase{" +
-				"database=" + database.toString() + ",\n" +
-				"commitThreshold=" + commitThresholds.toString() +
-				"}";
+				"database=" + database.toString() + "}";
 	}
 }

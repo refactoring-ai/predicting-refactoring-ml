@@ -170,7 +170,7 @@ public class App {
 					}
 
 					//collect the process metrics for the current commit
-					processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits, thereIsRefactoringToProcess);
+					processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits);
 
 					db.commit();
 				} catch (Exception e) {
