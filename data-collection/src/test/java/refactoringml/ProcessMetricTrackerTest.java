@@ -160,21 +160,21 @@ public class ProcessMetricTrackerTest {
 
 	@Test
 	public void countQtyOfCommits(){
-		PMDatabase pmDatabase = new PMDatabase(List.of(10, 20));
+		PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase(List.of(10, 20));
 
 		for(int i = 0; i < 20; i++) {
-			pmDatabase.reportChanges("a.Java", new CommitMetaData("#" + i, "n", "n", "0"), "R", 1, 1);
+			pmTrackerDatabase.reportChanges("a.Java", new CommitMetaData("#" + i, "n", "n", "0"), "R", 1, 1);
 		}
-		pmDatabase.reportRefactoring("a.Java", new CommitMetaData("#21", "n", "n", "0"));
+		pmTrackerDatabase.reportRefactoring("a.Java", new CommitMetaData("#21", "n", "n", "0"));
 
-		ProcessMetricTracker pmTracker = pmDatabase.find("a.Java");
+		ProcessMetricTracker pmTracker = pmTrackerDatabase.find("a.Java");
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
 
 
 
-		pmTracker = pmDatabase.find("a.Java");
+		pmTracker = pmTrackerDatabase.find("a.Java");
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);

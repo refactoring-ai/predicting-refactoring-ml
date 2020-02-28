@@ -32,7 +32,7 @@ public class ProcessMetricsCollector {
 	private Database db;
 	private Repository repository;
 	private String fileStoragePath;
-	private PMDatabase pmDatabase;
+	private PMTrackerDatabase pmTrackerDatabase;
 
 	private static final Logger log = Logger.getLogger(ProcessMetricsCollector.class);
 
@@ -42,7 +42,7 @@ public class ProcessMetricsCollector {
 		this.repository = repository;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
 		List<Integer> stableCommitThresholds = project.getCommitCountThresholds();
-		pmDatabase = new PMDatabase(stableCommitThresholds);
+		pmTrackerDatabase = new PMTrackerDatabase(stableCommitThresholds);
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
@@ -85,7 +85,7 @@ public class ProcessMetricsCollector {
 			RefactoringCommit refactoringCommit = db.findRefactoringCommit(refactoringCommitId);
 			String fileName = refactoringCommit.getFilePath();
 
-			ProcessMetricTracker currentProcessMetricsTracker = pmDatabase.find(fileName);
+			ProcessMetricTracker currentProcessMetricsTracker = pmTrackerDatabase.find(fileName);
 
 			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
 			// however, we might not be able to find the process metrics of that class.
@@ -98,7 +98,7 @@ public class ProcessMetricsCollector {
 			refactoringCommit.setProcessMetrics(dbProcessMetrics);
 			db.update(refactoringCommit);
 
-			pmDatabase.reportRefactoring(fileName, new CommitMetaData(commit, project));
+			pmTrackerDatabase.reportRefactoring(fileName, new CommitMetaData(commit, project));
 
 			if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 				log.debug("[TRACK] Collected process metrics at refactoring commit " + commit.getId().getName() + " for class: " + commit.getName()
@@ -116,7 +116,7 @@ public class ProcessMetricsCollector {
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
-		for(ProcessMetricTracker pmTracker : pmDatabase.findStableInstances()) {
+		for(ProcessMetricTracker pmTracker : pmTrackerDatabase.findStableInstances()) {
 			if(TrackDebugMode.ACTIVE && (pmTracker.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 				log.debug("[TRACK] Marking class file " + pmTracker.getFileName() + " as a non-refactoring instance.\n" +
 						pmTracker.toString());
@@ -153,7 +153,7 @@ public class ProcessMetricsCollector {
 				// as this is basically exceptional when compared to thousands of commits and changes.
 				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
-					pmDatabase.removeFile(oldFileName);
+					pmTrackerDatabase.removeFile(oldFileName);
 					log.debug("Deleted " + oldFileName + " from PMDatabase.");
 					continue;
 				}
@@ -161,7 +161,7 @@ public class ProcessMetricsCollector {
 				// Thus, we are not tracking class renames here, but that is also not necessary, because the PM metrics are computed for each java file anyways.
 				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
-					pmDatabase.renameFile(oldFileName, fileName, new CommitMetaData(commit, project));
+					pmTrackerDatabase.renameFile(oldFileName, fileName, new CommitMetaData(commit, project));
 					log.debug("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
 				}
 
@@ -172,10 +172,10 @@ public class ProcessMetricsCollector {
 
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
-				pmDatabase.reportChanges(fileName, new CommitMetaData(commit, project), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
+				pmTrackerDatabase.reportChanges(fileName, new CommitMetaData(commit, project), commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
 
 				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
-					ProcessMetricTracker currentClazz = pmDatabase.find(fileName);
+					ProcessMetricTracker currentClazz = pmTrackerDatabase.find(fileName);
 					log.debug("[TRACK] Reported commit " + commit.getName() + " to pmTracker affecting class file: " + fileName + "\n" +
 							"\t\t\t\t\t\t\tlinesAdded: " + linesAdded + ", linesDeleted: " + linesDeleted + ", author: "
 							+ commit.getAuthorIdent().getName() + " and class stability counter is " + currentClazz.getCommitCounter()  + "\n" +

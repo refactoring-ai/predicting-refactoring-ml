@@ -2,16 +2,24 @@ package refactoringml;
 
 import refactoringml.db.CommitMetaData;
 import refactoringml.db.ProcessMetrics;
+
+import javax.persistence.*;
 import java.util.*;
 
+@Entity
+@Table(name = "ProcessMetricTracker", indexes = {@Index(columnList = "fileName")})
 public class ProcessMetricTracker {
 	//filename of the class file, does not distinguish between subclasses
+	@Id
 	private String fileName;
 	//Either: the last commit refactoring the class file or the first one creating the class file
+	@ManyToOne
 	private CommitMetaData baseCommitMetaData;
 	//Reference commit to be considered stable, if it passes a certain threshold
+	@OneToOne
 	private ProcessMetrics baseProcessMetrics;
 	//The process metrics till the latest commit affecting the class file, use this for refactorings
+	@OneToOne
 	private ProcessMetrics currentProcessMetrics;
 
 	//current highest commit stability threshold, this class file passed, used to avoid double instances when we use multiple thresholds
@@ -24,6 +32,9 @@ public class ProcessMetricTracker {
 		return Arrays.stream(bugKeywords).filter(keyword -> cleanCommitMsg.contains(keyword))
 				.count() > 0;
 	}
+
+	@Deprecated // hibernate purposes
+	public ProcessMetricTracker(){}
 
 	public ProcessMetricTracker(String fileName, CommitMetaData commitMetaData) {
 		this.fileName = fileName;

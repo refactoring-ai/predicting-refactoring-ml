@@ -1,21 +1,46 @@
 package refactoringml;
 
+import org.hibernate.SessionFactory;
 import refactoringml.db.CommitMetaData;
-
+import refactoringml.db.HibernateConfig;
+import javax.persistence.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class PMDatabase {
+public class PMTrackerDatabase {
 	//Map class files onto their original process metrics.
+	@ElementCollection
+	@CollectionTable(name = "PMTrackerDatabase")
+	@MapKeyColumn(name = "filePath")
+	@Column(name = "pmTracker")
 	private Map<String, ProcessMetricTracker> database;
 	//All commit thresholds for this project for considering a class file as stable
+	@Transient
 	private List<Integer> commitThresholds;
 
-	public PMDatabase (List<Integer> commitThresholds) {
+	@Transient
+	private final String databasePath =	"jdbc:mysql://localhost/pmDatabase";
+	@Transient
+	private final String databaseUsername = "root";
+	@Transient
+	private final String databasePassword = "root";
+	@Transient
+	private SessionFactory sf;
+
+	public PMTrackerDatabase(List<Integer> commitThresholds) {
+		this.sf = new HibernateConfig().getSessionFactory(databasePath, databaseUsername, databasePassword);
+		sf.openSession();
+
 		this.commitThresholds = commitThresholds;
 		this.database = new HashMap<>();
+	}
+
+	//Empty the database and close the hibernate SessionFactory
+	public void destroy(){
+		//TODO: cleanse db
+		sf.close();
 	}
 
 	//public interaction

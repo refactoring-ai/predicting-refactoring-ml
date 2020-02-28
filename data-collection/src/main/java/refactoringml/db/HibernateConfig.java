@@ -5,9 +5,9 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
+import refactoringml.PMTrackerDatabase;
+import refactoringml.ProcessMetricTracker;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ManyToOne;
 import java.util.Properties;
 
 public class HibernateConfig {
@@ -69,6 +69,10 @@ public class HibernateConfig {
 			configuration.addAnnotatedClass(VariableMetric.class);
 			configuration.addAnnotatedClass(FieldMetric.class);
 			configuration.addAnnotatedClass(ProcessMetrics.class);
+
+			//PMDatabase
+			configuration.addAnnotatedClass(PMTrackerDatabase.class);
+			configuration.addAnnotatedClass(ProcessMetricTracker.class);
 
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
 					.applySettings(configuration.getProperties()).build();
