@@ -25,6 +25,8 @@ public class PMDatabase {
 	}
 
 	//Find all stable instances in the database
+	//Don't use these, because it is very inefficient
+	@Deprecated
 	public List<ProcessMetricTracker> findStableInstances() {
 		return database.values().stream()
 				.filter(pmTracker -> pmTracker.calculateStability(commitThresholds))
@@ -54,11 +56,15 @@ public class PMDatabase {
 	}
 
 	//Report a commit changing the given class file, the in memory database is updated accordingly
-	public void reportChanges(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
+	//Returns the ProcessMetricsTracker if it is stable
+	public ProcessMetricTracker reportChanges(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
 		ProcessMetricTracker pmTracker = database.getOrDefault(fileName, new ProcessMetricTracker(fileName, commitMetaData));
 		pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
 
+		boolean isStable = pmTracker.calculateStability(commitThresholds);
 		database.put(fileName, pmTracker);
+
+		return isStable? pmTracker : null;
 	}
 
 	//Reset the tracker with latest refactoring and its commit meta data
