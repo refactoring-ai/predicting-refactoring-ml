@@ -102,25 +102,30 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     @Test
     public void stable_CSVFormat() {
         String fileName = "src/main/java/org/apache/commons/csv/CSVFormat.java";
-        List<StableCommit> stableCommitList = getStableCommits().stream().filter(commit ->
+        List<StableCommit> stableCommitListLevel2 = getStableCommits().stream().filter(commit ->
                 commit.getFilePath().equals(fileName) && commit.getLevel() == 2).collect(Collectors.toList());
 
-        Assert.assertEquals(43, stableCommitList.size());
+        Assert.assertEquals(17, stableCommitListLevel2.size());
 
-        assertStableCommit(stableCommitList, "67d150adc88b806e52470d110a438d9107e72ed5");
+        List<StableCommit> stableCommitListLevel3 = getStableCommits().stream().filter(commit ->
+                commit.getFilePath().equals(fileName) && commit.getLevel() == 3).collect(Collectors.toList());
+
+        Assert.assertEquals(43, stableCommitListLevel3.size());
+
+        assertStableCommit(stableCommitListLevel2, "67d150adc88b806e52470d110a438d9107e72ed5");
 
         // also manually validated
-        Assert.assertEquals(5, stableCommitList.get(0).getClassMetrics().getClassNumberOfPublicFields());
-        Assert.assertEquals(39, stableCommitList.get(0).getClassMetrics().getClassNumberOfPublicMethods());
-        Assert.assertEquals(13, stableCommitList.get(0).getClassMetrics().getClassNumberOfPrivateFields());
-        Assert.assertEquals(4, stableCommitList.get(0).getClassMetrics().getClassNumberOfPrivateMethods());
+        Assert.assertEquals(5, stableCommitListLevel2.get(0).getClassMetrics().getClassNumberOfPublicFields());
+        Assert.assertEquals(39, stableCommitListLevel2.get(0).getClassMetrics().getClassNumberOfPublicMethods());
+        Assert.assertEquals(13, stableCommitListLevel2.get(0).getClassMetrics().getClassNumberOfPrivateFields());
+        Assert.assertEquals(4, stableCommitListLevel2.get(0).getClassMetrics().getClassNumberOfPrivateMethods());
 
         // also manually validated
-        Assert.assertEquals(215, stableCommitList.get(0).getProcessMetrics().qtyOfCommits);
+        Assert.assertEquals(215, stableCommitListLevel2.get(0).getProcessMetrics().qtyOfCommits);
 
         // in refactorings_CSVFormat, we see that there are 82 refactorings in total.
         // after this commit, there was just one more refactoring. Thus, 81 refactorings
-        Assert.assertEquals(194, stableCommitList.get(0).getProcessMetrics().refactoringsInvolved);
+        Assert.assertEquals(194, stableCommitListLevel2.get(0).getProcessMetrics().refactoringsInvolved);
     }
 
     @Test

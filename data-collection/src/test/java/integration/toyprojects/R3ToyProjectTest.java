@@ -100,17 +100,17 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		//Manually Verified
 		List<StableCommit> stableCommitLow = getStableCommits().stream().filter(commit ->
 				commit.getCommitThreshold() == 3).collect(Collectors.toList());
-		Assert.assertEquals(9, stableCommitLow.size());
+		Assert.assertEquals(3, stableCommitLow.size());
 
 		List<StableCommit> stableCommitsMedium = getStableCommits().stream().filter(commit ->
 				commit.getCommitThreshold() == 5).collect(Collectors.toList());
-		Assert.assertEquals(3, stableCommitsMedium.size());
+		Assert.assertEquals(1, stableCommitsMedium.size());
 
 		List<StableCommit> stableCommitsHigh = getStableCommits().stream().filter(commit ->
 				commit.getCommitThreshold() == 6).collect(Collectors.toList());
-		Assert.assertEquals(3, stableCommitsHigh.size());
+		Assert.assertEquals(1, stableCommitsHigh.size());
 
-		Assert.assertEquals(15, getStableCommits().size());
+		Assert.assertEquals(5, getStableCommits().size());
 
 		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
 		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(getStableCommits(), lastRefactoring);
