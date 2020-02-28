@@ -2,6 +2,7 @@ package refactoringml;
 
 import org.hibernate.SessionFactory;
 import refactoringml.db.CommitMetaData;
+import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import javax.persistence.*;
 import java.util.HashMap;
@@ -27,11 +28,11 @@ public class PMTrackerDatabase {
 	@Transient
 	private final String databasePassword = "root";
 	@Transient
-	private SessionFactory sf;
+	private Database db;
 
 	public PMTrackerDatabase(List<Integer> commitThresholds) {
-		this.sf = new HibernateConfig().getSessionFactory(databasePath, databaseUsername, databasePassword);
-		sf.openSession();
+		SessionFactory sf = new HibernateConfig().getSessionFactory(databasePath, databaseUsername, databasePassword);
+		db = new Database(sf);
 
 		this.commitThresholds = commitThresholds;
 		this.database = new HashMap<>();
@@ -40,7 +41,7 @@ public class PMTrackerDatabase {
 	//Empty the database and close the hibernate SessionFactory
 	public void destroy(){
 		//TODO: cleanse db
-		sf.close();
+		db.close();
 	}
 
 	//public interaction
