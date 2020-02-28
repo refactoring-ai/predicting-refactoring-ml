@@ -15,10 +15,8 @@ import refactoringml.util.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static refactoringml.util.CKUtils.cleanClassName;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
-
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
@@ -38,23 +36,18 @@ public class ProcessMetricsCollector {
 		this.db = db;
 		this.repository = repository;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-		List<Integer> stableCommitThresholds = project.getCommitCountThresholds();
-		pmDatabase = new PMDatabase(stableCommitThresholds);
+		pmDatabase = new PMDatabase();
 	}
 
 	//if this commit contained a refactoring, then collect its process metrics for all affected class files,
 	//otherwise only update the file process metrics
-	public void collectMetrics(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits, boolean isRefactoring) throws IOException {
-		if (isRefactoring) {
-			collectProcessMetricsOfRefactoredCommit(commit, superCommitMetaData, allRefactoringCommits);
-		}
+	public void collectMetrics(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits) throws IOException {
+		collectProcessMetricsOfRefactoredCommit(commit, superCommitMetaData, allRefactoringCommits);
 
 		// we go now change by change in the commit to update the process metrics there
-		// (no need for db here, as this update happens only locally)
+		// Also if a stable instance is found it is stored with the metrics in the DB
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
-		updateProcessMetrics(commit, commitParent, superCommitMetaData);
-
-		updateAndPrintExamplesOfNonRefactoredClasses(commit, superCommitMetaData);
+		collectProcessMetricsOfStableCommits(commit, commitParent, superCommitMetaData);
 	}
 
 	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
@@ -80,39 +73,10 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	// update classes that were not refactored on this commit
-	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, CommitMetaData superCommitMetaData) throws IOException {
-		// if there are classes over the threshold, we output them as an examples of not refactored classes,
-		// and we reset their counter.
-		// note that we have a lot of failures here, as X commits later, the class might had been
-		// renamed or moved, and thus the class (with the name before) "doesn't exist" anymore..
-		// that is still ok as we are collecting thousands of examples.
-		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
-		// but that's not a big deal.
-		List<ProcessMetricTracker> stableInstances = pmDatabase.findStableInstances();
-
-		for(ProcessMetricTracker pmTracker : stableInstances) {
-			if(TrackDebugMode.ACTIVE && (pmTracker.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
-				log.debug("[TRACK] Marking class file " + pmTracker.getFileName() + " as a non-refactoring instance.\n");
-			}
-
-			outputNonRefactoredClass(pmTracker);
-
-			// we then reset the counter, and start again.
-			// it is ok to use the same class more than once, as metrics as well as
-			// its source code will/may change, and thus, they are a different instance.
-			if(pmTracker.getCommitCountThreshold() == project.getMaxCommitThreshold()){
-				log.debug("Reset pmTracker for class " + pmTracker.getFileName() + " with threshold: " + pmTracker.getCommitCountThreshold() +
-						" because it is the max threshold(" + project.getMaxCommitThreshold() + ").");
-				pmTracker.resetCounter(superCommitMetaData);
-			}
-		}
-	}
-
 	//Update the process metrics of all affected class files:
 	//Reset the PMTracker for all class files, that were refactored on this commit
 	//Increase the PMTracker for all class files, that were not refactored but changed on this commit
-	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent, CommitMetaData superCommitMetaData) throws IOException {
+	private void collectProcessMetricsOfStableCommits(RevCommit commit, RevCommit commitParent, CommitMetaData superCommitMetaData) throws IOException {
 		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 			diffFormatter.setRepository(repository);
 			diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
@@ -149,7 +113,7 @@ public class ProcessMetricsCollector {
 
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
-				pmDatabase.reportChanges(fileName, superCommitMetaData, commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
+				ProcessMetricTracker pmTracker = pmDatabase.reportChanges(fileName, superCommitMetaData, commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
 
 				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 					ProcessMetricTracker currentClazz = pmDatabase.find(fileName);
@@ -158,12 +122,26 @@ public class ProcessMetricsCollector {
 							+ commit.getAuthorIdent().getName() + " and class stability counter is " + currentClazz.getCommitCounter()  + "\n" +
 							"\t\t\t\t\t\t\tcurrent ProcessMetrics: " + currentClazz.getCurrentProcessMetrics());
 				}
+
+				//The last commit passed the stability threshold for this class file
+				if(pmTracker.calculateStability(project.getCommitCountThresholds())){
+					outputNonRefactoredClass(pmTracker);
+
+					// we then reset the counter, and start again.
+					// it is ok to use the same class more than once, as metrics as well as
+					// its source code will/may change, and thus, they are a different instance.
+					if(pmTracker.getCommitCountThreshold() == project.getMaxCommitThreshold()){
+						log.debug("Reset pmTracker for class " + pmTracker.getFileName() + " with threshold: " + pmTracker.getCommitCountThreshold() +
+								" because it is the max threshold(" + project.getMaxCommitThreshold() + ").");
+						pmTracker.resetCounter(new CommitMetaData(commit, project));
+					}
+				}
 			}
 		}
 	}
 
 	//Store the refactoring instances in the DB
-	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
+	private void outputNonRefactoredClass(ProcessMetricTracker pmTracker) throws IOException {
 		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
 		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitHashBackThen);
 
@@ -199,6 +177,7 @@ public class ProcessMetricsCollector {
 		}
 	}
 
+	//TODO: Fix this, as it generates many duplicates
 	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir, int commitThreshold) {
 		List<StableCommit> stableCommits = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
