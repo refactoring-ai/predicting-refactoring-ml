@@ -50,6 +50,8 @@ public class RefactoringUtils {
 			add(RefactoringType.PULL_UP_OPERATION);
 			add(RefactoringType.PUSH_DOWN_OPERATION);
 			add(RefactoringType.INLINE_OPERATION);
+			add(RefactoringType.CHANGE_RETURN_TYPE); // new WORKS
+			add(RefactoringType.CHANGE_PARAMETER_TYPE); // new Works
 		}};
 
 		variableLevelRefactorings = new HashSet<>() {{
@@ -59,6 +61,9 @@ public class RefactoringUtils {
 			add(RefactoringType.RENAME_VARIABLE);
 			add(RefactoringType.REPLACE_VARIABLE_WITH_ATTRIBUTE);
 			add(RefactoringType.RENAME_PARAMETER);
+			add(RefactoringType.SPLIT_VARIABLE); // new
+			add(RefactoringType.MERGE_VARIABLE); // new
+			add(RefactoringType.CHANGE_VARIABLE_TYPE); // new
 		}};
 
 		attributeLevelRefactorings = new HashSet<>() {{
@@ -68,6 +73,7 @@ public class RefactoringUtils {
 			add(RefactoringType.PUSH_DOWN_ATTRIBUTE);
 			add(RefactoringType.REPLACE_ATTRIBUTE);
 			add(RefactoringType.RENAME_ATTRIBUTE);
+			add(RefactoringType.CHANGE_ATTRIBUTE_TYPE); // new Works
 		}};
 	}
 
@@ -183,6 +189,16 @@ public class RefactoringUtils {
 			return convertedRefactoring.getOperationBefore();
 		}
 
+		if(refactoring instanceof ChangeReturnTypeRefactoring) {
+			ChangeReturnTypeRefactoring convertedRefactoring = (ChangeReturnTypeRefactoring) refactoring;
+			return convertedRefactoring.getOperationBefore();
+		}
+
+		if(refactoring instanceof ChangeVariableTypeRefactoring) {
+			ChangeVariableTypeRefactoring convertedRefactoring = (ChangeVariableTypeRefactoring) refactoring;
+			return convertedRefactoring.getOperationBefore();
+		}
+
 		throw new RuntimeException("This is a method-level refactoring, but it seems I can't get the refactored method: " + refactoring.getRefactoringType());
 	}
 
@@ -233,7 +249,17 @@ public class RefactoringUtils {
 			return convertedRefactoring.getOriginalAttribute().getName();
 		}
 
-		throw new RuntimeException("This is a variable-level refactoring, but it seems I can't get the refactored variable");
+		if(refactoring instanceof ChangeVariableTypeRefactoring) {
+			ChangeVariableTypeRefactoring convertedRefactoring = (ChangeVariableTypeRefactoring) refactoring;
+			return convertedRefactoring.getOriginalVariable().getVariableName();
+		}
+
+		if( refactoring instanceof  ChangeAttributeTypeRefactoring) {
+			ChangeAttributeTypeRefactoring convertedRefactoring = (ChangeAttributeTypeRefactoring) refactoring;
+			return convertedRefactoring.getOriginalAttribute().getVariableName();
+		}
+
+		throw new RuntimeException("This is a variable-level refactoring, but it seems I can't get the refactored variable: " + refactoring.getRefactoringType());
 	}
 
 	public static String cleanMethodName(String methodName) {
