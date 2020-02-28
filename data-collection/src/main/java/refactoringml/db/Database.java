@@ -3,6 +3,7 @@ package refactoringml.db;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import java.util.List;
 
 public class Database {
 	private static final Logger log = Logger.getLogger(Database.class);
@@ -41,7 +42,7 @@ public class Database {
 		}
 	}
 
-	//Queries
+	//Simple SQL queries
 	//Persist the given object on the DB, if not already exists
 	public void persist(Object obj) {
 		session.persist(obj);
@@ -52,14 +53,40 @@ public class Database {
 		session.update(obj);
 	}
 
-	//Drop the entire table from the DB
-	public void drop(String tableName){
+	public void remove(Object obj) {session.remove(obj);}
 
+	//Drop the entire table from the SQl database
+	public void drop(String tableName){
+		session.createQuery(String.format("DROP TABLE %s", tableName));
 	}
 
-	//find the
-	public void find(String key, String tableName){
+	//Map imitation
+	//Checks if the given key is assigned to an object in the db
+	//Equal to a contains(object) of a Map
+	public <T> boolean contains(Object object){
+		return session.contains(object);
+	}
 
+	//find the object with the given type and key
+	//Equal to get(key) of a Map
+	public <T> T find(String key, Class<T> type){
+		return session.get(type, key);
+	}
+
+	//Remove the given object from the database
+	//Equal to remove(key) of a Map
+	public <T> T remove(String key, Class<T> type){
+		T object = find(key, type);
+		if(object == null)
+			return null;
+		session.remove(object);
+		return object;
+	}
+
+	//Get all objects of the given type from the DB rom the table
+	//Equal to values() of a Map
+	public <T> List<T> getAll(String tableName, Class<T> type){
+		return session.createQuery(String.format("SELECT o FROM %s o", tableName), type).getResultList();
 	}
 
 	//Specific Queries
@@ -75,5 +102,9 @@ public class Database {
 		shortSession.close();
 
 		return exists;
+	}
+
+	public String mapToString(){
+		return "";
 	}
 }

@@ -53,29 +53,46 @@ public class ProcessMetricsCollector {
 		if (isRefactoring) {
 			try {
 				db.openSession();
+				pmTrackerDatabase.db.openSession();
 				collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
+				pmTrackerDatabase.db.commit();
 				db.commit();
 			} catch (Exception e) {
 				log.error(e.getClass().getCanonicalName() + " when collecting process metrics for commit " + commit.getName(), e);
+				pmTrackerDatabase.db.rollback();
 				db.rollback();
 			} finally {
+				pmTrackerDatabase.db.close();
 				db.close();
 			}
 		}
 
 		// we go now change by change in the commit to update the process metrics there
 		// (no need for db here, as this update happens only locally)
-		updateProcessMetrics(commit, commitParent);
+		try {
+			pmTrackerDatabase.db.openSession();
+			updateProcessMetrics(commit, commitParent);
+			pmTrackerDatabase.db.commit();
+		} catch (Exception e) {
+			log.error("Error when updating process metrics in commit " + commit.getName(), e);
+			pmTrackerDatabase.db.rollback();
+		} finally {
+			pmTrackerDatabase.db.close();
+		}
 
 		// update classes that were not refactored on this commit
 		try {
 			db.openSession();
+			pmTrackerDatabase.db.openSession();
 			updateAndPrintExamplesOfNonRefactoredClasses(commit);
+			pmTrackerDatabase.db.commit();
 			db.commit();
 		} catch (Exception e) {
 			log.error("Error when collecting process metrics in commit " + commit.getName(), e);
+			pmTrackerDatabase.db.rollback();
 			db.rollback();
 		} finally {
+			pmTrackerDatabase.db.close();
 			db.close();
 		}
 	}

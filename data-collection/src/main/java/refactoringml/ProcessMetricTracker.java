@@ -13,13 +13,13 @@ public class ProcessMetricTracker {
 	@Id
 	private String fileName;
 	//Either: the last commit refactoring the class file or the first one creating the class file
-	@ManyToOne
+	@ManyToOne(cascade=CascadeType.ALL)
 	private CommitMetaData baseCommitMetaData;
 	//Reference commit to be considered stable, if it passes a certain threshold
-	@OneToOne
+	@OneToOne(cascade=CascadeType.ALL)
 	private ProcessMetrics baseProcessMetrics;
 	//The process metrics till the latest commit affecting the class file, use this for refactorings
-	@OneToOne
+	@OneToOne(cascade=CascadeType.ALL)
 	private ProcessMetrics currentProcessMetrics;
 
 	//current highest commit stability threshold, this class file passed, used to avoid double instances when we use multiple thresholds

@@ -161,6 +161,7 @@ public class ProcessMetricTrackerTest {
 	@Test
 	public void countQtyOfCommits(){
 		PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase(List.of(10, 20));
+		pmTrackerDatabase.db.openSession();
 
 		for(int i = 0; i < 20; i++) {
 			pmTrackerDatabase.reportChanges("a.Java", new CommitMetaData("#" + i, "n", "n", "0"), "R", 1, 1);
@@ -172,11 +173,11 @@ public class ProcessMetricTrackerTest {
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
 
-
-
 		pmTracker = pmTrackerDatabase.find("a.Java");
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
+		pmTrackerDatabase.db.commit();
+		pmTrackerDatabase.db.close();
 	}
 }
