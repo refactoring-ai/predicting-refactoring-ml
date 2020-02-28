@@ -196,7 +196,11 @@ public class ProcessMetricsCollector {
 
 			// create a temp dir to store the source code files and run CK there
 			tempDir = createTmpDir();
-			saveFile(commitHashBackThen, sourceCodeBackThen, pmTracker.getFileName(), tempDir);
+
+			// we save it in the permanent storage...
+			writeFile(fileStoragePath + commitHashBackThen + "/" + "not-refactored/" + pmTracker.getFileName(), sourceCodeBackThen);
+			// ... as well as in the temp one, so that we can calculate the CK metrics
+			writeFile(tempDir + pmTracker.getFileName(), sourceCodeBackThen);
 
 			CommitMetaData commitMetaData = new CommitMetaData(pmTracker.getBaseCommitMetaData());
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir, pmTracker.getCommitCountThreshold());
@@ -214,23 +218,6 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	//TODO: move this to file utils
-	private void saveFile (String commitBackThen, String sourceCodeBackThen, String fileName, String tempDir) throws IOException {
-		// we save it in the permanent storage...
-		new File(fileStoragePath + commitBackThen + "/" + "not-refactored/" + FilePathUtils.dirsOnly(fileName)).mkdirs();
-		PrintStream ps = new PrintStream(fileStoragePath + commitBackThen + "/" + "not-refactored/" + fileName);
-		ps.print(sourceCodeBackThen);
-		ps.close();
-
-		// ... as well as in the temp one, so that we can calculate the CK metrics
-
-		new File(tempDir + FilePathUtils.dirsOnly(fileName)).mkdirs();
-		ps = new PrintStream(tempDir + fileName);
-		ps.print(sourceCodeBackThen);
-		ps.close();
-	}
-
-	//TODO:
 	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir, int commitThreshold) {
 		List<StableCommit> stableCommits = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {

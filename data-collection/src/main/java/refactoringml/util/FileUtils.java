@@ -1,13 +1,13 @@
 package refactoringml.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static refactoringml.util.FilePathUtils.enforceUnixPaths;
-import static refactoringml.util.FilePathUtils.lastSlashDir;
+import static refactoringml.util.FilePathUtils.*;
 
 public class FileUtils {
 
@@ -68,16 +68,17 @@ public class FileUtils {
 		return lastSlashDir(rawTempDir);
 	}
 
-	public static void writeFile(String path, String fileName, String content) throws IOException {
-		new File(path).mkdirs();
-		PrintStream ps = new PrintStream(path  + "/" + fileName);
-		ps.print(content);
-		ps.close();
-	}
-
 	public static void cleanTempDir (String tempDir) throws IOException {
 		if(tempDir != null) {
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(tempDir));
 		}
+	}
+
+	//Write the content to a new file at the given path. Creates a new directory at the path if necessary.
+	public static void writeFile(String filePath, Object content) throws FileNotFoundException {
+		new File(dirsOnly(filePath)).mkdirs();
+		PrintStream ps = new PrintStream(filePath);
+		ps.print(content);
+		ps.close();
 	}
 }
