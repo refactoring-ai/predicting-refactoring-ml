@@ -25,8 +25,7 @@ import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
-import static refactoringml.util.RefactoringUtils.calculateLinesAdded;
-import static refactoringml.util.RefactoringUtils.calculateLinesDeleted;
+import static refactoringml.util.RefactoringUtils.*;
 
 public class ProcessMetricsCollector {
 	private Project project;
@@ -42,8 +41,8 @@ public class ProcessMetricsCollector {
 		this.db = db;
 		this.repository = repository;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-		int stableCommitThreshold = project.getCommitCountThresholds().get(0);
-		pmDatabase = new PMDatabase(stableCommitThreshold);
+		List<Integer> stableCommitThresholds = project.getCommitCountThresholds();
+		pmDatabase = new PMDatabase(stableCommitThresholds);
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
@@ -117,18 +116,22 @@ public class ProcessMetricsCollector {
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
-		for(ProcessMetricTracker pm : pmDatabase.findStableInstances()) {
-			if(TrackDebugMode.ACTIVE && (pm.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
-				log.debug("[TRACK] Marking it as a non-refactoring instance, and resetting the counter\n" +
-				pm.toString());
+		for(ProcessMetricTracker pmTracker : pmDatabase.findStableInstances()) {
+			if(TrackDebugMode.ACTIVE && (pmTracker.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
+				log.debug("[TRACK] Marking class file " + pmTracker.getFileName() + " as a non-refactoring instance.\n" +
+						pmTracker.toString());
 			}
 
-			outputNonRefactoredClass(pm);
+			outputNonRefactoredClass(pmTracker);
 
 			// we then reset the counter, and start again.
 			// it is ok to use the same class more than once, as metrics as well as
 			// its source code will/may change, and thus, they are a different instance.
-			pm.resetCounter(new CommitMetaData(commit, project));
+			if(pmTracker.getCommitCountThreshold() == project.getMaxCommitThreshold()){
+				log.debug("Reset pmTracker for class " + pmTracker.getFileName() + " with threshold: " + pmTracker.getCommitCountThreshold() +
+						" because it is the max threshold(" + project.getMaxCommitThreshold() + ").");
+				pmTracker.resetCounter(new CommitMetaData(commit, project));
+			}
 		}
 	}
 
@@ -148,7 +151,6 @@ public class ProcessMetricsCollector {
 				// if the class was deleted, we remove it from our pmDatabase
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.
-				//TODO: track moves e.g. src/java/org/apache/commons/cli/HelpFormatter.java to src/main/java/org/apache/commons/cli/HelpFormatter.java
 				if(entry.getChangeType() == DiffEntry.ChangeType.DELETE) {
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
 					pmDatabase.removeFile(oldFileName);
@@ -183,21 +185,9 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private void storeProcessMetric(String fileName, List<StableCommit> stableCommits) {
-		for(StableCommit stableCommit : stableCommits) {
-			ProcessMetricTracker filePm = pmDatabase.find(fileName);
-			ProcessMetrics dbProcessMetrics = filePm != null ?
-					new ProcessMetrics(filePm.getBaseProcessMetrics()) :
-					new ProcessMetrics(-1, -1, -1, -1, -1);
-
-			stableCommit.setProcessMetrics(dbProcessMetrics);
-			db.persist(stableCommit);
-		}
-	}
-
 	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
 		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
-		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the original commit: " + commitHashBackThen);
+		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitHashBackThen);
 
 		String tempDir = null;
 		try {
@@ -208,15 +198,18 @@ public class ProcessMetricsCollector {
 			tempDir = createTmpDir();
 			saveFile(commitHashBackThen, sourceCodeBackThen, pmTracker.getFileName(), tempDir);
 
-			CommitMetaData commitMetaData = pmTracker.getBaseCommitMetaData();
-			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir);
+			CommitMetaData commitMetaData = new CommitMetaData(pmTracker.getBaseCommitMetaData());
+			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir, pmTracker.getCommitCountThreshold());
+
 			// print its process metrics in the same process metrics file
 			// note that we print the process metrics back then (X commits ago)
-			storeProcessMetric(pmTracker.getFileName(), stableCommits);
+			for(StableCommit stableCommit : stableCommits) {
+				stableCommit.setProcessMetrics(new ProcessMetrics(pmTracker.getBaseProcessMetrics()));
+				db.persist(stableCommit);
+			}
 		} catch(Exception e) {
 			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + commitHashBackThen, e);
 		} finally {
-			pmDatabase.removeFile(pmTracker.getFileName());
 			cleanTempDir(tempDir);
 		}
 	}
@@ -237,12 +230,12 @@ public class ProcessMetricsCollector {
 		ps.close();
 	}
 
-	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir) {
+	//TODO:
+	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir, int commitThreshold) {
 		List<StableCommit> stableCommits = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 			ClassMetric classMetric = extractClassMetrics(ck);
-
 			StableCommit stableCommit = new StableCommit(
 					project,
 					commitMetaData,
@@ -252,7 +245,8 @@ public class ProcessMetricsCollector {
 					null,
 					null,
 					null,
-					RefactoringUtils.TYPE_CLASS_LEVEL);
+					RefactoringUtils.Level.CLASS.ordinal(),
+					commitThreshold);
 
 			stableCommits.add(stableCommit);
 
@@ -268,7 +262,8 @@ public class ProcessMetricsCollector {
 						methodMetrics,
 						null,
 						null,
-						RefactoringUtils.TYPE_METHOD_LEVEL);
+						RefactoringUtils.Level.METHOD.ordinal(),
+						commitThreshold);
 
 				stableCommits.add(stableCommitM);
 
@@ -284,7 +279,8 @@ public class ProcessMetricsCollector {
 							methodMetrics,
 							variableMetric,
 							null,
-							RefactoringUtils.TYPE_VARIABLE_LEVEL);
+							RefactoringUtils.Level.VARIABLE.ordinal(),
+							commitThreshold);
 
 					stableCommits.add(stableCommitV);
 				}
@@ -308,7 +304,8 @@ public class ProcessMetricsCollector {
 						null,
 						null,
 						fieldMetrics,
-						RefactoringUtils.TYPE_ATTRIBUTE_LEVEL);
+						RefactoringUtils.Level.ATTRIBUTE.ordinal(),
+						commitThreshold);
 
 				stableCommits.add(stableCommitF);
 			}

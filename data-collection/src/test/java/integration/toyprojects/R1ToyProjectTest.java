@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.RefactoringCommit;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R1ToyProjectTest extends IntegrationBaseTest {
 

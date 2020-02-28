@@ -2,6 +2,7 @@ package refactoringml.util;
 
 import gr.uom.java.xmi.UMLOperation;
 import gr.uom.java.xmi.UMLType;
+import gr.uom.java.xmi.decomposition.VariableDeclaration;
 import gr.uom.java.xmi.diff.*;
 import org.eclipse.jgit.diff.Edit;
 import org.refactoringminer.api.Refactoring;
@@ -11,29 +12,35 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static refactoringml.util.FilePathUtils.enforceUnixPaths;
+import java.util.stream.Collectors;
 
 public class RefactoringUtils {
+	//Describe the level (type) of the refactoring
+	public enum Level {
+		//used to push the enum to int conversion to +1
+		NONE,
+		CLASS,
+		METHOD,
+		VARIABLE,
+		ATTRIBUTE,
+		//The refactoring did not fit any other level, e.g. Move Source Folder or Rename Package refactorings
+		OTHER
+	}
 
-	public static final int TYPE_CLASS_LEVEL = 1;
-	public static final int TYPE_METHOD_LEVEL = 2;
-	public static final int TYPE_VARIABLE_LEVEL = 3;
-	public static final int TYPE_ATTRIBUTE_LEVEL = 4;
-
-	private static Set<RefactoringType> methodLevelRefactorings;
-	private static Set<RefactoringType> classLevelRefactorings;
-	private static Set<RefactoringType> variableLevelRefactorings;
+	private static final Set<RefactoringType> methodLevelRefactorings;
+	private static final Set<RefactoringType> classLevelRefactorings;
+	private static final Set<RefactoringType> variableLevelRefactorings;
 	private static final Set<RefactoringType> attributeLevelRefactorings;
+	private static final Set<RefactoringType> otherRefactorings;
 
 	static {
 		classLevelRefactorings = new HashSet<>() {{
+			add(RefactoringType.EXTRACT_INTERFACE);
 			add(RefactoringType.MOVE_CLASS);
 			add(RefactoringType.RENAME_CLASS);
 			add(RefactoringType.EXTRACT_CLASS);
 			add(RefactoringType.EXTRACT_SUBCLASS);
 			add(RefactoringType.EXTRACT_SUPERCLASS);
-			add(RefactoringType.EXTRACT_INTERFACE);
 			add(RefactoringType.MOVE_RENAME_CLASS);
 			add(RefactoringType.CONVERT_ANONYMOUS_CLASS_TO_TYPE);
 			add(RefactoringType.INTRODUCE_POLYMORPHISM);
@@ -43,18 +50,26 @@ public class RefactoringUtils {
 		// there's no detection for merge operation (i suppose it's still under development)
 		// there's also no change method signature refactoring (this is a 'relationship', i need to understand it better)
 		methodLevelRefactorings = new HashSet<>() {{
+			add(RefactoringType.CHANGE_RETURN_TYPE);
 			add(RefactoringType.RENAME_METHOD);
 			add(RefactoringType.MOVE_OPERATION);
+			//add(RefactoringType.MERGE_OPERATION); unused in RefactoringMiner
 			add(RefactoringType.EXTRACT_AND_MOVE_OPERATION);
 			add(RefactoringType.EXTRACT_OPERATION);
 			add(RefactoringType.PULL_UP_OPERATION);
 			add(RefactoringType.PUSH_DOWN_OPERATION);
 			add(RefactoringType.INLINE_OPERATION);
-			add(RefactoringType.CHANGE_RETURN_TYPE); // new WORKS
-			add(RefactoringType.CHANGE_PARAMETER_TYPE); // new Works
+			add(RefactoringType.MOVE_AND_INLINE_OPERATION);
+			add(RefactoringType.MOVE_AND_RENAME_OPERATION);
+			//add(RefactoringType.CHANGE_METHOD_SIGNATURE); unused in RefactoringMiner
+			add(RefactoringType.CHANGE_PARAMETER_TYPE);
+			add(RefactoringType.SPLIT_PARAMETER);
+			add(RefactoringType.MERGE_PARAMETER);
 		}};
 
 		variableLevelRefactorings = new HashSet<>() {{
+			add(RefactoringType.CHANGE_VARIABLE_TYPE);
+			add(RefactoringType.SPLIT_VARIABLE);
 			add(RefactoringType.EXTRACT_VARIABLE);
 			add(RefactoringType.INLINE_VARIABLE);
 			add(RefactoringType.PARAMETERIZE_VARIABLE);
@@ -73,10 +88,17 @@ public class RefactoringUtils {
 			add(RefactoringType.PUSH_DOWN_ATTRIBUTE);
 			add(RefactoringType.REPLACE_ATTRIBUTE);
 			add(RefactoringType.RENAME_ATTRIBUTE);
-			add(RefactoringType.CHANGE_ATTRIBUTE_TYPE); // new Works
+			add(RefactoringType.MERGE_ATTRIBUTE);
+			add(RefactoringType.EXTRACT_ATTRIBUTE);
+			add(RefactoringType.SPLIT_ATTRIBUTE);
+			add(RefactoringType.CHANGE_ATTRIBUTE_TYPE);
+		}};
+
+		otherRefactorings = new HashSet<>() {{
+			add(RefactoringType.MOVE_SOURCE_FOLDER);
+			add(RefactoringType.RENAME_PACKAGE);
 		}};
 	}
-
 
 	public static boolean isAttributeLevelRefactoring(Refactoring refactoring) {
 		return attributeLevelRefactorings.contains(refactoring.getRefactoringType());
@@ -92,6 +114,10 @@ public class RefactoringUtils {
 
 	public static boolean isVariableLevelRefactoring(Refactoring refactoring) {
 		return variableLevelRefactorings.contains(refactoring.getRefactoringType());
+	}
+
+	public static boolean isOtherRefactoring(Refactoring refactoring) {
+		return otherRefactorings.contains(refactoring.getRefactoringType());
 	}
 
 	public static int calculateLinesAdded(List<Edit> editList){
@@ -121,12 +147,10 @@ public class RefactoringUtils {
 		int parameterCount  = parameters.size();
 		List<String> parameterTypes = new ArrayList<>();
 		parameters.forEach(param -> {
-			String type = param.getClassType();
-			for(int i = 0; i < param.getArrayDimension(); ++i) {
-				type +="[]";
-			}
+			StringBuilder type = new StringBuilder(param.getClassType());
+			type.append("[]".repeat(Math.max(0, param.getArrayDimension())));
 
-			parameterTypes.add(type); });
+			parameterTypes.add(type.toString()); });
 
 		return String.format("%s/%d%s%s%s",
 				methodName,
@@ -143,29 +167,20 @@ public class RefactoringUtils {
 			return convertedRefactoring.getOriginalOperation();
 		}
 
+		/*
+		Is superclass for:
+		PullUpOperationRefactoring
+		PushDownOperationRefactoring
+		ExtractAndMoveRefactoring
+		 */
 		if(refactoring instanceof MoveOperationRefactoring) {
 			MoveOperationRefactoring convertedRefactoring = (MoveOperationRefactoring) refactoring;
 			return convertedRefactoring.getOriginalOperation();
 		}
 
-//		if(refactoring instanceof ExtractAndMoveOperationRefactoring) {
-//			ExtractAndMoveOperationRefactoring convertedRefactoring = (ExtractAndMoveOperationRefactoring) refactoring;
-//			return convertedRefactoring.getExtractedOperation();
-//		}
-
 		if(refactoring instanceof ExtractOperationRefactoring) {
 			ExtractOperationRefactoring convertedRefactoring = (ExtractOperationRefactoring) refactoring;
 			return convertedRefactoring.getSourceOperationBeforeExtraction();
-		}
-
-		if(refactoring instanceof PullUpOperationRefactoring) {
-			PullUpOperationRefactoring convertedRefactoring = (PullUpOperationRefactoring) refactoring;
-			return convertedRefactoring.getOriginalOperation();
-		}
-
-		if(refactoring instanceof PushDownOperationRefactoring) {
-			PushDownOperationRefactoring convertedRefactoring = (PushDownOperationRefactoring) refactoring;
-			return convertedRefactoring.getOriginalOperation();
 		}
 
 		if(refactoring instanceof InlineOperationRefactoring) {
@@ -194,8 +209,21 @@ public class RefactoringUtils {
 			return convertedRefactoring.getOperationBefore();
 		}
 
+		//Also used by for variable refactorings
 		if(refactoring instanceof ChangeVariableTypeRefactoring) {
 			ChangeVariableTypeRefactoring convertedRefactoring = (ChangeVariableTypeRefactoring) refactoring;
+			return convertedRefactoring.getOperationBefore();
+		}
+
+		//Also used by for variable refactorings
+		if(refactoring instanceof SplitVariableRefactoring) {
+			SplitVariableRefactoring convertedRefactoring = (SplitVariableRefactoring) refactoring;
+			return convertedRefactoring.getOperationBefore();
+		}
+
+		//Also used by for variable refactorings
+		if(refactoring instanceof MergeVariableRefactoring) {
+			MergeVariableRefactoring convertedRefactoring = (MergeVariableRefactoring) refactoring;
 			return convertedRefactoring.getOperationBefore();
 		}
 
@@ -203,6 +231,16 @@ public class RefactoringUtils {
 	}
 
 	public static String getRefactoredVariableOrAttribute(Refactoring refactoring) {
+		/*MoveAttributeRefactoring is super class for:
+		MoveAndRenameAttributeRefactoring
+		ReplaceAttributeRefactoring
+		PullUpAttributeRefactoring
+		PushDownAttributeRefactoring
+		 */
+		if(refactoring instanceof MoveAttributeRefactoring){
+			MoveAttributeRefactoring convertedRefactoring = (MoveAttributeRefactoring) refactoring;
+			return convertedRefactoring.getOriginalAttribute().getName();
+		}
 
 		if(refactoring instanceof ExtractVariableRefactoring) {
 			ExtractVariableRefactoring convertedRefactoring = (ExtractVariableRefactoring) refactoring;
@@ -212,16 +250,6 @@ public class RefactoringUtils {
 		if(refactoring instanceof InlineVariableRefactoring) {
 			InlineVariableRefactoring convertedRefactoring = (InlineVariableRefactoring) refactoring;
 			return convertedRefactoring.getVariableDeclaration().getVariableName();
-		}
-
-		if(refactoring instanceof MoveAttributeRefactoring) {
-			MoveAttributeRefactoring convertedRefactoring = (MoveAttributeRefactoring) refactoring;
-			return convertedRefactoring.getOriginalAttribute().getName();
-		}
-
-		if(refactoring instanceof MoveAndRenameAttributeRefactoring) {
-			MoveAndRenameAttributeRefactoring convertedRefactoring = (MoveAndRenameAttributeRefactoring) refactoring;
-			return convertedRefactoring.getOriginalAttribute().getName();
 		}
 
 		if(refactoring instanceof RenameAttributeRefactoring) {
@@ -234,19 +262,44 @@ public class RefactoringUtils {
 			return convertedRefactoring.getOriginalVariable().getVariableName();
 		}
 
-		if(refactoring instanceof ReplaceAttributeRefactoring) {
-			ReplaceAttributeRefactoring convertedRefactoring = (ReplaceAttributeRefactoring) refactoring;
-			return convertedRefactoring.getOriginalAttribute().getName();
+		//Also used by CHANGE_PARAMETER_TYPE
+		if(refactoring instanceof ChangeVariableTypeRefactoring) {
+			ChangeVariableTypeRefactoring convertedRefactoring = (ChangeVariableTypeRefactoring) refactoring;
+			return convertedRefactoring.getOriginalVariable().getVariableName();
 		}
 
-		if(refactoring instanceof PullUpAttributeRefactoring) {
-			PullUpAttributeRefactoring convertedRefactoring = (PullUpAttributeRefactoring) refactoring;
-			return convertedRefactoring.getOriginalAttribute().getName();
+		//Also used by SPLIT_PARAMETER
+		if(refactoring instanceof SplitVariableRefactoring) {
+			SplitVariableRefactoring convertedRefactoring = (SplitVariableRefactoring) refactoring;
+			return convertedRefactoring.getOldVariable().getVariableName();
 		}
 
-		if(refactoring instanceof PushDownAttributeRefactoring) {
-			PushDownAttributeRefactoring convertedRefactoring = (PushDownAttributeRefactoring) refactoring;
-			return convertedRefactoring.getOriginalAttribute().getName();
+		//Also used by MERGE_PARAMETER
+		if(refactoring instanceof MergeVariableRefactoring) {
+			MergeVariableRefactoring convertedRefactoring = (MergeVariableRefactoring) refactoring;
+			return convertedRefactoring.getMergedVariables().stream().map(VariableDeclaration::getVariableName)
+					.collect(Collectors.toList()).toString();
+		}
+
+		if(refactoring instanceof MergeAttributeRefactoring) {
+			MergeAttributeRefactoring convertedRefactoring = (MergeAttributeRefactoring) refactoring;
+			return convertedRefactoring.getMergedAttributes().stream().map(VariableDeclaration::getVariableName)
+					.collect(Collectors.toList()).toString();
+		}
+
+		if(refactoring instanceof ExtractAttributeRefactoring) {
+			ExtractAttributeRefactoring convertedRefactoring = (ExtractAttributeRefactoring) refactoring;
+			return convertedRefactoring.getVariableDeclaration().getName();
+		}
+
+		if(refactoring instanceof SplitAttributeRefactoring) {
+			SplitAttributeRefactoring convertedRefactoring = (SplitAttributeRefactoring) refactoring;
+			return convertedRefactoring.getOldAttribute().getVariableName();
+		}
+
+		if(refactoring instanceof ChangeAttributeTypeRefactoring) {
+			ChangeAttributeTypeRefactoring convertedRefactoring = (ChangeAttributeTypeRefactoring) refactoring;
+			return convertedRefactoring.getChangedTypeAttribute().getVariableName();
 		}
 
 		if(refactoring instanceof ChangeVariableTypeRefactoring) {
@@ -267,10 +320,12 @@ public class RefactoringUtils {
 	}
 
 	public static int refactoringTypeInNumber(Refactoring refactoring) {
-		if(isClassLevelRefactoring(refactoring)) return TYPE_CLASS_LEVEL;
-		if(isMethodLevelRefactoring(refactoring)) return TYPE_METHOD_LEVEL;
-		if(isVariableLevelRefactoring(refactoring)) return TYPE_VARIABLE_LEVEL;
-		if(isAttributeLevelRefactoring(refactoring)) return TYPE_ATTRIBUTE_LEVEL;
+		if(isClassLevelRefactoring(refactoring)) return Level.CLASS.ordinal();
+		if(isMethodLevelRefactoring(refactoring)) return Level.METHOD.ordinal();
+		if(isVariableLevelRefactoring(refactoring)) return Level.VARIABLE.ordinal();
+		if(isAttributeLevelRefactoring(refactoring)) return Level.ATTRIBUTE.ordinal();
+		if(isOtherRefactoring(refactoring)) return Level.OTHER.ordinal();
+
 		return -1;
 	}
 }

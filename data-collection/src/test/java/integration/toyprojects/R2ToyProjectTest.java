@@ -4,10 +4,12 @@ import integration.IntegrationBaseTest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import refactoringml.db.Instance;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
 import refactoringml.db.ProcessMetrics;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,11 +41,12 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 
 		String extractCommit = "515365875143aa84b5bbb5c3191e7654a942912f";
 		assertRefactoring(refactoringCommitList, extractCommit, "Extract Class", 1);
-		//TODO: Why are additions and deletions from commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 not counted?
-		RefactoringCommit extractClassRefactoring = (RefactoringCommit) filterCommit(refactoringCommitList, extractCommit).get(2);
+		assertRefactoring(refactoringCommitList, extractCommit, "Move Attribute", 2);
 
-		//Additions:(5 + 1 + 25 + 3 + 6 = 40)
-		//Deletions:(0 + 2 +  0 + 3 + 0 =  5)
+		RefactoringCommit extractClassRefactoring = (RefactoringCommit) filterCommit(refactoringCommitList, extractCommit).stream()
+				.filter(instance -> instance.getProcessMetrics().refactoringsInvolved == 6)
+				.collect(Collectors.toList()).get(0);
+
 		assertProcessMetrics(extractClassRefactoring, ProcessMetrics.toString(5, 40, 5, 1, 0, 1, 1.0, 0, 6));
 		assertProcessMetrics(renameRefactoring, ProcessMetrics.toString(1, 5, 0, 1, 0, 1, 1.0, 0, 0));
 	}

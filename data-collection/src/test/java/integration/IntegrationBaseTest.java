@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
 import refactoringml.TrackDebugMode;
@@ -109,10 +110,6 @@ public abstract class IntegrationBaseTest {
 						.setParameter("projectIds", projectIds)
 						.executeUpdate();
 				session.createQuery("DELETE FROM StableCommit WHERE project.id IN :projectIds")
-						.setParameter("projectIds", projectIds)
-						.executeUpdate();
-
-				session.createQuery("DELETE FROM Project WHERE id IN :projectIds")
 						.setParameter("projectIds", projectIds)
 						.executeUpdate();
 
@@ -253,7 +250,7 @@ public abstract class IntegrationBaseTest {
 	protected void assertInnerClass(List<? extends Instance> commitList, String commitId, String className, int qty){
 		List<? extends Instance> filteredList = filterCommit(commitList, commitId).stream().filter(commit ->
 				commit.getClassMetrics().isInnerClass() &&
-						commit.getClassName().equals(className)).collect(Collectors.toList());
+						commit.getClassName().contains(className)).collect(Collectors.toList());
 		Assert.assertEquals(qty, filteredList.size());
 	}
 
@@ -267,5 +264,14 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(testLocCount, project.getTestLoc());
 		Assert.assertEquals(productionLocCount, project.getProductionLoc());
 		Assert.assertEquals(javaLocCount, project.getJavaLoc());
+	}
+
+
+	//Test if all Refactorings were classified
+	@Test
+	public void refactoringLevel(){
+		List<RefactoringCommit> refactoringCommitsNoLevel = getRefactoringCommits().stream().filter(refactoringCommit ->
+				refactoringCommit.getLevel() < 0).collect(Collectors.toList());
+		Assert.assertEquals(0, refactoringCommitsNoLevel.size());
 	}
 }

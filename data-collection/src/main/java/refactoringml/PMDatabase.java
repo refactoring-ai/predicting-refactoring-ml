@@ -1,18 +1,20 @@
 package refactoringml;
 
 import refactoringml.db.CommitMetaData;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PMDatabase {
-	// Map class files onto their original process metrics.
+	//Map class files onto their original process metrics.
 	private Map<String, ProcessMetricTracker> database;
-	private int commitThreshold;
+	//All commit thresholds for this project for considering a class file as stable
+	private List<Integer> commitThresholds;
 
-	public PMDatabase (int commitThreshold) {
-		this.commitThreshold = commitThreshold;
+	public PMDatabase (List<Integer> commitThresholds) {
+		this.commitThresholds = commitThresholds;
 		this.database = new HashMap<>();
 	}
 
@@ -25,7 +27,7 @@ public class PMDatabase {
 	//Find all stable instances in the database
 	public List<ProcessMetricTracker> findStableInstances() {
 		return database.values().stream()
-				.filter(p -> p.getCommitCounter() >= commitThreshold)
+				.filter(pmTracker -> pmTracker.calculateStability(commitThresholds))
 				.collect(Collectors.toList());
 	}
 
@@ -54,7 +56,7 @@ public class PMDatabase {
 	//Report a commit changing the given class file, the in memory database is updated accordingly
 	public void reportChanges(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
 		ProcessMetricTracker pmTracker = database.getOrDefault(fileName, new ProcessMetricTracker(fileName, commitMetaData));
-		pmTracker.reportCommit(commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
+		pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
 
 		database.put(fileName, pmTracker);
 	}
@@ -71,7 +73,7 @@ public class PMDatabase {
 	public String toString(){
 		return "PMDatabase{" +
 				"database=" + database.toString() + ",\n" +
-				"commitThreshold=" + commitThreshold +
+				"commitThreshold=" + commitThresholds.toString() +
 				"}";
 	}
 }
