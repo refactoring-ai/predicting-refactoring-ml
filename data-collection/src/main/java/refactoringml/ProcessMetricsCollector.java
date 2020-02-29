@@ -36,13 +36,12 @@ public class ProcessMetricsCollector {
 
 	private static final Logger log = Logger.getLogger(ProcessMetricsCollector.class);
 
-	public ProcessMetricsCollector(Project project, Database db, Repository repository, String fileStoragePath) {
+	public ProcessMetricsCollector(Project project, Database db, Repository repository, String fileStoragePath, PMTrackerDatabase pmTrackerDatabase) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-		List<Integer> stableCommitThresholds = project.getCommitCountThresholds();
-		pmTrackerDatabase = new PMTrackerDatabase(stableCommitThresholds);
+		this.pmTrackerDatabase = pmTrackerDatabase;
 	}
 
 	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
@@ -55,8 +54,8 @@ public class ProcessMetricsCollector {
 				db.openSession();
 				pmTrackerDatabase.db.openSession();
 				collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
-				pmTrackerDatabase.db.commit();
-				db.commit();
+				pmTrackerDatabase.db.commitAndClose();
+				db.commitAndClose();
 			} catch (Exception e) {
 				log.error(e.getClass().getCanonicalName() + " when collecting process metrics for commit " + commit.getName(), e);
 				pmTrackerDatabase.db.rollback();
@@ -72,7 +71,7 @@ public class ProcessMetricsCollector {
 		try {
 			pmTrackerDatabase.db.openSession();
 			updateProcessMetrics(commit, commitParent);
-			pmTrackerDatabase.db.commit();
+			pmTrackerDatabase.db.commitAndClose();
 		} catch (Exception e) {
 			log.error("Error when updating process metrics in commit " + commit.getName(), e);
 			pmTrackerDatabase.db.rollback();
@@ -85,8 +84,8 @@ public class ProcessMetricsCollector {
 			db.openSession();
 			pmTrackerDatabase.db.openSession();
 			updateAndPrintExamplesOfNonRefactoredClasses(commit);
-			pmTrackerDatabase.db.commit();
-			db.commit();
+			pmTrackerDatabase.db.commitAndClose();
+			db.commitAndClose();
 		} catch (Exception e) {
 			log.error("Error when collecting process metrics in commit " + commit.getName(), e);
 			pmTrackerDatabase.db.rollback();
@@ -178,7 +177,7 @@ public class ProcessMetricsCollector {
 				// Thus, we are not tracking class renames here, but that is also not necessary, because the PM metrics are computed for each java file anyways.
 				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
-					pmTrackerDatabase.renameFile(oldFileName, fileName, new CommitMetaData(commit, project));
+					pmTrackerDatabase.renameFile(oldFileName, fileName);
 					log.debug("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
 				}
 

@@ -113,10 +113,12 @@ public class App {
 			log.debug("Set project stable commit threshold(s) to: " + project.getCommitCountThresholds());
 
 			db.openSession();
-			db.persist(project);
-			db.commit();
+			db.persistAndCommit(project);
+			db.close();
 
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, filesStoragePath);
+			List<Integer> stableCommitThresholds = project.getCommitCountThresholds();
+			PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase(stableCommitThresholds);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, filesStoragePath, pmTrackerDatabase);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
 
 			RefactoringHandler handler = getRefactoringHandler(git);
@@ -161,7 +163,7 @@ public class App {
 						try {
 							db.openSession();
 							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref));
-							db.commit();
+							db.commitAndClose();
 						} catch (Exception e) {
 							exceptionsCount++;
 							log.error("Exception when collecting commit data: ", e);
@@ -192,7 +194,9 @@ public class App {
 			project.setFinishedDate(Calendar.getInstance());
 			project.setExceptions(exceptionsCount);
 			db.update(project);
-			db.commit();
+			db.commitAndClose();
+
+			pmTrackerDatabase.destroy();
 
 			return project;
 		} finally {

@@ -177,7 +177,7 @@ public class ProcessMetricTrackerTest {
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
-		pmTrackerDatabase.db.commit();
+		pmTrackerDatabase.db.commitAndClose();
 		pmTrackerDatabase.db.close();
 	}
 }

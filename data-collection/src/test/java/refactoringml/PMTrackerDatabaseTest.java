@@ -1,10 +1,7 @@
 package refactoringml;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
+import org.hibernate.exception.SQLGrammarException;
+import org.junit.*;
 import refactoringml.db.CommitMetaData;
 import java.util.HashMap;
 import java.util.List;
@@ -24,11 +21,11 @@ public class PMTrackerDatabaseTest {
 
     @After
     public void cleanPMDB(){
-        pmTrackerDatabase.db.close();
+        pmTrackerDatabase.destroy();
     }
 
-    @Disabled
     @Test
+    @Ignore
     public void constructor(){
         Map<String, ProcessMetricTracker> database = new HashMap<>();
 
@@ -37,6 +34,20 @@ public class PMTrackerDatabaseTest {
                 "commitThreshold=" + List.of(10, 25) +
                 "}";
         Assert.assertEquals(expected, pmTrackerDatabase.toString());
+    }
+
+    @Test
+    public void dropTable(){
+        pmTrackerDatabase.reportChanges("a.Java", new CommitMetaData("#1", "n", "n", "0"), "R", 1, 1);
+        pmTrackerDatabase.db.drop("ProcessMetricTracker");
+
+        try{
+            pmTrackerDatabase.find("a.Java");
+        } catch (SQLGrammarException ex){
+            Assert.assertEquals("could not extract ResultSet", ex.getMessage());
+        }
+        //open a new session, for cleanPMDB()
+        pmTrackerDatabase.db.openSession();
     }
 
     //Test the case sensitivity of class fileNames
@@ -132,8 +143,7 @@ public class PMTrackerDatabaseTest {
     //take care of case sensitivity
     @Test
     public void renameFile(){
-        ProcessMetricTracker oldPMTracker = pmTrackerDatabase.renameFile("a.Java", "A.Java",
-                new CommitMetaData("1", "null", "null", "0"));
+        ProcessMetricTracker oldPMTracker = pmTrackerDatabase.renameFile("a.Java", "A.Java");
         Assert.assertNull(oldPMTracker);
         Assert.assertNull(pmTrackerDatabase.find("A.Java"));
         Assert.assertNull(pmTrackerDatabase.find("a.Java"));
@@ -145,8 +155,7 @@ public class PMTrackerDatabaseTest {
         Assert.assertEquals(0, pmTrackerDatabase.find("A.Java").getBaseProcessMetrics().linesAdded);
         Assert.assertEquals(10, pmTrackerDatabase.find("A.Java").getCurrentProcessMetrics().linesAdded);
 
-        oldPMTracker = pmTrackerDatabase.renameFile("A.Java", "B.Java",
-                new CommitMetaData("1", "null", "null", "0"));
+        oldPMTracker = pmTrackerDatabase.renameFile("A.Java", "B.Java");
         Assert.assertNotNull(oldPMTracker);
         Assert.assertNull(pmTrackerDatabase.find("A.Java"));
         Assert.assertNull(pmTrackerDatabase.find("a.Java"));
@@ -175,7 +184,7 @@ public class PMTrackerDatabaseTest {
     @Test
     public void renameFile2(){
         pmTrackerDatabase.reportChanges("a.Java", new CommitMetaData("#1", "null", "null", "0"), "Rafael", 10, 20);
-        pmTrackerDatabase.renameFile("a.Java", "a.Java", new CommitMetaData("1", "null", "null", "0"));
+        pmTrackerDatabase.renameFile("a.Java", "a.Java");
 
         ProcessMetricTracker pmTracker = pmTrackerDatabase.find("a.Java");
         Assert.assertNotNull(pmTracker);
@@ -188,7 +197,7 @@ public class PMTrackerDatabaseTest {
     @Test
     public void removeFile2(){
         pmTrackerDatabase.reportChanges("a.Java", new CommitMetaData("#1", "null", "null", "0"), "Rafael", 10, 20);
-        pmTrackerDatabase.renameFile("a.Java", "A.Java", new CommitMetaData("1", "null", "null", "0"));
+        pmTrackerDatabase.renameFile("a.Java", "A.Java");
 
         ProcessMetricTracker pmTracker = pmTrackerDatabase.removeFile("a.Java");
         Assert.assertNull(pmTracker);

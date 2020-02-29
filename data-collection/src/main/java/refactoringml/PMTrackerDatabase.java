@@ -30,7 +30,7 @@ public class PMTrackerDatabase {
 
 	//Empty the database and close the hibernate SessionFactory
 	public void destroy(){
-		//TODO: cleanse db
+		db.drop("ProcessMetricTracker");
 		db.close();
 	}
 
@@ -53,7 +53,7 @@ public class PMTrackerDatabase {
 	1. Rename People.java to Person.java: Person -> People_ProcessMetrics
 	2. Rename Person.java to Human.java: Human -> People_ProcessMetrics
 	 */
-	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
+	public ProcessMetricTracker renameFile(String oldFileName, String newFileName){
 		if(oldFileName.equals(newFileName))
 			return db.find(oldFileName, ProcessMetricTracker.class);
 
@@ -84,11 +84,7 @@ public class PMTrackerDatabase {
 			pmTracker = new ProcessMetricTracker(fileName, commitMetaData);
 
 		pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
-
-		if(exists)
-			db.update(pmTracker);
-		else
-			db.persist(pmTracker);
+		db.put(pmTracker, exists);
 	}
 
 	//Reset the tracker with latest refactoring and its commit meta data
@@ -100,10 +96,7 @@ public class PMTrackerDatabase {
 			pmTracker = new ProcessMetricTracker(fileName, commitMetaData);
 		pmTracker.resetCounter(commitMetaData);
 
-		if(exists)
-			db.update(pmTracker);
-		else
-			db.persist(pmTracker);
+		db.put(pmTracker, exists);
 	}
 
 	//TODO: adapt this to the new SQL database

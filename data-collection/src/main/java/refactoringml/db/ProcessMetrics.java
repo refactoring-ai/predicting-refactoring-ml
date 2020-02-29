@@ -31,7 +31,11 @@ public class ProcessMetrics {
 	@Column(nullable = true) private double authorOwnership;
 
 	//all authors with commits affecting this class file
-	@Transient
+	@ElementCollection
+	@CollectionTable(name = "authorName",
+			joinColumns = {@JoinColumn(name = "processmetrics_id", referencedColumnName = "id")})
+	@MapKeyColumn(name = "authorName")
+	@Column(name = "commitCount")
 	private Map<String, Integer> allAuthors = new HashMap<>();
 
 	@Deprecated // hibernate purposes

@@ -68,7 +68,7 @@ public abstract class IntegrationBaseTest {
 		if(!projectAlreadyCloned)
 			new GitServiceImpl().cloneIfNotExists(repoLocalDir, getRepo());
 
-		deleteProject(extractProjectNameFromGitUrl(getRepo()));
+		//deleteProject(extractProjectNameFromGitUrl(getRepo()));
 
 		if(!trackFileName().equals("null") || !trackCommit().equals("null")) {
 			TrackDebugMode.ACTIVE = true;
