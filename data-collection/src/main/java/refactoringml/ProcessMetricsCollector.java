@@ -45,7 +45,7 @@ public class ProcessMetricsCollector {
 		pmDatabase = new PMDatabase(stableCommitThresholds);
 	}
 
-	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
+	public void collectMetrics(RevCommit commit, List<RefactoringCommit> allRefactoringCommits, boolean isRefactoring) throws IOException {
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 
 		//if this commit contained a refactoring, then collect its process metrics,
@@ -80,17 +80,12 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private void collectProcessMetricsOfRefactoredCommit(RevCommit commit, Set<Long> allRefactoringCommits) {
-		for (Long refactoringCommitId : allRefactoringCommits) {
-			RefactoringCommit refactoringCommit = db.findRefactoringCommit(refactoringCommitId);
+	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
+	private void collectProcessMetricsOfRefactoredCommit(RevCommit commit, List<RefactoringCommit> allRefactoringCommits) {
+		for (RefactoringCommit refactoringCommit : allRefactoringCommits) {
 			String fileName = refactoringCommit.getFilePath();
-
 			ProcessMetricTracker currentProcessMetricsTracker = pmDatabase.find(fileName);
 
-			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
-			// however, we might not be able to find the process metrics of that class.
-			// this will happen in strange cases where we never tracked that class before...
-			// for now, let's store it as -1, so that we can still use the data point for structural metrics
 			ProcessMetrics dbProcessMetrics  = currentProcessMetricsTracker != null ?
 					new ProcessMetrics(currentProcessMetricsTracker.getCurrentProcessMetrics()) :
 					new ProcessMetrics(-1, -1, -1, -1, -1);
