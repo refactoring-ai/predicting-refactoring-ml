@@ -13,12 +13,10 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
-import refactoringml.util.FilePathUtils;
 import refactoringml.util.RefactoringUtils;
 import refactoringml.util.SourceCodeUtils;
 
 import java.io.*;
-import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,12 +48,12 @@ public class RefactoringAnalyzer {
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 	}
 
-	public Set<Long> collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
+	public List<RefactoringCommit> collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
 		String refactoringSummary = refactoring.toString().trim();
 		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 
 		RevCommit commitParent = commit.getParent(0);
-		Set<Long> allRefactorings = new HashSet<Long>();
+		List<RefactoringCommit> allRefactorings = new ArrayList<>();
 
 		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 			diffFormatter.setRepository(repository);
@@ -109,7 +107,7 @@ public class RefactoringAnalyzer {
 
 					if(refactoringCommit !=null) {
 						// mark it for the process metrics collection
-						allRefactorings.add(refactoringCommit.getId());
+						allRefactorings.add(refactoringCommit);
 
 						if(storeFullSourceCode) {
 							// let's get the source code of the file after the refactoring

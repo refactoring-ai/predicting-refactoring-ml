@@ -17,6 +17,7 @@ import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.db.Database;
 import refactoringml.db.Project;
+import refactoringml.db.RefactoringCommit;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
 import refactoringml.util.JGitUtils;
@@ -154,7 +155,7 @@ public class App {
 					miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
 
 				//stores all the ck metrics for the current commit
-				Set<Long> allRefactoringCommits = new HashSet<Long>();
+				List<RefactoringCommit> allRefactoringCommits = new ArrayList<>();
 
 				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
 				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;

@@ -13,9 +13,7 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import refactoringml.db.*;
 import refactoringml.util.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +42,7 @@ public class ProcessMetricsCollector {
 		this.pmTrackerDatabase = pmTrackerDatabase;
 	}
 
-	public void collectMetrics(RevCommit commit, Set<Long> allRefactoringCommits, boolean isRefactoring) throws IOException {
+	public void collectMetrics(RevCommit commit, List<RefactoringCommit> allRefactoringCommits, boolean isRefactoring) throws IOException {
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 
 		//if this commit contained a refactoring, then collect its process metrics,
@@ -96,17 +94,12 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	private void collectProcessMetricsOfRefactoredCommit(RevCommit commit, Set<Long> allRefactoringCommits) {
-		for (Long refactoringCommitId : allRefactoringCommits) {
-			RefactoringCommit refactoringCommit = db.findRefactoringCommit(refactoringCommitId);
+	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
+	private void collectProcessMetricsOfRefactoredCommit(RevCommit commit, List<RefactoringCommit> allRefactoringCommits) {
+		for (RefactoringCommit refactoringCommit : allRefactoringCommits) {
 			String fileName = refactoringCommit.getFilePath();
-
 			ProcessMetricTracker currentProcessMetricsTracker = pmTrackerDatabase.find(fileName);
 
-			// we print the information BEFORE updating it with this commit, because we need the data from BEFORE this commit
-			// however, we might not be able to find the process metrics of that class.
-			// this will happen in strange cases where we never tracked that class before...
-			// for now, let's store it as -1, so that we can still use the data point for structural metrics
 			ProcessMetrics dbProcessMetrics  = currentProcessMetricsTracker != null ?
 					new ProcessMetrics(currentProcessMetricsTracker.getCurrentProcessMetrics()) :
 					new ProcessMetrics(-1, -1, -1, -1, -1);
@@ -212,7 +205,11 @@ public class ProcessMetricsCollector {
 
 			// create a temp dir to store the source code files and run CK there
 			tempDir = createTmpDir();
-			saveFile(commitHashBackThen, sourceCodeBackThen, pmTracker.getFileName(), tempDir);
+
+			// we save it in the permanent storage...
+			writeFile(fileStoragePath + commitHashBackThen + "/" + "not-refactored/" + pmTracker.getFileName(), sourceCodeBackThen);
+			// ... as well as in the temp one, so that we can calculate the CK metrics
+			writeFile(tempDir + pmTracker.getFileName(), sourceCodeBackThen);
 
 			CommitMetaData commitMetaData = new CommitMetaData(pmTracker.getBaseCommitMetaData());
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir, pmTracker.getCommitCountThreshold());
@@ -230,23 +227,6 @@ public class ProcessMetricsCollector {
 		}
 	}
 
-	//TODO: move this to file utils
-	private void saveFile (String commitBackThen, String sourceCodeBackThen, String fileName, String tempDir) throws IOException {
-		// we save it in the permanent storage...
-		new File(fileStoragePath + commitBackThen + "/" + "not-refactored/" + FilePathUtils.dirsOnly(fileName)).mkdirs();
-		PrintStream ps = new PrintStream(fileStoragePath + commitBackThen + "/" + "not-refactored/" + fileName);
-		ps.print(sourceCodeBackThen);
-		ps.close();
-
-		// ... as well as in the temp one, so that we can calculate the CK metrics
-
-		new File(tempDir + FilePathUtils.dirsOnly(fileName)).mkdirs();
-		ps = new PrintStream(tempDir + fileName);
-		ps.print(sourceCodeBackThen);
-		ps.close();
-	}
-
-	//TODO:
 	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir, int commitThreshold) {
 		List<StableCommit> stableCommits = new ArrayList<>();
 		new CK().calculate(tempDir, ck -> {
