@@ -12,10 +12,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import refactoringml.db.*;
 import refactoringml.util.*;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,11 +42,9 @@ public class ProcessMetricsCollector {
 		pmDatabase = new PMDatabase(stableCommitThresholds);
 	}
 
+	//if this commit contained a refactoring, then collect its process metrics for all affected class files,
+	//otherwise only update the file process metrics
 	public void collectMetrics(RevCommit commit, List<RefactoringCommit> allRefactoringCommits, boolean isRefactoring) throws IOException {
-		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
-
-		//if this commit contained a refactoring, then collect its process metrics,
-		//otherwise only update the file process metrics
 		if (isRefactoring) {
 			try {
 				db.openSession();
@@ -65,9 +60,9 @@ public class ProcessMetricsCollector {
 
 		// we go now change by change in the commit to update the process metrics there
 		// (no need for db here, as this update happens only locally)
+		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 		updateProcessMetrics(commit, commitParent);
 
-		// update classes that were not refactored on this commit
 		try {
 			db.openSession();
 			updateAndPrintExamplesOfNonRefactoredClasses(commit);
@@ -103,6 +98,7 @@ public class ProcessMetricsCollector {
 		}
 	}
 
+	// update classes that were not refactored on this commit
 	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit) throws IOException {
 		// if there are classes over the threshold, we output them as an examples of not refactored classes,
 		// and we reset their counter.
@@ -130,6 +126,9 @@ public class ProcessMetricsCollector {
 		}
 	}
 
+	//Update the process metrics of all affected class files:
+	//Reset the PMTracker for all class files, that were refactored on this commit
+	//Increase the PMTracker for all class files, that were not refactored but changed on this commit
 	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent) throws IOException {
 		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 			diffFormatter.setRepository(repository);
@@ -180,6 +179,7 @@ public class ProcessMetricsCollector {
 		}
 	}
 
+	//Store the refactoring instances in the DB
 	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
 		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
 		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitHashBackThen);
