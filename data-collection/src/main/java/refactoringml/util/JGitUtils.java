@@ -1,12 +1,18 @@
 package refactoringml.util;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.refactoringminer.api.Refactoring;
+import org.refactoringminer.api.RefactoringHandler;
 import refactoringml.TrackDebugMode;
 
 import java.io.IOException;
@@ -15,6 +21,23 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class JGitUtils {
+	public static int numberOfCommits(Git git) throws GitAPIException {
+		Iterable<RevCommit> commits = git.log().call();
+		int count = 0;
+		for(RevCommit ignored : commits) {
+			count++;
+		}
+
+		return count;
+	}
+
+	public static String getHead(Git git) throws IOException {
+		return git.getRepository().resolve(Constants.HEAD).getName();
+	}
+
+	public static String discoverMainBranch(Git git) throws IOException {
+		return git.getRepository().getBranch();
+	}
 
 	private static final Logger log = Logger.getLogger(JGitUtils.class);
 

@@ -30,7 +30,7 @@ import java.util.*;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.FileUtils.createTmpDir;
-import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
+import static refactoringml.util.JGitUtils.*;
 
 public class App {
 	//config properties for the data-collection app at resources/config.property
@@ -202,48 +202,29 @@ public class App {
 		}
 	}
 
-	private String getHead(Git git) throws IOException {
-		return git.getRepository().resolve(Constants.HEAD).getName();
-	}
-
 	private RefactoringHandler getRefactoringHandler(Git git) {
 		return new RefactoringHandler() {
-				@Override
-				public void handle(String commitId, List<Refactoring> refactorings) {
-					commitIdToProcess = commitId;
-					refactoringsToProcess = refactorings;
+			@Override
+			public void handle(String commitId, List<Refactoring> refactorings) {
+				commitIdToProcess = commitId;
+				refactoringsToProcess = refactorings;
+			}
+
+			@Override
+			public void handleException(String commitId, Exception e) {
+				exceptionsCount++;
+				log.error("RefactoringMiner could not handle commit Id " + commitId, e);
+				resetGitRepo();
+			}
+
+			private void resetGitRepo() {
+				try {
+					git.reset().setMode(ResetCommand.ResetType.HARD).call();
+				} catch (GitAPIException e1) {
+					log.error("Reset failed for repository: " + gitUrl + " after a commit couldn't be handled.", e1);
 				}
-
-				@Override
-				public void handleException(String commitId, Exception e) {
-					exceptionsCount++;
-					log.error("RefactoringMiner could not handle commit Id " + commitId, e);
-					resetGitRepo();
-				}
-
-				private void resetGitRepo() {
-					try {
-						git.reset().setMode(ResetCommand.ResetType.HARD).call();
-					} catch (GitAPIException e1) {
-						log.error("Reset failed for repository: " + gitUrl + " after a commit couldn't be handled.", e1);
-					}
-				}
-			};
-	}
-
-	private int numberOfCommits(Git git) throws GitAPIException {
-		Iterable<RevCommit> commits = git.log().call();
-		int count = 0;
-		for(RevCommit ignored : commits) {
-			count++;
-		}
-
-		return count;
-	}
-
-
-	private String discoverMainBranch(Git git) throws IOException {
-		return git.getRepository().getBranch();
+			}
+		};
 	}
 
 	private static Properties fetchProperties(){
