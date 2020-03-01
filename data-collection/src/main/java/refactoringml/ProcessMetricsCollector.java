@@ -50,16 +50,12 @@ public class ProcessMetricsCollector {
 		if (isRefactoring) {
 			try {
 				db.openSession();
-				pmTrackerDatabase.db.openSession();
 				collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
-				pmTrackerDatabase.db.commitAndClose();
 				db.commitAndClose();
 			} catch (Exception e) {
 				log.error(e.getClass().getCanonicalName() + " when collecting process metrics for commit " + commit.getName(), e);
-				pmTrackerDatabase.db.rollback();
 				db.rollback();
 			} finally {
-				pmTrackerDatabase.db.close();
 				db.close();
 			}
 		}
@@ -67,29 +63,25 @@ public class ProcessMetricsCollector {
 		// we go now change by change in the commit to update the process metrics there
 		// (no need for db here, as this update happens only locally)
 		try {
-			pmTrackerDatabase.db.openSession();
+			db.openSession();
 			updateProcessMetrics(commit, commitParent);
-			pmTrackerDatabase.db.commitAndClose();
+			db.commitAndClose();
 		} catch (Exception e) {
 			log.error("Error when updating process metrics in commit " + commit.getName(), e);
-			pmTrackerDatabase.db.rollback();
+			db.rollback();
 		} finally {
-			pmTrackerDatabase.db.close();
+			db.close();
 		}
 
 		// update classes that were not refactored on this commit
 		try {
 			db.openSession();
-			pmTrackerDatabase.db.openSession();
 			updateAndPrintExamplesOfNonRefactoredClasses(commit);
-			pmTrackerDatabase.db.commitAndClose();
 			db.commitAndClose();
 		} catch (Exception e) {
 			log.error("Error when collecting process metrics in commit " + commit.getName(), e);
-			pmTrackerDatabase.db.rollback();
 			db.rollback();
 		} finally {
-			pmTrackerDatabase.db.close();
 			db.close();
 		}
 	}
@@ -125,7 +117,7 @@ public class ProcessMetricsCollector {
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
-		for(ProcessMetricTracker pmTracker : pmTrackerDatabase.findStableInstances()) {
+		for(ProcessMetricTracker pmTracker : pmTrackerDatabase.findStableInstances(project.getCommitCountThresholds())) {
 			if(TrackDebugMode.ACTIVE && (pmTracker.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 				log.debug("[TRACK] Marking class file " + pmTracker.getFileName() + " as a non-refactoring instance.\n" +
 						pmTracker.toString());

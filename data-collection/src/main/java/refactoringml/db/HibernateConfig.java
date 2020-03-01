@@ -71,7 +71,6 @@ public class HibernateConfig {
 			configuration.addAnnotatedClass(ProcessMetrics.class);
 
 			//PMDatabase
-			configuration.addAnnotatedClass(PMTrackerDatabase.class);
 			configuration.addAnnotatedClass(ProcessMetricTracker.class);
 
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()

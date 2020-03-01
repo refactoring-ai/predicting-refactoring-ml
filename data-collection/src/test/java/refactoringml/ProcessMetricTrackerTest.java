@@ -2,6 +2,7 @@ package refactoringml;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.CommitMetaData;
 import refactoringml.db.ProcessMetrics;
 
@@ -10,6 +11,7 @@ import java.util.Random;
 
 //Tests the ProcessMetricTracker and ProcessMetrics classes
 //Closely linked to PMDatabaseTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ProcessMetricTrackerTest {
 	//Test if the constructor of the ProcessMetricTracker works as intended
 	@Test
@@ -160,8 +162,7 @@ public class ProcessMetricTrackerTest {
 
 	@Test
 	public void countQtyOfCommits(){
-		PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase(List.of(10, 20));
-		pmTrackerDatabase.db.openSession();
+		PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase();
 
 		for(int i = 0; i < 20; i++) {
 			pmTrackerDatabase.reportChanges("a.Java", new CommitMetaData("#" + i, "n", "n", "0"), "R", 1, 1);
@@ -177,7 +178,5 @@ public class ProcessMetricTrackerTest {
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
-		pmTrackerDatabase.db.commitAndClose();
-		pmTrackerDatabase.db.close();
 	}
 }

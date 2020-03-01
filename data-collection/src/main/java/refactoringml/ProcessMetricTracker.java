@@ -7,11 +7,14 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "ProcessMetricTracker", indexes = {@Index(columnList = "fileName")})
 public class ProcessMetricTracker {
 	//filename of the class file, does not distinguish between subclasses
 	@Id
+	@GeneratedValue
+	private int id;
+
 	private String fileName;
+
 	//Either: the last commit refactoring the class file or the first one creating the class file
 	@ManyToOne(cascade=CascadeType.ALL)
 	private CommitMetaData baseCommitMetaData;

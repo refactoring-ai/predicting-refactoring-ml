@@ -117,8 +117,7 @@ public class App {
 			db.persistAndCommit(project);
 			db.close();
 
-			List<Integer> stableCommitThresholds = project.getCommitCountThresholds();
-			PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase(stableCommitThresholds);
+			PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase(db);
 			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, filesStoragePath, pmTrackerDatabase);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
 

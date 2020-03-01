@@ -3,7 +3,6 @@ package refactoringml.db;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.NativeQuery;
 
 import java.util.List;
 
@@ -61,10 +60,15 @@ public class Database {
 		commit();
 	}
 
-
 	//Update the given object in the DB, if it already exists
 	public void update(Object obj) {
 		session.update(obj);
+	}
+
+	//Update the given object in the DB, if it already exists
+	public void updateAndCommit(Object obj) {
+		session.update(obj);
+		commit();
 	}
 
 	public void remove(Object obj) {session.remove(obj);}
