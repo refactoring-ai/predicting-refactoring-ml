@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
+import static refactoringml.util.PropertiesUtils.setProperty;
 
 public abstract class IntegrationBaseTest {
 
@@ -77,7 +78,7 @@ public abstract class IntegrationBaseTest {
 		}
 
 		//set the stableCommitThreshold in the PMDatabase to test various configs
-		App.setProperty("stableCommitThresholds", getStableCommitThreshold());
+		setProperty("stableCommitThresholds", getStableCommitThreshold());
 
 		App app = new App("integration-test",
 				repoLocalDir,

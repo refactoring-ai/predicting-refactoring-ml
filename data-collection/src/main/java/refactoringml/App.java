@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -23,20 +22,15 @@ import refactoringml.util.Counter.CounterResult;
 import refactoringml.util.JGitUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.*;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.*;
+import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class App {
-	//config properties for the data-collection app at resources/config.property
-	private static Properties configProperties;
-	private static String configName = "config.properties";
-
 	private String gitUrl;
 	private String filesStoragePath;
 	private Database db;
@@ -225,31 +219,5 @@ public class App {
 				}
 			}
 		};
-	}
-
-	private static Properties fetchProperties(){
-		if(configProperties!= null)
-			return configProperties;
-
-		String propertiesPath = Thread.currentThread().getContextClassLoader().getResource(configName).getPath();
-		configProperties = new Properties();
-		try{
-			configProperties.load(new FileInputStream(propertiesPath));
-		} catch (Exception e) {
-			log.error(e.getClass().getCanonicalName() + " while loading config file from: " + propertiesPath, e);
-			throw new RuntimeException("Could not load config properties.");
-		}
-		return configProperties;
-	}
-
-	//query the config properties for the given config name
-	public static String getProperty(String propertyName) {
-		return fetchProperties().getProperty(propertyName);
-	}
-
-	//Only use this for tests
-	@Deprecated
-	public static Object setProperty(String propertyName, String propertyValue){
-		return fetchProperties().setProperty(propertyName, propertyValue);
 	}
 }
