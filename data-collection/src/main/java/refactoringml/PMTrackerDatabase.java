@@ -21,6 +21,8 @@ public class PMTrackerDatabase {
 	@Transient
 	public Database db;
 
+	public
+
 	public PMTrackerDatabase(List<Integer> commitThresholds) {
 		SessionFactory sf = new HibernateConfig().getSessionFactory(databasePath, databaseUsername, databasePassword);
 		db = new Database(sf);
@@ -55,11 +57,11 @@ public class PMTrackerDatabase {
 	 */
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName){
 		if(oldFileName.equals(newFileName))
-			return db.find(oldFileName, ProcessMetricTracker.class);
+			throw new IllegalStateException("A class file cannot be renamed to the same name: " + oldFileName);
 
 		ProcessMetricTracker oldPMTracker = db.find(oldFileName, ProcessMetricTracker.class);
 		if(oldPMTracker == null)
-			return null;
+			throw new IllegalStateException("A class file with this name is not known to the PMTrackerDatabase: " + oldFileName);
 
 		ProcessMetricTracker pmTracker = new ProcessMetricTracker(oldPMTracker);
 		pmTracker.setFileName(newFileName);

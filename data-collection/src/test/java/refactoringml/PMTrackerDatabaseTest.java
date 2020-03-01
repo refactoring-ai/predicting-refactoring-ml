@@ -71,7 +71,6 @@ public class PMTrackerDatabaseTest {
         Assert.assertEquals(pmTrackerDatabase.find("a.Java"), pmTrackerDatabase.find("a.java"));
     }
 
-
     @Test
     public void reportChanges(){
         //test if a new pm tracker is created with the right values
@@ -80,10 +79,13 @@ public class PMTrackerDatabaseTest {
         Assert.assertEquals(1, pmTrackerDatabase.find("a.Java").getCommitCounter());
         Assert.assertNotNull(pmTrackerDatabase.find("a.Java").getBaseProcessMetrics());
         Assert.assertNotNull(pmTrackerDatabase.find("a.Java").getCurrentProcessMetrics());
+        pmTrackerDatabase.db.commit();
 
+        pmTrackerDatabase.db.openSession();
         //test if another new pm tracker is created with the right values
         pmTrackerDatabase.reportChanges("A.Java", new CommitMetaData("#1", "null", "null", "0"), "Rafael", 10, 20);
         Assert.assertNotEquals(pmTrackerDatabase.find("a.Java"), pmTrackerDatabase.find("A.Java"));
+
         Assert.assertNotNull(pmTrackerDatabase.find("A.Java"));
         Assert.assertEquals(1, pmTrackerDatabase.find("A.Java").getCommitCounter());
         Assert.assertNotNull(pmTrackerDatabase.find("A.Java").getBaseProcessMetrics());
@@ -184,13 +186,18 @@ public class PMTrackerDatabaseTest {
     @Test
     public void renameFile2(){
         pmTrackerDatabase.reportChanges("a.Java", new CommitMetaData("#1", "null", "null", "0"), "Rafael", 10, 20);
-        pmTrackerDatabase.renameFile("a.Java", "a.Java");
 
         ProcessMetricTracker pmTracker = pmTrackerDatabase.find("a.Java");
         Assert.assertNotNull(pmTracker);
         Assert.assertEquals(10, pmTracker.getCurrentProcessMetrics().linesAdded);
         Assert.assertEquals(0, pmTracker.getBaseProcessMetrics().linesAdded);
         Assert.assertEquals("#1", pmTracker.getBaseCommitMetaData().getCommitId());
+    }
+
+    //take care of case sensitivity
+    @Test(expected = java.lang.IllegalStateException.class)
+    public void renameFile3(){
+        pmTrackerDatabase.renameFile("a.Java", "a.Java");
     }
 
     //take care of renamed files

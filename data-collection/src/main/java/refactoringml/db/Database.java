@@ -19,9 +19,6 @@ public class Database {
 
 	//Session interaction
 	public void openSession() {
-		if(session.getTransaction() != null)
-			commit();
-
 		this.session = sf.openSession();
 		session.beginTransaction();
 	}
@@ -114,7 +111,7 @@ public class Database {
 		T object = find(key, type);
 		if(object == null)
 			return null;
-		session.remove(object);
+		session.delete(object);
 		return object;
 	}
 
@@ -129,10 +126,6 @@ public class Database {
 	}
 
 	//Specific Queries
-	public RefactoringCommit findRefactoringCommit(Long refactoringCommitId) {
-		return session.get(RefactoringCommit.class, refactoringCommitId);
-	}
-
 	public boolean projectExists(String gitUrl) {
 		Session shortSession = sf.openSession();
 		boolean exists = shortSession.createQuery("from Project p where p.gitUrl = :gitUrl")
