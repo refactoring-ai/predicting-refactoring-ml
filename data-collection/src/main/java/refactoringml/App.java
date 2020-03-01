@@ -163,7 +163,7 @@ public class App {
 						try {
 							db.openSession();
 							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref));
-							db.commitAndClose();
+							db.commit();
 						} catch (Exception e) {
 							exceptionsCount++;
 							log.error("Exception when collecting commit data: ", e);
@@ -194,9 +194,9 @@ public class App {
 			project.setFinishedDate(Calendar.getInstance());
 			project.setExceptions(exceptionsCount);
 			db.update(project);
-			db.commitAndClose();
 
-			pmTrackerDatabase.destroy();
+			pmTrackerDatabase.empty();
+			db.commit();
 
 			return project;
 		} finally {

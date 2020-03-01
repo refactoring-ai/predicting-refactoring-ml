@@ -1,39 +1,20 @@
 package refactoringml;
 
-import org.hibernate.SessionFactory;
 import refactoringml.db.CommitMetaData;
 import refactoringml.db.Database;
-import refactoringml.db.HibernateConfig;
-import javax.persistence.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class PMTrackerDatabase {
-	@Transient
-	private List<Integer> commitThresholds;
-
-	@Transient
-	private final String databasePath =	"jdbc:mysql://localhost/refactoringtest";
-	@Transient
-	private final String databaseUsername = "root";
-	@Transient
-	private final String databasePassword = "root";
-	@Transient
 	public Database db;
 
-	public
-
-	public PMTrackerDatabase(List<Integer> commitThresholds) {
-		SessionFactory sf = new HibernateConfig().getSessionFactory(databasePath, databaseUsername, databasePassword);
-		db = new Database(sf);
-
-		this.commitThresholds = commitThresholds;
+	public PMTrackerDatabase(Database db) {
+		this.db = db;
 	}
 
 	//Empty the database and close the hibernate SessionFactory
-	public void destroy(){
-		db.drop("ProcessMetricTracker");
-		db.close();
+	public void empty(){
+		db.truncate("ProcessMetricTracker");
 	}
 
 	//public interaction
@@ -43,7 +24,7 @@ public class PMTrackerDatabase {
 	}
 
 	//Find all stable instances in the database
-	public List<ProcessMetricTracker> findStableInstances() {
+	public List<ProcessMetricTracker> findStableInstances(List<Integer> commitThresholds) {
 		return db.getAll("ProcessMetricTracker", ProcessMetricTracker.class).stream()
 				.filter(pmTracker -> pmTracker.calculateStability(commitThresholds))
 				.collect(Collectors.toList());
@@ -59,46 +40,56 @@ public class PMTrackerDatabase {
 		if(oldFileName.equals(newFileName))
 			throw new IllegalStateException("A class file cannot be renamed to the same name: " + oldFileName);
 
-		ProcessMetricTracker oldPMTracker = db.find(oldFileName, ProcessMetricTracker.class);
-		if(oldPMTracker == null)
+		ProcessMetricTracker pmTracker = db.find(oldFileName, ProcessMetricTracker.class);
+		if(pmTracker == null)
 			throw new IllegalStateException("A class file with this name is not known to the PMTrackerDatabase: " + oldFileName);
 
-		ProcessMetricTracker pmTracker = new ProcessMetricTracker(oldPMTracker);
 		pmTracker.setFileName(newFileName);
+		db.update(pmTracker);
 
-		removeFile(oldFileName);
-		db.persist(pmTracker);
-
-		return oldPMTracker;
+		return pmTracker;
 	}
 
 	//Remove the given fileName from the process metrics database
 	//Returns the old process metrics tracker of the deleted class file, if any existed in the database
 	public ProcessMetricTracker removeFile(String fileName){
-		return db.remove(fileName, ProcessMetricTracker.class);
+		ProcessMetricTracker result = db.remove(fileName, ProcessMetricTracker.class);
+		//Commit the transaction can lead to data inconsistencies in case the db is rolled back, but otherwise this might lead to ConstraintViolationExceptions
+		db.commit();
+		db.openSession();
+
+		return result;
 	}
 
 	//Report a commit changing the given class file, the in memory database is updated accordingly
 	public void reportChanges(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
 		ProcessMetricTracker pmTracker = db.find(fileName, ProcessMetricTracker.class);
-		boolean exists = pmTracker != null;
-		if(!exists)
-			pmTracker = new ProcessMetricTracker(fileName, commitMetaData);
 
-		pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
-		db.put(pmTracker, exists);
+		if(pmTracker == null) {
+			pmTracker = new ProcessMetricTracker(fileName, commitMetaData);
+			pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
+			db.persistAndCommit(pmTracker);
+			db.openSession();
+		} else{
+			pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
+			db.update(pmTracker);
+		}
 	}
 
 	//Reset the tracker with latest refactoring and its commit meta data
 	//the commitCounter will be zero again
 	public void reportRefactoring(String fileName, CommitMetaData commitMetaData) {
 		ProcessMetricTracker pmTracker = db.find(fileName, ProcessMetricTracker.class);
-		boolean exists = pmTracker != null;
-		if(!exists)
-			pmTracker = new ProcessMetricTracker(fileName, commitMetaData);
-		pmTracker.resetCounter(commitMetaData);
 
-		db.put(pmTracker, exists);
+		if(pmTracker == null) {
+			pmTracker = new ProcessMetricTracker(fileName, commitMetaData);
+			pmTracker.resetCounter(commitMetaData);
+			db.persistAndCommit(pmTracker);
+			db.openSession();
+		} else{
+			pmTracker.resetCounter(commitMetaData);
+			db.update(pmTracker);
+		}
 	}
 
 	//TODO: adapt this to the new SQL database
@@ -106,7 +97,6 @@ public class PMTrackerDatabase {
 	public String toString(){
 		return "PMDatabase{" +
 				"database=" + db.mapToString() + ",\n" +
-				"commitThreshold=" + commitThresholds.toString() +
 				"}";
 	}
 }

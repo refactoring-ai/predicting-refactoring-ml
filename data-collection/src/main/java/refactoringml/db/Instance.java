@@ -16,7 +16,8 @@ public abstract class Instance {
     //project id: referencing the project information, e.g. name or gitUrl
     protected Project project;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    //TODO: figure out if not cascading deletions to the CommitMetaData will generate lots of unused tables in the DB
+    @ManyToOne(cascade={CascadeType.ALL})
     protected CommitMetaData commitMetaData;
 
     //relative filepath to the java file of the class file

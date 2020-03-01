@@ -2,21 +2,19 @@ package refactoringml;
 
 import refactoringml.db.CommitMetaData;
 import refactoringml.db.ProcessMetrics;
-
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
+@Table(name = "ProcessMetricTracker")
 public class ProcessMetricTracker {
 	//filename of the class file, does not distinguish between subclasses
 	@Id
-	@GeneratedValue
-	private int id;
-
 	private String fileName;
 
+	//TODO: figure out if not cascading deletions to the CommitMetaData will generate lots of unused tables in the DB
 	//Either: the last commit refactoring the class file or the first one creating the class file
-	@ManyToOne(cascade=CascadeType.ALL)
+	@ManyToOne(cascade={CascadeType.ALL})
 	private CommitMetaData baseCommitMetaData;
 	//Reference commit to be considered stable, if it passes a certain threshold
 	@OneToOne(cascade=CascadeType.ALL)

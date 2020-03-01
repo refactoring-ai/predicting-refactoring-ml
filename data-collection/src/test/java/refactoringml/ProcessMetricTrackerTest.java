@@ -1,12 +1,14 @@
 package refactoringml;
 
+import integration.DataBaseInfo;
+import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.CommitMetaData;
+import refactoringml.db.Database;
+import refactoringml.db.HibernateConfig;
 import refactoringml.db.ProcessMetrics;
-
-import java.util.List;
 import java.util.Random;
 
 //Tests the ProcessMetricTracker and ProcessMetrics classes
@@ -162,7 +164,9 @@ public class ProcessMetricTrackerTest {
 
 	@Test
 	public void countQtyOfCommits(){
-		PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase();
+		SessionFactory sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, DataBaseInfo.USERNAME, DataBaseInfo.PASSWORD);
+		Database db = new Database(sf);
+		PMTrackerDatabase pmTrackerDatabase = new PMTrackerDatabase(db);
 
 		for(int i = 0; i < 20; i++) {
 			pmTrackerDatabase.reportChanges("a.Java", new CommitMetaData("#" + i, "n", "n", "0"), "R", 1, 1);

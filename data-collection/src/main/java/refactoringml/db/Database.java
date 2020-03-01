@@ -3,7 +3,9 @@ package refactoringml.db;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 public class Database {
@@ -24,10 +26,6 @@ public class Database {
 
 	public void commit(){
 		this.session.getTransaction().commit();
-	}
-
-	public void commitAndClose() {
-		commit();
 		close();
 	}
 
@@ -71,19 +69,14 @@ public class Database {
 		commit();
 	}
 
-	public void remove(Object obj) {session.remove(obj);}
+	public Object remove(String key, String tableName) {
+		return session.createQuery(String.format("DELETE FROM %s t WHERE s.id = %s", tableName, key)).executeUpdate();
+	}
 
 	//Drop the entire table from the SQl database
-	public void drop(String tableName){
-		if(!containsTable(tableName))
-			return;
-
-		//first commit all ongoing transactions
-		commit();
-
-		openSession();
-		session.createSQLQuery(String.format("DROP TABLE %s", tableName)).executeUpdate();
-		commit();
+	//TODO: get the sql truncate to work
+	public void truncate(String tableName){
+		session.createQuery(String.format("DELETE FROM %s", tableName)).executeUpdate();
 	}
 
 	//Map imitation
@@ -95,26 +88,20 @@ public class Database {
 
 	//find the object with the given type and key
 	//Equal to get(key) of a Map
+	//TODO: case sensitive lookup in the database
 	public <T> T find(String key, Class<T> type){
-		return session.get(type, key);
-	}
+		CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<T> criteria = builder.createQuery(type);
+		Root<T> root = criteria.from(type);
+		criteria.select(root).where(builder.equal(root.get("fileName"), key));
 
-	//Inserts the object into the db, if it not exists, otherwise updates it
-	//Similar behavior to a put(object) of a Map
-	public void put(Object obj, boolean exists){
-		if(exists)
-			update(obj);
-		else {
-			persist(obj);
-		}
+		return session.createQuery(criteria).uniqueResult();
 	}
 
 	//Remove the given object from the database
 	//Equal to remove(key) of a Map
 	public <T> T remove(String key, Class<T> type){
 		T object = find(key, type);
-		if(object == null)
-			return null;
 		session.delete(object);
 		return object;
 	}

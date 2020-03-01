@@ -51,7 +51,7 @@ public class ProcessMetricsCollector {
 			try {
 				db.openSession();
 				collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
-				db.commitAndClose();
+				db.commit();
 			} catch (Exception e) {
 				log.error(e.getClass().getCanonicalName() + " when collecting process metrics for commit " + commit.getName(), e);
 				db.rollback();
@@ -65,7 +65,7 @@ public class ProcessMetricsCollector {
 		try {
 			db.openSession();
 			updateProcessMetrics(commit, commitParent);
-			db.commitAndClose();
+			db.commit();
 		} catch (Exception e) {
 			log.error("Error when updating process metrics in commit " + commit.getName(), e);
 			db.rollback();
@@ -77,7 +77,7 @@ public class ProcessMetricsCollector {
 		try {
 			db.openSession();
 			updateAndPrintExamplesOfNonRefactoredClasses(commit);
-			db.commitAndClose();
+			db.commit();
 		} catch (Exception e) {
 			log.error("Error when collecting process metrics in commit " + commit.getName(), e);
 			db.rollback();
