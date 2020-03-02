@@ -48,33 +48,37 @@ public class RefactoringAnalyzer {
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 	}
 
-	public List<RefactoringCommit> collectCommitData(RevCommit commit, CommitMetaData superCommitMetaData, Refactoring refactoring) throws IOException {
-		String refactoringSummary = refactoring.toString().trim();
-		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
-
-		RevCommit commitParent = commit.getParent(0);
+	public List<RefactoringCommit> collectCommitData(RevCommit commit, CommitMetaData superCommitMetaData, List<Refactoring> refactoringsToProcess) throws IOException {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
 
 		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 			diffFormatter.setRepository(repository);
 			diffFormatter.setDetectRenames(true);
+			RevCommit commitParent = commit.getParent(0);
 			List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
 
-			for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
-				String refactoredClassFile = pair.getLeft();
-				String refactoredClassName = pair.getRight();
+			//Iterate over all Refactorings found for this commit
+			for (Refactoring refactoring : refactoringsToProcess) {
+				String refactoringSummary = refactoring.toString().trim();
+				log.debug("Process Commit [" + commit.getId().getName() + "] with Refactoring: [" + refactoringSummary + "]");
 
-				Optional<DiffEntry> refactoredEntry = entries.stream()
-						.filter(entry -> {
-							String oldFile = enforceUnixPaths(entry.getOldPath());
-							String newFile = enforceUnixPaths(entry.getNewPath());
-							return refactoredClassFile.equals(oldFile) ||
-									refactoredClassFile.equals(newFile);
-						})
-						.findFirst();
+				//loop over all refactored classes, multiple classes can be refactored by the same refactoring, e.g. Extract Interface Refactoring
+				for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
+					String refactoredClassFile = pair.getLeft();
+					String refactoredClassName = pair.getRight();
+
+					//filter the diff entries for class files affected by this refactoring
+					Optional<DiffEntry> refactoredEntry = entries.stream()
+							.filter(entry -> {
+								String oldFile = enforceUnixPaths(entry.getOldPath());
+								String newFile = enforceUnixPaths(entry.getNewPath());
+								return refactoredClassFile.equals(oldFile) ||
+										refactoredClassFile.equals(newFile);
+							})
+							.findFirst();
 
 					// this should not happen...
-					if(refactoredEntry.isEmpty()) {
+					if (refactoredEntry.isEmpty()) {
 						log.error("Old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()));
 						log.error("New classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()));
 						throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
@@ -87,8 +91,8 @@ public class RefactoringAnalyzer {
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
 					String currentFileName = enforceUnixPaths(entry.getNewPath());
 
-					if(TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
-						log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
+					if (TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
+						log.debug("[TRACK] Refactoring '" + refactoring.getName() + "' detected, commit " + commit.getId().getName());
 					}
 
 					// Now, we get the contents of the file before
@@ -105,11 +109,11 @@ public class RefactoringAnalyzer {
 
 					RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, superCommitMetaData, refactoring, refactoringSummary);
 
-					if(refactoringCommit !=null) {
+					if (refactoringCommit != null) {
 						// mark it for the process metrics collection
 						allRefactorings.add(refactoringCommit);
 
-						if(storeFullSourceCode) {
+						if (storeFullSourceCode) {
 							// let's get the source code of the file after the refactoring
 							// but only if not deleted
 							String sourceCodeAfter = !wasDeleted(currentFileName) ? SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName)) : "";
@@ -128,8 +132,9 @@ public class RefactoringAnalyzer {
 				}//end if
 			}
 
-		if(commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-			log.debug("[TRACK] End commit " + commit.getId().getName());
+			if (commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
+				log.debug("[TRACK] End commit " + commit.getId().getName());
+			}
 		}
 
 		return allRefactorings;

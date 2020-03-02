@@ -162,9 +162,7 @@ public class App {
 					if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
 						db.persist(superCommitMetaData);
 						superCommitMetaData = db.loadCommitMetaData(superCommitMetaData.getId());
-						for (Refactoring ref : refactoringsToProcess) {
-							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, ref));
-						}
+						allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess);
 					} else if (currentCommit.getParentCount() == 1 && thereIsRefactoringToProcess) {
 						// timeout happened, so count it as an exception
 						log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash);
