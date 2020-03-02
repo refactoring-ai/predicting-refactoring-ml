@@ -45,7 +45,6 @@ public class ProcessMetricsCollector {
 	//if this commit contained a refactoring, then collect its process metrics for all affected class files,
 	//otherwise only update the file process metrics
 	public void collectMetrics(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits, boolean isRefactoring) throws IOException {
-
 		if (isRefactoring) {
 			collectProcessMetricsOfRefactoredCommit(commit, superCommitMetaData, allRefactoringCommits);
 		}
@@ -55,10 +54,7 @@ public class ProcessMetricsCollector {
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 		updateProcessMetrics(commit, commitParent, superCommitMetaData);
 
-			if(superCommitMetaData.getId() == 0)
-				db.persist(superCommitMetaData);
-
-			updateAndPrintExamplesOfNonRefactoredClasses(commit, superCommitMetaData);
+		updateAndPrintExamplesOfNonRefactoredClasses(commit, superCommitMetaData);
 	}
 
 	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
@@ -183,6 +179,9 @@ public class ProcessMetricsCollector {
 			writeFile(fileStoragePath + commitHashBackThen + "/" + "not-refactored/" + pmTracker.getFileName(), sourceCodeBackThen);
 			// ... as well as in the temp one, so that we can calculate the CK metrics
 			writeFile(tempDir + pmTracker.getFileName(), sourceCodeBackThen);
+
+			if(pmTracker.getBaseCommitMetaData().getId() == 0)
+				db.persist(pmTracker.getBaseCommitMetaData());
 
 			CommitMetaData commitMetaData = db.loadCommitMetaData(pmTracker.getBaseCommitMetaData().getId());
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir, pmTracker.getCommitCountThreshold());

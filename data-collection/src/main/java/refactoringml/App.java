@@ -157,17 +157,13 @@ public class App {
 
 					// stores the commit meta data
 					CommitMetaData superCommitMetaData = new CommitMetaData(currentCommit, project);
-
+					db.persist(superCommitMetaData);
+					superCommitMetaData = db.loadCommitMetaData(superCommitMetaData.getId());
 					// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
 					boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
 					if (thereIsRefactoringToProcess) {
-
-						db.persist(superCommitMetaData);
-
 						for (Refactoring ref : refactoringsToProcess) {
-							superCommitMetaData = db.loadCommitMetaData(superCommitMetaData.getId());
 							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, ref));
-
 						}
 					} else if (currentCommit.getParentCount() == 1) {
 						// timeout happened, so count it as an exception
