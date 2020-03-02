@@ -114,48 +114,60 @@ public abstract class IntegrationBaseTest {
 						.setParameter("projectIds", projectIds)
 						.executeUpdate();
 
-				List<Long> metaData = (List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM RefactoringCommit").list();
-				metaData.addAll((List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM StableCommit").list());
+				List<Long> metaData = (List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list();
+				metaData.addAll((List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM StableCommit s WHERE s.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list());
 				if(!metaData.isEmpty()){
 					session.createQuery("DELETE FROM CommitMetaData WHERE id NOT IN :metaData")
 							.setParameter("metaData", metaData)
 							.executeUpdate();
 				}
 
-				List<Long> classMetrics = (List<Long>) session.createQuery("SELECT DISTINCT classMetrics.id FROM RefactoringCommit").list();
-				classMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT classMetrics.id FROM StableCommit").list());
+				List<Long> classMetrics = (List<Long>) session.createQuery("SELECT DISTINCT classMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list();
+				classMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT classMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list());
 				if(!classMetrics.isEmpty()){
 					session.createQuery("DELETE FROM ClassMetric WHERE id NOT IN :classMetrics")
 							.setParameter("classMetrics", classMetrics)
 							.executeUpdate();
 				}
 
-				List<Long> methodMetrics = (List<Long>) session.createQuery("SELECT DISTINCT methodMetrics.id FROM RefactoringCommit").list();
-				methodMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT methodMetrics.id FROM StableCommit").list());
+				List<Long> methodMetrics = (List<Long>) session.createQuery("SELECT DISTINCT methodMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list();
+				methodMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT methodMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list());
 				if(!methodMetrics.isEmpty()){
 					session.createQuery("DELETE FROM MethodMetric WHERE id NOT IN :methodMetrics")
 							.setParameter("methodMetrics", methodMetrics)
 							.executeUpdate();
 				}
 
-				List<Long> variableMetrics = (List<Long>) session.createQuery("SELECT DISTINCT variableMetrics.id FROM RefactoringCommit").list();
-				variableMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT variableMetrics.id FROM StableCommit").list());
+				List<Long> variableMetrics = (List<Long>) session.createQuery("SELECT DISTINCT variableMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list();
+				variableMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT variableMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list());
 				if(!variableMetrics.isEmpty()){
 					session.createQuery("DELETE FROM VariableMetric WHERE id NOT IN :variableMetrics")
 							.setParameter("variableMetrics", variableMetrics)
 							.executeUpdate();
 				}
 
-				List<Long> fieldMetrics = (List<Long>) session.createQuery("SELECT DISTINCT fieldMetrics.id FROM RefactoringCommit").list();
-				fieldMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT fieldMetrics.id FROM StableCommit").list());
+				List<Long> fieldMetrics = (List<Long>) session.createQuery("SELECT DISTINCT fieldMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list();
+				fieldMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT fieldMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list());
 				if(!fieldMetrics.isEmpty()){
 					session.createQuery("DELETE FROM FieldMetric WHERE id NOT IN :fieldMetrics")
 							.setParameter("fieldMetrics", fieldMetrics)
 							.executeUpdate();
 				}
 
-				List<Long> processMetrics = (List<Long>) session.createQuery("SELECT DISTINCT processMetrics.id FROM RefactoringCommit").list();
-				processMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT processMetrics.id FROM StableCommit").list());
+				List<Long> processMetrics = (List<Long>) session.createQuery("SELECT DISTINCT processMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list();
+				processMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT processMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
+						.setParameter("projectIds", projectIds).list());
 				if(!processMetrics.isEmpty()){
 					session.createQuery("DELETE FROM ProcessMetrics WHERE id NOT IN :processMetrics")
 							.setParameter("processMetrics", processMetrics)

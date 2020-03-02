@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import refactoringml.db.CommitMetaData;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
 
@@ -114,6 +115,19 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		String lastRefactoring = "061febd820977f2b00c4926634f09908cc5b8b08";
 		List<StableCommit> filteredList = (List<StableCommit>) filterCommit(getStableCommits(), lastRefactoring);
 		Assert.assertEquals(3, filteredList.get(0).getCommitThreshold());
+	}
+
+	@Test
+	public void relevantCommitMetaData(){
+		session = sf.openSession();
+		List<String> allRelevantCommitIds = session.createQuery("SELECT DISTINCT r.commitMetaData.commitId FROM RefactoringCommit r").list();
+		allRelevantCommitIds.addAll(session.createQuery("SELECT DISTINCT s.commitMetaData.commitId FROM StableCommit s").list());
+		allRelevantCommitIds.stream().distinct().collect(Collectors.toList());
+		List<CommitMetaData> allCommitMetaDatas = session.createQuery("SELECT DISTINCT c From CommitMetaData c").list();
+		session.close();
+		session = null;
+
+		Assert.assertEquals(allRelevantCommitIds.size(), allCommitMetaDatas.size());
 	}
 
 	@Test
