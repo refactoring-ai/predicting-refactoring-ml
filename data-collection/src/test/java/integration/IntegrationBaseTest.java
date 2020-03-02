@@ -97,16 +97,39 @@ public abstract class IntegrationBaseTest {
 		FileUtils.deleteDirectory(new File(outputDir));
 	}
 
+	private List<Long> getIds(String metricsName, List<Long> projectIds){
+		List<Long> ids = (List<Long>) session.createQuery(String.format("SELECT r.%s.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds", metricsName))
+				.setParameter("projectIds", projectIds).list();
+		ids.addAll((List<Long>) session.createQuery(String.format("SELECT s.%s.id FROM StableCommit s WHERE s.project.id IN :projectIds", metricsName))
+				.setParameter("projectIds", projectIds).list());
+		return ids;
+	}
+
+	private void deleteMetrics(String tableName, List<Long> ids){
+		if(!ids.isEmpty()){
+			session.createQuery(String.format("DELETE FROM %s WHERE id IN :ids", tableName))
+					.setParameter("ids", ids)
+					.executeUpdate();
+		}
+	}
+
 	protected void deleteProject(String repository) {
 		try {
-			Session session = sf.openSession();
+			session = sf.openSession();
 
-			List<Long> projectIds = (List<Long>) session.createQuery("SELECT id FROM Project WHERE projectName = :projectName")
+			List<Project> projects = (List<Project>) session.createQuery("FROM Project WHERE projectName = :projectName")
 					.setParameter("projectName", repository).list();
+			List<Long> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
 
 			if(!projectIds.isEmpty()) {
-				session.beginTransaction();
+				List<Long> metaData = getIds("commitMetaData", projectIds);
+				List<Long> classMetrics = getIds("classMetrics", projectIds);
+				List<Long> methodMetrics = getIds("methodMetrics", projectIds);
+				List<Long> variableMetrics = getIds("variableMetrics", projectIds);
+				List<Long> fieldMetrics = getIds("fieldMetrics", projectIds);
+				List<Long> processMetrics = getIds("processMetrics", projectIds);
 
+				session.beginTransaction();
 				session.createQuery("DELETE FROM RefactoringCommit WHERE project.id IN :projectIds")
 						.setParameter("projectIds", projectIds)
 						.executeUpdate();
@@ -114,68 +137,13 @@ public abstract class IntegrationBaseTest {
 						.setParameter("projectIds", projectIds)
 						.executeUpdate();
 
-				List<Long> metaData = (List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list();
-				metaData.addAll((List<Long>) session.createQuery("SELECT DISTINCT commitMetaData.id FROM StableCommit s WHERE s.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list());
-				if(!metaData.isEmpty()){
-					session.createQuery("DELETE FROM CommitMetaData WHERE id NOT IN :metaData")
-							.setParameter("metaData", metaData)
-							.executeUpdate();
-				}
+				deleteMetrics("ClassMetric", classMetrics);
+				deleteMetrics("MethodMetric", methodMetrics);
+				deleteMetrics("CommitMetaData", metaData);
+				deleteMetrics("VariableMetric", variableMetrics);
+				deleteMetrics("FieldMetric", fieldMetrics);
+				deleteMetrics("ProcessMetrics", processMetrics);
 
-				List<Long> classMetrics = (List<Long>) session.createQuery("SELECT DISTINCT classMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list();
-				classMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT classMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list());
-				if(!classMetrics.isEmpty()){
-					session.createQuery("DELETE FROM ClassMetric WHERE id NOT IN :classMetrics")
-							.setParameter("classMetrics", classMetrics)
-							.executeUpdate();
-				}
-
-				List<Long> methodMetrics = (List<Long>) session.createQuery("SELECT DISTINCT methodMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list();
-				methodMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT methodMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list());
-				if(!methodMetrics.isEmpty()){
-					session.createQuery("DELETE FROM MethodMetric WHERE id NOT IN :methodMetrics")
-							.setParameter("methodMetrics", methodMetrics)
-							.executeUpdate();
-				}
-
-				List<Long> variableMetrics = (List<Long>) session.createQuery("SELECT DISTINCT variableMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list();
-				variableMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT variableMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list());
-				if(!variableMetrics.isEmpty()){
-					session.createQuery("DELETE FROM VariableMetric WHERE id NOT IN :variableMetrics")
-							.setParameter("variableMetrics", variableMetrics)
-							.executeUpdate();
-				}
-
-				List<Long> fieldMetrics = (List<Long>) session.createQuery("SELECT DISTINCT fieldMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list();
-				fieldMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT fieldMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list());
-				if(!fieldMetrics.isEmpty()){
-					session.createQuery("DELETE FROM FieldMetric WHERE id NOT IN :fieldMetrics")
-							.setParameter("fieldMetrics", fieldMetrics)
-							.executeUpdate();
-				}
-
-				List<Long> processMetrics = (List<Long>) session.createQuery("SELECT DISTINCT processMetrics.id FROM RefactoringCommit r WHERE r.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list();
-				processMetrics.addAll((List<Long>) session.createQuery("SELECT DISTINCT processMetrics.id FROM StableCommit s WHERE s.project.id IN :projectIds")
-						.setParameter("projectIds", projectIds).list());
-				if(!processMetrics.isEmpty()){
-					session.createQuery("DELETE FROM ProcessMetrics WHERE id NOT IN :processMetrics")
-							.setParameter("processMetrics", processMetrics)
-							.executeUpdate();
-				}
-
-				List<Project> projects = (List<Project>) session.createQuery("FROM Project WHERE projectName = :projectName")
-						.setParameter("projectName", repository).list();
 				projects.stream().forEach(session::delete);
 				session.getTransaction().commit();
 			}
