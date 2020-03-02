@@ -24,12 +24,14 @@ import refactoringml.util.JGitUtils;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.*;
 import static refactoringml.util.PropertiesUtils.getProperty;
+import static refactoringml.util.RefactoringUtils.isStudied;
 
 public class App {
 	private String gitUrl;
@@ -159,6 +161,11 @@ public class App {
 					CommitMetaData superCommitMetaData = new CommitMetaData(currentCommit, project);
 					// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
 					boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
+					if(thereIsRefactoringToProcess)
+						//remove all not studied refactorings from the list
+						refactoringsToProcess = refactoringsToProcess.stream().filter(Refactoring -> isStudied(Refactoring)).collect(Collectors.toList());
+
+					//check if refactoring miner detected a refactoring we study
 					if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
 						db.persist(superCommitMetaData);
 						superCommitMetaData = db.loadCommitMetaData(superCommitMetaData.getId());

@@ -58,7 +58,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
                 commit.getFilePath().equals(fileName)).collect(Collectors.toList());
 
         // refactoring miner detects precisely 82 refactorings in this file
-        Assert.assertEquals(147, refactoringCommitList.size());
+        Assert.assertEquals(146, refactoringCommitList.size());
 
         assertRefactoring(refactoringCommitList,"56ca5858db4765112dca44e5deeda0ac181a6766", "Extract Class", 1);
         assertRefactoring(refactoringCommitList,"6a34b823c807325bc251ef43c66c307adcd947b8", "Extract Class", 1);
@@ -120,7 +120,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
 
         // in refactorings_CSVFormat, we see that there are 82 refactorings in total.
         // after this commit, there was just one more refactoring. Thus, 81 refactorings
-        Assert.assertEquals(195, stableCommitList.get(0).getProcessMetrics().refactoringsInvolved);
+        Assert.assertEquals(194, stableCommitList.get(0).getProcessMetrics().refactoringsInvolved);
     }
 
     @Test
