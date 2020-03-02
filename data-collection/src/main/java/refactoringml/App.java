@@ -14,6 +14,7 @@ import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
+import refactoringml.db.CommitMetaData;
 import refactoringml.db.Database;
 import refactoringml.db.Project;
 import refactoringml.db.RefactoringCommit;
@@ -110,6 +111,7 @@ public class App {
 			db.openSession();
 			db.persist(project);
 			db.commit();
+			db.close();
 
 			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, filesStoragePath);
 			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
@@ -125,54 +127,65 @@ public class App {
 
 			// we only analyze commits that have one parent or the first commit with 0 parents
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
-				// i.e., ignore merge commits
-				if(currentCommit.getParentCount() > 1)
-					continue;
 
-				// did we find the last commit to process?
-				// if so, process it and then stop
-				if (currentCommit.equals(lastCommitToProcess))
-					endFound = true;
+				try {
+					db.openSession();
 
-				String commitHash = currentCommit.getId().getName();
-				if(TrackDebugMode.ACTIVE && commitHash.contains(TrackDebugMode.COMMIT_TO_TRACK)) {
-					log.debug("[Track] Visiting commit " + commitHash);
-				}
+					// i.e., ignore merge commits
+					if (currentCommit.getParentCount() > 1)
+						continue;
 
-				refactoringsToProcess = null;
-				commitIdToProcess = null;
+					// did we find the last commit to process?
+					// if so, process it and then stop
+					if (currentCommit.equals(lastCommitToProcess))
+						endFound = true;
 
-				// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
-				if(currentCommit.getParentCount()==1)
-					miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
-
-				//stores all the ck metrics for the current commit
-				List<RefactoringCommit> allRefactoringCommits = new ArrayList<>();
-
-				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
-				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
-				if (thereIsRefactoringToProcess) {
-					for (Refactoring ref : refactoringsToProcess) {
-						try {
-							db.openSession();
-							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, ref));
-							db.commit();
-						} catch (Exception e) {
-							exceptionsCount++;
-							log.error("Exception when collecting commit data: ", e);
-							db.rollback();
-						} finally {
-							db.close();
-						}
+					String commitHash = currentCommit.getId().getName();
+					if (TrackDebugMode.ACTIVE && commitHash.contains(TrackDebugMode.COMMIT_TO_TRACK)) {
+						log.debug("[Track] Visiting commit " + commitHash);
 					}
-				} else if(currentCommit.getParentCount()==1){
-					// timeout happened, so count it as an exception
-					log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
-					exceptionsCount++;
-				}
 
-				//collect the process metrics for the current commit
-				processMetrics.collectMetrics(currentCommit, allRefactoringCommits, thereIsRefactoringToProcess);
+					refactoringsToProcess = null;
+					commitIdToProcess = null;
+
+					// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
+					if (currentCommit.getParentCount() == 1)
+						miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
+
+					//stores all the ck metrics for the current commit
+					List<RefactoringCommit> allRefactoringCommits = new ArrayList<>();
+
+					// stores the commit meta data
+					CommitMetaData superCommitMetaData = new CommitMetaData(currentCommit, project);
+
+					// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
+					boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
+					if (thereIsRefactoringToProcess) {
+
+						db.persist(superCommitMetaData);
+
+						for (Refactoring ref : refactoringsToProcess) {
+							superCommitMetaData = db.loadCommitMetaData(superCommitMetaData.getId());
+							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, ref));
+
+						}
+					} else if (currentCommit.getParentCount() == 1) {
+						// timeout happened, so count it as an exception
+						log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
+						exceptionsCount++;
+					}
+
+					//collect the process metrics for the current commit
+					processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits, thereIsRefactoringToProcess);
+
+					db.commit();
+				} catch (Exception e) {
+					exceptionsCount++;
+					log.error("Exception when collecting commit data: ", e);
+					db.rollback();
+				} finally {
+					db.close();
+				}
 			}
 
 			walk.close();
@@ -188,6 +201,7 @@ public class App {
 			project.setExceptions(exceptionsCount);
 			db.update(project);
 			db.commit();
+			db.close();
 
 			return project;
 		} finally {

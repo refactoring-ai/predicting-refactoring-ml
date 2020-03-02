@@ -55,10 +55,6 @@ public class CommitMetaData {
         this.parentCommitId = commit.getParentCount() == 0 ? "Null" : commit.getParent(0).getName().trim();
     }
 
-    public CommitMetaData(CommitMetaData commitMetaData){
-        this(commitMetaData.commitId, commitMetaData.commitMessage, commitMetaData.commitUrl, commitMetaData.parentCommitId);
-    }
-
     public String getCommitUrl (){return commitUrl;}
 
     public String getCommitId() {return commitId; }
@@ -66,6 +62,10 @@ public class CommitMetaData {
     public String getCommitMessage (){return commitMessage;}
 
     public String getParentCommitId() {return parentCommitId; }
+
+    public long getId() {
+        return id;
+    }
 
     @Override
     public String toString() {

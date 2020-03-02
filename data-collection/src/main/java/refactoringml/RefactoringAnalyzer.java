@@ -48,7 +48,7 @@ public class RefactoringAnalyzer {
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 	}
 
-	public List<RefactoringCommit> collectCommitData(RevCommit commit, Refactoring refactoring) throws IOException {
+	public List<RefactoringCommit> collectCommitData(RevCommit commit, CommitMetaData superCommitMetaData, Refactoring refactoring) throws IOException {
 		String refactoringSummary = refactoring.toString().trim();
 		log.debug("Process Commit [" + commit.getId().getName() + "] Refactoring: [" + refactoringSummary + "]");
 
@@ -103,7 +103,7 @@ public class RefactoringAnalyzer {
 						out.print(sourceCodeBefore);
 					}
 
-					RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, new CommitMetaData(commit, project), refactoring, refactoringSummary);
+					RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, superCommitMetaData, refactoring, refactoringSummary);
 
 					if(refactoringCommit !=null) {
 						// mark it for the process metrics collection

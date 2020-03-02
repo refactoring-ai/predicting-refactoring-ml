@@ -22,7 +22,6 @@ public class Database {
 
 	public void commit() {
 		this.session.getTransaction().commit();
-		close();
 	}
 
 
@@ -62,5 +61,9 @@ public class Database {
 
 	public void rollback() {
 		session.getTransaction().rollback();
+	}
+
+	public CommitMetaData loadCommitMetaData(long id) {
+		return session.get(CommitMetaData.class, id);
 	}
 }

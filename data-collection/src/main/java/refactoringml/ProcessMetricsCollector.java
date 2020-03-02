@@ -44,39 +44,25 @@ public class ProcessMetricsCollector {
 
 	//if this commit contained a refactoring, then collect its process metrics for all affected class files,
 	//otherwise only update the file process metrics
-	public void collectMetrics(RevCommit commit, List<RefactoringCommit> allRefactoringCommits, boolean isRefactoring) throws IOException {
+	public void collectMetrics(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits, boolean isRefactoring) throws IOException {
+
 		if (isRefactoring) {
-			try {
-				db.openSession();
-				collectProcessMetricsOfRefactoredCommit(commit, allRefactoringCommits);
-				db.commit();
-			} catch (Exception e) {
-				log.error(e.getClass().getCanonicalName() + " when collecting process metrics for commit " + commit.getName(), e);
-				db.rollback();
-			} finally {
-				db.close();
-			}
+			collectProcessMetricsOfRefactoredCommit(commit, superCommitMetaData, allRefactoringCommits);
 		}
 
 		// we go now change by change in the commit to update the process metrics there
 		// (no need for db here, as this update happens only locally)
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
-		updateProcessMetrics(commit, commitParent);
+		updateProcessMetrics(commit, commitParent, superCommitMetaData);
 
-		try {
-			db.openSession();
-			updateAndPrintExamplesOfNonRefactoredClasses(commit);
-			db.commit();
-		} catch (Exception e) {
-			log.error("Error when collecting process metrics in commit " + commit.getName(), e);
-			db.rollback();
-		} finally {
-			db.close();
-		}
+			if(superCommitMetaData.getId() == 0)
+				db.persist(superCommitMetaData);
+
+			updateAndPrintExamplesOfNonRefactoredClasses(commit, superCommitMetaData);
 	}
 
 	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
-	private void collectProcessMetricsOfRefactoredCommit(RevCommit commit, List<RefactoringCommit> allRefactoringCommits) {
+	private void collectProcessMetricsOfRefactoredCommit(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits) {
 		for (RefactoringCommit refactoringCommit : allRefactoringCommits) {
 			String fileName = refactoringCommit.getFilePath();
 			ProcessMetricTracker currentProcessMetricsTracker = pmDatabase.find(fileName);
@@ -88,7 +74,7 @@ public class ProcessMetricsCollector {
 			refactoringCommit.setProcessMetrics(dbProcessMetrics);
 			db.update(refactoringCommit);
 
-			pmDatabase.reportRefactoring(fileName, new CommitMetaData(commit, project));
+			pmDatabase.reportRefactoring(fileName, superCommitMetaData);
 
 			if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
 				log.debug("[TRACK] Collected process metrics at refactoring commit " + commit.getId().getName() + " for class: " + commit.getName()
@@ -99,7 +85,7 @@ public class ProcessMetricsCollector {
 	}
 
 	// update classes that were not refactored on this commit
-	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit) throws IOException {
+	private void updateAndPrintExamplesOfNonRefactoredClasses(RevCommit commit, CommitMetaData superCommitMetaData) throws IOException {
 		// if there are classes over the threshold, we output them as an examples of not refactored classes,
 		// and we reset their counter.
 		// note that we have a lot of failures here, as X commits later, the class might had been
@@ -107,10 +93,11 @@ public class ProcessMetricsCollector {
 		// that is still ok as we are collecting thousands of examples.
 		// TTV to mention: our sample never contains non refactored classes that were moved or renamed,
 		// but that's not a big deal.
-		for(ProcessMetricTracker pmTracker : pmDatabase.findStableInstances()) {
+		List<ProcessMetricTracker> stableInstances = pmDatabase.findStableInstances();
+
+		for(ProcessMetricTracker pmTracker : stableInstances) {
 			if(TrackDebugMode.ACTIVE && (pmTracker.getFileName().contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
-				log.debug("[TRACK] Marking class file " + pmTracker.getFileName() + " as a non-refactoring instance.\n" +
-						pmTracker.toString());
+				log.debug("[TRACK] Marking class file " + pmTracker.getFileName() + " as a non-refactoring instance.\n");
 			}
 
 			outputNonRefactoredClass(pmTracker);
@@ -121,7 +108,7 @@ public class ProcessMetricsCollector {
 			if(pmTracker.getCommitCountThreshold() == project.getMaxCommitThreshold()){
 				log.debug("Reset pmTracker for class " + pmTracker.getFileName() + " with threshold: " + pmTracker.getCommitCountThreshold() +
 						" because it is the max threshold(" + project.getMaxCommitThreshold() + ").");
-				pmTracker.resetCounter(new CommitMetaData(commit, project));
+				pmTracker.resetCounter(superCommitMetaData);
 			}
 		}
 	}
@@ -129,7 +116,7 @@ public class ProcessMetricsCollector {
 	//Update the process metrics of all affected class files:
 	//Reset the PMTracker for all class files, that were refactored on this commit
 	//Increase the PMTracker for all class files, that were not refactored but changed on this commit
-	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent) throws IOException {
+	private void updateProcessMetrics(RevCommit commit, RevCommit commitParent, CommitMetaData superCommitMetaData) throws IOException {
 		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
 			diffFormatter.setRepository(repository);
 			diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
@@ -155,7 +142,7 @@ public class ProcessMetricsCollector {
 				// Thus, we are not tracking class renames here, but that is also not necessary, because the PM metrics are computed for each java file anyways.
 				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
-					pmDatabase.renameFile(oldFileName, fileName, new CommitMetaData(commit, project));
+					pmDatabase.renameFile(oldFileName, fileName, superCommitMetaData);
 					log.debug("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
 				}
 
@@ -197,7 +184,7 @@ public class ProcessMetricsCollector {
 			// ... as well as in the temp one, so that we can calculate the CK metrics
 			writeFile(tempDir + pmTracker.getFileName(), sourceCodeBackThen);
 
-			CommitMetaData commitMetaData = new CommitMetaData(pmTracker.getBaseCommitMetaData());
+			CommitMetaData commitMetaData = db.loadCommitMetaData(pmTracker.getBaseCommitMetaData().getId());
 			List<StableCommit> stableCommits = codeMetrics(commitMetaData, tempDir, pmTracker.getCommitCountThreshold());
 
 			// print its process metrics in the same process metrics file
