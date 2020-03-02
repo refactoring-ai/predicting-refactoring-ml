@@ -122,8 +122,8 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 		session = sf.openSession();
 		List<String> allRelevantCommitIds = session.createQuery("SELECT DISTINCT r.commitMetaData.commitId FROM RefactoringCommit r").list();
 		allRelevantCommitIds.addAll(session.createQuery("SELECT DISTINCT s.commitMetaData.commitId FROM StableCommit s").list());
-		allRelevantCommitIds.stream().distinct().collect(Collectors.toList());
-		List<CommitMetaData> allCommitMetaDatas = session.createQuery("SELECT DISTINCT c From CommitMetaData c").list();
+		allRelevantCommitIds = allRelevantCommitIds.stream().distinct().collect(Collectors.toList());
+		List<String> allCommitMetaDatas = session.createQuery("SELECT c.commitId From CommitMetaData c").list();
 		session.close();
 		session = null;
 

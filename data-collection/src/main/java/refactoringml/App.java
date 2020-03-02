@@ -158,14 +158,17 @@ public class App {
 					// stores the commit meta data
 					CommitMetaData superCommitMetaData = new CommitMetaData(currentCommit, project);
 					// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
-					boolean thereIsRefactoringToProcess = refactoringsToProcess != null && !refactoringsToProcess.isEmpty() && commitIdToProcess != null;
-					if (thereIsRefactoringToProcess) {
+					boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
+					if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
 						db.persist(superCommitMetaData);
 						superCommitMetaData = db.loadCommitMetaData(superCommitMetaData.getId());
 						for (Refactoring ref : refactoringsToProcess) {
 							allRefactoringCommits.addAll(refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, ref));
 						}
-					} else if (currentCommit.getParentCount() == 1) {
+					} else if (currentCommit.getParentCount() == 1 && thereIsRefactoringToProcess) {
+						// timeout happened, so count it as an exception
+						log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash);
+					}else if (currentCommit.getParentCount() == 1) {
 						// timeout happened, so count it as an exception
 						log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
 						exceptionsCount++;
