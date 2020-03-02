@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 @Entity
-@Table(name = "commit_metadata")
+@Table(name = "CommitMetaData")
 public class CommitMetaData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
