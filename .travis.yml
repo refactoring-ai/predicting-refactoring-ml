@@ -1,3 +1,28 @@
 language: java
 jdk:
   - oraclejdk11
+services:
+  - docker
+env:
+  - DOCKER_COMPOSE_VERSION=3.0.0
+
+jobs:
+  include:
+    - stage: compile
+      name: "Maven Compile Data-Collection Without Tests"
+      script:
+        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -DskipTests clean compile package
+
+    - stage: test
+    - name: "Install, build and run Container for Data-Collection with Docker-Compose"
+      install:
+      - ./scripts/install_docker-compose.sh
+    - name: "Run refactoringml Tests"
+      script:
+      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=refactoringml.*Test' test
+    - name: "Run Integration Toyproject Tests"
+      script:
+      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.toyprojects.*Test' test
+    - name: "Run Integration Realproject Tests"
+      script:
+      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.realprojects.*Test' test

@@ -26,8 +26,8 @@ public class PMDatabaseTest {
 
     //Test the case sensitivity of class fileNames
     //Be aware: .Java and .java are equal for java
-    @Test
     @Ignore
+    @Test
     public void caseSensitivity(){
         PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
 
