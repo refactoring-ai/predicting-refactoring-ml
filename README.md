@@ -1,4 +1,5 @@
 # Machine Learning for Software refactoring
+[![Build Status](https://travis-ci.org/refactoring-ai/predicting-refactoring-ml.svg?branch=master)](https://travis-ci.org/refactoring-ai/predicting-refactoring-ml)
 
 This repository contains all our exploration on the use
 of machine learning methods to recommend software refactoring.
@@ -24,7 +25,7 @@ Use Maven: `mvn clean compile`. Or just import it via IntelliJ; it will know wha
 
 If you want to export a jar file and run it somewhere else, just do `mvn clean package`. A .jar file will be created under the `target/` folder. You can use this jar to run the tool manually.
 
-To run the tests, you should unzip all the .zip files inside /data-collection/repos. 
+To run the tests please run a local mariaDB database instance, for details see `src/main/test/java/integration/DataBaseInfor for details`.
 
 ### Running in a manual way
 
