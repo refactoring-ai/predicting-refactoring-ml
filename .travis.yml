@@ -20,7 +20,7 @@ install:
 jobs:
   include:
     - stage: Test
-    - name: "Run refactoringml Tests"
+      name: "Run refactoringml Tests"
       script:
         - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=refactoringml.*Test test
 
