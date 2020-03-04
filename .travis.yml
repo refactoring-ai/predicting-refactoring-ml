@@ -1,28 +1,39 @@
 language: java
 jdk:
   - oraclejdk11
-services:
-  - docker
+os:
+  - linux
+
+addons:
+  mariadb: '10.4'
+
 env:
   - DOCKER_COMPOSE_VERSION=3.0.0
+services:
+  - docker
+
+git:
+  depth: 1
+  quiet: true
+
+before_script:
+  - sudo mysql -e 'CREATE DATABASE refactoringtest'
 
 jobs:
   include:
-    - stage: compile
-      name: "Maven Compile Data-Collection Without Tests"
-      script:
-        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -DskipTests clean compile package
-
-    - stage: test
-    - name: "Install, build and run Container for Data-Collection with Docker-Compose"
-      install:
-      - ./scripts/install_docker-compose.sh
-    - name: "Run refactoringml Tests"
+    - stage: Test
+      name: "Run refactoringml Tests"
       script:
       - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=refactoringml.*Test' test
+     
     - name: "Run Integration Toyproject Tests"
       script:
       - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.toyprojects.*Test' test
-    - name: "Run Integration Realproject Tests"
+
+    - name: "Run Integration Realproject ApacheCommonsCli Tests"
       script:
-      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.realprojects.*Test' test
+      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.realprojects.ApacheCommonsCli*Test' test
+
+    - name: "Run Integration Realproject ApacheCommonsCSV Tests"
+      script:
+      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.realprojects.ApacheCommonsCSV*Test' test

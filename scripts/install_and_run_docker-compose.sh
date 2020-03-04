@@ -4,5 +4,5 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-precise main" | sudo tee /et
 sudo apt-get update
 sudo apt-get install docker-engine
 
-docker-compose -f ../data-collection/docker-compose.yml build
-docker-compose -f ../data-collection/docker-compose.yml up
+docker-compose -f ../predicting-refactoring-ml/data-collection/docker-compose.yml build
+docker-compose -f ../predicting-refactoring-ml/data-collection/docker-compose.yml up
