@@ -59,7 +59,7 @@ public abstract class IntegrationBaseTest {
 	 */
 	@BeforeAll
 	protected void runApp() throws Exception {
-		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, "root", DataBaseInfo.PASSWORD, drop());
+		sf = new HibernateConfig().getSessionFactory(DataBaseInfo.URL, DataBaseInfo.USER, DataBaseInfo.PASSWORD, drop());
 		db = new Database(sf);
 		outputDir = createTmpDir();
 		tmpDir = createTmpDir();

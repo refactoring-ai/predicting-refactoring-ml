@@ -7,33 +7,31 @@ os:
 addons:
   mariadb: '10.4'
 
-env:
-  - DOCKER_COMPOSE_VERSION=3.0.0
-services:
-  - docker
-
 git:
   depth: 1
   quiet: true
 
-before_script:
-  - sudo mysql -e 'CREATE DATABASE refactoringtest'
+before_install:
+  - sudo mysql -u root --password="" < ../predicting-refactoring-ml/scripts/mariadb_settings.sql
+
+install:
+  - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -q -DskipTests clean compile package
 
 jobs:
   include:
     - stage: Test
-      name: "Run refactoringml Tests"
+    - name: "Run refactoringml Tests"
       script:
-      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=refactoringml.*Test' test
-     
+        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=refactoringml.*Test test
+
     - name: "Run Integration Toyproject Tests"
       script:
-      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.toyprojects.*Test' test
+        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.toyprojects.*Test test
 
     - name: "Run Integration Realproject ApacheCommonsCli Tests"
       script:
-      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.realprojects.ApacheCommonsCli*Test' test
+        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.realprojects.ApacheCommonsCli*Test test
 
     - name: "Run Integration Realproject ApacheCommonsCSV Tests"
       script:
-      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml '-Dtest=integration.realprojects.ApacheCommonsCSV*Test' test
+        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.realprojects.ApacheCommonsCSV*Test test
