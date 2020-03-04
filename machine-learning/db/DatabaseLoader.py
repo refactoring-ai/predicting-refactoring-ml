@@ -9,7 +9,7 @@ fieldMetrics: str = "fieldmetric"
 variableMetrics: str = "variablemetric"
 processMetrics: str = "processmetrics"
 classMetrics: str = "classmetric"
-processMetrics: str = "processmetric"
+project: str = "project"
 refactoringCommits: str = "refactoringcommit"
 stableCommits: str = "stablecommits"
 
@@ -128,36 +128,30 @@ instanceReferences = ["classMetrics_id",
                       "processMetrics_id",
                       "project_id",
                       "variableMetrics_id"]
+
+
+# maps table names onto their instance keys and their fields
+tableMap = {commitMetaData: (commitMetaData + "_id", commitMetaDataFields), methodMetrics: (methodMetrics + "_id", methodMetricsFields),
+            fieldMetrics: (fieldMetrics + "_id", fieldMetricsFields), variableMetrics: (variableMetrics + "_id", variableMetricsFields),
+            processMetrics: (processMetrics + "_id", processMetricsFields), classMetrics: (classMetrics + "_id", classMetricsFields),
+            project: (project + "_id", projectFields)}
 # endregion
 
 
 # region tables utils
 # returns an sql condition as a string to filter based on the project name
-def __project_filter(instance_name: str, project_name: str) -> str:
+def project_filter(instance_name: str, project_name: str) -> str:
     return instance_name + ".project_id in (select id from project where datasetName = " + project_name + ")"
 
 
 # returns an sql condition to join instances with method metrics
 # join an instance table with the given table
-def __join_tables(instance_name: str, table_name: str) -> str:
-    if table_name == commitMetaData:
-        return instance_name + ".commitMetaData_id = " + table_name + ".id"
-    elif table_name == methodMetrics:
-        return instance_name + ".methodMetrics_id = " + table_name + ".id"
-    elif table_name == fieldMetrics:
-        return instance_name + ".methodMetrics_id = " + table_name + ".id"
-    elif table_name == variableMetrics:
-        return instance_name + ".methodMetrics_id = " + table_name + ".id"
-    elif table_name == processMetrics:
-        return instance_name + ".methodMetrics_id = " + table_name + ".id"
-    elif table_name == classMetrics:
-        return instance_name + ".methodMetrics_id = " + table_name + ".id"
-    elif table_name == processMetrics:
-        return instance_name + ".project_id = " + table_name + ".id"
+def join_tables(instance_name: str, table_name: str) -> str:
+    return instance_name + "." + tableMap[table_name][1] + " = " + table_name + ".id"
 
 
 # returns a list of all metrics in regard to the given level
-def __get_metrics_level(level: str):
+def get_metrics_level(level: str):
     # class level
     if level == 1:
         return [(classMetrics, classMetricsFields), (processMetrics, processMetricsFields)]
@@ -169,7 +163,7 @@ def __get_metrics_level(level: str):
     elif level == 3:
         return [(classMetrics, classMetricsFields), (methodMetrics, methodMetricsFields),
                 (variableMetrics, variableMetricsFields), (processMetrics, processMetricsFields)]
-    # method level
+    # field level
     elif level == 4:
         return [(classMetrics, classMetricsFields), (fieldMetrics, fieldMetricsFields),
                 (processMetrics, processMetricsFields)]
@@ -181,14 +175,14 @@ def __get_metrics_level(level: str):
 # Optional conditions: a string with additional conditions for the instances, e.g. cm.isInnerClass = 1
 # Optional dataset: filter the instances based on their project name, e.g. toyproject-1
 # Optional order: order by command, e.g. order by cm.commitDate
-def __get_instance_fields(instance_name: str, fields, conditions: str = "", dataset: str = "", order: str = ""):
+def get_instance_fields(instance_name: str, fields, conditions: str = "", dataset: str = "", order: str = ""):
     # combine the required fields with their table names
     required_fields: str = ""
     required_tables: str = ""
     join_conditions: str = ""
     for table_name, field_names in fields:
         required_tables += table_name + ", "
-        join_conditions += __join_tables(instance_name, table_name) + " AND "
+        join_conditions += join_tables(instance_name, table_name) + " AND "
         for field_name in field_names:
             required_fields += table_name + ", " + field_name
     # remove the last chars because it is either a ", " or an " AND "
@@ -200,7 +194,7 @@ def __get_instance_fields(instance_name: str, fields, conditions: str = "", data
     if conditions != "":
         sql += " AND " + conditions
     if dataset != "":
-        sql += " AND " + __project_filter(instance_name, dataset)
+        sql += " AND " + project_filter(instance_name, dataset)
 
     return sql + " " + order
 # endregion
@@ -209,7 +203,7 @@ def __get_instance_fields(instance_name: str, fields, conditions: str = "", data
 # region Public interaction
 # get the count of all refactoring levels
 def get_refactoring_levels(dataset=""):
-    sql: str = "SELECT refactoring, count(*) total from refactoringcommit where " + __project_filter(
+    sql: str = "SELECT refactoring, count(*) total from refactoringcommit where " + project_filter(
         dataset) + " group by refactoring order by count(*) desc"
     return execute_query(sql)
 
@@ -217,29 +211,29 @@ def get_refactoring_levels(dataset=""):
 # get the count of all refactorings for the given level
 def get_level_refactorings_count(level: str, dataset: str = ""):
     sql: str = "SELECT refactoring, count(*) FROM " + \
-               __get_instance_fields(refactoringCommits, [(refactoringCommits, refactoringCommitFields)] +
-                                     __get_metrics_level(level), refactoringCommits + ".level = " + level, dataset) +\
+               get_instance_fields(refactoringCommits, [(refactoringCommits, refactoringCommitFields)] +
+                                   get_metrics_level(level), refactoringCommits + ".level = " + level, dataset) + \
                " group by refactoring order by count(*) desc"
     return execute_query(sql)
 
 
 # get all refactoring instances with the given refactoring type and metrics in regard to the level
 def get_level_refactorings(m_refactoring: str, level: str, dataset: str = ""):
-    sql: str = __get_instance_fields(refactoringCommits, [(refactoringCommits, refactoringCommitFields)] + __get_metrics_level(level),
-                                     refactoringCommits + ".refactoring = " + m_refactoring, dataset, " order by " + commitMetaData + ".commitDate")
+    sql: str = get_instance_fields(refactoringCommits, [(refactoringCommits, refactoringCommitFields)] + get_metrics_level(level),
+                                   refactoringCommits + ".refactoring = " + m_refactoring, dataset, " order by " + commitMetaData + ".commitDate")
     return execute_query(sql)
 
 
 # get all refactoring instances with the given level and the corresponding metrics
 def get_all_level_refactorings(level: str, dataset: str = ""):
-    sql: str = __get_instance_fields(refactoringCommits, [(refactoringCommits, refactoringCommitFields)] + __get_metrics_level(level),
-                                     refactoringCommits + ".level = " + level, dataset, " order by " + commitMetaData + ".commitDate")
+    sql: str = get_instance_fields(refactoringCommits, [(refactoringCommits, refactoringCommitFields)] + get_metrics_level(level),
+                                   refactoringCommits + ".level = " + level, dataset, " order by " + commitMetaData + ".commitDate")
     return execute_query(sql)
 
 
 # get all stable instances with the given level and the corresponding metrics
 def get_level_stable(level: str, dataset: str = ""):
-    sql: str = __get_instance_fields(stableCommits, [(stableCommits, stableCommitFields)] + __get_metrics_level(level),
-                                     stableCommits + ".level = " + level, dataset, " order by " + commitMetaData + ".commitDate")
+    sql: str = get_instance_fields(stableCommits, [(stableCommits, stableCommitFields)] + get_metrics_level(level),
+                                   stableCommits + ".level = " + level, dataset, " order by " + commitMetaData + ".commitDate")
     return execute_query(sql)
 # endregion

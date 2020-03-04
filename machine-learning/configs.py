@@ -94,6 +94,7 @@ DATASETS = ['', 'apache', 'github', 'fdroid']
 # Refactorings
 # --------------------------------
 
+# TODO: extend with new refactorings
 # Refactorings to study
 CLASS_LEVEL_REFACTORINGS = ["Extract Class",
 "Extract Interface",
