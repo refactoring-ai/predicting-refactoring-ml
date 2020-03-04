@@ -9,7 +9,7 @@ public class FilePathUtils {
 	private static final Logger log = Logger.getLogger(App.class);
 
 	public static String classFromFileName (String fileName) {
-		String[] splittedFile = enforceUnixPaths(fileName).split("/");
+		String[] splittedFile = enforceUnixPaths(fileName).replace("\\", "/").split("/");
 		return splittedFile[splittedFile.length-1].replace(".java", "");
 	}
 

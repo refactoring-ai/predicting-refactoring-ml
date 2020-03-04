@@ -1,0 +1,5 @@
+CREATE USER IF NOT EXISTS 'test'@'localhost' IDENTIFIED BY 'test';
+GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP ON *.* TO 'test'@'localhost';
+
+CREATE DATABASE IF NOT EXISTS refactoringtest DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE refactoringtest;

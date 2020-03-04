@@ -16,7 +16,6 @@ public class UtilsTest {
 		Assert.assertEquals("File", FilePathUtils.classFromFileName("/some/dir/File.java"));
 		Assert.assertEquals("File", FilePathUtils.classFromFileName("c:\\some\\dir\\File.java"));
 		Assert.assertEquals("File", FilePathUtils.classFromFileName("/File.java"));
-
 	}
 
 	@Test

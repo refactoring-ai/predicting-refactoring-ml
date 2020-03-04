@@ -4,7 +4,6 @@ import integration.IntegrationBaseTest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import refactoringml.db.CommitMetaData;
 import refactoringml.db.StableCommit;
 import refactoringml.db.RefactoringCommit;
 import java.util.List;
@@ -142,7 +141,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
         String fileName = "src/main/java/org/apache/commons/csv/CSVStrategy.java";
         // and 10 with the old name 'CSVStrategy.java'
         List<RefactoringCommit> refactoringCommitList = getRefactoringCommits().stream().filter(commit ->
-                commit.getFilePath().equals(fileName)).collect(Collectors.toList());
+                commit.getFilePath().equals(fileName)).distinct().collect(Collectors.toList());
 
         assertRefactoring(refactoringCommitList, "42476f4b08fe4b075aa36f688f0801857f3635d9", "Rename Method", 5);
         assertRefactoring(refactoringCommitList, "42476f4b08fe4b075aa36f688f0801857f3635d9", "Rename Parameter", 4);
@@ -151,7 +150,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
         assertRefactoring(refactoringCommitList, "cb99634ab3d6143dffc90938fc68e15c7f9d25b8", "Rename Class", 1);
         assertRefactoring(refactoringCommitList, "cb99634ab3d6143dffc90938fc68e15c7f9d25b8", "Rename Variable", 9);
 
-        Assert.assertEquals(47, refactoringCommitList.size());
+        Assert.assertEquals(48, refactoringCommitList.size());
     }
 
     @Test
@@ -165,7 +164,6 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     // check the number of test and production files as well as their LOC
     @Test
     public void projectMetrics() {
-        //TODO: figure out why the 5114 is counted incorrect by CK on Windows Machines - #45
-        assertProjectMetrics(35, 12, 23, 6994, 1880, 5114);
+        assertProjectMetrics(35, 12, 23, 7020, 1880, 5140);
     }
 }

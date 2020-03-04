@@ -1,6 +1,7 @@
 package refactoringml;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import refactoringml.db.CommitMetaData;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class PMDatabaseTest {
 
     //Test the case sensitivity of class fileNames
     //Be aware: .Java and .java are equal for java
+    @Ignore
     @Test
     public void caseSensitivity(){
         PMDatabase pmDatabase = new PMDatabase(List.of(10, 25));
