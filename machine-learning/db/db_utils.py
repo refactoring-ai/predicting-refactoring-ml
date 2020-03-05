@@ -8,7 +8,7 @@ import configparser
 from configs import USE_CACHE, DB_AVAILABLE
 
 config = configparser.ConfigParser()
-config.read(os.path.join(os.getcwd(),'dbconfig.ini'))
+config.read(os.path.join(os.getcwd(), 'config.ini'))
 
 mydb = None
 
