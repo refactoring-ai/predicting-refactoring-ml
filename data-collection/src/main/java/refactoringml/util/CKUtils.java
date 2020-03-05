@@ -55,7 +55,7 @@ public class CKUtils {
 	/*
 	Only works with the class type from ck.
 	 */
-	public static boolean evaluateSubclass(String classType) { return classType.equals("subclass"); }
+	public static boolean evaluateSubclass(String classType) { return classType.equals("innerclass"); }
 
 	//Extract the class metrics from a CKClassResult
 	public static ClassMetric extractClassMetrics(CKClassResult ck){
