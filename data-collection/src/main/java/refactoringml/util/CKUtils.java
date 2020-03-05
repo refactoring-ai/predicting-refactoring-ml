@@ -96,7 +96,7 @@ public class CKUtils {
 				ck.getVariablesQty(),
 				ck.getMaxNestedBlocks(),
 				ck.getAnonymousClassesQty(),
-				ck.getSubClassesQty(),
+				ck.getInnerClassesQty(),
 				ck.getLambdasQty(),
 				ck.getUniqueWordsQty());
 	}
@@ -124,7 +124,7 @@ public class CKUtils {
 				ckMethodResult.getMathOperationsQty(),
 				ckMethodResult.getMaxNestedBlocks(),
 				ckMethodResult.getAnonymousClassesQty(),
-				ckMethodResult.getSubClassesQty(),
+				ckMethodResult.getInnerClassesQty(),
 				ckMethodResult.getLambdasQty(),
 				ckMethodResult.getUniqueWordsQty()
 		);
