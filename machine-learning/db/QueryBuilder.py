@@ -1,4 +1,4 @@
-from db.db_utils import execute_query
+from db.DBConnector import execute_query
 
 
 # region database structure
@@ -187,9 +187,13 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
 
     sql: str = "SELECT " + required_fields + " FROM " + required_tables + " WHERE " + join_conditions
     if conditions != "":
-        sql += " AND " + conditions
+        if not sql.endswith(' WHERE '):
+            sql += " AND "
+        sql += conditions
     if dataset != "":
-        sql += " AND " + project_filter(instance_name, dataset)
+        if not sql.endswith(' WHERE '):
+            sql += " AND "
+        sql += project_filter(instance_name, dataset)
 
     return sql + " " + order
 # endregion
@@ -213,10 +217,10 @@ def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str
 
 # get the count of all refactorings for the given level
 def get_level_refactorings_count(level: int, dataset: str = ""):
-    return "SELECT refactoring, count(*) FROM " + \
-               get_instance_fields(refactoringCommits, [(refactoringCommits, refactoringCommitFields)] +
-                                   get_metrics_level(level), refactoringCommits + ".level = " + str(level), dataset) + \
-               " group by refactoring order by count(*) desc"
+    return "SELECT refactoring, count(*) FROM (" + \
+               get_instance_fields(refactoringCommits, [(refactoringCommits, ["refactoring"])],
+                                   refactoringCommits + ".level = " + str(level), dataset) + \
+           ") t group by refactoring order by count(*) desc"
 
 
 # get all refactoring instances with the given refactoring type and metrics in regard to the level

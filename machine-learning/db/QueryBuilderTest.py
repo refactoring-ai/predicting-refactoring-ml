@@ -1,10 +1,10 @@
 import unittest
-from db.DatabaseLoader import project_filter, join_tables, get_metrics_level, get_instance_fields, \
+from db.QueryBuilder import project_filter, join_tables, get_metrics_level, get_instance_fields, \
     get_refactoring_levels, get_level_refactorings_count, get_all_level_refactorings, get_all_level_stable, \
     get_level_refactorings
 
 
-class DatabaseLoaderUtilsTest(unittest.TestCase):
+class QueryBuilderUnitTest(unittest.TestCase):
     def test_project_filter(self):
         sqlExpected: str = "refactoringcommit.project_id in (select id from project where datasetName = \"integration-test\")"
         sqlBuilt: str = project_filter("refactoringcommit", "integration-test")
@@ -82,15 +82,10 @@ class DatabaseLoaderUtilsTest(unittest.TestCase):
         self.assertEqual(sqlExpected, sqlBuilt)
 
 
-    # TODO: write test
     def test_get_level_refactorings_count(self):
-        sqlExpected: str = ""
+        sqlExpected: str = "SELECT refactoring, count(*) FROM (SELECT refactoringcommit.refactoring FROM refactoringcommit WHERE refactoringcommit.level = 2 AND refactoringcommit.project_id in (select id from project where datasetName = \"integration-test\") ) t group by refactoring order by count(*) desc"
         sqlBuilt: str = get_level_refactorings_count(2, "integration-test")
         self.assertEqual(sqlExpected, sqlBuilt)
-
-        get_instance_fields(refactoringCommits, [(refactoringCommits, refactoringCommitFields), (comm)] +
-                            get_metrics_level(level), refactoringCommits + ".level = " + str(level), dataset) + \
-        " group by refactoring order by count(*) desc"
 
 
 if __name__ == '__main__':
