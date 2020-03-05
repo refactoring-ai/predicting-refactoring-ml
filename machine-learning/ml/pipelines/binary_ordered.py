@@ -111,5 +111,3 @@ class BinaryOrderedClassificationPipeline(MLPipeline):
         # return the scores and the final model
         return precision, recall, accuracy, tn, fp, fn, tp, final_model
 
-
-

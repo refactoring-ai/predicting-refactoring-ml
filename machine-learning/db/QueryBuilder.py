@@ -1,6 +1,5 @@
 from db.DBConnector import execute_query
 
-
 # region database structure
 # table names for reference:
 commitMetaData: str = "commitmetadata"
@@ -131,11 +130,16 @@ instanceReferences = ["classMetrics_id",
                       "variableMetrics_id"]
 
 # maps table names onto their instance keys and their fields
-tableMap = {commitMetaData: (commitMetaData + "_id", commitMetaDataFields), methodMetrics: (methodMetrics + "s_id", methodMetricsFields),
-            fieldMetrics: (fieldMetrics + "s_id", fieldMetricsFields), variableMetrics: (variableMetrics + "s_id", variableMetricsFields),
-            processMetrics: (processMetrics + "_id", processMetricsFields), classMetrics: (classMetrics + "s_id", classMetricsFields),
+tableMap = {commitMetaData: (commitMetaData + "_id", commitMetaDataFields),
+            methodMetrics: (methodMetrics + "s_id", methodMetricsFields),
+            fieldMetrics: (fieldMetrics + "s_id", fieldMetricsFields),
+            variableMetrics: (variableMetrics + "s_id", variableMetricsFields),
+            processMetrics: (processMetrics + "_id", processMetricsFields),
+            classMetrics: (classMetrics + "s_id", classMetricsFields),
             project: (project + "_id", projectFields), refactoringCommits: ("id", refactoringCommitFields),
             stableCommits: ("id", stableCommitFields)}
+
+
 # endregion
 
 
@@ -154,7 +158,8 @@ def join_tables(instance_name: str, table_name: str) -> str:
 # e.g. classMetricsFields, methodMetricsFields and processMetricsFields for level 2 method level
 def get_metrics_level(level: int):
     if level <= 3:
-        return [(classMetrics, classMetricsFields), (methodMetrics, methodMetricsFields), (variableMetrics, variableMetricsFields)][:level] +\
+        return [(classMetrics, classMetricsFields), (methodMetrics, methodMetricsFields),
+                (variableMetrics, variableMetricsFields)][:level] + \
                [(processMetrics, processMetricsFields)]
     elif level == 4:
         return [(classMetrics, classMetricsFields), (fieldMetrics, fieldMetricsFields),
@@ -168,7 +173,7 @@ def get_metrics_level(level: int):
 # Optional conditions: a string with additional conditions for the instances, e.g. cm.isInnerClass = 1
 # Optional dataset: filter the instances based on their project name, e.g. toyproject-1
 # Optional order: order by command, e.g. order by commitMetaData.commitDate
-def get_instance_fields(instance_name: str, fields, conditions: str = "", dataset: str = "", order: str = ""):
+def get_instance_fields(instance_name: str, fields, conditions: str = "", dataset: str = "", order: str = "") -> str:
     # combine the required fields with their table names
     required_fields: str = ""
     required_tables: str = ""
@@ -176,7 +181,7 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
     for table_name, field_names in fields:
         required_tables += table_name + ", "
         # don't join the instance with itself
-        if(instance_name != table_name):
+        if (instance_name != table_name):
             join_conditions += join_tables(instance_name, table_name) + " AND "
         for field_name in field_names:
             required_fields += table_name + "." + field_name + ", "
@@ -196,44 +201,55 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
         sql += project_filter(instance_name, dataset)
 
     return sql + " " + order
+
+
 # endregion
 
 
 # region Public interaction
 # get the count of all refactoring levels
-def get_refactoring_levels(dataset=""):
-    return "SELECT refactoring, count(*) total from refactoringcommit where " + project_filter("refactoringcommit", dataset) \
+def get_refactoring_levels(dataset="") -> str:
+    return "SELECT refactoring, count(*) total from refactoringcommit where " + project_filter("refactoringcommit",
+                                                                                               dataset) \
            + " group by refactoring order by count(*) desc"
 
 
-def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str = ""):
+def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str = "") -> str:
     refactoring_condition: str = instance_name + ".level = " + str(level)
     if m_refactoring != "":
         refactoring_condition += " AND " + refactoringCommits + ".refactoring = \"" + m_refactoring + "\""
 
-    return get_instance_fields(instance_name, [(instance_name, tableMap[instance_name][1]), (commitMetaData, ["commitDate"])] + get_metrics_level(level),
+    return get_instance_fields(instance_name, [(instance_name, tableMap[instance_name][1]),
+                                               (commitMetaData, ["commitDate"])] + get_metrics_level(level),
                                refactoring_condition, dataset, " order by " + commitMetaData + ".commitDate")
 
 
 # get the count of all refactorings for the given level
-def get_level_refactorings_count(level: int, dataset: str = ""):
+def get_level_refactorings_count(level: int, dataset: str = "") -> str:
     return "SELECT refactoring, count(*) FROM (" + \
-               get_instance_fields(refactoringCommits, [(refactoringCommits, ["refactoring"])],
-                                   refactoringCommits + ".level = " + str(level), dataset) + \
+           get_instance_fields(refactoringCommits, [(refactoringCommits, ["refactoring"])],
+                               refactoringCommits + ".level = " + str(level), dataset) + \
            ") t group by refactoring order by count(*) desc"
 
 
 # get all refactoring instances with the given refactoring type and metrics in regard to the level
-def get_level_refactorings(level: int, m_refactoring: str, dataset: str = ""):
+def get_level_refactorings(level: int, m_refactoring: str, dataset: str = "") -> str:
     return __get_level(refactoringCommits, level, m_refactoring, dataset)
 
 
 # get all refactoring instances with the given level and the corresponding metrics
-def get_all_level_refactorings(level: int, dataset: str = ""):
+def get_all_level_refactorings(level: int, dataset: str = "") -> str:
     return __get_level(refactoringCommits, level, "", dataset)
 
 
 # get all stable instances with the given level and the corresponding metrics
-def get_all_level_stable(level: int, dataset: str = ""):
+def get_all_level_stable(level: int, dataset: str = "") -> str:
     return __get_level(stableCommits, level, "", dataset)
+
+
+# get all unique refactoring types as a list
+# Optional dataset: filter to this specific project
+def get_refactoring_types(dataset: str = "") -> str:
+    return ""
+    # TODO: implement
 # endregion

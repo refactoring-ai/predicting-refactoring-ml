@@ -1,9 +1,18 @@
-from db.refactoringdb import get_non_refactored_methods, get_non_refactored_variables, get_non_refactored_classes, \
-    get_non_refactored_fields, get_refactoring_types, get_class_level_refactorings_count, get_class_level_refactorings, \
-    get_method_level_refactorings_count, get_method_level_refactorings, get_variable_level_refactorings_count, \
-    get_variable_level_refactorings, get_field_level_refactorings_count, get_field_level_refactorings
+from enum import Enum
+from db.QueryBuilder import get_all_level_stable, get_level_refactorings_count, get_level_refactorings, get_refactoring_types
+from db.DBConnector import execute_query
+
+
+class Level(Enum):
+    Class = 1
+    Method = 2
+    Variable = 3
+    Field = 4
+    Other = 5
+
 
 datasets = ['', 'apache', 'github', 'fdroid']
+
 
 print('begin cache warmup')
 
@@ -12,40 +21,23 @@ for dataset in datasets:
     print("dataset: " + dataset)
 
     print("-- non refactored methods")
-    get_non_refactored_methods(dataset)
+    execute_query(get_all_level_stable(2, dataset))
     print("-- non refactored variables")
-    get_non_refactored_variables(dataset)
+    execute_query(get_all_level_stable(3, dataset))
     print("-- non refactored classes")
-    get_non_refactored_classes(dataset)
+    execute_query(get_all_level_stable(1, dataset))
     print("-- non refactored fields")
-    get_non_refactored_fields(dataset)
+    execute_query(get_all_level_stable(4, dataset))
 
     print("-- refactoring types")
-    get_refactoring_types(dataset)
+    execute_query(get_refactoring_types(dataset))
 
-    print("-- class level refactoring count")
-    class_refactorings = get_class_level_refactorings_count(dataset)
-    for refactoring_name in class_refactorings["refactoring"].values:
-        print("---- " + refactoring_name)
-        get_class_level_refactorings(refactoring_name, dataset)
-
-    print("-- method level refactoring count")
-    method_refactorings = get_method_level_refactorings_count(dataset)
-    for refactoring_name in method_refactorings["refactoring"].values:
-        print("---- " + refactoring_name)
-        get_method_level_refactorings(refactoring_name, dataset)
-
-    print("-- variable level refactoring count")
-    variable_refactorings = get_variable_level_refactorings_count(dataset)
-    for refactoring_name in variable_refactorings["refactoring"].values:
-        print("---- " + refactoring_name)
-        get_variable_level_refactorings(refactoring_name, dataset)
-
-    print("-- field level refactoring count")
-    field_refactorings = get_field_level_refactorings_count(dataset)
-    for refactoring_name in field_refactorings["refactoring"].values:
-        print("---- " + refactoring_name)
-        get_field_level_refactorings(refactoring_name, dataset)
+    for level in Level:
+        print("-- " + str(level) + " level refactoring count")
+        refactorings =  execute_query(get_level_refactorings_count(int(level), dataset))
+        for refactoring_name in refactorings["refactoring"].values:
+            print("---- " + refactoring_name)
+            execute_query(get_level_refactorings(int(level), refactoring_name, dataset))
 
 
 print('end cache warmup')

@@ -119,6 +119,8 @@ VARIABLE_LEVEL_REFACTORINGS = ["Extract Variable",
 "Rename Variable",
 "Replace Variable With Attribute"]
 
+FIELD_LEVEL_REFACTORINGS = []
+
 
 # --------------------------------
 # DO NOT CHANGE FROM HERE ON

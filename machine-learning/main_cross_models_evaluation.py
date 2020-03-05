@@ -1,11 +1,14 @@
 import traceback
 from collections import Counter
+from functools import partial
 
 import pandas as pd
 from sklearn import metrics
 from sklearn.utils import shuffle
 
-from db import refactoringdb
+from db.QueryBuilder import get_all_level_stable, get_level_refactorings_count, get_level_refactorings
+from db.DBConnector import execute_query
+
 from configs import DATASETS, MODELS
 from ml.preprocessing.sampling import perform_balancing
 from utils.log import log, log_init
@@ -17,7 +20,7 @@ def check_model_performance(refactoring_level, counts_function, get_refactored_f
 
     log("Starting cross model analysis at " + refactoring_level)
 
-    counts = counts_function("")
+    counts = execute_query(counts_function(""))
 
     for d1 in DATASETS: # d1 being the model we load
         for d2 in DATASETS: # d2 being the dataset we'll try to predict
@@ -25,8 +28,8 @@ def check_model_performance(refactoring_level, counts_function, get_refactored_f
                 continue
 
             for refactoring_name in counts["refactoring"].values:
-                refactored_instances = get_refactored_function(refactoring_name, d2)
-                non_refactored_instances = get_non_refactored_function(d2)
+                refactored_instances = execute_query(get_refactored_function(refactoring_name, d2))
+                non_refactored_instances = execute_query(get_non_refactored_function(d2))
 
                 # if there' still a row with NAs, drop it as it'll cause a failure later on.
                 refactored_instances = refactored_instances.dropna()
@@ -88,23 +91,30 @@ def check_model_performance(refactoring_level, counts_function, get_refactored_f
 
 log_init()
 log("ML4Refactoring: Cross-project validation")
-
 log("CSV format: dataset_loaded_model,dataset_test,refactoring,model,precision,recall\n")
+log("[COMPARING CLASS-LEVEL MODELS]")
+check_model_performance("class-level",
+                        partial(get_level_refactorings_count, 1),
+                        partial(get_level_refactorings, 1),
+                        partial(get_all_level_stable, 1))
+
 
 log("[COMPARING METHOD-LEVEL MODELS]")
 check_model_performance("method-level",
-                        refactoringdb.get_method_level_refactorings_count,
-                        refactoringdb.get_method_level_refactorings,
-                        refactoringdb.get_non_refactored_methods)
+                        partial(get_level_refactorings_count, 2),
+                        partial(get_level_refactorings, 2),
+                        partial(get_all_level_stable, 2))
 
-log("[COMPARING CLASS-LEVEL MODELS]")
-check_model_performance("class-level",
-                        refactoringdb.get_class_level_refactorings_count,
-                        refactoringdb.get_class_level_refactorings,
-                        refactoringdb.get_non_refactored_classes)
 
 log("[COMPARING VARIABLE-LEVEL MODELS]")
 check_model_performance("variable-level",
-                        refactoringdb.get_variable_level_refactorings_count,
-                        refactoringdb.get_variable_level_refactorings,
-                        refactoringdb.get_non_refactored_variables)
+                        partial(get_level_refactorings_count, 3),
+                        partial(get_level_refactorings, 3),
+                        partial(get_all_level_stable, 3))
+
+
+log("[COMPARING FIELD-LEVEL MODELS]")
+check_model_performance("field-level",
+                        partial(get_level_refactorings_count, 4),
+                        partial(get_level_refactorings, 4),
+                        partial(get_all_level_stable, 4))

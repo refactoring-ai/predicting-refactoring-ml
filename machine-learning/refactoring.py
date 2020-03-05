@@ -1,6 +1,6 @@
-from configs import CLASS_LEVEL_REFACTORINGS, VARIABLE_LEVEL_REFACTORINGS, METHOD_LEVEL_REFACTORINGS
-from db.refactoringdb import get_method_level_refactorings, get_non_refactored_methods, get_non_refactored_classes, \
-    get_class_level_refactorings, get_variable_level_refactorings, get_non_refactored_variables
+from configs import CLASS_LEVEL_REFACTORINGS, VARIABLE_LEVEL_REFACTORINGS, METHOD_LEVEL_REFACTORINGS, FIELD_LEVEL_REFACTORINGS
+from db.QueryBuilder import get_level_refactorings, get_all_level_stable
+from db.DBConnector import execute_query
 
 
 class LowLevelRefactoring():
@@ -28,10 +28,10 @@ class MethodLevelRefactoring(LowLevelRefactoring):
         super().__init__(name)
 
     def get_refactored_instances(self, dataset):
-        return get_method_level_refactorings(self._name, dataset)
+        return execute_query(get_level_refactorings(2, self._name, dataset))
 
     def get_non_refactored_instances(self, dataset):
-        return get_non_refactored_methods(dataset)
+        return execute_query(get_all_level_stable(2, dataset))
 
     def refactoring_level(self):
         return "method"
@@ -43,10 +43,10 @@ class ClassLevelRefactoring(LowLevelRefactoring):
         super().__init__(name)
 
     def get_refactored_instances(self, dataset):
-        return get_class_level_refactorings(self._name, dataset)
+        return execute_query(get_level_refactorings(1, self._name, dataset))
 
     def get_non_refactored_instances(self, dataset):
-        return get_non_refactored_classes(dataset)
+        return execute_query(get_all_level_stable(1, dataset))
 
     def refactoring_level(self):
         return "class"
@@ -58,18 +58,34 @@ class VariableLevelRefactoring(LowLevelRefactoring):
         super().__init__(name)
 
     def get_refactored_instances(self, dataset):
-        return get_variable_level_refactorings(self._name, dataset)
+        return execute_query(get_level_refactorings(3, self._name, dataset))
 
     def get_non_refactored_instances(self, dataset):
-        return get_non_refactored_variables(dataset)
+        return execute_query(get_all_level_stable(3, dataset))
 
     def refactoring_level(self):
         return "variable"
+
+
+class FieldLevelRefactoring(LowLevelRefactoring):
+
+    def __init__(self, name):
+        super().__init__(name)
+
+    def get_refactored_instances(self, dataset):
+        return execute_query(get_level_refactorings(4, self._name, dataset))
+
+    def get_non_refactored_instances(self, dataset):
+        return execute_query(get_all_level_stable(4, dataset))
+
+    def refactoring_level(self):
+        return "field"
 
 
 def build_refactorings():
     class_level_refactorings = list(map(lambda r: ClassLevelRefactoring(r), CLASS_LEVEL_REFACTORINGS))
     method_level_refactorings = list(map(lambda r: MethodLevelRefactoring(r), METHOD_LEVEL_REFACTORINGS))
     variable_level_refactorings = list(map(lambda r: VariableLevelRefactoring(r), VARIABLE_LEVEL_REFACTORINGS))
+    field_level_refactorings = list(map(lambda r: FieldLevelRefactoring(r), FIELD_LEVEL_REFACTORINGS))
 
-    return class_level_refactorings + method_level_refactorings + variable_level_refactorings
+    return class_level_refactorings + method_level_refactorings + variable_level_refactorings,field_level_refactorings
