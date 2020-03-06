@@ -67,6 +67,9 @@ public class RefactoringAnalyzer {
 					String refactoredClassFile = pair.getLeft();
 					String refactoredClassName = pair.getRight();
 
+					//validate the class name with the class file:
+
+
 					//filter the diff entries for class files affected by this refactoring
 					Optional<DiffEntry> refactoredEntry = entries.stream()
 							.filter(entry -> {
@@ -117,7 +120,8 @@ public class RefactoringAnalyzer {
 							saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
 						}
 					} else {
-						log.error("RefactoringCommit instance was not created. CK did not find the class, maybe?");
+						log.error("RefactoringCommit instance was not created for refactoring type: " + refactoring.getRefactoringType().getDisplayName() +
+								"\nMaybe CK did not find the class: " + refactoredClassName + " at " + tempDir);
 					}
 				}//end if
 			}

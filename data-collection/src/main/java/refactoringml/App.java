@@ -214,6 +214,7 @@ public class App {
 		String statistics = String.format("Finished mining %s in %.2f minutes", gitUrl,( ( end - start ) / 1000.0 / 60.0 ));
 		statistics += String.format("\nFound %o refactoring and %o stable instances in the project.",
 				db.findAllRefactoringCommits(project).size(), db.findAllStableCommits(project).size());
+		statistics += "\n" + project.toString();
 
 		return statistics;
 	}
