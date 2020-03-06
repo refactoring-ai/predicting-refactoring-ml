@@ -6,6 +6,7 @@ import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class RunQueue {
 	private static final Logger log = Logger.getLogger(RunQueue.class);
@@ -24,8 +25,8 @@ public class RunQueue {
 
 	public static void main(String[] args) throws Exception {
 		// we gotta wait a few minutes before the queue is up and the db is up...
-		// Docker stuf...
-		Thread.sleep(1000 * 60 * 2);
+		// Docker stuff...
+		Thread.sleep(1000 * Long.parseLong(getProperty("queueWaitTime")));
 
 		String queueHost = "localhost";
 		String url = "jdbc:mysql://localhost:3306/refactoringtest?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";

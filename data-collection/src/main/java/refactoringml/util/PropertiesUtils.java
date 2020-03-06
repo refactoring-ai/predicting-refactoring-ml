@@ -2,7 +2,10 @@ package refactoringml.util;
 
 import org.apache.log4j.Logger;
 import refactoringml.App;
+
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertiesUtils {
@@ -10,19 +13,19 @@ public class PropertiesUtils {
 
     //config properties for the data-collection app at resources/config.property
     private static Properties configProperties;
-    private static String configName = "config.properties";
+    private static String configName = "/config.properties";
 
     private static Properties fetchProperties(){
         if(configProperties!= null)
             return configProperties;
 
-        String propertiesPath = Thread.currentThread().getContextClassLoader().getResource(configName).getPath();
+        InputStream in = PropertiesUtils.class.getResourceAsStream(configName);
         configProperties = new Properties();
         try{
-            configProperties.load(new FileInputStream(propertiesPath));
+            configProperties.load(in);
         } catch (Exception e) {
-            log.error(e.getClass().getCanonicalName() + " while loading config file from: " + propertiesPath, e);
-            throw new RuntimeException("Could not load config properties.");
+            log.error(e.getClass().getCanonicalName() + " while loading config file from: " + configName, e);
+            throw new RuntimeException("Could not load config properties");
         }
         return configProperties;
     }
