@@ -35,7 +35,6 @@ services:
       - FILE_TO_IMPORT=projects-test.csv
       - QUEUE_HOST=queue
     depends_on:
-      -
       - queue
 
   worker:
