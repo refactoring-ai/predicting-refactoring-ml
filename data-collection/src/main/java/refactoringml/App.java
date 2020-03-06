@@ -14,10 +14,7 @@ import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringHandler;
 import org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl;
 import org.refactoringminer.util.GitServiceImpl;
-import refactoringml.db.CommitMetaData;
-import refactoringml.db.Database;
-import refactoringml.db.Project;
-import refactoringml.db.RefactoringCommit;
+import refactoringml.db.*;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
 import refactoringml.util.JGitUtils;
@@ -211,9 +208,7 @@ public class App {
 		String statistics = String.format("Finished mining %s in %.2f minutes", gitUrl,( ( end - start ) / 1000.0 / 60.0 ));
 		statistics += String.format("\nFound %o refactoring- and %o stable instances in the project.",
 				db.findAllRefactoringCommits(project).size(), db.findAllStableCommits(project).size());
-		statistics += "\n" + project.toString();
-
-		return statistics;
+		return statistics + "\n" + project.toString();
 	}
 
 	private RefactoringHandler getRefactoringHandler(Git git) {
