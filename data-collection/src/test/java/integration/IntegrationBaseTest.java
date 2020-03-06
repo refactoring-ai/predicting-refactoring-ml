@@ -13,6 +13,7 @@ import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -247,12 +248,16 @@ public abstract class IntegrationBaseTest {
 		Assert.assertEquals(javaLocCount, project.getJavaLoc());
 	}
 
-
 	//Test if all Refactorings were classified
 	@Test
 	public void refactoringLevel(){
 		List<RefactoringCommit> refactoringCommitsNoLevel = getRefactoringCommits().stream().filter(refactoringCommit ->
 				refactoringCommit.getLevel() < 0).collect(Collectors.toList());
 		Assert.assertEquals(0, refactoringCommitsNoLevel.size());
+	}
+
+	@Test
+	public void checkErrors() throws FileNotFoundException {
+		Assert.assertEquals("", refactoringml.util.FileUtils.readFile("./logs_test/data-collection_ERROR.log"));
 	}
 }

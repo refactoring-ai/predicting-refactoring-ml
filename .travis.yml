@@ -35,3 +35,7 @@ jobs:
     - name: "Run Integration Realproject ApacheCommonsCSV Tests"
       script:
         - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.realprojects.ApacheCommonsCSV*Test test
+
+    - name: "Run Canary Projects Tests"
+      script:
+        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.canary.*Test test

@@ -120,8 +120,7 @@ public class RefactoringAnalyzer {
 							saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
 						}
 					} else {
-						//TODO: investigate this case to write a better log message
-						log.error("RefactoringCommit instance was not created. CK did not find the class, maybe?");
+						log.error("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName());
 					}
 
 					cleanTmpDir();
@@ -211,8 +210,8 @@ public class RefactoringAnalyzer {
 				if(!ckMethod.isPresent()) {
 					// for some reason we did not find the method, let's remove it from the list.
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
-					log.error("CK did not find the refactored method: " + fullRefactoredMethod + "\n" +
-							"All methods found by CK: " + methods);
+					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the detected refactoring: " + refactoring.getName() +
+							"\\nAll methods found by CK: " + methods);
 					return;
 				} else {
 					CKMethodResult ckMethodResult = ckMethod.get();
