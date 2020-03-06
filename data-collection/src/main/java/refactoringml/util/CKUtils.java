@@ -55,7 +55,7 @@ public class CKUtils {
 	/*
 	Only works with the class type from ck.
 	 */
-	public static boolean evaluateSubclass(String classType) { return classType.equals("subclass"); }
+	public static boolean evaluateSubclass(String classType) { return classType.equals("innerclass"); }
 
 	//Extract the class metrics from a CKClassResult
 	public static ClassMetric extractClassMetrics(CKClassResult ck){
@@ -96,7 +96,7 @@ public class CKUtils {
 				ck.getVariablesQty(),
 				ck.getMaxNestedBlocks(),
 				ck.getAnonymousClassesQty(),
-				ck.getSubClassesQty(),
+				ck.getInnerClassesQty(),
 				ck.getLambdasQty(),
 				ck.getUniqueWordsQty());
 	}
@@ -124,7 +124,7 @@ public class CKUtils {
 				ckMethodResult.getMathOperationsQty(),
 				ckMethodResult.getMaxNestedBlocks(),
 				ckMethodResult.getAnonymousClassesQty(),
-				ckMethodResult.getSubClassesQty(),
+				ckMethodResult.getInnerClassesQty(),
 				ckMethodResult.getLambdasQty(),
 				ckMethodResult.getUniqueWordsQty()
 		);
