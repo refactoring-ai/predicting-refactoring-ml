@@ -10,13 +10,13 @@ public class PropertiesUtils {
 
     //config properties for the data-collection app at resources/config.property
     private static Properties configProperties;
-    private static String configName = "config.properties";
+    private static String configName = "/config.properties";
 
     private static Properties fetchProperties(){
         if(configProperties!= null)
             return configProperties;
 
-        String propertiesPath = Thread.currentThread().getContextClassLoader().getResource(configName).getPath();
+        String propertiesPath = PropertiesUtils.class.getResource(configName).getPath();
         configProperties = new Properties();
         try{
             configProperties.load(new FileInputStream(propertiesPath));
