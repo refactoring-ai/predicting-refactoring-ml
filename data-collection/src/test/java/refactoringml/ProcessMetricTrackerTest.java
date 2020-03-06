@@ -160,7 +160,7 @@ public class ProcessMetricTrackerTest {
 
 	@Test
 	public void countQtyOfCommits(){
-		PMDatabase pmDatabase = new PMDatabase(List.of(10, 20));
+		PMDatabase pmDatabase = new PMDatabase();
 
 		for(int i = 0; i < 20; i++) {
 			pmDatabase.reportChanges("a.Java", new CommitMetaData("#" + i, "n", "n", "0"), "R", 1, 1);
@@ -172,11 +172,32 @@ public class ProcessMetricTrackerTest {
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
 
-
-
 		pmTracker = pmDatabase.find("a.Java");
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().qtyOfCommits);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesDeleted);
 		Assert.assertEquals(20, pmTracker.getCurrentProcessMetrics().linesAdded);
+	}
+
+	@Test
+	public void calculateStability(){
+		ProcessMetricTracker pm = new ProcessMetricTracker("a.Java", new CommitMetaData());
+		List<Integer> stableCommitCounts = List.of(10, 25);
+
+		for(int i = 0; i < 9; i++) {
+			pm.reportCommit("#" + i,"commit #" + i,"Mauricio", 1, 1);
+			Assert.assertFalse(pm.calculateStability(stableCommitCounts));
+			Assert.assertFalse(pm.calculateStability(stableCommitCounts));
+		}
+		pm.reportCommit("#10","commit #10","Mauricio", 1, 1);
+		Assert.assertTrue(pm.calculateStability(stableCommitCounts));
+		Assert.assertTrue(pm.calculateStability(stableCommitCounts));
+
+		for(int i = 0; i < 14; i++) {
+			pm.reportCommit("#" + (i + 10),"commit #" + (i + 10),"Mauricio", 1, 1);
+			Assert.assertFalse(pm.calculateStability(stableCommitCounts));
+		}
+
+		pm.reportCommit("#25","commit #25","Mauricio", 1, 1);
+		Assert.assertTrue(pm.calculateStability(stableCommitCounts));
 	}
 }
