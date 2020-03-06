@@ -86,9 +86,9 @@ public class RefactoringUtils {
 			add(RefactoringType.PUSH_DOWN_ATTRIBUTE);
 			add(RefactoringType.REPLACE_ATTRIBUTE);
 			add(RefactoringType.RENAME_ATTRIBUTE);
-			add(RefactoringType.MERGE_ATTRIBUTE);
+			//add(RefactoringType.MERGE_ATTRIBUTE); see issue #26, on why it is disabled
 			add(RefactoringType.EXTRACT_ATTRIBUTE);
-			add(RefactoringType.SPLIT_ATTRIBUTE);
+			//add(RefactoringType.SPLIT_ATTRIBUTE); see issue #26, on why it is disabled
 			add(RefactoringType.CHANGE_ATTRIBUTE_TYPE);
 		}};
 
@@ -315,5 +315,9 @@ public class RefactoringUtils {
 		if(isOtherRefactoring(refactoring)) return Level.OTHER.ordinal();
 
 		return -1;
+	}
+
+	public static boolean isStudied(Refactoring refactoring){
+		return refactoringTypeInNumber(refactoring) >= 0;
 	}
 }
