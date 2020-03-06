@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import java.util.List;
+
 public class Database {
 
 	private SessionFactory sf;
@@ -57,6 +59,24 @@ public class Database {
 		shortSession.close();
 
 		return exists;
+	}
+
+	public List<RefactoringCommit> findAllRefactoringCommits(Project project) {
+		Session shortSession = sf.openSession();
+		List<RefactoringCommit> results = shortSession.createQuery("From RefactoringCommit where project = :project order by id asc")
+				.setParameter("project", project)
+				.list();
+		shortSession.close();
+		return results;
+	}
+
+	public List<StableCommit> findAllStableCommits(Project project) {
+		Session shortSession = sf.openSession();
+		List<StableCommit> results =  shortSession.createQuery("From StableCommit where project = :project order by id asc")
+				.setParameter("project", project)
+				.list();
+		shortSession.close();
+		return results;
 	}
 
 	public void rollback() {

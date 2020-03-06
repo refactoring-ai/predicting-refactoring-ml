@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Scanner;
 
 import static refactoringml.util.FilePathUtils.*;
 
@@ -80,5 +81,17 @@ public class FileUtils {
 		PrintStream ps = new PrintStream(filePath);
 		ps.print(content);
 		ps.close();
+	}
+
+	//Write the content to a new file at the given path. Creates a new directory at the path if necessary.
+	public static String readFile(String filePath) throws FileNotFoundException {
+		File myObj = new File(filePath);
+		Scanner myReader = new Scanner(myObj);
+		String data = "";
+		while (myReader.hasNextLine()) {
+			data = myReader.nextLine();
+		}
+		myReader.close();
+		return data;
 	}
 }
