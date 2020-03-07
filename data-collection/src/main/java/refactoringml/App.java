@@ -208,6 +208,10 @@ public class App {
 		String statistics = String.format("Finished mining %s in %.2f minutes", gitUrl,( ( end - start ) / 1000.0 / 60.0 ));
 		statistics += String.format("\nFound %o refactoring- and %o stable instances in the project.",
 				db.findAllRefactoringCommits(project).size(), db.findAllStableCommits(project).size());
+		for(int level: project.getCommitCountThresholds()){
+			statistics += String.format("\n\t\tFound %o stable instances in the project with threshold: %o" ,
+					db.findAllStableCommits(project, level).size(), level);
+		}
 		return statistics + "\n" + project.toString();
 	}
 

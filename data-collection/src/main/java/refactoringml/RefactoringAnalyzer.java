@@ -112,7 +112,7 @@ public class RefactoringAnalyzer {
 
 					RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, superCommitMetaData, refactoring, refactoringSummary);
 
-					if(refactoringCommit !=null) {
+					if(refactoringCommit != null) {
 						// mark it for the process metrics collection
 						allRefactorings.add(refactoringCommit);
 
@@ -128,7 +128,7 @@ public class RefactoringAnalyzer {
 							saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
 						}
 					} else {
-						log.error("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
+						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
 					}
 
 					cleanTmpDir();
@@ -196,9 +196,10 @@ public class RefactoringAnalyzer {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 
 			//Ignore all subclass callbacks from CK, that are not relevant in this case
-			if(!cleanedCkClassName.equals(refactoredClass))
+			if(!cleanedCkClassName.equals(refactoredClass)){
+				log.debug("CK found a subclass callback for class " + refactoredClass + "and ignores it on commit " + commitMetaData.getCommitId());
 				return;
-
+			}
 			// collect the class level metrics
 			ClassMetric classMetric = extractClassMetrics(ck);
 			MethodMetric methodMetrics = null;
@@ -263,10 +264,9 @@ public class RefactoringAnalyzer {
 			list.add(refactoringCommit);
 
 			db.persist(refactoringCommit);
-
 		});
 
-		return list.isEmpty() ? null : list.get(0);
+		return list.isEmpty()? null : list.get(0);
 	}
 
 	//TODO: on my Windows computer the tempDir is not always deleted

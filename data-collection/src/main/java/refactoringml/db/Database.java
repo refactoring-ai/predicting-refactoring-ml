@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Database {
 
@@ -76,6 +77,10 @@ public class Database {
 				.list();
 		shortSession.close();
 		return results;
+	}
+
+	public List<StableCommit> findAllStableCommits(Project project, int level) {
+		return findAllStableCommits(project).stream().filter(stableCommit -> stableCommit.getCommitThreshold() == level).collect(Collectors.toList());
 	}
 
 	public void rollback() {
