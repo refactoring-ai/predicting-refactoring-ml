@@ -28,6 +28,7 @@ import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
 
+
 public class RefactoringAnalyzer {
 	private String tempDir;
 	private Project project;

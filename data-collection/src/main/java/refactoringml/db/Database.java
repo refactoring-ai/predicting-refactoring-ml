@@ -26,7 +26,6 @@ public class Database {
 		this.session.getTransaction().commit();
 	}
 
-
 	public void persist(Object obj) {
 		session.persist(obj);
 	}
