@@ -7,6 +7,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
@@ -19,8 +20,10 @@ import static refactoringml.util.CKUtils.cleanClassName;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
+import static refactoringml.util.JGitUtils.getReverseWalk;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
+import static refactoringml.util.SourceCodeUtils.getCleanSourceCode;
 
 public class ProcessMetricsCollector {
 	private Project project;
@@ -143,20 +146,20 @@ public class ProcessMetricsCollector {
 	}
 
 	//Store the refactoring instances in the DB
-	private void outputNonRefactoredClass(ProcessMetricTracker pmTracker) throws IOException {
-		String commitHashBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
-		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitHashBackThen);
+	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
+		RevCommit commitBackThen = getReverseWalk(repository, "master")
+				.parseCommit(ObjectId.fromString(pmTracker.getBaseCommitMetaData().getCommitId()));
+		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitBackThen.getId());
 
 		String tempDir = null;
 		try {
 			// we extract the source code from back then (as that's the one that never deserved a refactoring)
-			String sourceCodeBackThen = SourceCodeUtils.removeComments(readFileFromGit(repository, commitHashBackThen, pmTracker.getFileName()));
-
+			String sourceCodeBackThen = getCleanSourceCode(repository, commitBackThen, pmTracker.getFileName());
 			// create a temp dir to store the source code files and run CK there
 			tempDir = createTmpDir();
 
 			// we save it in the permanent storage...
-			writeFile(fileStoragePath + commitHashBackThen + "/" + "not-refactored/" + pmTracker.getFileName(), sourceCodeBackThen);
+			writeFile(fileStoragePath + commitBackThen.getName() + "/" + "not-refactored/" + pmTracker.getFileName(), sourceCodeBackThen);
 			// ... as well as in the temp one, so that we can calculate the CK metrics
 			writeFile(tempDir + pmTracker.getFileName(), sourceCodeBackThen);
 
@@ -173,7 +176,7 @@ public class ProcessMetricsCollector {
 				db.persist(stableCommit);
 			}
 		} catch(Exception e) {
-			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + commitHashBackThen, e);
+			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + commitBackThen.getId(), e);
 		} finally {
 			cleanTempDir(tempDir);
 		}
