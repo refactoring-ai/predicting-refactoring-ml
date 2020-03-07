@@ -20,6 +20,7 @@
         <param name="file" value="./logs_test/data-collection_ERROR.log"/>
         <param name="threshold" value="ERROR"/>
         <param name="maxFileSize" value="10MB"/>
+        <param name="Append" value="false"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n" />
         </layout>
