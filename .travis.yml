@@ -38,4 +38,4 @@ jobs:
 
     - name: "Run Canary Projects Tests"
       script:
-        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.Canary.*Test test
+        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.canaryprojects.*Test test

@@ -27,6 +27,7 @@ import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
+import static refactoringml.util.SourceCodeUtils.nonClassFile;
 
 
 public class RefactoringAnalyzer {
@@ -88,6 +89,11 @@ public class RefactoringAnalyzer {
 					String oldFileName = enforceUnixPaths(entry.getOldPath());
 					String currentFileName = enforceUnixPaths(entry.getNewPath());
 
+					if(nonClassFile(oldFileName)){
+						log.error("Refactoring miner found a refactoring for a newly introduced class file on commit: " + commit.getName() + " for new class file: " + currentFileName);
+						continue;
+					}
+
 					if(TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
 						log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
 					}
@@ -113,7 +119,8 @@ public class RefactoringAnalyzer {
 						if(storeFullSourceCode) {
 							// let's get the source code of the file after the refactoring
 							// but only if not deleted
-							String sourceCodeAfter = !wasDeleted(currentFileName) ? SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName)) : "";
+							String sourceCodeAfter = !nonClassFile(currentFileName) ? SourceCodeUtils.removeComments(readFileFromGit(repository, commit.getName(), currentFileName)) : "";
+
 
 							// store the before and after versions for the deep learning training
 							// note that we save the file before with the same name of the current file name,
@@ -121,7 +128,7 @@ public class RefactoringAnalyzer {
 							saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
 						}
 					} else {
-						log.error("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName());
+						log.error("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
 					}
 
 					cleanTmpDir();
@@ -134,10 +141,6 @@ public class RefactoringAnalyzer {
 
 		return allRefactorings;
     }
-
-	private boolean wasDeleted(String fileName) {
-		return fileName.equals("/dev/null");
-	}
 
 	private String getMethodAndOrVariableNameIfAny(RefactoringCommit refactoringCommit) {
 		if(refactoringCommit.getLevel() == Level.METHOD.ordinal()) {
@@ -211,8 +214,8 @@ public class RefactoringAnalyzer {
 				if(!ckMethod.isPresent()) {
 					// for some reason we did not find the method, let's remove it from the list.
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
-					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the detected refactoring: " + refactoring.getName() +
-							"\\nAll methods found by CK: " + methods);
+					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the refactoring type: " + refactoring.getName() + " on commit " + commitMetaData.getCommitId() +
+							"\nAll methods found by CK: " + methods);
 					return;
 				} else {
 					CKMethodResult ckMethodResult = ckMethod.get();

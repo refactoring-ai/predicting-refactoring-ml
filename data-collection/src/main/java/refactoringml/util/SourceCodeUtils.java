@@ -14,4 +14,8 @@ public class SourceCodeUtils {
 
 		return compilationUnit.toString(conf);
 	}
+
+	public static  boolean nonClassFile(String fileName) {
+		return fileName.equals("/dev/null");
+	}
 }

@@ -173,19 +173,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 						"git-svn-id: https://svn.apache.org/repos/asf/jakarta/commons/proper/cli/trunk@129805 13f79535-47bb-0310-9956-ffa450edef68");
 	}
 
-	@Test
-	public void relevantCommitMetaData(){
-		session = sf.openSession();
-		List<String> allRelevantCommitIds = session.createQuery("SELECT DISTINCT r.commitMetaData.commitId FROM RefactoringCommit r").list();
-		allRelevantCommitIds.addAll(session.createQuery("SELECT DISTINCT s.commitMetaData.commitId FROM StableCommit s").list());
-		allRelevantCommitIds = allRelevantCommitIds.stream().distinct().collect(Collectors.toList());
-		List<String> allCommitMetaDatas = session.createQuery("SELECT DISTINCT c.commitId From CommitMetaData c").list();
-		session.close();
-		session = null;
-
-		Assert.assertEquals(allRelevantCommitIds.size(), allCommitMetaDatas.size());
-	}
-
 	// this test checks the Extract Method that has happened in #269eae18a911f792895d0402f5dd4e7913410523,
 	// method getParsedOptionValue
 	@Test
