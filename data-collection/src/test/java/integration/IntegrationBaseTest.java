@@ -258,6 +258,19 @@ public abstract class IntegrationBaseTest {
 
 	@Test
 	public void checkErrors() throws FileNotFoundException {
-		Assert.assertEquals("", refactoringml.util.FileUtils.readFile("./logs_test/data-collection_ERROR.log"));
+		Assert.assertFalse(refactoringml.util.FileUtils.readFile("./logs_test/data-collection_ERROR.log").contains("Exception: "));
+	}
+
+	@Test
+	public void relevantCommitMetaData(){
+		session = sf.openSession();
+		List<String> allRelevantCommitIds = session.createQuery("SELECT DISTINCT r.commitMetaData.commitId FROM RefactoringCommit r").list();
+		allRelevantCommitIds.addAll(session.createQuery("SELECT DISTINCT s.commitMetaData.commitId FROM StableCommit s").list());
+		allRelevantCommitIds = allRelevantCommitIds.stream().distinct().collect(Collectors.toList());
+		List<String> allCommitMetaDatas = session.createQuery("SELECT DISTINCT c.commitId From CommitMetaData c").list();
+		session.close();
+		session = null;
+
+		Assert.assertEquals(allRelevantCommitIds.size(), allCommitMetaDatas.size());
 	}
 }

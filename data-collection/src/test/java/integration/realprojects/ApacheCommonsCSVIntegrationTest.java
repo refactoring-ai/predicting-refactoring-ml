@@ -124,19 +124,6 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     }
 
     @Test
-    public void relevantCommitMetaData(){
-        session = sf.openSession();
-        List<String> allRelevantCommitIds = session.createQuery("SELECT DISTINCT r.commitMetaData.commitId FROM RefactoringCommit r").list();
-        allRelevantCommitIds.addAll(session.createQuery("SELECT DISTINCT s.commitMetaData.commitId FROM StableCommit s").list());
-        allRelevantCommitIds = allRelevantCommitIds.stream().distinct().collect(Collectors.toList());
-        List<String> allCommitMetaDatas = session.createQuery("SELECT DISTINCT c.commitId From CommitMetaData c").list();
-        session.close();
-        session = null;
-
-        Assert.assertEquals(allRelevantCommitIds.size(), allCommitMetaDatas.size());
-    }
-
-    @Test
     public void refactorings_CSVStrategy() {
         String fileName = "src/main/java/org/apache/commons/csv/CSVStrategy.java";
         // and 10 with the old name 'CSVStrategy.java'
