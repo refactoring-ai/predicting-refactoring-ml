@@ -1,12 +1,8 @@
 language: java
-jdk:
-  - oraclejdk11
-os:
-  - linux
-
+jdk: oraclejdk11
+os: linux
 addons:
   mariadb: '10.4'
-
 git:
   depth: 1
   quiet: true
@@ -14,32 +10,44 @@ git:
 before_install:
   - sudo mysql -u root --password="" < ../predicting-refactoring-ml/scripts/mariadb_settings.sql
 
-install:
-  - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -q -DskipTests clean compile package
-
 jobs:
   include:
     - stage: Test
-      name: "Run refactoringml Tests"
-      script:
-        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=refactoringml.*Test test
+      name: "Test refactoringml - Data-Collection: Java"
+      install:
+        - cd ../predicting-refactoring-ml/data-collection/
+        - mvn -f pom.xml -q -DskipTests clean compile package
+      script: mvn -f pom.xml -Dtest=refactoringml.*Test test
 
-    - name: "Run Integration Toyproject Tests"
-      script:
-        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.toyprojects.*Test test
+    - name: "Test Integration Toyproject - Data-Collection: Java"
+      install:
+        - cd ../predicting-refactoring-ml/data-collection/
+        - mvn -f pom.xml -q -DskipTests clean compile package
+      script: mvn -f pom.xml -Dtest=integration.toyprojects.*Test test
 
-    - name: "Run Integration Realproject ApacheCommonsCli Tests"
-      script:
-        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.realprojects.ApacheCommonsCli*Test test
+    - name: "Test Integration Realproject ApacheCommonsCli - Data-Collection: Java"
+      install:
+        - cd ../predicting-refactoring-ml/data-collection/
+        - mvn -f pom.xml -q -DskipTests clean compile package
+      script: mvn -f pom.xml -Dtest=integration.realprojects.ApacheCommonsCli*Test test
 
-    - name: "Run Integration Realproject ApacheCommonsCSV Tests"
-      script:
-        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.realprojects.ApacheCommonsCSV*Test test
+    - name: "Test Integration Realproject ApacheCommonsCSV - Data-Collection: Java"
+      install:
+        - cd ../predicting-refactoring-ml/data-collection/
+        - mvn -f pom.xml -q -DskipTests clean compile package
+      script: mvn -f pom.xml -Dtest=integration.realprojects.ApacheCommonsCSV*Test test
 
-    - name: "Run Canary HibernateOGMIntegrationTest"
-      script:
-        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.canaryprojects.HibernateOGMIntegrationTest test
+    - name: "Run Canary ReactiveLocationIntegrationTest - Data-Collection: Java"
+      install:
+        - cd ../predicting-refactoring-ml/data-collection/
+        - mvn -f pom.xml -q -DskipTests clean compile package
+      script: mvn -f pom.xml -Dtest=integration.canaryprojects.ReactiveLocationIntegrationTest test
 
-    - name: "Run Canary ReactiveLocationIntegrationTest"
-      script:
-      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.canaryprojects.ReactiveLocationIntegrationTest test
+    - name: "Test machine-learning - Machine-Learning: Python"
+      language: python
+      python: "3.7"
+      install:
+        - cd ../predicting-refactoring-ml/machine-learning/
+        - pip install --upgrade pip
+        - pip install -r requirements.txt
+      script: pytest
