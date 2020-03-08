@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.Instance;
-import refactoringml.db.StableCommit;
 import refactoringml.db.ProcessMetrics;
 import refactoringml.db.RefactoringCommit;
 import java.util.List;
@@ -77,6 +76,8 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 		String renameClass = "96443c0c80919970071acfbb9f2af6a99b1f41ac";
 		//renamed both class name and filename
 		String renameClassFull = "d801d80c03ff1268010bbb43cec43da4be233dfd";
+		//renamed only the file name and not the class name
+		String renameFile = "9f3da34dc0cf4a141033d47accdb338104678f9b";
 
 		assertRefactoring(refactoringCommitList, doubleRenameCommit, "Rename Class",2);
 		assertRefactoring(refactoringCommitList, renameClass, "Rename Class",1);
@@ -122,7 +123,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				2,
 				0.5,
 				0,
-				3
+				4
 		);
 		assertProcessMetrics(filterCommit(refactoringCommitList, renameClass).get(0), renameClassMetrics);
 		String renameFullMetrics = ProcessMetrics.toString(
@@ -134,9 +135,12 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				3,
 				0.4,
 				0,
-				4
+				5
 		);
 		assertProcessMetrics(filterCommit(refactoringCommitList, renameClassFull).get(0), renameFullMetrics);
+
+		//TODO: does refactoring miner miss file name rename refactorings, with no effects on the class?
+		//assertRefactoring(refactoringCommitList, renameFile, "Rename Class",1);
 	}
 
 	@Test
@@ -175,7 +179,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 				3,
 				0.5,
 				0,
-				5
+				6
 		);
 		assertProcessMetrics(filterCommit(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0), methodRename);
 	}

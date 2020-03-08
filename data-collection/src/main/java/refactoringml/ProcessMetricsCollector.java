@@ -89,6 +89,8 @@ public class ProcessMetricsCollector {
 				if (!refactoringml.util.FileUtils.IsJavaFile(fileName))
 					continue;
 
+				//TODO: in case the metrics collection crashes earlier for a commit with class file renames, the PMDatabase is not updated
+
 				// if the class was deleted, we remove it from our pmDatabase
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
 				// as this is basically exceptional when compared to thousands of commits and changes.

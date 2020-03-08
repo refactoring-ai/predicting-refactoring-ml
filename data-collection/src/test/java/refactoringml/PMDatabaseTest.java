@@ -149,7 +149,7 @@ public class PMDatabaseTest {
         pmDatabase.reportChanges("B.Java", new CommitMetaData("1", "null", "null", "0"), "Rafael", 10, 20);
         Assert.assertNotNull(pmDatabase.find("B.Java"));
         Assert.assertEquals("B.Java", pmDatabase.find("B.Java").getFileName());
-        Assert.assertEquals(2, pmDatabase.find("B.Java").getCommitCounter());
+        Assert.assertEquals(1, pmDatabase.find("B.Java").getCommitCounter());
         Assert.assertEquals(2, pmDatabase.find("B.Java").getCurrentProcessMetrics().qtyOfCommits);
         Assert.assertEquals(40, pmDatabase.find("B.Java").getCurrentProcessMetrics().linesDeleted);
 
@@ -170,8 +170,8 @@ public class PMDatabaseTest {
         ProcessMetricTracker pmTracker = pmDatabase.find("a.Java");
         Assert.assertNotNull(pmTracker);
         Assert.assertEquals(10, pmTracker.getCurrentProcessMetrics().linesAdded);
-        Assert.assertEquals(0, pmTracker.getBaseProcessMetrics().linesAdded);
-        Assert.assertEquals("#1", pmTracker.getBaseCommitMetaData().getCommitId());
+        Assert.assertEquals(10, pmTracker.getBaseProcessMetrics().linesAdded);
+        Assert.assertEquals("1", pmTracker.getBaseCommitMetaData().getCommitId());
     }
 
     //take care of renamed files
