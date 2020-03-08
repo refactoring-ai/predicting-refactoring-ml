@@ -257,8 +257,13 @@ public abstract class IntegrationBaseTest {
 	}
 
 	@Test
-	public void checkErrors() throws FileNotFoundException {
+	public void checkExceptions() throws FileNotFoundException {
 		Assert.assertFalse(refactoringml.util.FileUtils.readFile("./logs_test/data-collection_ERROR.log").contains("Exception: "));
+	}
+
+	@Test
+	public void checkCKErrors() throws FileNotFoundException {
+		Assert.assertFalse(refactoringml.util.FileUtils.readFile("./logs_test/data-collection_ERROR.log").contains("CK did not find"));
 	}
 
 	@Test

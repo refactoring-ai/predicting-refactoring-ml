@@ -7,7 +7,7 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HibernateOGMIntegrationTest extends IntegrationBaseTest {
 	@Override
-	protected String getStableCommitThreshold() {return "25,50";};
+	protected String getStableCommitThreshold() {return "15,25,50";}
 
 	@Override
 	protected String getLastCommit() {
@@ -16,7 +16,7 @@ public class HibernateOGMIntegrationTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "https://github.com/hibernate/hibernate-ogm";
+		return "https://github.com/hibernate/hibernate-ogm.git";
 	}
 
 	@Test

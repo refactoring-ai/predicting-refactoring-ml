@@ -7,7 +7,7 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ReactiveLocationIntegrationTest extends IntegrationBaseTest {
 	@Override
-	protected String getStableCommitThreshold() {return "10";};
+	protected String getStableCommitThreshold() {return "15,25,50";}
 
 	@Override
 	protected String getLastCommit() {
