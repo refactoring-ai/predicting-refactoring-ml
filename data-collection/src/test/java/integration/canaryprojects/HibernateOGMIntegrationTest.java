@@ -1,6 +1,7 @@
 package integration.canaryprojects;
 
 import integration.IntegrationBaseTest;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -18,6 +19,10 @@ public class HibernateOGMIntegrationTest extends IntegrationBaseTest {
 	protected String getRepo() {
 		return "https://github.com/hibernate/hibernate-ogm.git";
 	}
+
+	@Ignore
+	@Override
+	public void checkCKMethodNotFound(){}
 
 	@Test
 	public void projectMetrics() {

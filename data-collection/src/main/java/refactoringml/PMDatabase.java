@@ -31,15 +31,19 @@ public class PMDatabase {
 	}
 
 	/*
-	Report the rename of a file in order to track its process metrics.
+	Report the rename of a file in order to track its process metrics. Every rename is considered a refactoring.
 	In case of (various renames), the names are replaced, e.g.
 	1. Rename People.java to Person.java: Person -> People_ProcessMetrics
 	2. Rename Person.java to Human.java: Human -> People_ProcessMetrics
+	Sometimes renames or move source folder refactorings are not detected by Refactoring-Miner, then the metrics are increased manually here.
 	 */
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
 		ProcessMetricTracker pmTracker = new ProcessMetricTracker(database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData)));
 		pmTracker.setFileName(newFileName);
-
+		//the class file was renamed or moved, but the refactoring was not detected by refactoring miner
+		if(pmTracker.getCommitCounter() != 0){
+			pmTracker.resetCounter(commitMetaData);
+		}
 		ProcessMetricTracker oldPMTracker = removeFile(oldFileName);
 
 		database.put(newFileName, pmTracker);

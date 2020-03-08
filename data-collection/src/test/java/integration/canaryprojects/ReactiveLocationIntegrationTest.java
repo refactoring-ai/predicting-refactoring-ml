@@ -1,6 +1,7 @@
 package integration.canaryprojects;
 
 import integration.IntegrationBaseTest;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -22,6 +23,9 @@ public class ReactiveLocationIntegrationTest extends IntegrationBaseTest {
 	@Override
 	protected String trackFileName() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
 
+	@Ignore
+	@Override
+	public void checkCKMethodNotFound(){}
 
 	@Test
 	public void projectMetrics() {
