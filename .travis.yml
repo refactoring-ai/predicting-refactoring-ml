@@ -36,6 +36,10 @@ jobs:
       script:
         - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.realprojects.ApacheCommonsCSV*Test test
 
-    - name: "Run Canary Projects Tests"
+    - name: "Run Canary HibernateOGMIntegrationTest"
       script:
-        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.canaryprojects.*Test test
+        - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.canaryprojects.HibernateOGMIntegrationTest test
+
+    - name: "Run Canary ReactiveLocationIntegrationTest"
+      script:
+      - mvn -f ../predicting-refactoring-ml/data-collection/pom.xml -Dtest=integration.canaryprojects.ReactiveLocationIntegrationTest test
