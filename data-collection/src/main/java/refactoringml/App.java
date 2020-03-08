@@ -207,8 +207,8 @@ public class App {
 		statistics += String.format("\nFound %o refactoring- and %o stable instances in the project.",
 				db.findAllRefactoringCommits(project).size(), db.findAllStableCommits(project).size());
 		for(int level: project.getCommitCountThresholds()){
-			statistics += String.format("\n\t\tFound %o stable instances in the project with threshold: %o" ,
-					db.findAllStableCommits(project, level).size(), level);
+			int stableInstacesCount = db.findAllStableCommits(project, level).size();
+			statistics += "\n\t\tFound " + stableInstacesCount + " stable instances in the project with threshold: " + level;
 		}
 		return statistics + "\n" + project.toString();
 	}
