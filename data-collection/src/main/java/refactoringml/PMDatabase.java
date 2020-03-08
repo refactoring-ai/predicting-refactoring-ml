@@ -10,11 +10,8 @@ import java.util.stream.Collectors;
 public class PMDatabase {
 	//Map class files onto their original process metrics.
 	private Map<String, ProcessMetricTracker> database;
-	//All commit thresholds for this project for considering a class file as stable
-	private List<Integer> commitThresholds;
 
-	public PMDatabase (List<Integer> commitThresholds) {
-		this.commitThresholds = commitThresholds;
+	public PMDatabase () {
 		this.database = new HashMap<>();
 	}
 
@@ -25,7 +22,9 @@ public class PMDatabase {
 	}
 
 	//Find all stable instances in the database
-	public List<ProcessMetricTracker> findStableInstances() {
+	//Don't use these, because it is very inefficient
+	@Deprecated
+	public List<ProcessMetricTracker> findStableInstances(List<Integer> commitThresholds) {
 		return database.values().stream()
 				.filter(pmTracker -> pmTracker.calculateStability(commitThresholds))
 				.collect(Collectors.toList());
@@ -54,11 +53,13 @@ public class PMDatabase {
 	}
 
 	//Report a commit changing the given class file, the in memory database is updated accordingly
-	public void reportChanges(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
+	//Returns the ProcessMetricsTracker if it is stable
+	public ProcessMetricTracker reportChanges(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
 		ProcessMetricTracker pmTracker = database.getOrDefault(fileName, new ProcessMetricTracker(fileName, commitMetaData));
 		pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
 
 		database.put(fileName, pmTracker);
+		return pmTracker;
 	}
 
 	//Reset the tracker with latest refactoring and its commit meta data
@@ -72,8 +73,6 @@ public class PMDatabase {
 
 	public String toString(){
 		return "PMDatabase{" +
-				"database=" + database.toString() + ",\n" +
-				"commitThreshold=" + commitThresholds.toString() +
-				"}";
+				"database=" + database.toString() + "}";
 	}
 }
