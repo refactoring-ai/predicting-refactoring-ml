@@ -15,7 +15,7 @@ echo "${totalRefactorings} refactoring instances were found in total." >> $outFi
 totalStableInstances=$(grep 'refactoring- and' $infoFile | sed -e 's/Found [0-9]* refactoring- and \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
 echo "${totalStableInstances} stable instances were found in total." >> $outFile
 
-for ((i=20;i<=50;i+=10)); do
+for ((i=15;i<=50;i+=5)); do
 	currentStable=$(grep "stable instances in the project with threshold: ${i}" $infoFile | sed -e 's/Found \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
 	echo -e "\t${currentStable} stablecommit instances were found for threshold ${i}" >> $outFile
 done
