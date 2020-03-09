@@ -6,7 +6,7 @@ imblearn
 configparser
 joblib
 keras
-tensorflow-gpu
+tensorflow
 matplotlib
 scipy
 keras-metrics
