@@ -50,7 +50,6 @@ jobs:
     - name: "Test machine-learning - Machine-Learning: Python"
       language: python
       python:
-        - "2.7"
         - "3.7"
       before_install:
         - cd ../predicting-refactoring-ml/machine-learning/
