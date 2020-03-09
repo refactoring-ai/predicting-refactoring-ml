@@ -1,5 +1,4 @@
 language: java
-jdk: oraclejdk11
 os: linux
 addons:
   mariadb: '10.4'
@@ -14,30 +13,35 @@ jobs:
   include:
     - stage: Test
       name: "Test refactoringml - Data-Collection: Java"
+      jdk: oraclejdk11
       install:
         - cd ../predicting-refactoring-ml/data-collection/
         - mvn -f pom.xml -q -DskipTests clean compile package
       script: mvn -f pom.xml -Dtest=refactoringml.*Test test
 
     - name: "Test Integration Toyproject - Data-Collection: Java"
+      jdk: oraclejdk11
       install:
         - cd ../predicting-refactoring-ml/data-collection/
         - mvn -f pom.xml -q -DskipTests clean compile package
       script: mvn -f pom.xml -Dtest=integration.toyprojects.*Test test
 
     - name: "Test Integration Realproject ApacheCommonsCli - Data-Collection: Java"
+      jdk: oraclejdk11
       install:
         - cd ../predicting-refactoring-ml/data-collection/
         - mvn -f pom.xml -q -DskipTests clean compile package
       script: mvn -f pom.xml -Dtest=integration.realprojects.ApacheCommonsCli*Test test
 
     - name: "Test Integration Realproject ApacheCommonsCSV - Data-Collection: Java"
+      jdk: oraclejdk11
       install:
         - cd ../predicting-refactoring-ml/data-collection/
         - mvn -f pom.xml -q -DskipTests clean compile package
       script: mvn -f pom.xml -Dtest=integration.realprojects.ApacheCommonsCSV*Test test
 
     - name: "Run Canary ReactiveLocationIntegrationTest - Data-Collection: Java"
+      jdk: oraclejdk11
       install:
         - cd ../predicting-refactoring-ml/data-collection/
         - mvn -f pom.xml -q -DskipTests clean compile package
@@ -45,9 +49,12 @@ jobs:
 
     - name: "Test machine-learning - Machine-Learning: Python"
       language: python
-      python: "3.7"
+      python:
+        - "3.7"
+        - "2.7"
       install:
         - cd ../predicting-refactoring-ml/machine-learning/
-        - pip install --upgrade pip
-        - pip install -r requirements.txt
+        - pip install -u pip
+        - pip install -u pytest
+        - pip install -u -r requirements.txt
       script: pytest
