@@ -61,6 +61,7 @@ public class RunQueue {
 
 		while(true) {
 			log.info("Fetching new element from the rabbitmq queue...");
+
 			try (Connection connection = factory.newConnection();
 				 Channel channel = connection.createChannel()) {
 
