@@ -51,10 +51,8 @@ jobs:
       language: python
       python:
         - "3.7"
-        - "2.7"
-      install:
+      before_install:
         - cd ../predicting-refactoring-ml/machine-learning/
-        - pip install -u pip
-        - pip install -u pytest
-        - pip install -u -r requirements.txt
+        - python -m pip install --upgrade pip
+        - python -m pip install --upgrade pytest
       script: pytest
