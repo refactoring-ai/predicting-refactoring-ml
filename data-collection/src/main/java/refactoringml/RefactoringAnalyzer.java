@@ -96,13 +96,8 @@ public class RefactoringAnalyzer {
 						continue;
 					}
 
-					if(TrackDebugMode.ACTIVE && (oldFileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || currentFileName.contains(TrackDebugMode.FILENAME_TO_TRACK))) {
-						log.debug("[TRACK] Refactoring '" + refactoring.getName() +"' detected, commit " + commit.getId().getName());
-					}
-
 					// Now, we get the contents of the file before
 					String sourceCodeBefore = readFileFromGit(repository, commitParent, oldFileName);
-
 					// save the old version of the file in a temp dir to execute the CK tool
 					// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
 					// but later we notice it might do in cases of file renames and refactorings in the same commit.
@@ -130,10 +125,6 @@ public class RefactoringAnalyzer {
 						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
 					}
 				}
-			}
-
-			if (commit.getId().getName().equals(TrackDebugMode.COMMIT_TO_TRACK)) {
-				log.debug("[TRACK] End commit " + commit.getId().getName());
 			}
 		}
 

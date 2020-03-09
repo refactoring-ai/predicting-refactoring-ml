@@ -5,16 +5,13 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import refactoringml.db.CommitMetaData;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R3ToyProjectTest extends IntegrationBaseTest {
-
 	@Override
 	protected String getStableCommitThreshold() {return List.of(3, 5, 6).toString();}
 
@@ -22,9 +19,6 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 	protected String getRepo() {
 		return "https://github.com/jan-gerling/toyrepo-r3.git";
 	}
-
-	@Override
-	protected String trackFileName(){ return "Dog.java"; }
 
 	// This test helped to check if refactoring in subclasses are working.
 	//Push Up Attribute not working see e3e605f2d76b5e8a4d85ba0d586103834822ea40

@@ -4,8 +4,6 @@ import integration.IntegrationBaseTest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestTemplate;
-import refactoringml.db.CommitMetaData;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
 import java.util.List;
@@ -25,9 +23,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	protected String getRepo() {
 		return "https://github.com/apache/commons-cli.git";
 	}
-
-	@Override
-	protected String trackFileName() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
 
 	//Test the isInnerClass boolean for both RefactoringCommit and StableCommit .
 	@Test
