@@ -54,7 +54,6 @@ public class JGitUtils {
 	}
 
 	public static String readFileFromGit (Repository repo, String commit, String filepath) throws IOException {
-
 		ObjectId commitId = ObjectId.fromString(commit);
 		RevWalk revWalk = new RevWalk(repo);
 		RevCommit revCommit = revWalk.parseCommit( commitId );

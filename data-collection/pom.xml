@@ -24,7 +24,6 @@
 	  </dependency>
 
 
-
 	  <!-- https://mvnrepository.com/artifact/com.github.mauricioaniche/ck -->
 	  <dependency>
 		  <groupId>com.github.mauricioaniche</groupId>

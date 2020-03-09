@@ -2,9 +2,8 @@ package refactoringml;
 
 import refactoringml.db.CommitMetaData;
 import refactoringml.db.ProcessMetrics;
+import refactoringml.util.FileUtils;
 import java.util.*;
-
-import static refactoringml.util.SourceCodeUtils.nonClassFile;
 
 public class ProcessMetricTracker {
 	//filename of the class file, does not distinguish between subclasses
@@ -28,7 +27,7 @@ public class ProcessMetricTracker {
 	}
 
 	public ProcessMetricTracker(String fileName, CommitMetaData commitMetaData) {
-		if(nonClassFile(fileName))
+		if(FileUtils.nonClassFile(fileName))
 			throw new IllegalArgumentException(fileName + " is an illegal file name for a class file.");
 
 		this.fileName = fileName;
