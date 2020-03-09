@@ -19,11 +19,9 @@ import refactoringml.db.*;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
 import refactoringml.util.JGitUtils;
-
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.FileUtils.createTmpDir;
@@ -140,14 +138,9 @@ public class App {
 					if (currentCommit.equals(lastCommitToProcess))
 						endFound = true;
 
-					String commitHash = currentCommit.getId().getName();
-					if (TrackDebugMode.ACTIVE && commitHash.contains(TrackDebugMode.COMMIT_TO_TRACK)) {
-						log.debug("[Track] Visiting commit " + commitHash);
-					}
-
 					refactoringsToProcess = null;
 					commitIdToProcess = null;
-
+					String commitHash = currentCommit.getId().getName();
 					// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 					if (currentCommit.getParentCount() == 1)
 						miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.StableCommit;
 import refactoringml.db.RefactoringCommit;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,11 +21,6 @@ public class ApacheCommonsLangIntegrationTest extends IntegrationBaseTest {
     @Override
     protected String getRepo() {
         return "https://www.github.com/apache/commons-lang.git";
-    }
-
-    @Override
-    protected String trackFileName() {
-        return "src/java/org/apache/commons/lang/builder/HashCodeBuilder.java";
     }
 
     @Override

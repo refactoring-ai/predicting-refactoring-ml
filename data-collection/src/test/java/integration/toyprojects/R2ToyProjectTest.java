@@ -4,23 +4,14 @@ import integration.IntegrationBaseTest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import refactoringml.db.Instance;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.db.StableCommit;
 import refactoringml.db.ProcessMetrics;
-
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R2ToyProjectTest extends IntegrationBaseTest {
-	@Override
-	protected String trackCommit(){return "bc15aee7cfaddde19ba6fefe0d12331fe98ddd46";}
-
-	@Override
-	protected String trackFileName(){return "Person.java";}
-
 	@Override
 	protected String getRepo() {
 		return "https://github.com/jan-gerling/toyrepo-r2.git";
