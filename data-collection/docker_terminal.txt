@@ -1,0 +1,1004 @@
+sudo docker-compose up --scale worker=4
+Creating data-collection_queue_1   ... done
+Creating data-collection_adminer_1 ... done
+Creating data-collection_db_1      ... done
+Creating data-collection_import_1  ... done
+Creating data-collection_worker_1  ... done
+Creating data-collection_worker_2  ... done
+Creating data-collection_worker_3  ... done
+Creating data-collection_worker_4  ... done
+Attaching to data-collection_adminer_1, data-collection_queue_1, data-collection_db_1, data-collection_import_1, data-collection_worker_2, data-collection_worker_4, data-collection_worker_3, data-collection_worker_1
+db_1       | 2020-03-08 18:01:39+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 1:10.4.12+maria~bionic started.
+db_1       | 2020-03-08 18:01:39+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+import_1   | Starting the import soon
+db_1       | 2020-03-08 18:01:39+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 1:10.4.12+maria~bionic started.
+adminer_1  | [Sun Mar  8 18:01:39 2020] PHP 7.4.3 Development Server (http://[::]:8080) started
+db_1       | 2020-03-08 18:01:40 0 [Note] mysqld (mysqld 10.4.12-MariaDB-1:10.4.12+maria~bionic) starting as process 1 ...
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Using Linux native AIO
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Uses event mutexes
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Number of pools: 1
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Using SSE2 crc32 instructions
+db_1       | 2020-03-08 18:01:40 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Initializing buffer pool, total size = 256M, instances = 1, chunk size = 128M
+worker_1   | Starting the worker soon
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Completed initialization of buffer pool
+worker_2   | Starting the worker soon
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+worker_3   | Starting the worker soon
+db_1       | 2020-03-08 18:01:40 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=60981
+worker_4   | Starting the worker soon
+db_1       | 2020-03-08 18:01:41 0 [Note] InnoDB: 128 out of 128 rollback segments are active.
+db_1       | 2020-03-08 18:01:41 0 [Note] InnoDB: Removed temporary tablespace data file: "ibtmp1"
+db_1       | 2020-03-08 18:01:41 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+db_1       | 2020-03-08 18:01:41 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+db_1       | 2020-03-08 18:01:41 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+db_1       | 2020-03-08 18:01:41 0 [Note] InnoDB: 10.4.12 started; log sequence number 60990; transaction id 21
+db_1       | 2020-03-08 18:01:41 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+db_1       | 2020-03-08 18:01:41 0 [Note] Plugin 'FEEDBACK' is disabled.
+db_1       | 2020-03-08 18:01:41 0 [Note] Server socket created on IP: '::'.
+db_1       | 2020-03-08 18:01:41 0 [Warning] 'proxies_priv' entry '@% root@74091c9198be' ignored in --skip-name-resolve mode.
+db_1       | 2020-03-08 18:01:41 0 [Note] InnoDB: Buffer pool(s) load completed at 200308 18:01:41
+db_1       | 2020-03-08 18:01:41 0 [Note] Reading of all Master_info entries succeeded
+db_1       | 2020-03-08 18:01:41 0 [Note] Added new Master_info '' to hash table
+db_1       | 2020-03-08 18:01:41 0 [Note] mysqld: ready for connections.
+db_1       | Version: '10.4.12-MariaDB-1:10.4.12+maria~bionic'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  mariadb.org binary distribution
+queue_1    | 2020-03-08 18:01:52.758 [info] <0.8.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:52.758 [info] <0.8.0> Feature flags:   [ ] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:52.758 [info] <0.8.0> Feature flags:   [ ] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:52.758 [info] <0.8.0> Feature flags:   [ ] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:52.758 [info] <0.8.0> Feature flags:   [ ] quorum_queue
+queue_1    | 2020-03-08 18:01:52.758 [info] <0.8.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:52.758 [info] <0.8.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:52.809 [info] <0.268.0> ra: meta data store initialised. 0 record(s) recovered
+queue_1    | 2020-03-08 18:01:52.809 [info] <0.273.0> WAL: recovering []
+queue_1    | 2020-03-08 18:01:52.824 [info] <0.277.0> 
+queue_1    |  Starting RabbitMQ 3.8.3-rc.1 on Erlang 22.2.8
+queue_1    |  Copyright (c) 2007-2020 Pivotal Software, Inc.
+queue_1    |  Licensed under the MPL 1.1. Website: https://rabbitmq.com
+queue_1    | 
+queue_1    |   ##  ##      RabbitMQ 3.8.3-rc.1
+queue_1    |   ##  ##
+queue_1    |   ##########  Copyright (c) 2007-2020 Pivotal Software, Inc.
+queue_1    |   ######  ##
+queue_1    |   ##########  Licensed under the MPL 1.1. Website: https://rabbitmq.com
+queue_1    | 
+queue_1    |   Doc guides: https://rabbitmq.com/documentation.html
+queue_1    |   Support:    https://rabbitmq.com/contact.html
+queue_1    |   Tutorials:  https://rabbitmq.com/getstarted.html
+queue_1    |   Monitoring: https://rabbitmq.com/monitoring.html
+queue_1    | 
+queue_1    |   Logs: <stdout>
+queue_1    | 
+queue_1    |   Config file(s): /etc/rabbitmq/rabbitmq.conf
+queue_1    | 
+queue_1    |   Starting broker...2020-03-08 18:01:52.827 [info] <0.277.0> 
+queue_1    |  node           : rabbit@81782da0b340
+queue_1    |  home dir       : /var/lib/rabbitmq
+queue_1    |  config file(s) : /etc/rabbitmq/rabbitmq.conf
+queue_1    |  cookie hash    : FuIFixt5spxEHNRlMOx5+Q==
+queue_1    |  log(s)         : <stdout>
+queue_1    |  database dir   : /var/lib/rabbitmq/mnesia/rabbit@81782da0b340
+queue_1    | 2020-03-08 18:01:52.848 [info] <0.277.0> Running boot step pre_boot defined by app rabbit
+queue_1    | 2020-03-08 18:01:52.848 [info] <0.277.0> Running boot step rabbit_core_metrics defined by app rabbit
+queue_1    | 2020-03-08 18:01:52.850 [info] <0.277.0> Running boot step rabbit_alarm defined by app rabbit
+queue_1    | 2020-03-08 18:01:52.854 [info] <0.283.0> Memory high watermark set to 3150 MiB (3303160217 bytes) of 7875 MiB (8257900544 bytes) total
+queue_1    | 2020-03-08 18:01:52.858 [info] <0.285.0> Enabling free disk space monitoring
+queue_1    | 2020-03-08 18:01:52.858 [info] <0.285.0> Disk free limit set to 50MB
+queue_1    | 2020-03-08 18:01:52.862 [info] <0.277.0> Running boot step code_server_cache defined by app rabbit
+queue_1    | 2020-03-08 18:01:52.862 [info] <0.277.0> Running boot step file_handle_cache defined by app rabbit
+queue_1    | 2020-03-08 18:01:52.862 [info] <0.288.0> Limiting to approx 1048479 file handles (943629 sockets)
+queue_1    | 2020-03-08 18:01:52.863 [info] <0.289.0> FHC read buffering:  OFF
+queue_1    | 2020-03-08 18:01:52.863 [info] <0.289.0> FHC write buffering: ON
+queue_1    | 2020-03-08 18:01:52.864 [info] <0.277.0> Running boot step worker_pool defined by app rabbit
+queue_1    | 2020-03-08 18:01:52.864 [info] <0.278.0> Will use 4 processes for default worker pool
+queue_1    | 2020-03-08 18:01:52.864 [info] <0.278.0> Starting worker pool 'worker_pool' with 4 processes in it
+queue_1    | 2020-03-08 18:01:52.865 [info] <0.277.0> Running boot step database defined by app rabbit
+queue_1    | 2020-03-08 18:01:52.865 [info] <0.277.0> Node database directory at /var/lib/rabbitmq/mnesia/rabbit@81782da0b340 is empty. Assuming we need to join an existing cluster or initialise from scratch...
+queue_1    | 2020-03-08 18:01:52.866 [info] <0.277.0> Configured peer discovery backend: rabbit_peer_discovery_classic_config
+queue_1    | 2020-03-08 18:01:52.866 [info] <0.277.0> Will try to lock with peer discovery backend rabbit_peer_discovery_classic_config
+queue_1    | 2020-03-08 18:01:52.866 [info] <0.277.0> Peer discovery backend does not support locking, falling back to randomized delay
+queue_1    | 2020-03-08 18:01:52.866 [info] <0.277.0> Peer discovery backend rabbit_peer_discovery_classic_config does not support registration, skipping randomized startup delay.
+queue_1    | 2020-03-08 18:01:52.866 [info] <0.277.0> All discovered existing cluster peers: 
+queue_1    | 2020-03-08 18:01:52.866 [info] <0.277.0> Discovered no peer nodes to cluster with. Some discovery backends can filter nodes out based on a readiness criteria. Enabling debug logging might help troubleshoot.
+queue_1    | 2020-03-08 18:01:52.868 [info] <0.43.0> Application mnesia exited with reason: stopped
+queue_1    | 2020-03-08 18:01:53.127 [info] <0.277.0> Waiting for Mnesia tables for 30000 ms, 9 retries left
+queue_1    | 2020-03-08 18:01:53.173 [info] <0.277.0> Waiting for Mnesia tables for 30000 ms, 9 retries left
+queue_1    | 2020-03-08 18:01:53.173 [info] <0.277.0> Feature flag `drop_unroutable_metric`: supported, attempt to enable...
+queue_1    | 2020-03-08 18:01:53.173 [info] <0.277.0> Feature flag `drop_unroutable_metric`: mark as enabled=state_changing
+queue_1    | 2020-03-08 18:01:53.192 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.192 [info] <0.277.0> Feature flags:   [~] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.192 [info] <0.277.0> Feature flags:   [ ] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.192 [info] <0.277.0> Feature flags:   [ ] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.193 [info] <0.277.0> Feature flags:   [ ] quorum_queue
+queue_1    | 2020-03-08 18:01:53.193 [info] <0.277.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.193 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.207 [info] <0.277.0> Feature flag `drop_unroutable_metric`: mark as enabled=true
+queue_1    | 2020-03-08 18:01:53.224 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.224 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.224 [info] <0.277.0> Feature flags:   [ ] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.225 [info] <0.277.0> Feature flags:   [ ] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.225 [info] <0.277.0> Feature flags:   [ ] quorum_queue
+queue_1    | 2020-03-08 18:01:53.225 [info] <0.277.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.225 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.239 [info] <0.277.0> Feature flag `empty_basic_get_metric`: supported, attempt to enable...
+queue_1    | 2020-03-08 18:01:53.240 [info] <0.277.0> Feature flag `empty_basic_get_metric`: mark as enabled=state_changing
+queue_1    | 2020-03-08 18:01:53.256 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.256 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.256 [info] <0.277.0> Feature flags:   [~] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.256 [info] <0.277.0> Feature flags:   [ ] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.256 [info] <0.277.0> Feature flags:   [ ] quorum_queue
+queue_1    | 2020-03-08 18:01:53.256 [info] <0.277.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.256 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.271 [info] <0.277.0> Feature flag `empty_basic_get_metric`: mark as enabled=true
+queue_1    | 2020-03-08 18:01:53.288 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.288 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.288 [info] <0.277.0> Feature flags:   [x] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.288 [info] <0.277.0> Feature flags:   [ ] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.289 [info] <0.277.0> Feature flags:   [ ] quorum_queue
+queue_1    | 2020-03-08 18:01:53.289 [info] <0.277.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.289 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.303 [info] <0.277.0> Feature flag `implicit_default_bindings`: supported, attempt to enable...
+queue_1    | 2020-03-08 18:01:53.304 [info] <0.277.0> Feature flag `implicit_default_bindings`: mark as enabled=state_changing
+queue_1    | 2020-03-08 18:01:53.321 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.321 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.321 [info] <0.277.0> Feature flags:   [x] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.321 [info] <0.277.0> Feature flags:   [~] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.321 [info] <0.277.0> Feature flags:   [ ] quorum_queue
+queue_1    | 2020-03-08 18:01:53.321 [info] <0.277.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.321 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.336 [info] <0.277.0> Waiting for Mnesia tables for 30000 ms, 0 retries left
+queue_1    | 2020-03-08 18:01:53.336 [info] <0.277.0> Feature flag `implicit_default_bindings`: mark as enabled=true
+queue_1    | 2020-03-08 18:01:53.353 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.354 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.354 [info] <0.277.0> Feature flags:   [x] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.354 [info] <0.277.0> Feature flags:   [x] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.354 [info] <0.277.0> Feature flags:   [ ] quorum_queue
+queue_1    | 2020-03-08 18:01:53.354 [info] <0.277.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.354 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.369 [info] <0.277.0> Feature flag `quorum_queue`: supported, attempt to enable...
+queue_1    | 2020-03-08 18:01:53.369 [info] <0.277.0> Feature flag `quorum_queue`: mark as enabled=state_changing
+queue_1    | 2020-03-08 18:01:53.387 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.387 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.387 [info] <0.277.0> Feature flags:   [x] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.387 [info] <0.277.0> Feature flags:   [x] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.387 [info] <0.277.0> Feature flags:   [~] quorum_queue
+queue_1    | 2020-03-08 18:01:53.387 [info] <0.277.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.387 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.402 [info] <0.277.0> Waiting for Mnesia tables for 30000 ms, 9 retries left
+queue_1    | 2020-03-08 18:01:53.402 [info] <0.277.0> Feature flag `quorum_queue`:   migrating Mnesia table rabbit_queue...
+queue_1    | 2020-03-08 18:01:53.440 [info] <0.277.0> Feature flag `quorum_queue`:   migrating Mnesia table rabbit_durable_queue...
+queue_1    | 2020-03-08 18:01:53.490 [info] <0.277.0> Feature flag `quorum_queue`:   Mnesia tables migration done
+queue_1    | 2020-03-08 18:01:53.490 [info] <0.277.0> Feature flag `quorum_queue`: mark as enabled=true
+queue_1    | 2020-03-08 18:01:53.514 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.515 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.515 [info] <0.277.0> Feature flags:   [x] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.515 [info] <0.277.0> Feature flags:   [x] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.515 [info] <0.277.0> Feature flags:   [x] quorum_queue
+queue_1    | 2020-03-08 18:01:53.515 [info] <0.277.0> Feature flags:   [ ] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.515 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.530 [info] <0.277.0> Feature flag `virtual_host_metadata`: supported, attempt to enable...
+queue_1    | 2020-03-08 18:01:53.530 [info] <0.277.0> Feature flag `virtual_host_metadata`: mark as enabled=state_changing
+queue_1    | 2020-03-08 18:01:53.547 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.547 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.547 [info] <0.277.0> Feature flags:   [x] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.547 [info] <0.277.0> Feature flags:   [x] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.547 [info] <0.277.0> Feature flags:   [x] quorum_queue
+queue_1    | 2020-03-08 18:01:53.547 [info] <0.277.0> Feature flags:   [~] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.547 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.564 [info] <0.277.0> Waiting for Mnesia tables for 30000 ms, 9 retries left
+queue_1    | 2020-03-08 18:01:53.611 [info] <0.277.0> Feature flag `virtual_host_metadata`: mark as enabled=true
+queue_1    | 2020-03-08 18:01:53.636 [info] <0.277.0> Feature flags: list of feature flags found:
+queue_1    | 2020-03-08 18:01:53.636 [info] <0.277.0> Feature flags:   [x] drop_unroutable_metric
+queue_1    | 2020-03-08 18:01:53.636 [info] <0.277.0> Feature flags:   [x] empty_basic_get_metric
+queue_1    | 2020-03-08 18:01:53.636 [info] <0.277.0> Feature flags:   [x] implicit_default_bindings
+queue_1    | 2020-03-08 18:01:53.636 [info] <0.277.0> Feature flags:   [x] quorum_queue
+queue_1    | 2020-03-08 18:01:53.636 [info] <0.277.0> Feature flags:   [x] virtual_host_metadata
+queue_1    | 2020-03-08 18:01:53.636 [info] <0.277.0> Feature flags: feature flag states written to disk: yes
+queue_1    | 2020-03-08 18:01:53.649 [info] <0.277.0> Waiting for Mnesia tables for 30000 ms, 9 retries left
+queue_1    | 2020-03-08 18:01:53.704 [info] <0.277.0> Waiting for Mnesia tables for 30000 ms, 9 retries left
+queue_1    | 2020-03-08 18:01:53.704 [info] <0.277.0> Peer discovery backend rabbit_peer_discovery_classic_config does not support registration, skipping registration.
+queue_1    | 2020-03-08 18:01:53.704 [info] <0.277.0> Running boot step database_sync defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.704 [info] <0.277.0> Running boot step feature_flags defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.705 [info] <0.277.0> Running boot step codec_correctness_check defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.705 [info] <0.277.0> Running boot step external_infrastructure defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.705 [info] <0.277.0> Running boot step rabbit_registry defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.705 [info] <0.277.0> Running boot step rabbit_auth_mechanism_cr_demo defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.705 [info] <0.277.0> Running boot step rabbit_queue_location_random defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.706 [info] <0.277.0> Running boot step rabbit_event defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.706 [info] <0.277.0> Running boot step rabbit_auth_mechanism_amqplain defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.706 [info] <0.277.0> Running boot step rabbit_auth_mechanism_plain defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.706 [info] <0.277.0> Running boot step rabbit_exchange_type_direct defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.706 [info] <0.277.0> Running boot step rabbit_exchange_type_fanout defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.707 [info] <0.277.0> Running boot step rabbit_exchange_type_headers defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.707 [info] <0.277.0> Running boot step rabbit_exchange_type_topic defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.707 [info] <0.277.0> Running boot step rabbit_mirror_queue_mode_all defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.707 [info] <0.277.0> Running boot step rabbit_mirror_queue_mode_exactly defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.707 [info] <0.277.0> Running boot step rabbit_mirror_queue_mode_nodes defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.707 [info] <0.277.0> Running boot step rabbit_priority_queue defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.707 [info] <0.277.0> Priority queues enabled, real BQ is rabbit_variable_queue
+queue_1    | 2020-03-08 18:01:53.708 [info] <0.277.0> Running boot step rabbit_queue_location_client_local defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.708 [info] <0.277.0> Running boot step rabbit_queue_location_min_masters defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.708 [info] <0.277.0> Running boot step kernel_ready defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.708 [info] <0.277.0> Running boot step rabbit_sysmon_minder defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.708 [info] <0.277.0> Running boot step rabbit_epmd_monitor defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.711 [info] <0.519.0> epmd monitor knows us, inter-node communication (distribution) port: 25672
+queue_1    | 2020-03-08 18:01:53.711 [info] <0.277.0> Running boot step guid_generator defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.718 [info] <0.277.0> Running boot step rabbit_node_monitor defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.719 [info] <0.525.0> Starting rabbit_node_monitor
+queue_1    | 2020-03-08 18:01:53.719 [info] <0.277.0> Running boot step delegate_sup defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.720 [info] <0.277.0> Running boot step rabbit_memory_monitor defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.720 [info] <0.277.0> Running boot step core_initialized defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.720 [info] <0.277.0> Running boot step upgrade_queues defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.753 [info] <0.277.0> message_store upgrades: 1 to apply
+queue_1    | 2020-03-08 18:01:53.753 [info] <0.277.0> message_store upgrades: Applying rabbit_variable_queue:move_messages_to_vhost_store
+queue_1    | 2020-03-08 18:01:53.753 [info] <0.277.0> message_store upgrades: No durable queues found. Skipping message store migration
+queue_1    | 2020-03-08 18:01:53.753 [info] <0.277.0> message_store upgrades: Removing the old message store data
+queue_1    | 2020-03-08 18:01:53.754 [info] <0.277.0> message_store upgrades: All upgrades applied successfully
+queue_1    | 2020-03-08 18:01:53.794 [info] <0.277.0> Running boot step rabbit_connection_tracking defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.794 [info] <0.277.0> Running boot step rabbit_connection_tracking_handler defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.794 [info] <0.277.0> Running boot step rabbit_exchange_parameters defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.795 [info] <0.277.0> Running boot step rabbit_mirror_queue_misc defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.795 [info] <0.277.0> Running boot step rabbit_policies defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.797 [info] <0.277.0> Running boot step rabbit_policy defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.797 [info] <0.277.0> Running boot step rabbit_queue_location_validator defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.798 [info] <0.277.0> Running boot step rabbit_quorum_memory_manager defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.798 [info] <0.277.0> Running boot step rabbit_vhost_limit defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.798 [info] <0.277.0> Running boot step rabbit_mgmt_reset_handler defined by app rabbitmq_management
+queue_1    | 2020-03-08 18:01:53.798 [info] <0.277.0> Running boot step rabbit_mgmt_db_handler defined by app rabbitmq_management_agent
+queue_1    | 2020-03-08 18:01:53.798 [info] <0.277.0> Management plugin: using rates mode 'basic'
+queue_1    | 2020-03-08 18:01:53.799 [info] <0.277.0> Running boot step recovery defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.800 [info] <0.277.0> Running boot step load_core_definitions defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.800 [info] <0.277.0> Running boot step empty_db_check defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.800 [info] <0.277.0> Adding vhost '/' (description: 'Default virtual host')
+queue_1    | 2020-03-08 18:01:53.860 [info] <0.567.0> Making sure data directory '/var/lib/rabbitmq/mnesia/rabbit@81782da0b340/msg_stores/vhosts/628WB79CIFDYO9LJI6DKMI09L' for vhost '/' exists
+queue_1    | 2020-03-08 18:01:53.877 [info] <0.567.0> Starting message stores for vhost '/'
+queue_1    | 2020-03-08 18:01:53.877 [info] <0.571.0> Message store "628WB79CIFDYO9LJI6DKMI09L/msg_store_transient": using rabbit_msg_store_ets_index to provide index
+queue_1    | 2020-03-08 18:01:53.881 [info] <0.567.0> Started message store of type transient for vhost '/'
+queue_1    | 2020-03-08 18:01:53.881 [info] <0.574.0> Message store "628WB79CIFDYO9LJI6DKMI09L/msg_store_persistent": using rabbit_msg_store_ets_index to provide index
+queue_1    | 2020-03-08 18:01:53.883 [warning] <0.574.0> Message store "628WB79CIFDYO9LJI6DKMI09L/msg_store_persistent": rebuilding indices from scratch
+queue_1    | 2020-03-08 18:01:53.885 [info] <0.567.0> Started message store of type persistent for vhost '/'
+queue_1    | 2020-03-08 18:01:53.888 [info] <0.277.0> Creating user 'guest'
+queue_1    | 2020-03-08 18:01:53.896 [info] <0.277.0> Setting user tags for user 'guest' to [administrator]
+queue_1    | 2020-03-08 18:01:53.903 [info] <0.277.0> Setting permissions for 'guest' in '/' to '.*', '.*', '.*'
+queue_1    | 2020-03-08 18:01:53.910 [info] <0.277.0> Running boot step rabbit_looking_glass defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.910 [info] <0.277.0> Running boot step rabbit_core_metrics_gc defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.911 [info] <0.277.0> Running boot step background_gc defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.911 [info] <0.277.0> Running boot step connection_tracking defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.920 [info] <0.277.0> Setting up a table for connection tracking on this node: tracked_connection_on_node_rabbit@81782da0b340
+queue_1    | 2020-03-08 18:01:53.932 [info] <0.277.0> Setting up a table for per-vhost connection counting on this node: tracked_connection_per_vhost_on_node_rabbit@81782da0b340
+queue_1    | 2020-03-08 18:01:53.933 [info] <0.277.0> Running boot step routing_ready defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.933 [info] <0.277.0> Running boot step pre_flight defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.933 [info] <0.277.0> Running boot step notify_cluster defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.933 [info] <0.277.0> Running boot step networking defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.937 [info] <0.620.0> started TCP listener on [::]:5672
+queue_1    | 2020-03-08 18:01:53.937 [info] <0.277.0> Running boot step cluster_name defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.938 [info] <0.277.0> Initialising internal cluster ID to 'rabbitmq-cluster-id-GQ7qtT6lp04e9eDZgj2cbw'
+queue_1    | 2020-03-08 18:01:53.944 [info] <0.277.0> Running boot step direct_client defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.945 [info] <0.277.0> Running boot step os_signal_handler defined by app rabbit
+queue_1    | 2020-03-08 18:01:53.945 [info] <0.623.0> Swapping OS signal event handler (erl_signal_server) for our own
+queue_1    | 2020-03-08 18:01:53.985 [info] <0.673.0> Management plugin: HTTP (non-TLS) listener started on port 15672
+queue_1    | 2020-03-08 18:01:53.985 [info] <0.779.0> Statistics database started.
+queue_1    | 2020-03-08 18:01:53.985 [info] <0.778.0> Starting worker pool 'management_worker_pool' with 3 processes in it
+queue_1    | 2020-03-08 18:01:54.131 [info] <0.8.0> Server startup complete; 3 plugins started.
+queue_1    |  * rabbitmq_management
+queue_1    |  * rabbitmq_web_dispatch
+queue_1    |  * rabbitmq_management_agent
+queue_1    |  completed with 3 plugins.
+import_1   | Host: queue
+import_1   | File: projects-test.csv
+queue_1    | 2020-03-08 18:02:41.504 [info] <0.836.0> accepting AMQP connection <0.836.0> (172.18.0.5:47304 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:02:41.585 [info] <0.836.0> connection <0.836.0> (172.18.0.5:47304 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+import_1   |  [x] Sent 'Android-ReactiveLocation,https://github.com/mcharmas/Android-ReactiveLocation.git,github'
+import_1   |  [x] Sent 'react-native-android-wifi,https://github.com/devstepbcn/react-native-android-wifi.git,github'
+import_1   |  [x] Sent 'JPay,https://github.com/Javen205/JPay.git,github'
+import_1   |  [x] Sent 'mirakel-android,https://www.github.com/MirakelX/mirakel-android.git,fdroid'
+import_1   |  [x] Sent 'Nuwa,https://github.com/jasonross/Nuwa.git,github'
+import_1   |  [x] Sent 'RxjavaRetrofitDemo,https://github.com/tough1985/RxjavaRetrofitDemo.git,github'
+import_1   |  [x] Sent 'CodeCafe,https://github.com/kymjs/CodeCafe.git,github'
+import_1   |  [x] Sent 'WaveInApp,https://github.com/Cleveroad/WaveInApp.git,github'
+import_1   |  [x] Sent 'smokeAndMirrors,https://github.com/rallat/smokeAndMirrors.git,github'
+import_1   |  [x] Sent 'MaterialDateRangePicker,https://github.com/borax12/MaterialDateRangePicker.git,github'
+import_1   |  [x] Sent 'AnomalyDetection,https://github.com/JeemyJohn/AnomalyDetection.git,github'
+import_1   |  [x] Sent 'nomulus,https://github.com/google/nomulus.git,github'
+import_1   |  [x] Sent 'AndroidPinning,https://github.com/moxie0/AndroidPinning.git,github'
+import_1   |  [x] Sent 'FaceRecognition,https://github.com/kymjs/FaceRecognition.git,github'
+import_1   |  [x] Sent 'OpenDanmaku,https://github.com/linsea/OpenDanmaku.git,github'
+import_1   |  [x] Sent 'RxPicker,https://github.com/imuhao/RxPicker.git,github'
+import_1   |  [x] Sent 'AppTour,https://github.com/vlonjatg/AppTour.git,github'
+import_1   |  [x] Sent 'MVP-Dagger2-Retrofit,https://github.com/thinkSky1206/MVP-Dagger2-Retrofit.git,github'
+import_1   |  [x] Sent 'Ti.DrawerLayout,https://github.com/manumaticx/Ti.DrawerLayout.git,github'
+import_1   |  [x] Sent 'IdentityImageView,https://github.com/385841539/IdentityImageView.git,github'
+import_1   |  [x] Sent 'material-calendarview,https://github.com/prolificinteractive/material-calendarview.git,github'
+import_1   |  [x] Sent 'AndroidLifecyle,https://github.com/soarcn/AndroidLifecyle.git,github'
+import_1   |  [x] Sent 'merlin,https://github.com/novoda/merlin.git,github'
+import_1   |  [x] Sent 'AndroidTips,https://github.com/JohnTsaiAndroid/AndroidTips.git,github'
+import_1   |  [x] Sent 'KMedia,https://github.com/jcodeing/KMedia.git,github'
+import_1   |  [x] Sent 'gif-movie-view,https://github.com/sbakhtiarov/gif-movie-view.git,github'
+import_1   |  [x] Sent 'spring_boot,https://github.com/hryou0922/spring_boot.git,github'
+import_1   |  [x] Sent 'DylanStepCount,https://github.com/linglongxin24/DylanStepCount.git,github'
+import_1   |  [x] Sent 'accumulo-pig,https://www.github.com/apache/accumulo-pig.git,apache'
+import_1   |  [x] Sent 'nbscala,https://github.com/dcaoyuan/nbscala.git,github'
+import_1   |  [x] Sent 'UIUtil,https://github.com/Dsiner/UIUtil.git,github'
+import_1   |  [x] Sent 'TouchImageView,https://github.com/MikeOrtiz/TouchImageView.git,github'
+import_1   |  [x] Sent 'Captcha,https://github.com/luozhanming/Captcha.git,github'
+import_1   |  [x] Sent 'metazelda,https://github.com/tcoxon/metazelda.git,github'
+import_1   |  [x] Sent 'vxquery,https://www.github.com/apache/vxquery.git,apache'
+import_1   |  [x] Sent 'WIFIADB,https://github.com/huazhouwang/WIFIADB.git,github'
+import_1   |  [x] Sent 'DebugLog,https://github.com/MustafaFerhan/DebugLog.git,github'
+import_1   |  [x] Sent 'AppMethodOrder,https://github.com/zjw-swun/AppMethodOrder.git,github'
+import_1   |  [x] Sent 'simple-spring-memcached,https://github.com/ragnor/simple-spring-memcached.git,github'
+import_1   |  [x] Sent 'fineract-cn-mobile,https://www.github.com/apache/fineract-cn-mobile.git,apache'
+import_1   |  [x] Sent 'BridgeWebView,https://github.com/open-android/BridgeWebView.git,github'
+import_1   |  [x] Sent 'CRefreshLayout,https://github.com/cloay/CRefreshLayout.git,github'
+import_1   |  [x] Sent 'MaterialTransitionAnimation,https://github.com/Cutta/MaterialTransitionAnimation.git,github'
+import_1   |  [x] Sent 'wafer-java-server-sdk,https://github.com/tencentyun/wafer-java-server-sdk.git,github'
+import_1   |  [x] Sent 'BounceLoadingView,https://github.com/niniloveyou/BounceLoadingView.git,github'
+import_1   |  [x] Sent 'swipe-button,https://github.com/ebanx/swipe-button.git,github'
+import_1   |  [x] Sent 'woker,https://github.com/muyinchen/woker.git,github'
+import_1   |  [x] Sent 'v2ex-daily-android,https://github.com/kyze8439690/v2ex-daily-android.git,github'
+import_1   |  [x] Sent 'metamodel-membrane,https://www.github.com/apache/metamodel-membrane.git,apache'
+import_1   |  [x] Sent 'ImapNote2,https://github.com/nbenm/ImapNote2.git,fdroid'
+import_1   |  [x] Sent 'YouTubeBackgroundPlayback,https://github.com/pylerSM/YouTubeBackgroundPlayback.git,github'
+import_1   |  [x] Sent 'phimpme-android,https://github.com/fossasia/phimpme-android.git,github'
+import_1   |  [x] Sent 'pcollections,https://github.com/hrldcpr/pcollections.git,github'
+import_1   |  [x] Sent 'AutoCompleteBubbleText,https://github.com/FrederickRider/AutoCompleteBubbleText.git,github'
+import_1   |  [x] Sent 'redis,https://github.com/ggj2010/redis.git,github'
+import_1   |  [x] Sent 'cassandra-mesos-deprecated,https://github.com/mesosphere/cassandra-mesos-deprecated.git,github'
+import_1   |  [x] Sent 'gecco,https://github.com/xtuhcy/gecco.git,github'
+import_1   |  [x] Sent 'hibernate-ogm,https://github.com/hibernate/hibernate-ogm.git,github'
+import_1   |  [x] Sent 'worldclockwidget,https://github.com/arminha/worldclockwidget.git,fdroid'
+import_1   |  [x] Sent 'react-native-bottom-sheet-behavior,https://github.com/cesardeazevedo/react-native-bottom-sheet-behavior.git,github'
+import_1   |  [x] Sent 'StatusStories,https://github.com/RahulJanagouda/StatusStories.git,github'
+import_1   |  [x] Sent 'blog-code,https://github.com/jojoldu/blog-code.git,github'
+import_1   |  [x] Sent 'jansi,https://github.com/fusesource/jansi.git,github'
+import_1   |  [x] Sent 'firefly,https://github.com/hypercube1024/firefly.git,github'
+import_1   |  [x] Sent 'xxl-mq,https://github.com/xuxueli/xxl-mq.git,github'
+import_1   |  [x] Sent 'yugong,https://github.com/alibaba/yugong.git,github'
+import_1   |  [x] Sent 'sling-org-apache-sling-auth-form,https://www.github.com/apache/sling-org-apache-sling-auth-form.git,apache'
+import_1   |  [x] Sent 'CSipSimple,https://github.com/r3gis3r/CSipSimple.git,github'
+import_1   |  [x] Sent 'keystore-explorer,https://github.com/kaikramer/keystore-explorer.git,github'
+import_1   |  [x] Sent 'PagedDragDropGrid,https://github.com/mrKlar/PagedDragDropGrid.git,github'
+import_1   |  [x] Sent 'Library-Assistant,https://github.com/afsalashyana/Library-Assistant.git,github'
+import_1   |  [x] Sent 'FluentLenium,https://github.com/FluentLenium/FluentLenium.git,github'
+import_1   |  [x] Sent 'AndroidSocketClient,https://github.com/vilyever/AndroidSocketClient.git,github'
+import_1   |  [x] Sent 'BubbleAnimationLayout,https://github.com/Cleveroad/BubbleAnimationLayout.git,github'
+import_1   |  [x] Sent 'MapView,https://github.com/onlylemi/MapView.git,github'
+import_1   |  [x] Sent 'BezierDemo,https://github.com/chenupt/BezierDemo.git,github'
+import_1   |  [x] Sent 'voipms-sms-client,https://github.com/michaelkourlas/voipms-sms-client.git,fdroid'
+import_1   |  [x] Sent 'proSwipeButton,https://github.com/shadowfaxtech/proSwipeButton.git,github'
+import_1   |  [x] Sent 'moneybalance,https://www.github.com/inguin/moneybalance.git,fdroid'
+import_1   |  [x] Sent 'Android-NewPopupMenu,https://github.com/u1aryz/Android-NewPopupMenu.git,github'
+import_1   |  [x] Sent 'cube-sdk,https://github.com/liaohuqiu/cube-sdk.git,github'
+import_1   |  [x] Sent 'neo4j-graph-algorithms,https://github.com/neo4j-contrib/neo4j-graph-algorithms.git,github'
+import_1   |  [x] Sent 'Depth-LIB-Android-,https://github.com/danielzeller/Depth-LIB-Android-.git,github'
+import_1   |  [x] Sent 'spring-cloud-config-admin,https://github.com/dyc87112/spring-cloud-config-admin.git,github'
+import_1   |  [x] Sent 'android-CardView,https://github.com/googlesamples/android-CardView.git,github'
+import_1   |  [x] Sent 'java-telegram-bot-api,https://github.com/pengrad/java-telegram-bot-api.git,github'
+import_1   |  [x] Sent 'ccw,https://github.com/ccw-ide/ccw.git,github'
+import_1   |  [x] Sent 'coding2017,https://github.com/onlyliuxin/coding2017.git,github'
+import_1   |  [x] Sent 'servicemix-specs,https://www.github.com/apache/servicemix-specs.git,apache'
+import_1   |  [x] Sent 'LuckPerms,https://github.com/lucko/LuckPerms.git,github'
+import_1   |  [x] Sent 'maven-jxr,https://www.github.com/apache/maven-jxr.git,apache'
+import_1   |  [x] Sent 'maven-stage-plugin,https://www.github.com/apache/maven-stage-plugin.git,apache'
+import_1   |  [x] Sent 'android-play-places,https://github.com/googlesamples/android-play-places.git,github'
+import_1   |  [x] Sent 'sling-org-apache-sling-models-api,https://www.github.com/apache/sling-org-apache-sling-models-api.git,apache'
+import_1   |  [x] Sent 'android-OurStreets,https://github.com/googlesamples/android-OurStreets.git,github'
+import_1   |  [x] Sent 'colorpreference,https://github.com/kizitonwose/colorpreference.git,github'
+import_1   |  [x] Sent 'droidar,https://github.com/simon-heinen/droidar.git,github'
+import_1   |  [x] Sent 'sling-org-apache-sling-feature-launcher,https://www.github.com/apache/sling-org-apache-sling-feature-launcher.git,apache'
+import_1   |  [x] Sent 'blurred-lines-live,https://www.github.com/ghisguth/blurred-lines-live.git,fdroid'
+import_1   |  [x] Sent 'android-smart-image-view,https://github.com/loopj/android-smart-image-view.git,github'
+import_1   |  [x] Sent 'PasscodeLock-Android,https://github.com/wordpress-mobile/PasscodeLock-Android.git,github'
+import_1   |  [x] Sent 'LeanbackCards,https://github.com/hitherejoe/LeanbackCards.git,github'
+import_1   |  [x] Sent 'swagger-maven-plugin,https://github.com/kongchen/swagger-maven-plugin.git,github'
+import_1   |  [x] Sent 'jsets-shiro-spring-boot-starter,https://github.com/wj596/jsets-shiro-spring-boot-starter.git,github'
+import_1   |  [x] Sent 'sling-org-apache-sling-auth-xing-api,https://www.github.com/apache/sling-org-apache-sling-auth-xing-api.git,apache'
+import_1   |  [x] Sent 'shelly,https://github.com/jtribe/shelly.git,github'
+import_1   |  [x] Sent 'weblaf,https://github.com/mgarin/weblaf.git,github'
+import_1   |  [x] Sent 'AnimatedRandomLayout,https://github.com/Windsander/AnimatedRandomLayout.git,github'
+import_1   |  [x] Sent 'Android-RTSP,https://github.com/dingjikerbo/Android-RTSP.git,github'
+import_1   |  [x] Sent 'EasingInterpolator,https://github.com/MasayukiSuda/EasingInterpolator.git,github'
+import_1   |  [x] Sent 'NumberKeyboard,https://github.com/xuejinwei/NumberKeyboard.git,github'
+import_1   |  [x] Sent 'android-keeplive,https://github.com/08carmelo/android-keeplive.git,github'
+import_1   |  [x] Sent 'Sport_Service,https://github.com/happyheng/Sport_Service.git,github'
+import_1   |  [x] Sent 'MapViewPager,https://github.com/nitrico/MapViewPager.git,github'
+import_1   |  [x] Sent 'LQREmojiLibrary,https://github.com/GitLqr/LQREmojiLibrary.git,github'
+import_1   |  [x] Sent 'trilateration,https://github.com/lemmingapex/trilateration.git,github'
+import_1   |  [x] Sent 'sling-org-apache-sling-jcr-repoinit,https://www.github.com/apache/sling-org-apache-sling-jcr-repoinit.git,apache'
+import_1   |  [x] Sent 'open-event-droidgen,https://github.com/fossasia/open-event-droidgen.git,github'
+import_1   |  [x] Sent 'rocker,https://github.com/fizzed/rocker.git,github'
+import_1   |  [x] Sent 'QR-Code-generator,https://github.com/nayuki/QR-Code-generator.git,github'
+import_1   |  [x] Sent 'abdera,https://www.github.com/apache/abdera.git,apache'
+import_1   |  [x] Sent 'RWidgetHelper,https://github.com/RuffianZhong/RWidgetHelper.git,github'
+import_1   |  [x] Sent 'tomee,https://www.github.com/apache/tomee.git,apache'
+import_1   |  [x] Sent 'wordpowermadeeasy,https://github.com/ylogx/wordpowermadeeasy.git,fdroid'
+import_1   |  [x] Sent 'SpringAll,https://github.com/wuyouzhuguli/SpringAll.git,github'
+import_1   |  [x] Sent 'AndroidFileManage,https://github.com/cwjfeifei/AndroidFileManage.git,github'
+import_1   |  [x] Sent 'Padr-es-de-Projeto,https://github.com/MarcosX/Padr-es-de-Projeto.git,github'
+import_1   |  [x] Sent 'compass-keyboard,https://github.com/gsimon75/compass-keyboard.git,fdroid'
+import_1   |  [x] Sent 'SuspensionIndexBar,https://github.com/mcxtzhang/SuspensionIndexBar.git,github'
+import_1   |  [x] Sent 'dyno,https://github.com/Netflix/dyno.git,github'
+import_1   |  [x] Sent 'jackson-databind,https://github.com/FasterXML/jackson-databind.git,github'
+import_1   |  [x] Sent 'hector,https://github.com/hector-client/hector.git,github'
+import_1   |  [x] Sent 'junit-dataprovider,https://github.com/TNG/junit-dataprovider.git,github'
+import_1   |  [x] Sent 'iota,https://github.com/thebusby/iota.git,github'
+import_1   |  [x] Sent 'staash,https://github.com/Netflix/staash.git,github'
+import_1   |  [x] Sent 'mybatis-generator-gui,https://github.com/zouzg/mybatis-generator-gui.git,github'
+import_1   |  [x] Sent 'Meepo,https://github.com/nekocode/Meepo.git,github'
+import_1   |  [x] Sent 'CustomerManagement,https://github.com/codingXiaxw/CustomerManagement.git,github'
+import_1   |  [x] Sent 'webTube,https://github.com/martykan/webTube.git,fdroid'
+import_1   |  [x] Sent 'FishRingsForAndroid,https://github.com/VelbazhdSoftwareLLC/FishRingsForAndroid.git,fdroid'
+import_1   |  [x] Sent 'Telegram-Server,https://github.com/aykutalparslan/Telegram-Server.git,github'
+import_1   |  [x] Sent 'voj,https://github.com/hzxie/voj.git,github'
+import_1   |  [x] Sent 'ZDepthShadow,https://github.com/sho5nn/ZDepthShadow.git,github'
+import_1   |  [x] Sent 'spring-master-class,https://github.com/in28minutes/spring-master-class.git,github'
+import_1   |  [x] Sent 'xmemcached,https://github.com/killme2008/xmemcached.git,github'
+import_1   |  [x] Sent 'spring-plugin,https://github.com/spring-projects/spring-plugin.git,github'
+import_1   |  [x] Sent 'RecyclerViewFastScroller,https://github.com/danoz73/RecyclerViewFastScroller.git,github'
+import_1   |  [x] Sent 'ocelot,https://github.com/Shirakumo/ocelot.git,fdroid'
+import_1   |  [x] Sent 'dynamic-load-view,https://github.com/kot32go/dynamic-load-view.git,github'
+import_1   |  [x] Sent 'VirtualApp,https://github.com/asLody/VirtualApp.git,github'
+import_1   |  [x] Sent 'webservices-commons-xmlschema,https://www.github.com/apache/webservices-commons-xmlschema.git,apache'
+import_1   |  [x] Sent 'okreplay,https://github.com/airbnb/okreplay.git,github'
+import_1   |  [x] Sent 'GreenBits,https://www.github.com/greenaddress/GreenBits.git,fdroid'
+import_1   |  [x] Sent 'instagram4j,https://github.com/brunocvcunha/instagram4j.git,github'
+import_1   |  [x] Sent 'simpleirc,https://github.com/thelinuxgeekcommunity/simpleirc.git,fdroid'
+import_1   |  [x] Sent 'about-page,https://github.com/PureWriter/about-page.git,github'
+import_1   |  [x] Sent 'FP2-Launcher,https://github.com/WeAreFairphone/FP2-Launcher.git,fdroid'
+import_1   |  [x] Sent 'RxjavaRetrofitDemo-string-master,https://github.com/wzgiceman/RxjavaRetrofitDemo-string-master.git,github'
+import_1   |  [x] Sent 'jmx_exporter,https://github.com/prometheus/jmx_exporter.git,github'
+import_1   |  [x] Sent 'movsim,https://github.com/movsim/movsim.git,github'
+import_1   |  [x] Sent 'flavienlaurent.com,https://github.com/flavienlaurent/flavienlaurent.com.git,github'
+import_1   |  [x] Sent 'async-http-client,https://github.com/AsyncHttpClient/async-http-client.git,github'
+import_1   |  [x] Sent 'CCIP-Android,https://github.com/CCIP-App/CCIP-Android.git,github'
+import_1   |  [x] Sent 'KnowWeather,https://github.com/SilenceDut/KnowWeather.git,github'
+import_1   |  [x] Sent 'cordova-plugin-sms,https://github.com/floatinghotpot/cordova-plugin-sms.git,github'
+import_1   |  [x] Sent 'protonpack,https://github.com/poetix/protonpack.git,github'
+import_1   |  [x] Sent 'HorizontalWheelView,https://github.com/shchurov/HorizontalWheelView.git,github'
+import_1   |  [x] Sent 'JJSearchViewAnim,https://github.com/android-cjj/JJSearchViewAnim.git,github'
+import_1   |  [x] Sent 'banya,https://github.com/forezp/banya.git,github'
+import_1   |  [x] Sent 'dbay-apns-for-java,https://github.com/RamosLi/dbay-apns-for-java.git,github'
+import_1   |  [x] Sent 'sling-org-apache-sling-launchpad-startupmanager,https://www.github.com/apache/sling-org-apache-sling-launchpad-startupmanager.git,apache'
+import_1   |  [x] Sent 'E-signature,https://github.com/venusic/E-signature.git,github'
+import_1   |  [x] Sent 'Politrics,https://github.com/VelbazhdSoftwareLLC/Politrics.git,fdroid'
+import_1   |  [x] Sent 'MultiWaveHeader,https://github.com/scwang90/MultiWaveHeader.git,github'
+import_1   |  [x] Sent 'BGABaseAdapter-Android,https://github.com/bingoogolapple/BGABaseAdapter-Android.git,github'
+import_1   |  [x] Sent 'shelling,https://github.com/ewilded/shelling.git,github'
+import_1   |  [x] Sent 'SMTVLauncher,https://github.com/joychang/SMTVLauncher.git,github'
+import_1   |  [x] Sent 'materialish-progress,https://github.com/pnikosis/materialish-progress.git,github'
+import_1   |  [x] Sent 'annotationprocessing101,https://github.com/sockeqwe/annotationprocessing101.git,github'
+import_1   |  [x] Sent 'javaide,https://github.com/tranleduy2000/javaide.git,github'
+import_1   |  [x] Sent 'Cicerone,https://github.com/terrakok/Cicerone.git,github'
+import_1   |  [x] Sent 'sofa-lookout,https://github.com/alipay/sofa-lookout.git,github'
+import_1   |  [x] Sent 'HorizontalStackView,https://github.com/binaryroot/HorizontalStackView.git,github'
+import_1   |  [x] Sent 'pigeon,https://github.com/dianping/pigeon.git,github'
+import_1   |  [x] Sent 'stetho-realm,https://github.com/uPhyca/stetho-realm.git,github'
+import_1   |  [x] Sent 'Primary,https://github.com/quaap/Primary.git,fdroid'
+import_1   |  [x] Sent 'MaterialArcMenu,https://github.com/saurabharora90/MaterialArcMenu.git,github'
+import_1   |  [x] Sent 'activemq-openwire,https://www.github.com/apache/activemq-openwire.git,apache'
+import_1   |  [x] Sent 'MrVector,https://github.com/telly/MrVector.git,github'
+import_1   |  [x] Sent 'mapstruct-examples,https://github.com/mapstruct/mapstruct-examples.git,github'
+import_1   |  [x] Sent 'USB-MIDI-Driver,https://github.com/kshoji/USB-MIDI-Driver.git,github'
+import_1   |  [x] Sent 'spring-mobile,https://github.com/spring-projects/spring-mobile.git,github'
+import_1   |  [x] Sent 'android-emulator-plugin,https://github.com/jenkinsci/android-emulator-plugin.git,github'
+import_1   |  [x] Sent 'SuperBoot,https://github.com/7040210/SuperBoot.git,github'
+import_1   |  [x] Sent 'android-ColorPickerPreference,https://github.com/attenzione/android-ColorPickerPreference.git,github'
+import_1   |  [x] Sent 'CrazyShadow,https://github.com/Hitomis/CrazyShadow.git,github'
+import_1   |  [x] Sent 'gendreapp,https://www.github.com/namsor/gendreapp.git,fdroid'
+import_1   |  [x] Sent 'seadroid,https://github.com/haiwen/seadroid.git,github'
+import_1   |  [x] Sent 'butterknife,https://github.com/JakeWharton/butterknife.git,github'
+import_1   |  [x] Sent 'bindroid,https://github.com/depoll/bindroid.git,github'
+queue_1    | 2020-03-08 18:02:41.732 [info] <0.836.0> closing AMQP connection <0.836.0> (172.18.0.5:47304 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+import_1   | Done!!
+data-collection_import_1 exited with code 0
+worker_2   | log4j:WARN No appenders could be found for logger (org.jboss.logging).
+worker_2   | log4j:WARN Please initialize the log4j system properly.
+worker_4   | log4j:WARN No appenders could be found for logger (org.jboss.logging).
+worker_4   | log4j:WARN Please initialize the log4j system properly.
+worker_3   | log4j:WARN No appenders could be found for logger (org.jboss.logging).
+worker_3   | log4j:WARN Please initialize the log4j system properly.
+worker_1   | log4j:WARN No appenders could be found for logger (org.jboss.logging).
+worker_1   | log4j:WARN Please initialize the log4j system properly.
+queue_1    | 2020-03-08 18:02:54.374 [info] <0.867.0> accepting AMQP connection <0.867.0> (172.18.0.6:39592 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:02:54.446 [info] <0.867.0> connection <0.867.0> (172.18.0.6:39592 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:02:54.538 [info] <0.878.0> accepting AMQP connection <0.878.0> (172.18.0.9:46750 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:02:54.614 [info] <0.878.0> connection <0.878.0> (172.18.0.9:46750 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:02:54.677 [info] <0.889.0> accepting AMQP connection <0.889.0> (172.18.0.7:51678 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:02:54.817 [info] <0.892.0> accepting AMQP connection <0.892.0> (172.18.0.8:39376 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:02:54.849 [info] <0.889.0> connection <0.889.0> (172.18.0.7:51678 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:02:54.989 [info] <0.892.0> connection <0.892.0> (172.18.0.8:39376 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:03:20.080 [info] <0.889.0> closing AMQP connection <0.889.0> (172.18.0.7:51678 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:03:20.098 [info] <0.939.0> accepting AMQP connection <0.939.0> (172.18.0.7:51698 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:03:20.129 [info] <0.939.0> connection <0.939.0> (172.18.0.7:51698 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:03:24.312 [info] <0.878.0> closing AMQP connection <0.878.0> (172.18.0.9:46750 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:03:24.321 [info] <0.956.0> accepting AMQP connection <0.956.0> (172.18.0.9:46776 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:03:24.363 [info] <0.956.0> connection <0.956.0> (172.18.0.9:46776 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:03:24.436 [info] <0.939.0> closing AMQP connection <0.939.0> (172.18.0.7:51698 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:03:24.440 [info] <0.969.0> accepting AMQP connection <0.969.0> (172.18.0.7:51704 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:03:24.476 [info] <0.969.0> connection <0.969.0> (172.18.0.7:51704 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:03:30.916 [info] <0.956.0> closing AMQP connection <0.956.0> (172.18.0.9:46776 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:03:30.918 [info] <0.989.0> accepting AMQP connection <0.989.0> (172.18.0.9:46784 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:03:30.931 [info] <0.989.0> connection <0.989.0> (172.18.0.9:46784 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:03.164 [info] <0.989.0> closing AMQP connection <0.989.0> (172.18.0.9:46784 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:03.168 [info] <0.1035.0> accepting AMQP connection <0.1035.0> (172.18.0.9:46792 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:03.193 [info] <0.1035.0> connection <0.1035.0> (172.18.0.9:46792 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:12.983 [info] <0.1035.0> closing AMQP connection <0.1035.0> (172.18.0.9:46792 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:12.994 [info] <0.1058.0> accepting AMQP connection <0.1058.0> (172.18.0.9:46800 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:13.034 [info] <0.1058.0> connection <0.1058.0> (172.18.0.9:46800 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:14.832 [info] <0.867.0> closing AMQP connection <0.867.0> (172.18.0.6:39592 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:14.835 [info] <0.1072.0> accepting AMQP connection <0.1072.0> (172.18.0.6:39648 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:14.861 [info] <0.1072.0> connection <0.1072.0> (172.18.0.6:39648 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:16.528 [info] <0.1072.0> closing AMQP connection <0.1072.0> (172.18.0.6:39648 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:16.530 [info] <0.1087.0> accepting AMQP connection <0.1087.0> (172.18.0.6:39652 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:16.575 [info] <0.1087.0> connection <0.1087.0> (172.18.0.6:39652 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:37.430 [info] <0.969.0> closing AMQP connection <0.969.0> (172.18.0.7:51704 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:37.441 [info] <0.1121.0> accepting AMQP connection <0.1121.0> (172.18.0.7:51736 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:37.473 [info] <0.1121.0> connection <0.1121.0> (172.18.0.7:51736 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:38.243 [info] <0.1058.0> closing AMQP connection <0.1058.0> (172.18.0.9:46800 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:38.246 [info] <0.1135.0> accepting AMQP connection <0.1135.0> (172.18.0.9:46814 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:38.272 [info] <0.1135.0> connection <0.1135.0> (172.18.0.9:46814 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:40.715 [info] <0.1121.0> closing AMQP connection <0.1121.0> (172.18.0.7:51736 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:40.718 [info] <0.1150.0> accepting AMQP connection <0.1150.0> (172.18.0.7:51746 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:40.769 [info] <0.1150.0> connection <0.1150.0> (172.18.0.7:51746 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:43.061 [info] <0.1150.0> closing AMQP connection <0.1150.0> (172.18.0.7:51746 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:43.072 [info] <0.1166.0> accepting AMQP connection <0.1166.0> (172.18.0.7:51752 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:43.125 [info] <0.1166.0> connection <0.1166.0> (172.18.0.7:51752 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:44.130 [info] <0.1135.0> closing AMQP connection <0.1135.0> (172.18.0.9:46814 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:44.132 [info] <0.1180.0> accepting AMQP connection <0.1180.0> (172.18.0.9:46828 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:44.175 [info] <0.1180.0> connection <0.1180.0> (172.18.0.9:46828 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:54.194 [info] <0.1180.0> closing AMQP connection <0.1180.0> (172.18.0.9:46828 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:54.197 [info] <0.1223.0> accepting AMQP connection <0.1223.0> (172.18.0.9:46830 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:54.222 [info] <0.1223.0> connection <0.1223.0> (172.18.0.9:46830 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:04:55.744 [info] <0.1223.0> closing AMQP connection <0.1223.0> (172.18.0.9:46830 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:04:55.757 [info] <0.1237.0> accepting AMQP connection <0.1237.0> (172.18.0.9:46836 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:04:55.789 [info] <0.1237.0> connection <0.1237.0> (172.18.0.9:46836 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:05:19.412 [info] <0.1237.0> closing AMQP connection <0.1237.0> (172.18.0.9:46836 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:05:19.415 [info] <0.1274.0> accepting AMQP connection <0.1274.0> (172.18.0.9:46848 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:05:19.438 [info] <0.1274.0> connection <0.1274.0> (172.18.0.9:46848 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:05:19.615 [info] <0.1166.0> closing AMQP connection <0.1166.0> (172.18.0.7:51752 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:05:19.620 [info] <0.1287.0> accepting AMQP connection <0.1287.0> (172.18.0.7:51778 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:05:19.646 [info] <0.1287.0> connection <0.1287.0> (172.18.0.7:51778 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:05:23.308 [info] <0.1274.0> closing AMQP connection <0.1274.0> (172.18.0.9:46848 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:05:23.316 [info] <0.1304.0> accepting AMQP connection <0.1304.0> (172.18.0.9:46856 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:05:23.337 [info] <0.1304.0> connection <0.1304.0> (172.18.0.9:46856 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:05:26.680 [info] <0.1304.0> closing AMQP connection <0.1304.0> (172.18.0.9:46856 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:05:26.682 [info] <0.1320.0> accepting AMQP connection <0.1320.0> (172.18.0.9:46858 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:05:26.702 [info] <0.1320.0> connection <0.1320.0> (172.18.0.9:46858 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:07:44.243 [info] <0.1320.0> closing AMQP connection <0.1320.0> (172.18.0.9:46858 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:07:44.249 [info] <0.1472.0> accepting AMQP connection <0.1472.0> (172.18.0.9:46872 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:07:44.255 [info] <0.1472.0> connection <0.1472.0> (172.18.0.9:46872 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:07:53.628 [info] <0.1472.0> closing AMQP connection <0.1472.0> (172.18.0.9:46872 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:07:53.630 [info] <0.1496.0> accepting AMQP connection <0.1496.0> (172.18.0.9:46878 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:07:53.664 [info] <0.1496.0> connection <0.1496.0> (172.18.0.9:46878 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:08:00.300 [info] <0.1496.0> closing AMQP connection <0.1496.0> (172.18.0.9:46878 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:08:00.313 [info] <0.1516.0> accepting AMQP connection <0.1516.0> (172.18.0.9:46882 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:08:00.345 [info] <0.1516.0> connection <0.1516.0> (172.18.0.9:46882 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:08:02.495 [info] <0.1516.0> closing AMQP connection <0.1516.0> (172.18.0.9:46882 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:08:02.499 [info] <0.1531.0> accepting AMQP connection <0.1531.0> (172.18.0.9:46886 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:08:02.521 [info] <0.1531.0> connection <0.1531.0> (172.18.0.9:46886 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:08:39.534 [info] <0.1287.0> closing AMQP connection <0.1287.0> (172.18.0.7:51778 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:08:39.538 [info] <0.1581.0> accepting AMQP connection <0.1581.0> (172.18.0.7:51814 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:08:39.549 [info] <0.1581.0> connection <0.1581.0> (172.18.0.7:51814 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:08:56.940 [info] <0.1581.0> closing AMQP connection <0.1581.0> (172.18.0.7:51814 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:08:56.944 [info] <0.1611.0> accepting AMQP connection <0.1611.0> (172.18.0.7:51818 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:08:56.976 [info] <0.1611.0> connection <0.1611.0> (172.18.0.7:51818 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:09:12.978 [info] <0.1611.0> closing AMQP connection <0.1611.0> (172.18.0.7:51818 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:09:12.982 [info] <0.1640.0> accepting AMQP connection <0.1640.0> (172.18.0.7:51824 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:09:13.021 [info] <0.1640.0> connection <0.1640.0> (172.18.0.7:51824 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:12:22.985 [info] <0.1640.0> closing AMQP connection <0.1640.0> (172.18.0.7:51824 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:12:23.004 [info] <0.1846.0> accepting AMQP connection <0.1846.0> (172.18.0.7:51836 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:12:23.050 [info] <0.1846.0> connection <0.1846.0> (172.18.0.7:51836 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:13:58.057 [info] <0.1531.0> closing AMQP connection <0.1531.0> (172.18.0.9:46886 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:13:58.060 [info] <0.1956.0> accepting AMQP connection <0.1956.0> (172.18.0.9:46924 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:13:58.085 [info] <0.1956.0> connection <0.1956.0> (172.18.0.9:46924 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:15:02.296 [info] <0.1956.0> closing AMQP connection <0.1956.0> (172.18.0.9:46924 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:15:02.302 [info] <0.2033.0> accepting AMQP connection <0.2033.0> (172.18.0.9:46936 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:15:02.324 [info] <0.2033.0> connection <0.2033.0> (172.18.0.9:46936 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:15:11.996 [info] <0.2033.0> closing AMQP connection <0.2033.0> (172.18.0.9:46936 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:15:11.999 [info] <0.2056.0> accepting AMQP connection <0.2056.0> (172.18.0.9:46942 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:15:12.052 [info] <0.2056.0> connection <0.2056.0> (172.18.0.9:46942 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:15:54.000 [info] <0.2056.0> closing AMQP connection <0.2056.0> (172.18.0.9:46942 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:15:54.013 [info] <0.2112.0> accepting AMQP connection <0.2112.0> (172.18.0.9:46946 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:15:54.052 [info] <0.2112.0> connection <0.2112.0> (172.18.0.9:46946 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+worker_2   | 
+worker_2   | Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "C3P0PooledConnectionPoolManager[identityToken->1bqrg1ya81fz0svluaguhw|3a94964]-AdminTaskTimer"
+queue_1    | 2020-03-08 18:18:21.219 [info] <0.1846.0> closing AMQP connection <0.1846.0> (172.18.0.7:51836 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+worker_4   | Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+worker_4   | 	at org.eclipse.jgit.internal.storage.file.DeltaBaseCache.store(DeltaBaseCache.java:106)
+worker_4   | 	at org.eclipse.jgit.internal.storage.file.PackFile.load(PackFile.java:867)
+worker_4   | 	at org.eclipse.jgit.internal.storage.file.PackFile.get(PackFile.java:285)
+worker_4   | 	at org.eclipse.jgit.internal.storage.file.ObjectDirectory.openPackedObject(ObjectDirectory.java:486)
+worker_4   | 	at org.eclipse.jgit.internal.storage.file.ObjectDirectory.openPackedFromSelfOrAlternate(ObjectDirectory.java:444)
+worker_4   | 	at org.eclipse.jgit.internal.storage.file.ObjectDirectory.openObject(ObjectDirectory.java:435)
+worker_4   | 	at org.eclipse.jgit.internal.storage.file.WindowCursor.open(WindowCursor.java:165)
+worker_4   | 	at org.eclipse.jgit.diff.ContentSource$ObjectReaderSource.open(ContentSource.java:145)
+worker_4   | 	at org.eclipse.jgit.diff.ContentSource$Pair.open(ContentSource.java:280)
+worker_4   | 	at org.eclipse.jgit.diff.DiffFormatter.open(DiffFormatter.java:1073)
+worker_4   | 	at org.eclipse.jgit.diff.DiffFormatter.createFormatResult(DiffFormatter.java:1000)
+worker_4   | 	at org.eclipse.jgit.diff.DiffFormatter.toFileHeader(DiffFormatter.java:963)
+worker_4   | 	at refactoringml.ProcessMetricsCollector.collectProcessMetricsOfStableCommits(ProcessMetricsCollector.java:112)
+worker_4   | 	at refactoringml.ProcessMetricsCollector.collectMetrics(ProcessMetricsCollector.java:50)
+worker_4   | 	at refactoringml.App.run(App.java:180)
+worker_4   | 	at refactoringml.RunQueue.doWork(RunQueue.java:85)
+worker_4   | 	at refactoringml.RunQueue.run(RunQueue.java:71)
+worker_4   | 	at refactoringml.RunQueue.main(RunQueue.java:54)
+db_1       | 2020-03-08 18:20:27 11 [Warning] Aborted connection 11 to db: 'refactoringdb' user: 'root' host: '172.18.0.7' (Got an error reading communication packets)
+db_1       | 2020-03-08 18:20:27 23 [Warning] Aborted connection 23 to db: 'refactoringdb' user: 'root' host: '172.18.0.7' (Got an error reading communication packets)
+worker_4   | Done!!
+data-collection_worker_4 exited with code 0
+queue_1    | 2020-03-08 18:25:41.736 [info] <0.892.0> closing AMQP connection <0.892.0> (172.18.0.8:39376 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:25:41.744 [info] <0.2721.0> accepting AMQP connection <0.2721.0> (172.18.0.8:39592 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:25:41.757 [info] <0.2721.0> connection <0.2721.0> (172.18.0.8:39592 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:25:51.272 [info] <0.1087.0> closing AMQP connection <0.1087.0> (172.18.0.6:39652 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+worker_2   | Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+db_1       | 2020-03-08 18:25:51 17 [Warning] Aborted connection 17 to db: 'refactoringdb' user: 'root' host: '172.18.0.6' (Got an error reading communication packets)
+db_1       | 2020-03-08 18:25:51 8 [Warning] Aborted connection 8 to db: 'refactoringdb' user: 'root' host: '172.18.0.6' (Got an error reading communication packets)
+worker_2   | Done!!
+data-collection_worker_2 exited with code 0
+queue_1    | 2020-03-08 18:26:08.031 [info] <0.2721.0> closing AMQP connection <0.2721.0> (172.18.0.8:39592 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:26:08.037 [info] <0.2764.0> accepting AMQP connection <0.2764.0> (172.18.0.8:39602 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:26:08.048 [info] <0.2764.0> connection <0.2764.0> (172.18.0.8:39602 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:26:09.868 [info] <0.2764.0> closing AMQP connection <0.2764.0> (172.18.0.8:39602 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:26:09.872 [info] <0.2779.0> accepting AMQP connection <0.2779.0> (172.18.0.8:39608 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:26:09.877 [info] <0.2779.0> connection <0.2779.0> (172.18.0.8:39608 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:26:15.129 [info] <0.2779.0> closing AMQP connection <0.2779.0> (172.18.0.8:39608 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:26:15.136 [info] <0.2797.0> accepting AMQP connection <0.2797.0> (172.18.0.8:39612 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:26:15.141 [info] <0.2797.0> connection <0.2797.0> (172.18.0.8:39612 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:27:35.411 [info] <0.2112.0> closing AMQP connection <0.2112.0> (172.18.0.9:46946 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:27:35.415 [info] <0.2890.0> accepting AMQP connection <0.2890.0> (172.18.0.9:46994 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:27:35.421 [info] <0.2890.0> connection <0.2890.0> (172.18.0.9:46994 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:06.491 [info] <0.2797.0> closing AMQP connection <0.2797.0> (172.18.0.8:39612 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:06.498 [info] <0.2935.0> accepting AMQP connection <0.2935.0> (172.18.0.8:39624 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:06.505 [info] <0.2935.0> connection <0.2935.0> (172.18.0.8:39624 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:09.071 [info] <0.2935.0> closing AMQP connection <0.2935.0> (172.18.0.8:39624 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:09.073 [info] <0.2951.0> accepting AMQP connection <0.2951.0> (172.18.0.8:39628 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:09.076 [info] <0.2951.0> connection <0.2951.0> (172.18.0.8:39628 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:16.326 [info] <0.2951.0> closing AMQP connection <0.2951.0> (172.18.0.8:39628 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:16.328 [info] <0.2971.0> accepting AMQP connection <0.2971.0> (172.18.0.8:39630 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:16.334 [info] <0.2971.0> connection <0.2971.0> (172.18.0.8:39630 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:19.726 [info] <0.2890.0> closing AMQP connection <0.2890.0> (172.18.0.9:46994 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:19.728 [info] <0.2988.0> accepting AMQP connection <0.2988.0> (172.18.0.9:47014 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:19.731 [info] <0.2988.0> connection <0.2988.0> (172.18.0.9:47014 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:24.380 [info] <0.2971.0> closing AMQP connection <0.2971.0> (172.18.0.8:39630 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:24.381 [info] <0.3005.0> accepting AMQP connection <0.3005.0> (172.18.0.8:39640 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:24.387 [info] <0.3005.0> connection <0.3005.0> (172.18.0.8:39640 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:24.863 [info] <0.2988.0> closing AMQP connection <0.2988.0> (172.18.0.9:47014 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:24.866 [info] <0.3019.0> accepting AMQP connection <0.3019.0> (172.18.0.9:47020 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:24.869 [info] <0.3019.0> connection <0.3019.0> (172.18.0.9:47020 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:25.648 [info] <0.3005.0> closing AMQP connection <0.3005.0> (172.18.0.8:39640 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:25.650 [info] <0.3033.0> accepting AMQP connection <0.3033.0> (172.18.0.8:39644 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:25.654 [info] <0.3033.0> connection <0.3033.0> (172.18.0.8:39644 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:30.341 [info] <0.3019.0> closing AMQP connection <0.3019.0> (172.18.0.9:47020 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:30.342 [info] <0.3050.0> accepting AMQP connection <0.3050.0> (172.18.0.9:47024 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:30.346 [info] <0.3050.0> connection <0.3050.0> (172.18.0.9:47024 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:47.974 [info] <0.3050.0> closing AMQP connection <0.3050.0> (172.18.0.9:47024 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:47.976 [info] <0.3081.0> accepting AMQP connection <0.3081.0> (172.18.0.9:47028 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:47.982 [info] <0.3081.0> connection <0.3081.0> (172.18.0.9:47028 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:28:52.480 [info] <0.3081.0> closing AMQP connection <0.3081.0> (172.18.0.9:47028 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:28:52.483 [info] <0.3098.0> accepting AMQP connection <0.3098.0> (172.18.0.9:47034 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:28:52.487 [info] <0.3098.0> connection <0.3098.0> (172.18.0.9:47034 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:29:12.581 [info] <0.3033.0> closing AMQP connection <0.3033.0> (172.18.0.8:39644 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:29:12.588 [info] <0.3132.0> accepting AMQP connection <0.3132.0> (172.18.0.8:39658 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:29:12.592 [info] <0.3132.0> connection <0.3132.0> (172.18.0.8:39658 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:29:40.057 [info] <0.3132.0> closing AMQP connection <0.3132.0> (172.18.0.8:39658 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:29:40.058 [info] <0.3173.0> accepting AMQP connection <0.3173.0> (172.18.0.8:39660 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:29:40.073 [info] <0.3173.0> connection <0.3173.0> (172.18.0.8:39660 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:29:44.018 [info] <0.3098.0> closing AMQP connection <0.3098.0> (172.18.0.9:47034 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:29:44.021 [info] <0.3190.0> accepting AMQP connection <0.3190.0> (172.18.0.9:47042 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:29:44.025 [info] <0.3190.0> connection <0.3190.0> (172.18.0.9:47042 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:29:51.152 [info] <0.3190.0> closing AMQP connection <0.3190.0> (172.18.0.9:47042 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:29:51.155 [info] <0.3210.0> accepting AMQP connection <0.3210.0> (172.18.0.9:47046 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:29:51.159 [info] <0.3210.0> connection <0.3210.0> (172.18.0.9:47046 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:29:54.325 [info] <0.3210.0> closing AMQP connection <0.3210.0> (172.18.0.9:47046 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:29:54.328 [info] <0.3227.0> accepting AMQP connection <0.3227.0> (172.18.0.9:47048 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:29:54.331 [info] <0.3227.0> connection <0.3227.0> (172.18.0.9:47048 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:30:02.016 [info] <0.3227.0> closing AMQP connection <0.3227.0> (172.18.0.9:47048 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:30:02.022 [info] <0.3248.0> accepting AMQP connection <0.3248.0> (172.18.0.9:47050 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:30:02.026 [info] <0.3248.0> connection <0.3248.0> (172.18.0.9:47050 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:34:03.204 [info] <0.3248.0> closing AMQP connection <0.3248.0> (172.18.0.9:47050 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:34:03.206 [info] <0.3505.0> accepting AMQP connection <0.3505.0> (172.18.0.9:47054 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:34:03.210 [info] <0.3505.0> connection <0.3505.0> (172.18.0.9:47054 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:34:17.414 [info] <0.3505.0> closing AMQP connection <0.3505.0> (172.18.0.9:47054 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:34:17.416 [info] <0.3532.0> accepting AMQP connection <0.3532.0> (172.18.0.9:47060 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:34:17.420 [info] <0.3532.0> connection <0.3532.0> (172.18.0.9:47060 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:47:45.907 [info] <0.3532.0> closing AMQP connection <0.3532.0> (172.18.0.9:47060 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:47:45.909 [info] <0.4364.0> accepting AMQP connection <0.4364.0> (172.18.0.9:47074 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:47:45.914 [info] <0.4364.0> connection <0.4364.0> (172.18.0.9:47074 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:48:23.202 [info] <0.4364.0> closing AMQP connection <0.4364.0> (172.18.0.9:47074 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:48:23.205 [info] <0.4415.0> accepting AMQP connection <0.4415.0> (172.18.0.9:47078 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:48:23.208 [info] <0.4415.0> connection <0.4415.0> (172.18.0.9:47078 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:48:30.727 [info] <0.4415.0> closing AMQP connection <0.4415.0> (172.18.0.9:47078 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:48:30.733 [info] <0.4435.0> accepting AMQP connection <0.4435.0> (172.18.0.9:47084 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:48:30.738 [info] <0.4435.0> connection <0.4435.0> (172.18.0.9:47084 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:48:40.913 [info] <0.4435.0> closing AMQP connection <0.4435.0> (172.18.0.9:47084 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:48:40.920 [info] <0.4459.0> accepting AMQP connection <0.4459.0> (172.18.0.9:47088 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:48:40.924 [info] <0.4459.0> connection <0.4459.0> (172.18.0.9:47088 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:54:34.676 [info] <0.4459.0> closing AMQP connection <0.4459.0> (172.18.0.9:47088 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:54:34.680 [info] <0.4830.0> accepting AMQP connection <0.4830.0> (172.18.0.9:47096 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:54:34.683 [info] <0.4830.0> connection <0.4830.0> (172.18.0.9:47096 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:55:02.272 [info] <0.4830.0> closing AMQP connection <0.4830.0> (172.18.0.9:47096 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:55:02.280 [info] <0.4871.0> accepting AMQP connection <0.4871.0> (172.18.0.9:47102 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:55:02.293 [info] <0.4871.0> connection <0.4871.0> (172.18.0.9:47102 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:58:10.463 [info] <0.3173.0> closing AMQP connection <0.3173.0> (172.18.0.8:39660 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:58:10.469 [info] <0.5075.0> accepting AMQP connection <0.5075.0> (172.18.0.8:39730 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:58:10.473 [info] <0.5075.0> connection <0.5075.0> (172.18.0.8:39730 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:58:56.283 [info] <0.5075.0> closing AMQP connection <0.5075.0> (172.18.0.8:39730 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:58:56.286 [info] <0.5134.0> accepting AMQP connection <0.5134.0> (172.18.0.8:39736 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:58:56.290 [info] <0.5134.0> connection <0.5134.0> (172.18.0.8:39736 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:59:06.459 [info] <0.5134.0> closing AMQP connection <0.5134.0> (172.18.0.8:39736 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:59:06.461 [info] <0.5158.0> accepting AMQP connection <0.5158.0> (172.18.0.8:39740 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:59:06.466 [info] <0.5158.0> connection <0.5158.0> (172.18.0.8:39740 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 18:59:11.074 [info] <0.5158.0> closing AMQP connection <0.5158.0> (172.18.0.8:39740 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 18:59:11.076 [info] <0.5175.0> accepting AMQP connection <0.5175.0> (172.18.0.8:39746 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 18:59:11.080 [info] <0.5175.0> connection <0.5175.0> (172.18.0.8:39746 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:03:07.144 [info] <0.4871.0> closing AMQP connection <0.4871.0> (172.18.0.9:47102 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:03:07.146 [info] <0.5427.0> accepting AMQP connection <0.5427.0> (172.18.0.9:47128 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:03:07.162 [info] <0.5427.0> connection <0.5427.0> (172.18.0.9:47128 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:06:56.097 [info] <0.5427.0> closing AMQP connection <0.5427.0> (172.18.0.9:47128 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:06:56.101 [info] <0.5672.0> accepting AMQP connection <0.5672.0> (172.18.0.9:47134 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:06:56.105 [info] <0.5672.0> connection <0.5672.0> (172.18.0.9:47134 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:07:07.184 [info] <0.5672.0> closing AMQP connection <0.5672.0> (172.18.0.9:47134 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:07:07.186 [info] <0.5696.0> accepting AMQP connection <0.5696.0> (172.18.0.9:47142 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:07:07.189 [info] <0.5696.0> connection <0.5696.0> (172.18.0.9:47142 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:07:23.781 [info] <0.5696.0> closing AMQP connection <0.5696.0> (172.18.0.9:47142 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:07:23.785 [info] <0.5725.0> accepting AMQP connection <0.5725.0> (172.18.0.9:47146 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:07:23.788 [info] <0.5725.0> connection <0.5725.0> (172.18.0.9:47146 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:07:45.445 [info] <0.5175.0> closing AMQP connection <0.5175.0> (172.18.0.8:39746 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:07:45.448 [info] <0.5760.0> accepting AMQP connection <0.5760.0> (172.18.0.8:39772 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:07:45.451 [info] <0.5760.0> connection <0.5760.0> (172.18.0.8:39772 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:08:44.474 [info] <0.5760.0> closing AMQP connection <0.5760.0> (172.18.0.8:39772 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:08:44.477 [info] <0.5834.0> accepting AMQP connection <0.5834.0> (172.18.0.8:39778 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:08:44.481 [info] <0.5834.0> connection <0.5834.0> (172.18.0.8:39778 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:08:49.736 [info] <0.5834.0> closing AMQP connection <0.5834.0> (172.18.0.8:39778 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:08:49.739 [info] <0.5852.0> accepting AMQP connection <0.5852.0> (172.18.0.8:39784 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:08:49.743 [info] <0.5852.0> connection <0.5852.0> (172.18.0.8:39784 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:08:57.033 [info] <0.5852.0> closing AMQP connection <0.5852.0> (172.18.0.8:39784 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:08:57.036 [info] <0.5872.0> accepting AMQP connection <0.5872.0> (172.18.0.8:39786 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:08:57.040 [info] <0.5872.0> connection <0.5872.0> (172.18.0.8:39786 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:08:58.321 [info] <0.5872.0> closing AMQP connection <0.5872.0> (172.18.0.8:39786 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:08:58.323 [info] <0.5887.0> accepting AMQP connection <0.5887.0> (172.18.0.8:39790 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:08:58.326 [info] <0.5887.0> connection <0.5887.0> (172.18.0.8:39790 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:10:53.890 [info] <0.5887.0> closing AMQP connection <0.5887.0> (172.18.0.8:39790 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:10:53.893 [info] <0.6017.0> accepting AMQP connection <0.6017.0> (172.18.0.8:39792 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:10:53.905 [info] <0.6017.0> connection <0.6017.0> (172.18.0.8:39792 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:10:56.958 [info] <0.6017.0> closing AMQP connection <0.6017.0> (172.18.0.8:39792 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:10:56.964 [info] <0.6033.0> accepting AMQP connection <0.6033.0> (172.18.0.8:39796 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:10:56.968 [info] <0.6033.0> connection <0.6033.0> (172.18.0.8:39796 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:11:04.197 [info] <0.6033.0> closing AMQP connection <0.6033.0> (172.18.0.8:39796 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:11:04.199 [info] <0.6054.0> accepting AMQP connection <0.6054.0> (172.18.0.8:39800 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:11:04.204 [info] <0.6054.0> connection <0.6054.0> (172.18.0.8:39800 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:11:05.412 [info] <0.6054.0> closing AMQP connection <0.6054.0> (172.18.0.8:39800 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:11:05.416 [info] <0.6068.0> accepting AMQP connection <0.6068.0> (172.18.0.8:39804 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:11:05.419 [info] <0.6068.0> connection <0.6068.0> (172.18.0.8:39804 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:11:59.036 [info] <0.5725.0> closing AMQP connection <0.5725.0> (172.18.0.9:47146 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:11:59.039 [info] <0.6135.0> accepting AMQP connection <0.6135.0> (172.18.0.9:47186 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:11:59.046 [info] <0.6135.0> connection <0.6135.0> (172.18.0.9:47186 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:12:48.217 [info] <0.6068.0> closing AMQP connection <0.6068.0> (172.18.0.8:39804 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:12:48.218 [info] <0.6197.0> accepting AMQP connection <0.6197.0> (172.18.0.8:39812 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:12:48.221 [info] <0.6197.0> connection <0.6197.0> (172.18.0.8:39812 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:12:55.431 [info] <0.6197.0> closing AMQP connection <0.6197.0> (172.18.0.8:39812 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:12:55.433 [info] <0.6218.0> accepting AMQP connection <0.6218.0> (172.18.0.8:39818 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:12:55.437 [info] <0.6218.0> connection <0.6218.0> (172.18.0.8:39818 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:13:16.661 [info] <0.6218.0> closing AMQP connection <0.6218.0> (172.18.0.8:39818 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:13:16.663 [info] <0.6252.0> accepting AMQP connection <0.6252.0> (172.18.0.8:39822 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:13:16.672 [info] <0.6252.0> connection <0.6252.0> (172.18.0.8:39822 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:13:18.327 [info] <0.6252.0> closing AMQP connection <0.6252.0> (172.18.0.8:39822 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:13:18.333 [info] <0.6267.0> accepting AMQP connection <0.6267.0> (172.18.0.8:39826 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:13:18.336 [info] <0.6267.0> connection <0.6267.0> (172.18.0.8:39826 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:14:03.396 [info] <0.6267.0> closing AMQP connection <0.6267.0> (172.18.0.8:39826 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:14:03.398 [info] <0.6327.0> accepting AMQP connection <0.6327.0> (172.18.0.8:39828 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:14:03.403 [info] <0.6327.0> connection <0.6327.0> (172.18.0.8:39828 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:18:17.890 [info] <0.6327.0> closing AMQP connection <0.6327.0> (172.18.0.8:39828 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:18:17.899 [info] <0.6597.0> accepting AMQP connection <0.6597.0> (172.18.0.8:39834 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:18:17.904 [info] <0.6597.0> connection <0.6597.0> (172.18.0.8:39834 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:19:06.397 [info] <0.6135.0> closing AMQP connection <0.6135.0> (172.18.0.9:47186 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:19:06.400 [info] <0.6658.0> accepting AMQP connection <0.6658.0> (172.18.0.9:47218 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:19:06.404 [info] <0.6658.0> connection <0.6658.0> (172.18.0.9:47218 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:19:38.157 [info] <0.6658.0> closing AMQP connection <0.6658.0> (172.18.0.9:47218 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:19:38.162 [info] <0.6703.0> accepting AMQP connection <0.6703.0> (172.18.0.9:47224 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:19:38.165 [info] <0.6703.0> connection <0.6703.0> (172.18.0.9:47224 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:24:43.046 [info] <0.6597.0> closing AMQP connection <0.6597.0> (172.18.0.8:39834 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:24:43.048 [info] <0.7026.0> accepting AMQP connection <0.7026.0> (172.18.0.8:39852 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:24:43.052 [info] <0.7026.0> connection <0.7026.0> (172.18.0.8:39852 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:03.774 [info] <0.7026.0> closing AMQP connection <0.7026.0> (172.18.0.8:39852 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:03.776 [info] <0.7059.0> accepting AMQP connection <0.7059.0> (172.18.0.8:39860 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:03.780 [info] <0.7059.0> connection <0.7059.0> (172.18.0.8:39860 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:08.473 [info] <0.7059.0> closing AMQP connection <0.7059.0> (172.18.0.8:39860 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:08.475 [info] <0.7077.0> accepting AMQP connection <0.7077.0> (172.18.0.8:39866 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:08.480 [info] <0.7077.0> connection <0.7077.0> (172.18.0.8:39866 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:10.748 [info] <0.7077.0> closing AMQP connection <0.7077.0> (172.18.0.8:39866 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:10.750 [info] <0.7092.0> accepting AMQP connection <0.7092.0> (172.18.0.8:39868 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:10.754 [info] <0.7092.0> connection <0.7092.0> (172.18.0.8:39868 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:12.920 [info] <0.7092.0> closing AMQP connection <0.7092.0> (172.18.0.8:39868 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:12.923 [info] <0.7107.0> accepting AMQP connection <0.7107.0> (172.18.0.8:39872 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:12.926 [info] <0.7107.0> connection <0.7107.0> (172.18.0.8:39872 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:14.632 [info] <0.7107.0> closing AMQP connection <0.7107.0> (172.18.0.8:39872 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:14.640 [info] <0.7122.0> accepting AMQP connection <0.7122.0> (172.18.0.8:39876 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:14.651 [info] <0.7122.0> connection <0.7122.0> (172.18.0.8:39876 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:22.039 [info] <0.7122.0> closing AMQP connection <0.7122.0> (172.18.0.8:39876 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:22.041 [info] <0.7142.0> accepting AMQP connection <0.7142.0> (172.18.0.8:39878 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:22.045 [info] <0.7142.0> connection <0.7142.0> (172.18.0.8:39878 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:45.963 [info] <0.7142.0> closing AMQP connection <0.7142.0> (172.18.0.8:39878 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:45.966 [info] <0.7179.0> accepting AMQP connection <0.7179.0> (172.18.0.8:39882 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:45.974 [info] <0.7179.0> connection <0.7179.0> (172.18.0.8:39882 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:55.453 [info] <0.7179.0> closing AMQP connection <0.7179.0> (172.18.0.8:39882 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:55.456 [info] <0.7204.0> accepting AMQP connection <0.7204.0> (172.18.0.8:39886 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:55.462 [info] <0.7204.0> connection <0.7204.0> (172.18.0.8:39886 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:58.057 [info] <0.7204.0> closing AMQP connection <0.7204.0> (172.18.0.8:39886 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:58.060 [info] <0.7219.0> accepting AMQP connection <0.7219.0> (172.18.0.8:39892 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:58.063 [info] <0.7219.0> connection <0.7219.0> (172.18.0.8:39892 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:25:59.535 [info] <0.7219.0> closing AMQP connection <0.7219.0> (172.18.0.8:39892 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:25:59.537 [info] <0.7234.0> accepting AMQP connection <0.7234.0> (172.18.0.8:39896 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:25:59.540 [info] <0.7234.0> connection <0.7234.0> (172.18.0.8:39896 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:26:03.496 [info] <0.7234.0> closing AMQP connection <0.7234.0> (172.18.0.8:39896 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:26:03.498 [info] <0.7251.0> accepting AMQP connection <0.7251.0> (172.18.0.8:39898 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:26:03.501 [info] <0.7251.0> connection <0.7251.0> (172.18.0.8:39898 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:26:09.297 [info] <0.7251.0> closing AMQP connection <0.7251.0> (172.18.0.8:39898 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:26:09.298 [info] <0.7270.0> accepting AMQP connection <0.7270.0> (172.18.0.8:39902 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:26:09.305 [info] <0.7270.0> connection <0.7270.0> (172.18.0.8:39902 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:27:36.292 [info] <0.7270.0> closing AMQP connection <0.7270.0> (172.18.0.8:39902 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:27:36.297 [info] <0.7370.0> accepting AMQP connection <0.7370.0> (172.18.0.8:39906 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:27:36.308 [info] <0.7370.0> connection <0.7370.0> (172.18.0.8:39906 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:28:01.203 [info] <0.7370.0> closing AMQP connection <0.7370.0> (172.18.0.8:39906 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:28:01.205 [info] <0.7408.0> accepting AMQP connection <0.7408.0> (172.18.0.8:39912 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:28:01.218 [info] <0.7408.0> connection <0.7408.0> (172.18.0.8:39912 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:28:02.439 [info] <0.7408.0> closing AMQP connection <0.7408.0> (172.18.0.8:39912 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:28:02.443 [info] <0.7423.0> accepting AMQP connection <0.7423.0> (172.18.0.8:39920 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:28:02.448 [info] <0.7423.0> connection <0.7423.0> (172.18.0.8:39920 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:28:03.942 [info] <0.7423.0> closing AMQP connection <0.7423.0> (172.18.0.8:39920 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:28:03.944 [info] <0.7437.0> accepting AMQP connection <0.7437.0> (172.18.0.8:39922 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:28:03.947 [info] <0.7437.0> connection <0.7437.0> (172.18.0.8:39922 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:37:39.865 [info] <0.6703.0> closing AMQP connection <0.6703.0> (172.18.0.9:47224 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:37:39.868 [info] <0.8033.0> accepting AMQP connection <0.8033.0> (172.18.0.9:47308 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:37:39.872 [info] <0.8033.0> connection <0.8033.0> (172.18.0.9:47308 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:37:42.962 [info] <0.8033.0> closing AMQP connection <0.8033.0> (172.18.0.9:47308 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:37:42.964 [info] <0.8049.0> accepting AMQP connection <0.8049.0> (172.18.0.9:47312 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:37:42.968 [info] <0.8049.0> connection <0.8049.0> (172.18.0.9:47312 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:38:20.134 [info] <0.8049.0> closing AMQP connection <0.8049.0> (172.18.0.9:47312 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:38:20.137 [info] <0.8101.0> accepting AMQP connection <0.8101.0> (172.18.0.9:47316 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:38:20.140 [info] <0.8101.0> connection <0.8101.0> (172.18.0.9:47316 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:38:21.846 [info] <0.8101.0> closing AMQP connection <0.8101.0> (172.18.0.9:47316 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:38:21.848 [info] <0.8115.0> accepting AMQP connection <0.8115.0> (172.18.0.9:47320 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:38:21.851 [info] <0.8115.0> connection <0.8115.0> (172.18.0.9:47320 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:38:25.849 [info] <0.8115.0> closing AMQP connection <0.8115.0> (172.18.0.9:47320 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:38:25.851 [info] <0.8132.0> accepting AMQP connection <0.8132.0> (172.18.0.9:47322 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:38:25.854 [info] <0.8132.0> connection <0.8132.0> (172.18.0.9:47322 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:38:26.981 [info] <0.8132.0> closing AMQP connection <0.8132.0> (172.18.0.9:47322 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:38:26.986 [info] <0.8147.0> accepting AMQP connection <0.8147.0> (172.18.0.9:47324 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:38:26.989 [info] <0.8147.0> connection <0.8147.0> (172.18.0.9:47324 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:38:33.083 [info] <0.8147.0> closing AMQP connection <0.8147.0> (172.18.0.9:47324 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:38:33.085 [info] <0.8166.0> accepting AMQP connection <0.8166.0> (172.18.0.9:47326 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:38:33.089 [info] <0.8166.0> connection <0.8166.0> (172.18.0.9:47326 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:38:39.095 [info] <0.8166.0> closing AMQP connection <0.8166.0> (172.18.0.9:47326 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:38:39.098 [info] <0.8185.0> accepting AMQP connection <0.8185.0> (172.18.0.9:47328 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:38:39.103 [info] <0.8185.0> connection <0.8185.0> (172.18.0.9:47328 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:38:55.899 [info] <0.8185.0> closing AMQP connection <0.8185.0> (172.18.0.9:47328 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:38:55.901 [info] <0.8215.0> accepting AMQP connection <0.8215.0> (172.18.0.9:47332 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:38:55.905 [info] <0.8215.0> connection <0.8215.0> (172.18.0.9:47332 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:39:08.973 [info] <0.8215.0> closing AMQP connection <0.8215.0> (172.18.0.9:47332 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:39:08.975 [info] <0.8241.0> accepting AMQP connection <0.8241.0> (172.18.0.9:47336 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:39:08.979 [info] <0.8241.0> connection <0.8241.0> (172.18.0.9:47336 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:39:16.887 [info] <0.8241.0> closing AMQP connection <0.8241.0> (172.18.0.9:47336 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:39:16.889 [info] <0.8261.0> accepting AMQP connection <0.8261.0> (172.18.0.9:47340 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:39:16.893 [info] <0.8261.0> connection <0.8261.0> (172.18.0.9:47340 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:43:31.825 [info] <0.8261.0> closing AMQP connection <0.8261.0> (172.18.0.9:47340 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:43:31.828 [info] <0.8532.0> accepting AMQP connection <0.8532.0> (172.18.0.9:47346 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:43:31.831 [info] <0.8532.0> connection <0.8532.0> (172.18.0.9:47346 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:44:17.130 [info] <0.8532.0> closing AMQP connection <0.8532.0> (172.18.0.9:47346 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:44:17.132 [info] <0.8592.0> accepting AMQP connection <0.8592.0> (172.18.0.9:47350 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:44:17.135 [info] <0.8592.0> connection <0.8592.0> (172.18.0.9:47350 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:44:33.943 [info] <0.8592.0> closing AMQP connection <0.8592.0> (172.18.0.9:47350 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:44:33.951 [info] <0.8622.0> accepting AMQP connection <0.8622.0> (172.18.0.9:47354 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:44:33.954 [info] <0.8622.0> connection <0.8622.0> (172.18.0.9:47354 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:55:08.106 [info] <0.8622.0> closing AMQP connection <0.8622.0> (172.18.0.9:47354 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:55:08.108 [info] <0.9277.0> accepting AMQP connection <0.9277.0> (172.18.0.9:47366 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:55:08.112 [info] <0.9277.0> connection <0.9277.0> (172.18.0.9:47366 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 19:55:29.825 [info] <0.9277.0> closing AMQP connection <0.9277.0> (172.18.0.9:47366 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 19:55:29.827 [info] <0.9311.0> accepting AMQP connection <0.9311.0> (172.18.0.9:47370 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 19:55:29.837 [info] <0.9311.0> connection <0.9311.0> (172.18.0.9:47370 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:07:16.793 [info] <0.7437.0> closing AMQP connection <0.7437.0> (172.18.0.8:39922 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:07:16.798 [info] <0.10041.0> accepting AMQP connection <0.10041.0> (172.18.0.8:40004 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:07:16.802 [info] <0.10041.0> connection <0.10041.0> (172.18.0.8:40004 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:07:21.607 [info] <0.10041.0> closing AMQP connection <0.10041.0> (172.18.0.8:40004 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:07:21.613 [info] <0.10058.0> accepting AMQP connection <0.10058.0> (172.18.0.8:40010 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:07:21.616 [info] <0.10058.0> connection <0.10058.0> (172.18.0.8:40010 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:07:25.611 [info] <0.10058.0> closing AMQP connection <0.10058.0> (172.18.0.8:40010 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:07:25.613 [info] <0.10075.0> accepting AMQP connection <0.10075.0> (172.18.0.8:40012 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:07:25.617 [info] <0.10075.0> connection <0.10075.0> (172.18.0.8:40012 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:07:26.867 [info] <0.10075.0> closing AMQP connection <0.10075.0> (172.18.0.8:40012 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:07:26.869 [info] <0.10090.0> accepting AMQP connection <0.10090.0> (172.18.0.8:40014 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:07:26.875 [info] <0.10090.0> connection <0.10090.0> (172.18.0.8:40014 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:07:28.139 [info] <0.10090.0> closing AMQP connection <0.10090.0> (172.18.0.8:40014 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:07:28.141 [info] <0.10104.0> accepting AMQP connection <0.10104.0> (172.18.0.8:40016 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:07:28.153 [info] <0.10104.0> connection <0.10104.0> (172.18.0.8:40016 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:07:42.660 [info] <0.10104.0> closing AMQP connection <0.10104.0> (172.18.0.8:40016 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:07:42.662 [info] <0.10132.0> accepting AMQP connection <0.10132.0> (172.18.0.8:40018 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:07:42.665 [info] <0.10132.0> connection <0.10132.0> (172.18.0.8:40018 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:07:55.771 [info] <0.10132.0> closing AMQP connection <0.10132.0> (172.18.0.8:40018 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:07:55.773 [info] <0.10160.0> accepting AMQP connection <0.10160.0> (172.18.0.8:40024 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:07:55.777 [info] <0.10160.0> connection <0.10160.0> (172.18.0.8:40024 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:13:42.437 [info] <0.10160.0> closing AMQP connection <0.10160.0> (172.18.0.8:40024 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:13:42.439 [info] <0.10522.0> accepting AMQP connection <0.10522.0> (172.18.0.8:40048 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:13:42.444 [info] <0.10522.0> connection <0.10522.0> (172.18.0.8:40048 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:35:26.075 [info] <0.10522.0> closing AMQP connection <0.10522.0> (172.18.0.8:40048 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 20:35:26.077 [info] <0.11856.0> accepting AMQP connection <0.11856.0> (172.18.0.8:40218 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 20:35:26.080 [info] <0.11856.0> connection <0.11856.0> (172.18.0.8:40218 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 20:40:31.787 [info] <0.11856.0> closing AMQP connection <0.11856.0> (172.18.0.8:40218 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+worker_3   | Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+worker_3   | 	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:204)
+worker_3   | 	at org.refactoringminer.rm1.GitHistoryRefactoringMinerImpl.detectAtCommit(GitHistoryRefactoringMinerImpl.java:456)
+worker_3   | 	at refactoringml.App.run(App.java:152)
+worker_3   | 	at refactoringml.RunQueue.doWork(RunQueue.java:85)
+worker_3   | 	at refactoringml.RunQueue.run(RunQueue.java:71)
+worker_3   | 	at refactoringml.RunQueue.main(RunQueue.java:54)
+db_1       | 2020-03-08 20:40:31 45 [Warning] Aborted connection 45 to db: 'refactoringdb' user: 'root' host: '172.18.0.8' (Got an error reading communication packets)
+db_1       | 2020-03-08 20:40:31 44 [Warning] Aborted connection 44 to db: 'refactoringdb' user: 'root' host: '172.18.0.8' (Got an error reading communication packets)
+worker_3   | Done!!
+data-collection_worker_3 exited with code 0
+queue_1    | 2020-03-08 21:30:06.848 [info] <0.9311.0> closing AMQP connection <0.9311.0> (172.18.0.9:47370 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:30:06.851 [info] <0.15194.0> accepting AMQP connection <0.15194.0> (172.18.0.9:47904 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:30:06.885 [info] <0.15194.0> connection <0.15194.0> (172.18.0.9:47904 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:35:30.552 [info] <0.15194.0> closing AMQP connection <0.15194.0> (172.18.0.9:47904 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:35:30.554 [info] <0.15534.0> accepting AMQP connection <0.15534.0> (172.18.0.9:47922 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:35:30.581 [info] <0.15534.0> connection <0.15534.0> (172.18.0.9:47922 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:35:32.576 [info] <0.15534.0> closing AMQP connection <0.15534.0> (172.18.0.9:47922 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:35:32.578 [info] <0.15549.0> accepting AMQP connection <0.15549.0> (172.18.0.9:47926 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:35:32.625 [info] <0.15549.0> connection <0.15549.0> (172.18.0.9:47926 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:37:18.139 [info] <0.15549.0> closing AMQP connection <0.15549.0> (172.18.0.9:47926 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:37:18.153 [info] <0.15669.0> accepting AMQP connection <0.15669.0> (172.18.0.9:47938 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:37:18.179 [info] <0.15669.0> connection <0.15669.0> (172.18.0.9:47938 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:38:06.212 [info] <0.15669.0> closing AMQP connection <0.15669.0> (172.18.0.9:47938 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:38:06.215 [info] <0.15732.0> accepting AMQP connection <0.15732.0> (172.18.0.9:47942 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:38:06.252 [info] <0.15732.0> connection <0.15732.0> (172.18.0.9:47942 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:38:14.196 [info] <0.15732.0> closing AMQP connection <0.15732.0> (172.18.0.9:47942 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:38:14.198 [info] <0.15753.0> accepting AMQP connection <0.15753.0> (172.18.0.9:47946 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:38:14.213 [info] <0.15753.0> connection <0.15753.0> (172.18.0.9:47946 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:38:18.892 [info] <0.15753.0> closing AMQP connection <0.15753.0> (172.18.0.9:47946 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:38:18.895 [info] <0.15771.0> accepting AMQP connection <0.15771.0> (172.18.0.9:47950 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:38:18.918 [info] <0.15771.0> connection <0.15771.0> (172.18.0.9:47950 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:40:12.988 [info] <0.15771.0> closing AMQP connection <0.15771.0> (172.18.0.9:47950 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:40:12.993 [info] <0.15899.0> accepting AMQP connection <0.15899.0> (172.18.0.9:47954 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:40:13.039 [info] <0.15899.0> connection <0.15899.0> (172.18.0.9:47954 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:40:14.682 [info] <0.15899.0> closing AMQP connection <0.15899.0> (172.18.0.9:47954 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:40:14.683 [info] <0.15913.0> accepting AMQP connection <0.15913.0> (172.18.0.9:47958 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:40:14.708 [info] <0.15913.0> connection <0.15913.0> (172.18.0.9:47958 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:43:28.316 [info] <0.15913.0> closing AMQP connection <0.15913.0> (172.18.0.9:47958 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:43:28.327 [info] <0.16122.0> accepting AMQP connection <0.16122.0> (172.18.0.9:47968 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:43:28.393 [info] <0.16122.0> connection <0.16122.0> (172.18.0.9:47968 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:44:58.452 [info] <0.16122.0> closing AMQP connection <0.16122.0> (172.18.0.9:47968 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:44:58.454 [info] <0.16227.0> accepting AMQP connection <0.16227.0> (172.18.0.9:47972 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:44:58.502 [info] <0.16227.0> connection <0.16227.0> (172.18.0.9:47972 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:45:28.464 [info] <0.16227.0> closing AMQP connection <0.16227.0> (172.18.0.9:47972 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:45:28.484 [info] <0.16270.0> accepting AMQP connection <0.16270.0> (172.18.0.9:47976 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:45:28.507 [info] <0.16270.0> connection <0.16270.0> (172.18.0.9:47976 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:45:33.412 [info] <0.16270.0> closing AMQP connection <0.16270.0> (172.18.0.9:47976 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:45:33.414 [info] <0.16288.0> accepting AMQP connection <0.16288.0> (172.18.0.9:47980 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:45:33.440 [info] <0.16288.0> connection <0.16288.0> (172.18.0.9:47980 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:54:24.116 [info] <0.16288.0> closing AMQP connection <0.16288.0> (172.18.0.9:47980 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:54:24.145 [info] <0.16839.0> accepting AMQP connection <0.16839.0> (172.18.0.9:47994 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:54:24.173 [info] <0.16839.0> connection <0.16839.0> (172.18.0.9:47994 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:54:44.704 [info] <0.16839.0> closing AMQP connection <0.16839.0> (172.18.0.9:47994 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:54:44.717 [info] <0.16872.0> accepting AMQP connection <0.16872.0> (172.18.0.9:47998 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:54:44.744 [info] <0.16872.0> connection <0.16872.0> (172.18.0.9:47998 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:54:52.280 [info] <0.16872.0> closing AMQP connection <0.16872.0> (172.18.0.9:47998 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:54:52.281 [info] <0.16893.0> accepting AMQP connection <0.16893.0> (172.18.0.9:48002 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:54:52.301 [info] <0.16893.0> connection <0.16893.0> (172.18.0.9:48002 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:55:12.136 [info] <0.16893.0> closing AMQP connection <0.16893.0> (172.18.0.9:48002 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:55:12.153 [info] <0.16926.0> accepting AMQP connection <0.16926.0> (172.18.0.9:48006 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:55:12.188 [info] <0.16926.0> connection <0.16926.0> (172.18.0.9:48006 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 21:55:18.102 [info] <0.16926.0> closing AMQP connection <0.16926.0> (172.18.0.9:48006 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 21:55:18.105 [info] <0.16945.0> accepting AMQP connection <0.16945.0> (172.18.0.9:48010 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 21:55:18.132 [info] <0.16945.0> connection <0.16945.0> (172.18.0.9:48010 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 22:09:33.860 [info] <0.16945.0> closing AMQP connection <0.16945.0> (172.18.0.9:48010 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 22:09:33.884 [info] <0.17825.0> accepting AMQP connection <0.17825.0> (172.18.0.9:48032 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 22:09:33.940 [info] <0.17825.0> connection <0.17825.0> (172.18.0.9:48032 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 22:14:43.659 [info] <0.17825.0> closing AMQP connection <0.17825.0> (172.18.0.9:48032 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 22:14:43.666 [info] <0.18152.0> accepting AMQP connection <0.18152.0> (172.18.0.9:48044 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 22:14:43.700 [info] <0.18152.0> connection <0.18152.0> (172.18.0.9:48044 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+queue_1    | 2020-03-08 22:16:48.608 [info] <0.18152.0> closing AMQP connection <0.18152.0> (172.18.0.9:48044 -> 172.18.0.3:5672, vhost: '/', user: 'guest')
+queue_1    | 2020-03-08 22:16:48.611 [info] <0.18291.0> accepting AMQP connection <0.18291.0> (172.18.0.9:48048 -> 172.18.0.3:5672)
+queue_1    | 2020-03-08 22:16:48.639 [info] <0.18291.0> connection <0.18291.0> (172.18.0.9:48048 -> 172.18.0.3:5672): user 'guest' authenticated and granted access to vhost '/'
+
+
