@@ -23,7 +23,6 @@ import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.getReverseWalk;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
-import static refactoringml.util.SourceCodeUtils.getCleanSourceCode;
 
 public class ProcessMetricsCollector {
 	private Project project;
@@ -154,7 +153,7 @@ public class ProcessMetricsCollector {
 		String tempDir = null;
 		try {
 			// we extract the source code from back then (as that's the one that never deserved a refactoring)
-			String sourceCodeBackThen = getCleanSourceCode(repository, commitBackThen, pmTracker.getFileName());
+			String sourceCodeBackThen = readFileFromGit(repository, commitBackThen, pmTracker.getFileName());
 			// create a temp dir to store the source code files and run CK there
 			tempDir = createTmpDir();
 

@@ -94,4 +94,8 @@ public class FileUtils {
 		myReader.close();
 		return data;
 	}
+
+	public static  boolean nonClassFile(String fileName) {
+		return fileName.equals("/dev/null");
+	}
 }

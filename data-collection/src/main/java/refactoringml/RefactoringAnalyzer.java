@@ -24,9 +24,8 @@ import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.FileUtils.writeFile;
 import static refactoringml.util.FileUtils.createTmpDir;
+import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
-import static refactoringml.util.SourceCodeUtils.nonClassFile;
-import static refactoringml.util.SourceCodeUtils.getCleanSourceCode;
 
 public class RefactoringAnalyzer {
 	private String tempDir;
@@ -101,7 +100,7 @@ public class RefactoringAnalyzer {
 					}
 
 					// Now, we get the contents of the file before
-					String sourceCodeBefore = getCleanSourceCode(repository, commitParent, oldFileName);
+					String sourceCodeBefore = readFileFromGit(repository, commitParent, oldFileName);
 
 					// save the old version of the file in a temp dir to execute the CK tool
 					// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
@@ -119,7 +118,7 @@ public class RefactoringAnalyzer {
 						if (storeFullSourceCode) {
 							// let's get the source code of the file after the refactoring
 							// but only if not deleted
-							String sourceCodeAfter = !nonClassFile(currentFileName) ? getCleanSourceCode(repository, commit, oldFileName) : "";
+							String sourceCodeAfter = !nonClassFile(currentFileName) ? readFileFromGit(repository, commit, oldFileName) : "";
 
 							// store the before and after versions for the deep learning training
 							// note that we save the file before with the same name of the current file name,
