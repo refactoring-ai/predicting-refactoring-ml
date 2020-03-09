@@ -1,5 +1,3 @@
-from db.DBConnector import execute_query
-
 # region database structure
 # table names for reference:
 commitMetaData: str = "commitmetadata"
