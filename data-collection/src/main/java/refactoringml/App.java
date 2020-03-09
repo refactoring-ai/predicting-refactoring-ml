@@ -72,7 +72,7 @@ public class App {
 			throw new IllegalArgumentException(message);
 		}
 
-		long start = System.currentTimeMillis();
+		long startProjectTime = System.currentTimeMillis();
 
 		GitService gitService = new GitServiceImpl();
 		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
@@ -125,6 +125,8 @@ public class App {
 
 			// we only analyze commits that have one parent or the first commit with 0 parents
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+				long startCommitTime = System.currentTimeMillis();
+				String commitHash = currentCommit.getId().getName();
 
 				try {
 					db.openSession();
@@ -140,7 +142,7 @@ public class App {
 
 					refactoringsToProcess = null;
 					commitIdToProcess = null;
-					String commitHash = currentCommit.getId().getName();
+
 					// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 					if (currentCommit.getParentCount() == 1)
 						miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
@@ -181,10 +183,12 @@ public class App {
 				} finally {
 					db.close();
 				}
+				long elapsedCommitTime = System.currentTimeMillis() - startCommitTime;
+				log.debug("Processing commit " + commitHash + " took " + elapsedCommitTime + " milliseconds.");
 			}
 			walk.close();
 
-			log.info(getProjectStatistics(start, System.currentTimeMillis(), project));
+			log.info(getProjectStatistics(startProjectTime, System.currentTimeMillis(), project));
 
 			// set finished data
 			// note that if this process crashes, finished date will be equals to null in the database
