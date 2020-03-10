@@ -1,6 +1,5 @@
 package refactoringml;
 
-import com.github.mauricioaniche.ck.CK;
 import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
@@ -168,7 +167,7 @@ public class RefactoringAnalyzer {
 
 	private RefactoringCommit calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
 		final List<RefactoringCommit> list = new ArrayList<>();
-		new CK().calculate(tempDir, ck -> {
+		CKUtils.calculate(tempDir, commitMetaData.getCommitId(), project.getGitUrl(), ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 
 			//Ignore all subclass callbacks from CK, that are not relevant in this case
