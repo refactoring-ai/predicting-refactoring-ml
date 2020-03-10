@@ -1,6 +1,7 @@
 package refactoringml.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
@@ -11,13 +12,14 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import refactoringml.TrackDebugMode;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class JGitUtils {
+	private static final Logger log = LogManager.getLogger(JGitUtils.class);
+
 	public static int numberOfCommits(Git git) throws GitAPIException {
 		Iterable<RevCommit> commits = git.log().call();
 		int count = 0;
@@ -35,8 +37,6 @@ public class JGitUtils {
 	public static String discoverMainBranch(Git git) throws IOException {
 		return git.getRepository().getBranch();
 	}
-
-	private static final Logger log = Logger.getLogger(JGitUtils.class);
 
 	public static String readFileFromGit (Repository repo, RevCommit commit, String filepath) throws IOException {
 		if(TrackDebugMode.ACTIVE && (filepath.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {

@@ -2,7 +2,8 @@ package refactoringml;
 
 import com.github.mauricioaniche.ck.CK;
 import com.github.mauricioaniche.ck.CKMethodResult;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
@@ -31,7 +32,7 @@ public class ProcessMetricsCollector {
 	private String fileStoragePath;
 	private PMDatabase pmDatabase;
 
-	private static final Logger log = Logger.getLogger(ProcessMetricsCollector.class);
+	private static final Logger log = LogManager.getLogger(ProcessMetricsCollector.class);
 
 	public ProcessMetricsCollector(Project project, Database db, Repository repository, String fileStoragePath) {
 		this.project = project;

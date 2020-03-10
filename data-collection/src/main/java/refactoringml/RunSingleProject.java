@@ -1,14 +1,13 @@
 package refactoringml;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
-
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 
 public class RunSingleProject {
-
-	private static final Logger log = Logger.getLogger(RunSingleProject.class);
+	private static final Logger log = LogManager.getLogger(RunSingleProject.class);
 
 	public static void main(String[] args) throws Exception {
 		// do we want to get data from the vars or not?

@@ -1,15 +1,12 @@
 package refactoringml.util;
 
-import org.apache.log4j.Logger;
-import refactoringml.App;
-
-import java.io.File;
-import java.io.FileInputStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertiesUtils {
-    private static final Logger log = Logger.getLogger(App.class);
+    private static final Logger log = LogManager.getLogger(PropertiesUtils.class);
 
     //config properties for the data-collection app at resources/config.property
     private static Properties configProperties;

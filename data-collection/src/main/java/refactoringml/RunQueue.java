@@ -1,7 +1,8 @@
 package refactoringml;
 
 import com.rabbitmq.client.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import java.io.IOException;
@@ -9,7 +10,7 @@ import java.util.concurrent.TimeoutException;
 import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class RunQueue {
-	private static final Logger log = Logger.getLogger(RunQueue.class);
+	private static final Logger log = LogManager.getLogger(RunQueue.class);
 	public final static String QUEUE_NAME = "refactoring";
 	private final Database db;
 	private String storagePath;
@@ -59,7 +60,7 @@ public class RunQueue {
 		factory.setHost(host);
 
 		while(true) {
-			log.debug("Waiting for new element from the queue...");
+			log.info("Fetching new element from the rabbitmq queue...");
 			try (Connection connection = factory.newConnection();
 				 Channel channel = connection.createChannel()) {
 
@@ -67,7 +68,7 @@ public class RunQueue {
 				if (chResponse != null) {
 					byte[] body = chResponse.getBody();
 					String message = new String(body);
-					log.debug("Got new element from queue: " + message);
+					log.info("Got new element from rabbitmq queue: " + message);
 					doWork(message);
 				}
 			}
@@ -80,7 +81,7 @@ public class RunQueue {
 		String dataset = msg[2];
 		String gitUrl = msg[1];
 
-		log.debug("Mine dataset: " + dataset + " with git url: " + gitUrl);
+		log.info("Mine dataset: " + dataset + " with git url: " + gitUrl);
 		try {
 			new App(dataset, gitUrl, storagePath, db, storeFullSourceCode).run();
 		} catch (Exception e) {
