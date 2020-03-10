@@ -1,5 +1,6 @@
 language: java
 os: linux
+dist: bionic
 addons:
   mariadb: '10.4'
 git:
@@ -56,8 +57,7 @@ jobs:
 
     - name: "Test machine-learning - Machine-Learning: Python"
       language: python
-      python:
-        - "3.7"
+      python: "3.7"
       before_install:
         - cd ../predicting-refactoring-ml/machine-learning/
         - python -m pip install --upgrade pip
