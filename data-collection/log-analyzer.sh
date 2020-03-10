@@ -1,8 +1,8 @@
 #! /bin/bash
 
-infoFile="logs/data-collection_INFO.log"
+infoFile="logs/data-collection_INFO.log*"
 debugFile="logs/data-collection_DEBUG.log*"
-errorFile="logs/data-collection_ERROR.log"
+errorFile="logs/data-collection_ERROR.log*"
 outFile="logs/statistics.txt"
 
 #General Statistics
@@ -35,15 +35,16 @@ echo "The fastest commit was processed in ${fastestCommitProcessingTime} millise
 echo "The slowest commit was processed in ${longestCommitProcessingTime} milliseconds with id: ${longestCommitHash}" >> $outFile
 echo -e "\n" >> $outFile
 
+#
 #Exceptions
 echo "------------------------Exceptions------------------------" >> $outFile
-exceptionCount=$(grep 'Exception:' $errorFile |wc -l)
-uniqueExceptions=$(grep 'Exception:' $errorFile | sed 's/: .*//' | sort --unique)
-uniqueExceptionsCount=$(grep 'Exception:' $errorFile | sed 's/: .*//' | sort --unique | wc -l)
+exceptionCount=$(egrep '^([a-zA-Z]+.)+Exception:' $errorFile | sed 's/: .*//' | grep 'Exception' |wc -l)
+uniqueExceptions=$(egrep '^([a-zA-Z]+.)+Exception:' $errorFile | sed 's/: .*//' | sort --unique | grep 'Exception')
+uniqueExceptionsCount=$(egrep '^([a-zA-Z]+.)+Exception:' $errorFile | sed 's/: .*//' | sort --unique | grep 'Exception' | wc -l)
 echo "${exceptionCount} exceptions occured during runtime, ${uniqueExceptionsCount} of these exceptions were unique" >> $outFile
 
 for e in $uniqueExceptions; do
-	currentExceptionCount=$(grep "${e}" $errorFile | wc -l)
+	currentExceptionCount=$(grep "${e}" $errorFile | sed 's/: .*//' | grep 'Exception' | wc -l)
 	echo -e "\t${currentExceptionCount} ${e}s occured during runtime." >> $outFile
 done
 echo -e "\n" >> $outFile
