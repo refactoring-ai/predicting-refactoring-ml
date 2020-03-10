@@ -209,11 +209,12 @@ public class App {
 
 	private String getProjectStatistics(long start, long end, Project project){
 		String statistics = String.format("Finished mining %s in %.2f minutes", gitUrl,( ( end - start ) / 1000.0 / 60.0 ));
-		statistics += String.format("\nFound %o refactoring- and %o stable instances in the project.",
-				db.findAllRefactoringCommits(project).size(), db.findAllStableCommits(project).size());
+		long stableInstancesCount = db.findAllStableCommits(project);
+		long refactoringInstancesCount = db.findAllRefactoringCommits(project);
+		statistics += String.format("\nFound " + refactoringInstancesCount + " refactoring- and " + stableInstancesCount + " stable instances in the project.");
 		for(int level: project.getCommitCountThresholds()){
-			int stableInstacesCount = db.findAllStableCommits(project, level).size();
-			statistics += "\n\t\tFound " + stableInstacesCount + " stable instances in the project with threshold: " + level;
+			stableInstancesCount = db.findAllStableCommits(project, level);
+			statistics += "\n\t\tFound " + stableInstancesCount + " stable instances in the project with threshold: " + level;
 		}
 		return statistics + "\n" + project.toString();
 	}

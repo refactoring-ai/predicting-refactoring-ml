@@ -4,8 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Database {
 	private SessionFactory sf;
@@ -60,26 +58,28 @@ public class Database {
 		return exists;
 	}
 
-	public List<RefactoringCommit> findAllRefactoringCommits(Project project) {
-		Session shortSession = sf.openSession();
-		List<RefactoringCommit> results = shortSession.createQuery("From RefactoringCommit where project = :project order by id asc")
-				.setParameter("project", project)
-				.list();
-		shortSession.close();
-		return results;
+	public long findAllRefactoringCommits(Project project) {
+		return findAllInstances("refactoringcommit", project.getId());
 	}
 
-	public List<StableCommit> findAllStableCommits(Project project) {
-		Session shortSession = sf.openSession();
-		List<StableCommit> results =  shortSession.createQuery("From StableCommit where project = :project order by id asc")
-				.setParameter("project", project)
-				.list();
-		shortSession.close();
-		return results;
+	public long findAllStableCommits(Project project) {
+		return findAllInstances("stablecommit", project.getId());
 	}
 
-	public List<StableCommit> findAllStableCommits(Project project, int level) {
-		return findAllStableCommits(project).stream().filter(stableCommit -> stableCommit.getCommitThreshold() == level).collect(Collectors.toList());
+	private long findAllInstances(String instance, long projectId){
+		Session shortSession = sf.openSession();
+		String query = "Select count(*) From " + instance + " where " + instance + ".project_id = " + projectId;
+		Object result = shortSession.createSQLQuery(query).getSingleResult();
+		shortSession.close();
+		return Long.parseLong(result.toString());
+	}
+
+	public long findAllStableCommits(Project project, int level) {
+		Session shortSession = sf.openSession();
+		String query = "Select count(*) From stablecommit where stablecommit.project_id = " + project.getId() + " AND stablecommit.commitThreshold = " + level;
+		Object result = shortSession.createSQLQuery(query).getSingleResult();
+		shortSession.close();
+		return Long.parseLong(result.toString());
 	}
 
 	public void rollback() {

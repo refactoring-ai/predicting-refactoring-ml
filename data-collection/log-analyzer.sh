@@ -1,7 +1,7 @@
 #! /bin/bash
 
 infoFile="logs/data-collection_INFO.log"
-debugFile="logs/data-collection_DEBUG.log"
+debugFile="logs/data-collection_DEBUG.log*"
 errorFile="logs/data-collection_ERROR.log"
 outFile="logs/statistics.txt"
 
@@ -50,5 +50,5 @@ echo -e "\n" >> $outFile
 
 #Individual project results
 echo "------------------------Individual Project Results------------------------" >> $outFile
-grep -A 5 'refactoring- and ' $infoFile >> $outFile
+grep -A 8 'refactoring- and ' $infoFile >> $outFile
 echo -e "\n" >> $outFile

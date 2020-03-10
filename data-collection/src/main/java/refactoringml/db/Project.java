@@ -84,9 +84,7 @@ public class Project {
 		this.exceptionsCount = exceptionsCount;
 	}
 
-	public long getId() {
-		return id;
-	}
+	public long getId() { return id; }
 
 	public long getJavaLoc() {
 		return javaLoc;

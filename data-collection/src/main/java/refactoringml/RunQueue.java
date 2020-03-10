@@ -71,6 +71,8 @@ public class RunQueue {
 					String message = new String(body);
 					log.info("Got new element from rabbitmq queue: " + message);
 					doWork(message);
+					//force garbage collection to free some memory
+					System.gc();
 				}
 			}
 		}
