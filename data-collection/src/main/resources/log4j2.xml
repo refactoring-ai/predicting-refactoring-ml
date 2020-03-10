@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+        </Console>
+
+        <RollingFile
+                name="RollingFile_ERROR"
+                fileName="./logs/data-collection_ERROR.log"
+                filePattern="./logs_test/data_collection_ERROR.log.%i"
+                ignoreExceptions="false"
+                append="false">
+            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile
+                name="RollingFile_DEBUG"
+                fileName="./logs/data-collection_DEBUG.log"
+                filePattern="./logs_test/data_collection_DEBUG.log.%i"
+                ignoreExceptions="false"
+                append="false">
+            <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile
+                name="RollingFile_INFO"
+                fileName="./logs/data-collection_INFO.log"
+                filePattern="./logs_test/data_collection_INFO.log.%i"
+                ignoreExceptions="false"
+                append="false">
+            <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="refactoringml" level="debug" additivity="false">
+            <AppenderRef ref="RollingFile_INFO"/>
+            <AppenderRef ref="RollingFile_DEBUG"/>
+            <AppenderRef ref="RollingFile_ERROR"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Root level="error">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile_ERROR"/>
+        </Root>
+    </Loggers>
+</Configuration>

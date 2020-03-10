@@ -1,7 +1,8 @@
 package refactoringml;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -37,7 +38,7 @@ public class App {
 	private String lastCommitToProcess;
 	private boolean storeFullSourceCode;
 
-	private static final Logger log = Logger.getLogger(App.class);
+	private static final Logger log = LogManager.getLogger(App.class);
 	private String datasetName;
 	private int exceptionsCount = 0;
 

@@ -1,18 +1,17 @@
 package refactoringml.db;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Database {
-
 	private SessionFactory sf;
 	private Session session;
 
-	private static final Logger log = Logger.getLogger(Database.class);
+	private static final Logger log = LogManager.getLogger(Database.class);
 
 	public Database(SessionFactory sf) {
 		this.sf = sf;

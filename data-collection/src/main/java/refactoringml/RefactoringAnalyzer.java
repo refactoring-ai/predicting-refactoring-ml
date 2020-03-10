@@ -3,7 +3,8 @@ package refactoringml;
 import com.github.mauricioaniche.ck.CK;
 import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Repository;
@@ -35,7 +36,7 @@ public class RefactoringAnalyzer {
 	private boolean storeFullSourceCode;
 	private String fileStorageDir;
 
-	private static final Logger log = Logger.getLogger(RefactoringAnalyzer.class);
+	private static final Logger log = LogManager.getLogger(RefactoringAnalyzer.class);
 
 	public RefactoringAnalyzer (Project project, Database db, Repository repository, String fileStorageDir, boolean storeFullSourceCode) {
 		this.project = project;
