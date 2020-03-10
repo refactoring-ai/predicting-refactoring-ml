@@ -5,7 +5,6 @@
 # test runs reduce the dataset to 100 instances only
 TEST = False
 
-
 # --------------------------------
 # Database related
 # --------------------------------
@@ -14,7 +13,6 @@ USE_CACHE = True
 
 # is the db available? sometimes it's not, but you have all the cache
 DB_AVAILABLE = True
-
 
 # --------------------------------
 # Dataset balancing
@@ -37,7 +35,6 @@ ORDERED_DATA_TEST_SPLIT = 0.1
 # scale using MinMaxScaler?
 SCALE_DATASET = True
 
-
 # --------------------------------
 # Feature reduction
 # --------------------------------
@@ -50,7 +47,6 @@ FEATURE_REDUCTION = True
 
 # number of folds for feature reduction
 N_CV_FEATURE_REDUCTION = 5
-
 
 # --------------------------------
 # Hyperparameter search
@@ -66,7 +62,6 @@ N_ITER_RANDOM_SEARCH = 100
 # number of folds in the search for best parameters
 N_CV_SEARCH = 5
 
-
 # --------------------------------
 # Evaluation: Cross-validation configuration
 # --------------------------------
@@ -77,13 +72,13 @@ N_CV = 10
 # number of folds for the DNN
 N_CV_DNN = 10
 
-
 # --------------------------------
 # Models and datasets
 # --------------------------------
 
 # models and datasets we have available
-MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest','logistic-regression', 'naive-bayes','extra-trees']
+MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest', 'logistic-regression', 'naive-bayes',
+          'extra-trees']
 DEEP_MODELS = ['neural-network']
 
 # Empty dataset means 'all datasets'
@@ -96,29 +91,52 @@ DATASETS = ['', 'apache', 'github', 'fdroid']
 
 # Refactorings to study
 CLASS_LEVEL_REFACTORINGS = ["Extract Class",
-"Extract Interface",
-"Extract Subclass",
-"Extract Superclass",
-"Move And Rename Class",
-"Move Class",
-"Rename Class"]
+                            "Extract Interface",
+                            "Extract Subclass",
+                            "Extract Superclass",
+                            "Move And Rename Class",
+                            "Move Class",
+                            "Rename Class",
+                            "Introduce Polymorphism",
+                            "Move And Rename Class",
+                            "Convert Anonymous Class To Type"]
 
 METHOD_LEVEL_REFACTORINGS = ["Extract And Move Method",
-"Extract Method",
-"Inline Method",
-"Move Method",
-"Pull Up Method",
-"Push Down Method",
-"Rename Method"]
+                             "Extract Method",
+                             "Inline Method",
+                             "Move Method",
+                             "Pull Up Method",
+                             "Push Down Method",
+                             "Rename Method",
+                             "Extract And Move Method",
+                             "Change Return Type",
+                             "Move And Inline Method",
+                             "Move And Rename Method",
+                             "Change Parameter Type",
+                             "Split Parameter",
+                             "Merge Parameter"]
 
 VARIABLE_LEVEL_REFACTORINGS = ["Extract Variable",
-"Inline Variable",
-"Parameterize Variable",
-"Rename Parameter",
-"Rename Variable",
-"Replace Variable With Attribute"]
+                               "Inline Variable",
+                               "Parameterize Variable",
+                               "Rename Parameter",
+                               "Rename Variable",
+                               "Replace Variable With Attribute",
+                               "Change Variable Type",
+                               "Split Variable",
+                               "Merge Variable"]
 
+FIELD_LEVEL_REFACTORINGS = ["Move Attribute",
+                            "Pull Up Attribute",
+                            "Move And Rename Attribute",
+                            "Push Down Attribute",
+                            "Replace Attribute",
+                            "Rename Attribute",
+                            "Extract Attribute",
+                            "Change Attribute Type"]
 
+OTHER_LEVEL_REFACTORINGS = ["Move Source Folder",
+                            "Change Package"]
 # --------------------------------
 # DO NOT CHANGE FROM HERE ON
 # --------------------------------
