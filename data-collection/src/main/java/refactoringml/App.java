@@ -19,11 +19,9 @@ import refactoringml.db.*;
 import refactoringml.util.Counter;
 import refactoringml.util.Counter.CounterResult;
 import refactoringml.util.JGitUtils;
-
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.FileUtils.createTmpDir;
@@ -74,7 +72,7 @@ public class App {
 			throw new IllegalArgumentException(message);
 		}
 
-		long start = System.currentTimeMillis();
+		long startProjectTime = System.currentTimeMillis();
 
 		GitService gitService = new GitServiceImpl();
 		GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
@@ -89,8 +87,6 @@ public class App {
 				new File(filesStoragePath).mkdirs();
 			}
 
-			log.info("REFACTORING ANALYZER");
-			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
 			final Repository repo = gitService.cloneIfNotExists(clonePath, gitUrl);
 			final Git git = Git.open(new File(lastSlashDir(clonePath) + ".git"));
 
@@ -125,8 +121,13 @@ public class App {
 			int refactoringMinerTimeout = Integer.valueOf(getProperty("timeout"));
 			log.debug("Set Refactoring Miner timeout to " + refactoringMinerTimeout + " seconds.");
 
+			log.info("REFACTORING ANALYZER");
+			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
+
 			// we only analyze commits that have one parent or the first commit with 0 parents
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+				long startCommitTime = System.currentTimeMillis();
+				String commitHash = currentCommit.getId().getName();
 
 				try {
 					db.openSession();
@@ -139,11 +140,6 @@ public class App {
 					// if so, process it and then stop
 					if (currentCommit.equals(lastCommitToProcess))
 						endFound = true;
-
-					String commitHash = currentCommit.getId().getName();
-					if (TrackDebugMode.ACTIVE && commitHash.contains(TrackDebugMode.COMMIT_TO_TRACK)) {
-						log.debug("[Track] Visiting commit " + commitHash);
-					}
 
 					refactoringsToProcess = null;
 					commitIdToProcess = null;
@@ -188,10 +184,10 @@ public class App {
 				} finally {
 					db.close();
 				}
+				long elapsedCommitTime = System.currentTimeMillis() - startCommitTime;
+				log.debug("Processing commit " + commitHash + " took " + elapsedCommitTime + " milliseconds.");
 			}
 			walk.close();
-
-			log.info(getProjectStatistics(start, System.currentTimeMillis(), project));
 
 			// set finished data
 			// note that if this process crashes, finished date will be equals to null in the database
@@ -203,6 +199,9 @@ public class App {
 			db.commit();
 			db.close();
 
+			double elapsedTime = (System.currentTimeMillis() - startProjectTime) / 1000.0 / 60.0;
+			log.info("Finished mining " + gitUrl + " in " + elapsedTime + " minutes");
+			log.info(getProjectStatistics(project));
 			return project;
 		} finally {
 			// delete the tmp dir that stores the project
@@ -210,13 +209,13 @@ public class App {
 		}
 	}
 
-	private String getProjectStatistics(long start, long end, Project project){
-		String statistics = String.format("Finished mining %s in %.2f minutes", gitUrl,( ( end - start ) / 1000.0 / 60.0 ));
-		statistics += String.format("\nFound %o refactoring- and %o stable instances in the project.",
-				db.findAllRefactoringCommits(project).size(), db.findAllStableCommits(project).size());
+	private String getProjectStatistics(Project project){
+		long stableInstancesCount = db.findAllStableCommits(project.getId());
+		long refactoringInstancesCount = db.findAllRefactoringCommits(project.getId());
+		String statistics = String.format("\nFound " + refactoringInstancesCount + " refactoring- and " + stableInstancesCount + " stable instances in the project.");
 		for(int level: project.getCommitCountThresholds()){
-			int stableInstacesCount = db.findAllStableCommits(project, level).size();
-			statistics += "\n\t\tFound " + stableInstacesCount + " stable instances in the project with threshold: " + level;
+			stableInstancesCount = db.findAllStableCommits(project.getId(), level);
+			statistics += "\n\t\tFound " + stableInstancesCount + " stable instances in the project with threshold: " + level;
 		}
 		return statistics + "\n" + project.toString();
 	}
