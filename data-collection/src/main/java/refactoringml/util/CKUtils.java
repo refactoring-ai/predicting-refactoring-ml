@@ -72,8 +72,8 @@ public class CKUtils {
 			}
 
 			String leftPart = clazzName.substring(0, openIndex);
-			String rightParth = closeIndex + 1 == clazzName.length() ? "" : clazzName.substring(closeIndex + 1);
-			clazzName = leftPart + rightParth;
+			String rightPart = closeIndex + 1 == clazzName.length() ? "" : clazzName.substring(closeIndex + 1);
+			clazzName = leftPart + rightPart;
 		}
 
 		return clazzName.trim();
