@@ -15,6 +15,7 @@ public class CKUtilsTest {
 	public void methodAlreadyClean() {
 		Assert.assertEquals("method/2[int]", CKUtils.simplifyFullName("method/2[int]"));
 		Assert.assertEquals("method/2[int,double]", CKUtils.simplifyFullName("method/2[int,double]"));
+		Assert.assertEquals("method/2[A,B]", CKUtils.simplifyFullName("method/2[A,B]"));
 
 		Assert.assertEquals("CSVRecord/5[String[],Map,String,long,long]", CKUtils.simplifyFullName("CSVRecord/5[String[],Map,String,long,long]"));
 	}
