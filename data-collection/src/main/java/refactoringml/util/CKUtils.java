@@ -1,18 +1,44 @@
 package refactoringml.util;
 
+import com.github.mauricioaniche.ck.CK;
 import com.github.mauricioaniche.ck.CKClassResult;
 import com.github.mauricioaniche.ck.CKMethodResult;
+import com.github.mauricioaniche.ck.CKNotifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import refactoringml.ProcessMetricsCollector;
 import refactoringml.db.ClassMetric;
 import refactoringml.db.MethodMetric;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import static refactoringml.util.PropertiesUtils.getProperty;
 import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
 public class CKUtils {
+	private static final Logger log = LogManager.getLogger(ProcessMetricsCollector.class);
+	private static long timeout = Long.parseLong(getProperty("timeoutRefactoringMiner"));
+
+	//TODO: figure out if we could parallelize the CK tool for various class files on the same commit
+	//Calls the CK.calculate with a timeout.
+	public static void calculate(String tempdir, String commitHash, String projectUrl, CKNotifier ckNotifier){
+		ExecutorService executor = Executors.newFixedThreadPool(1);
+		FutureTask timeoutTask = new FutureTask(() -> {
+			new CK().calculate(tempdir, ckNotifier);
+			return null;
+		});
+		executor.submit(timeoutTask);
+
+		try {
+			timeoutTask.get(timeout, TimeUnit.SECONDS);
+		} catch (TimeoutException | InterruptedException | ExecutionException e){
+			log.error("CK failed to calculate metrics for " + tempdir + " on the commit " + commitHash
+					+ " in the project: " + projectUrl + " with a timeout of " + timeout + " seconds.");
+		} finally {
+			executor.shutdownNow();
+		}
+	}
 
 	public static String simplifyFullName(String fullName) {
 

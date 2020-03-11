@@ -1,6 +1,5 @@
 package refactoringml;
 
-import com.github.mauricioaniche.ck.CK;
 import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -172,7 +171,8 @@ public class ProcessMetricsCollector {
 	//TODO: Fix this, as it generates many duplicates
 	private List<StableCommit> codeMetrics(CommitMetaData commitMetaData, String tempDir, int commitThreshold) {
 		List<StableCommit> stableCommits = new ArrayList<>();
-		new CK().calculate(tempDir, ck -> {
+
+		CKUtils.calculate(tempDir, commitMetaData.getCommitId(), project.getGitUrl(), ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 			ClassMetric classMetric = extractClassMetrics(ck);
 

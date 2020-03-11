@@ -118,7 +118,7 @@ public class App {
 			RevWalk walk = JGitUtils.getReverseWalk(repo, mainBranch);
 			RevCommit currentCommit = walk.next();
 
-			int refactoringMinerTimeout = Integer.valueOf(getProperty("timeout"));
+			int refactoringMinerTimeout = Integer.valueOf(getProperty("timeoutRefactoringMiner"));
 			log.debug("Set Refactoring Miner timeout to " + refactoringMinerTimeout + " seconds.");
 
 			log.info("REFACTORING ANALYZER");
