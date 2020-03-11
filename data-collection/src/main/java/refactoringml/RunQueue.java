@@ -11,6 +11,8 @@ import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class RunQueue {
 	private static final Logger log = LogManager.getLogger(RunQueue.class);
+	private static int redeliveryCounter = 0;
+
 	public final static String QUEUE_NAME = "refactoring";
 	private final Database db;
 	private String storagePath;
@@ -22,35 +24,20 @@ public class RunQueue {
 		this.storagePath = storagePath;
 		this.storeFullSourceCode = storeFullSourceCode;
 		db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
+
+		log.debug(toString());
 	}
 
 	public static void main(String[] args) throws Exception {
 		// we gotta wait a few minutes before the queue is up and the db is up...
 		Thread.sleep(1000 * Long.parseLong(getProperty("queueWaitTime")));
 
-		String queueHost = "localhost";
-		String url = "jdbc:mysql://localhost:3306/refactoringtest?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
-		String user = "root";
-		String pwd = "";
-		boolean storeFullSourceCode = true;
-		//TODO: remove references to mauricios desktop, e.g. make this an argument
-		String storagePath = "/Users/mauricioaniche/Desktop/results/";
-
-		boolean test = false;
-		if (!test) {
-			queueHost = System.getenv("QUEUE_HOST");
-			url = System.getenv("REF_URL");
-			user = System.getenv("REF_USER");
-			pwd = System.getenv("REF_DBPWD");
-			storeFullSourceCode = Boolean.parseBoolean(System.getenv("STORE_FILES"));
-			storagePath = System.getenv("STORAGE_PATH");
-		}
-
-		log.info("Queue host: " + queueHost);
-		log.info("URL: " + url);
-		log.info("User: " + user);
-		log.info("Store full code?: " + storeFullSourceCode);
-		log.info("Storage path: " + storagePath);
+		String queueHost = System.getenv("QUEUE_HOST");
+		String url = System.getenv("REF_URL");
+		String user = System.getenv("REF_USER");
+		String pwd = System.getenv("REF_DBPWD");
+		boolean storeFullSourceCode = Boolean.parseBoolean(System.getenv("STORE_FILES"));
+		String storagePath = System.getenv("STORAGE_PATH");
 
 		new RunQueue(queueHost, url, user, pwd, storagePath, storeFullSourceCode).run();
 	}
@@ -60,24 +47,32 @@ public class RunQueue {
 		factory.setHost(host);
 
 		while(true) {
-			log.info("Fetching new element from the rabbitmq queue...");
+			log.debug("Fetching new element from the rabbitmq queue...");
 			try (Connection connection = factory.newConnection();
 				 Channel channel = connection.createChannel()) {
 
 				GetResponse chResponse = channel.basicGet(QUEUE_NAME, true);
-				if (chResponse != null) {
-					byte[] body = chResponse.getBody();
-					String message = new String(body);
-					log.info("Got new element from rabbitmq queue: " + message);
-					doWork(message);
+
+				if (chResponse != null && !chResponse.getEnvelope().isRedeliver()) {
+					String message = new String(chResponse.getBody());
+					log.debug("Got new element from rabbitmq queue: " + message);
+					processRepository(message);
+				} else if(chResponse != null && chResponse.getEnvelope().isRedeliver()){
+					String message = new String(chResponse.getBody());
+					log.error("Got a redelivery from the queue: " + message);
+					redeliveryCounter++;
+					//Assumption: if messages are constantly redelivered the queue is rolling over
+					if(redeliveryCounter > 50)
+						System.exit(0);
 				}
 			}
 		}
 	}
 
-	private void doWork(String message) {
-		String[] msg = message.split(",");
+	private void processRepository(String message) {
+		log.debug("Got new element from rabbitmq queue: " + message);
 
+		String[] msg = message.split(",");
 		String dataset = msg[2];
 		String gitUrl = msg[1];
 
@@ -87,5 +82,15 @@ public class RunQueue {
 		} catch (Exception e) {
 			log.error("Error while processing " + gitUrl, e);
 		}
+	}
+
+	@Override
+	public String toString(){
+		return "RunQueue{\n"+
+				"QUEUE_NAME = " + QUEUE_NAME + "\n" +
+				"host = " + host + "\n" +
+				"storagePath = " + storagePath + "\n" +
+				"storeFullSourceCode = " + storeFullSourceCode +
+				"db = " + db.toString() + "}";
 	}
 }
