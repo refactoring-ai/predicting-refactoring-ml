@@ -20,24 +20,23 @@ public class CKUtils {
 	private static final Logger log = LogManager.getLogger(ProcessMetricsCollector.class);
 	private static long timeout = Long.parseLong(getProperty("timeoutRefactoringMiner"));
 
+	//TODO: figure out if we could parallelize the CK tool for various class files on the same commit
 	//Calls the CK.calculate with a timeout.
 	public static void calculate(String tempdir, String commitHash, String projectUrl, CKNotifier ckNotifier){
-		FutureTask timeoutTask = null;
+		ExecutorService executor = Executors.newFixedThreadPool(1);
+		FutureTask timeoutTask = new FutureTask(() -> {
+			new CK().calculate(tempdir, ckNotifier);
+			return null;
+		});
+		executor.submit(timeoutTask);
+
 		try {
-			timeoutTask = new FutureTask(new Callable() {
-
-				@Override
-				public Object call() throws Exception {
-					new CK().calculate(tempdir, ckNotifier);
-					return null;
-				}
-			});
-
-			new Thread(timeoutTask).start();
 			timeoutTask.get(timeout, TimeUnit.SECONDS);
 		} catch (TimeoutException | InterruptedException | ExecutionException e){
 			log.error("CK failed to calculate metrics for " + tempdir + " on the commit " + commitHash
-					+ " in the project: " + projectUrl + " with a timeout of" + timeout + " seconds.");
+					+ " in the project: " + projectUrl + " with a timeout of " + timeout + " seconds.");
+		} finally {
+			executor.shutdownNow();
 		}
 	}
 
