@@ -45,11 +45,38 @@ public class CKUtils {
 	// Why? Because the way JDT resolves (and stringuifies) class names in TypeDeclarations
 	// is different from the way it resolves (and stringuifies) in MethodBinding...
 	// We also remove the generic types as RefactoringMiner doesn't return the generics.
-	
+
 	// TODO: maybe the best implementation here is to actually implement a smarter string parser
 	// that understands the full syntax...
 	private static String cleanGenerics(String clazzName) {
-		return clazzName.replaceAll("\\$", "\\.").replaceAll("<.*?>", "").replace("<", "").replace(">", "").trim();
+		clazzName = clazzName.replaceAll("\\$", "\\.");
+
+		// while there's a < in the string, we then look for its corresponding >.
+		// we then extract this part out of the string.
+		// we repeat it until there's no more <
+		while(clazzName.contains("<")) {
+			int firstIndex = clazzName.indexOf("<");
+			int qty = 0;
+			int closeIndex;
+			for (closeIndex = firstIndex + 1; closeIndex < clazzName.length(); closeIndex++) {
+
+				char ch = clazzName.charAt(closeIndex);
+				if (ch == '<')
+					qty++;
+				else if (ch == '>') {
+					if (qty == 0)
+						break;
+
+					qty--;
+				}
+			}
+
+			String leftPart = clazzName.substring(0, firstIndex);
+			String rightParth = closeIndex + 1 == clazzName.length() ? "" : clazzName.substring(closeIndex + 1);
+			clazzName = leftPart + rightParth;
+		}
+
+		return clazzName.trim();
 	}
 
 	public static String cleanClassName(String clazzName) {

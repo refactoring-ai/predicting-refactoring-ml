@@ -55,4 +55,13 @@ public class CKUtilsTest {
 
 		Assert.assertEquals("setParameters/1[Map]", simplified);
 	}
+
+	@Test
+	public void genericInsideGenerics_2() {
+		String fullVersion = "setParameters/1[Map<String, Collection<String>, String>]";
+
+		String simplified = CKUtils.simplifyFullName(fullVersion);
+
+		Assert.assertEquals("setParameters/1[Map]", simplified);
+	}
 }
