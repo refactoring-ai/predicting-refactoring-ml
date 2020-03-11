@@ -9,8 +9,8 @@ public class MethodMetric {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@Column(nullable = true) private String fullMethodName;
-	@Column(nullable = true) private String shortMethodName;
+	@Column(nullable = true, length = 2000) private String fullMethodName;
+	@Column(nullable = true, length = 256) private String shortMethodName;
 
 	@Column(nullable = true) private int startLine;
 	@Column(nullable = true) private int methodCbo;
