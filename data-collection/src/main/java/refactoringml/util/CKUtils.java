@@ -55,10 +55,10 @@ public class CKUtils {
 		// we then extract this part out of the string.
 		// we repeat it until there's no more <
 		while(clazzName.contains("<")) {
-			int firstIndex = clazzName.indexOf("<");
+			int openIndex = clazzName.indexOf("<");
 			int qty = 0;
 			int closeIndex;
-			for (closeIndex = firstIndex + 1; closeIndex < clazzName.length(); closeIndex++) {
+			for (closeIndex = openIndex + 1; closeIndex < clazzName.length(); closeIndex++) {
 
 				char ch = clazzName.charAt(closeIndex);
 				if (ch == '<')
@@ -71,7 +71,7 @@ public class CKUtils {
 				}
 			}
 
-			String leftPart = clazzName.substring(0, firstIndex);
+			String leftPart = clazzName.substring(0, openIndex);
 			String rightParth = closeIndex + 1 == clazzName.length() ? "" : clazzName.substring(closeIndex + 1);
 			clazzName = leftPart + rightParth;
 		}
