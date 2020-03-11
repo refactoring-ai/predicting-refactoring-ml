@@ -13,12 +13,12 @@ echo "Starting the worker soon"
 RC=1
 counter=0
 #not the correct exit code, but our programes always exists with 0
-while [ $RC -ne -1 ]; do
+while [ $RC -ne 0 ]; do
   if [ $counter -eq 0 ]; then echo "Starting the queue class."
   else echo "Restarting the queue class for the ${counter} time."
   fi
 
-  java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $QUEUE_CLASS
+  java -Xmx800m -Xms350m -XX:+ExitOnOutOfMemoryError -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $QUEUE_CLASS
   RC=$?
   counter=$((counter + 1))
 done
