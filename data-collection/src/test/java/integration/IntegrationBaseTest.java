@@ -9,9 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.refactoringminer.util.GitServiceImpl;
 import refactoringml.App;
-import refactoringml.TrackDebugMode;
 import refactoringml.db.*;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,14 +32,6 @@ public abstract class IntegrationBaseTest {
 
 	private List<RefactoringCommit> refactoringCommits;
 	private List<StableCommit> stableCommits;
-
-	protected String trackCommit() {
-		return "null";
-	}
-
-	protected String trackFileName() {
-		return "null";
-	}
 
 	protected final boolean drop() {
 		return false;
@@ -71,12 +61,6 @@ public abstract class IntegrationBaseTest {
 			new GitServiceImpl().cloneIfNotExists(repoLocalDir, getRepo());
 
 		deleteProject(extractProjectNameFromGitUrl(getRepo()));
-
-		if(!trackFileName().equals("null") || !trackCommit().equals("null")) {
-			TrackDebugMode.ACTIVE = true;
-			TrackDebugMode.FILENAME_TO_TRACK = trackFileName();
-			TrackDebugMode.COMMIT_TO_TRACK = trackCommit();
-		}
 
 		//set the stableCommitThreshold in the PMDatabase to test various configs
 		setProperty("stableCommitThresholds", getStableCommitThreshold());

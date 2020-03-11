@@ -67,12 +67,6 @@ public class ProcessMetricsCollector {
 			db.update(refactoringCommit);
 
 			pmDatabase.reportRefactoring(fileName, superCommitMetaData);
-
-			if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
-				log.debug("[TRACK] Collected process metrics at refactoring commit " + commit.getId().getName() + " for class: " + commit.getName()
-								+ " and class stability counter was set to: " + currentProcessMetricsTracker.getCommitCounter() + "\n" +
-						"\t\t\t\t\t\t\tRefactoringCommit ProcessMetrics: " + refactoringCommit.getProcessMetrics());
-			}
 		}
 	}
 
@@ -119,14 +113,6 @@ public class ProcessMetricsCollector {
 				// we increase the counter here. This means a class will go to the 'non refactored' bucket
 				// only after we see it X times (and not involved in a refactoring, otherwise, counters are resetted).
 				ProcessMetricTracker pmTracker = pmDatabase.reportChanges(fileName, superCommitMetaData, commit.getAuthorIdent().getName(), linesAdded, linesDeleted);
-
-				if(TrackDebugMode.ACTIVE && (fileName.contains(TrackDebugMode.FILENAME_TO_TRACK) || commit.getName().contains(TrackDebugMode.COMMIT_TO_TRACK))) {
-					ProcessMetricTracker currentClazz = pmDatabase.find(fileName);
-					log.debug("[TRACK] Reported commit " + commit.getName() + " to pmTracker affecting class file: " + fileName + "\n" +
-							"\t\t\t\t\t\t\tlinesAdded: " + linesAdded + ", linesDeleted: " + linesDeleted + ", author: "
-							+ commit.getAuthorIdent().getName() + " and class stability counter is " + currentClazz.getCommitCounter()  + "\n" +
-							"\t\t\t\t\t\t\tcurrent ProcessMetrics: " + currentClazz.getCurrentProcessMetrics());
-				}
 
 				//The last commit passed the stability threshold for this class file
 				if(pmTracker.calculateStability(project.getCommitCountThresholds())){

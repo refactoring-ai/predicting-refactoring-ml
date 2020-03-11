@@ -143,7 +143,7 @@ public class App {
 
 					refactoringsToProcess = null;
 					commitIdToProcess = null;
-
+					String commitHash = currentCommit.getId().getName();
 					// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 					if (currentCommit.getParentCount() == 1)
 						miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);

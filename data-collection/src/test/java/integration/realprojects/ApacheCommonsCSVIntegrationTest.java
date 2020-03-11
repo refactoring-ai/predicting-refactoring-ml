@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
-
     @Override
     protected String getLastCommit() {
         return "70092bb303af69b09bf3978b24c1faa87c909e3c";
@@ -20,11 +19,6 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
     @Override
     protected String getRepo() {
         return "https://www.github.com/apache/commons-csv.git";
-    }
-
-    @Override
-    protected String trackFileName() {
-        return "src/main/java/org/apache/commons/csv/CSVFormat.java";
     }
 
     @Override

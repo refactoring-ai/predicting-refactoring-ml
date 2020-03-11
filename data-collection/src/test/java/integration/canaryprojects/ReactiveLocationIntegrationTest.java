@@ -20,9 +20,6 @@ public class ReactiveLocationIntegrationTest extends IntegrationBaseTest {
 		return "https://github.com/mcharmas/Android-ReactiveLocation.git";
 	}
 
-	@Override
-	protected String trackFileName() { return "src/java/org/apache/commons/cli/HelpFormatter.java"; }
-
 	@Ignore
 	@Override
 	public void checkCKMethodNotFound(){}
