@@ -161,7 +161,6 @@ public class App {
 					//check if refactoring miner detected a refactoring we study
 					if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
 						db.persist(superCommitMetaData);
-						superCommitMetaData = db.loadCommitMetaData(superCommitMetaData.getId());
 						allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess);
 					} else if (currentCommit.getParentCount() == 1 && thereIsRefactoringToProcess) {
 						// timeout happened, so count it as an exception
