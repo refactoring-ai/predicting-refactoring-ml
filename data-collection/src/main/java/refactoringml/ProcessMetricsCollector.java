@@ -133,12 +133,13 @@ public class ProcessMetricsCollector {
 
 	//Store the refactoring instances in the DB
 	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
-		RevCommit commitBackThen = getReverseWalk(repository, "master")
-				.parseCommit(ObjectId.fromString(pmTracker.getBaseCommitMetaData().getCommitId()));
-		log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitBackThen.getId());
-
 		String tempDir = null;
 		try {
+			RevCommit commitBackThen = getReverseWalk(repository, "master")
+					.parseCommit(ObjectId.fromString(pmTracker.getBaseCommitMetaData().getCommitId()));
+			log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitBackThen.getId());
+
+
 			// we extract the source code from back then (as that's the one that never deserved a refactoring)
 			String sourceCodeBackThen = readFileFromGit(repository, commitBackThen, pmTracker.getFileName());
 			// create a temp dir to store the source code files and run CK there
@@ -162,7 +163,7 @@ public class ProcessMetricsCollector {
 				db.persist(stableCommit);
 			}
 		} catch(Exception e) {
-			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + commitBackThen.getId(), e);
+			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + pmTracker.getBaseCommitMetaData().getCommitId(), e);
 		} finally {
 			cleanTempDir(tempDir);
 		}
