@@ -42,7 +42,7 @@ public class RunQueue {
 		new RunQueue(queueHost, url, user, pwd, storagePath, storeFullSourceCode).run();
 	}
 
-	private void run() throws IOException, TimeoutException {
+	private void run() throws IOException, TimeoutException, InterruptedException {
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(host);
 
@@ -57,26 +57,30 @@ public class RunQueue {
 					String message = new String(chResponse.getBody());
 					log.debug("Got new element from rabbitmq queue: " + message);
 					processRepository(message);
-				} else if(chResponse != null && chResponse.getEnvelope().isRedeliver()){
+				} else if(chResponse != null && chResponse.getEnvelope().isRedeliver()) {
 					String message = new String(chResponse.getBody());
 					log.error("Got a redelivery from the queue: " + message);
 					redeliveryCounter++;
-					//Assumption: if messages are constantly redelivered the queue is rolling over
-					if(redeliveryCounter > 50)
-						System.exit(0);
+					Thread.sleep(1000 * redeliveryCounter);
+				} else {
+					redeliveryCounter++;
+					log.error("Got an empty response from the queue: " + QUEUE_NAME + " and chResponse = " + chResponse);
+					Thread.sleep(1000 * redeliveryCounter);
 				}
+
+				if(redeliveryCounter > 50)
+					System.exit(0);
 			}
 		}
 	}
 
 	private void processRepository(String message) {
-		log.debug("Got new element from rabbitmq queue: " + message);
+		log.debug("Got a new element from rabbitmq queue: " + message);
 
 		String[] msg = message.split(",");
 		String dataset = msg[2];
 		String gitUrl = msg[1];
 
-		log.info("Mine dataset: " + dataset + " with git url: " + gitUrl);
 		try {
 			new App(dataset, gitUrl, storagePath, db, storeFullSourceCode).run();
 		} catch (Exception e) {
