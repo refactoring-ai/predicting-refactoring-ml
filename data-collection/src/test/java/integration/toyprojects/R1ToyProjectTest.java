@@ -7,15 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.RefactoringCommit;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class R1ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "https://github.com/jan-gerling/toyrepo-r1.git";
+		return "https://github.com/refactoring-ai/toyrepo-r1.git";
 	}
 
 	@Test
