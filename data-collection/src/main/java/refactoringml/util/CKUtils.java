@@ -44,8 +44,12 @@ public class CKUtils {
 	// we remove generics, e.g., A<B, C> becomes A
 	// Why? Because the way JDT resolves (and stringuifies) class names in TypeDeclarations
 	// is different from the way it resolves (and stringuifies) in MethodBinding...
+	// We also remove the generic types as RefactoringMiner doesn't return the generics.
+	
+	// TODO: maybe the best implementation here is to actually implement a smarter string parser
+	// that understands the full syntax...
 	private static String cleanGenerics(String clazzName) {
-		return clazzName.replaceAll("\\$", "\\.").replaceAll("<.*?>", "").trim();
+		return clazzName.replaceAll("\\$", "\\.").replaceAll("<.*?>", "").replace("<", "").replace(">", "").trim();
 	}
 
 	public static String cleanClassName(String clazzName) {

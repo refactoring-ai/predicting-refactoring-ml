@@ -46,4 +46,13 @@ public class CKUtilsTest {
 
 		Assert.assertEquals("doConnect/3[Request,AsyncHandler,NettyResponseFuture]", simplified);
 	}
+
+	@Test
+	public void genericInsideGenerics() {
+		String fullVersion = "setParameters/1[Map<String, Collection<String>>]";
+
+		String simplified = CKUtils.simplifyFullName(fullVersion);
+
+		Assert.assertEquals("setParameters/1[Map]", simplified);
+	}
 }
