@@ -23,7 +23,6 @@ public class CKUtils {
 		String rightPart = fullName.substring(fullName.indexOf("[") + 1, fullName.length()-1);
 
 		rightPart = cleanGenerics(rightPart);
-		System.out.println(rightPart);
 
 		String[] parameters = rightPart.split(",");
 		String cleanParams = Arrays.stream(parameters).map(p -> {
