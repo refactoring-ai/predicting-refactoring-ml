@@ -43,7 +43,7 @@ services:
       - .:/data-collection
     environment:
       - TASK=import
-      - FILE_TO_IMPORT=
+      - FILE_TO_IMPORT=projects-test.csv
       - QUEUE_HOST=queue
       - DOCKER_URI=http://socat:1234
     depends_on:
