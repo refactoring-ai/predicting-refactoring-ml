@@ -37,4 +37,13 @@ public class CKUtilsTest {
 		String simplified = CKUtils.simplifyFullName("CSVRecord/5[java.lang.String[],java.util.Map<java.lang.String,java.lang.Integer>,java.lang.String,long,long]");
 		Assert.assertEquals("CSVRecord/5[String[],Map,String,long,long]", simplified);
 	}
+
+	@Test
+	public void fullClassNamesAndGenerics() {
+		String fullVersion = "doConnect/3[com.ning.http.client.providers.Request,com.ning.http.client.providers.AsyncHandler<T>,com.ning.http.client.providers.NettyResponseFuture<T>]";
+
+		String simplified = CKUtils.simplifyFullName(fullVersion);
+
+		Assert.assertEquals("doConnect/3[Request,AsyncHandler,NettyResponseFuture]", simplified);
+	}
 }
