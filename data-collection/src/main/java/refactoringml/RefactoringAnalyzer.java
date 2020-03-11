@@ -192,7 +192,7 @@ public class RefactoringAnalyzer {
 					// for some reason we did not find the method, let's remove it from the list.
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
 					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the refactoring type: " + refactoring.getName() + " on commit " + commitMetaData.getCommitId() +
-							"on class " + refactoredClass +
+							" on class " + refactoredClass +
 							"\nAll methods found by CK: " + methods);
 					return;
 				} else {
