@@ -23,6 +23,7 @@ public class CKUtils {
 		String rightPart = fullName.substring(fullName.indexOf("[") + 1, fullName.length()-1);
 
 		rightPart = cleanGenerics(rightPart);
+		System.out.println(rightPart);
 
 		String[] parameters = rightPart.split(",");
 		String cleanParams = Arrays.stream(parameters).map(p -> {
@@ -45,7 +46,7 @@ public class CKUtils {
 	// Why? Because the way JDT resolves (and stringuifies) class names in TypeDeclarations
 	// is different from the way it resolves (and stringuifies) in MethodBinding...
 	private static String cleanGenerics(String clazzName) {
-		return clazzName.replaceAll("\\$", "\\.").replaceAll("<.*>", "").trim();
+		return clazzName.replaceAll("\\$", "\\.").replaceAll("<.*?>", "").trim();
 	}
 
 	public static String cleanClassName(String clazzName) {
