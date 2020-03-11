@@ -25,7 +25,7 @@ public class TelegramServerIntegrationTest extends IntegrationBaseTest {
 	@Test
 	public void uniqueRefactorings(){
 		int uniqueRefactorings = getRefactoringCommits().stream().map(RefactoringCommit::getRefactoringSummary).distinct().collect(Collectors.toList()).size();
-		Assert.assertEquals(743, uniqueRefactorings);
+		Assert.assertEquals(755, uniqueRefactorings);
 	}
 
 	@Test
