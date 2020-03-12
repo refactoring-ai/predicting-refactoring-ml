@@ -121,7 +121,6 @@ public class App {
 			int refactoringMinerTimeout = Integer.valueOf(getProperty("timeoutRefactoringMiner"));
 			log.debug("Set Refactoring Miner timeout to " + refactoringMinerTimeout + " seconds.");
 
-			log.info("REFACTORING ANALYZER");
 			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
 
 			// we only analyze commits that have one parent or the first commit with 0 parents
