@@ -5,42 +5,47 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
         </Console>
 
+        <Console name="Console_INFO" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+
         <RollingFile
                 name="RollingFile_ERROR"
-                fileName="./logs/data-collection_ERROR.log"
-                filePattern="./logs/data_collection_ERROR.log.%i"
+                fileName="./logs/data-collection_ERROR.txt"
+                filePattern="./logs/data_collection_ERROR.txt.%i"
                 ignoreExceptions="false"
                 append="false">
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
         </RollingFile>
 
         <RollingFile
                 name="RollingFile_DEBUG"
-                fileName="./logs/data-collection_DEBUG.log"
-                filePattern="./logs/data_collection_DEBUG.log.%i"
+                fileName="./logs/data-collection_DEBUG.txt"
+                filePattern="./logs/data_collection_DEBUG.txt.%i"
                 ignoreExceptions="false"
                 append="false">
             <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
         </RollingFile>
 
         <RollingFile
                 name="RollingFile_INFO"
-                fileName="./logs/data-collection_INFO.log"
-                filePattern="./logs/data_collection_INFO.log.%i"
+                fileName="./logs/data-collection_INFO.txt"
+                filePattern="./logs/data_collection_INFO.txt.%i"
                 ignoreExceptions="false"
                 append="false">
             <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
         </RollingFile>
     </Appenders>
@@ -50,7 +55,7 @@
             <AppenderRef ref="RollingFile_INFO"/>
             <AppenderRef ref="RollingFile_DEBUG"/>
             <AppenderRef ref="RollingFile_ERROR"/>
-            <AppenderRef ref="Console" level="info"/>
+            <AppenderRef ref="Console_INFO"/>
         </Logger>
 
         <Root level="error">
