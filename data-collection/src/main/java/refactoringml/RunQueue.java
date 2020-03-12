@@ -47,7 +47,7 @@ public class RunQueue {
 		factory.setHost(host);
 
 		while(true) {
-			log.debug("Fetching new element from the rabbitmq queue...");
+			log.debug("Fetching a new element from the rabbitmq queue...");
 			try (Connection connection = factory.newConnection();
 				 Channel channel = connection.createChannel()) {
 
@@ -55,7 +55,7 @@ public class RunQueue {
 
 				if (chResponse != null && !chResponse.getEnvelope().isRedeliver()) {
 					String message = new String(chResponse.getBody());
-					log.debug("Got new element from rabbitmq queue: " + message);
+					log.debug("Got a new element from rabbitmq queue: " + message);
 					processRepository(message);
 				} else if(chResponse != null && chResponse.getEnvelope().isRedeliver()) {
 					String message = new String(chResponse.getBody());
