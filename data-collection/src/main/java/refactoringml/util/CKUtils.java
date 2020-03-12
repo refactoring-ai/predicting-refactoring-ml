@@ -41,7 +41,6 @@ public class CKUtils {
 	}
 
 	public static String simplifyFullName(String fullName) {
-
 		if(!fullName.contains("["))
 			return fullName;
 

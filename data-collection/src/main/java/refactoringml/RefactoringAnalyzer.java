@@ -166,7 +166,7 @@ public class RefactoringAnalyzer {
 	}
 
 	private RefactoringCommit calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
-		final List<RefactoringCommit> list = new ArrayList<>();
+		final List<RefactoringCommit> refactorings = new ArrayList<>();
 		CKUtils.calculate(tempDir, commitMetaData.getCommitId(), project.getGitUrl(), ck -> {
 			String cleanedCkClassName = cleanClassName(ck.getClassName());
 
@@ -188,7 +188,7 @@ public class RefactoringAnalyzer {
 						.findFirst();
 
 				if(!ckMethod.isPresent()) {
-					// for some reason we did not find the method, let's remove it from the list.
+					// for some reason we did not find the method, let's remove it from the refactorings.
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
 					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the refactoring type: " + refactoring.getName() + " on commit " + commitMetaData.getCommitId() +
 							" on class " + refactoredClass +
@@ -237,11 +237,13 @@ public class RefactoringAnalyzer {
 					methodMetrics,
 					variableMetrics,
 					fieldMetrics);
-			list.add(refactoringCommit);
-
-			db.persist(refactoringCommit);
+			refactorings.add(refactoringCommit);
 		});
 
-		return list.isEmpty()? null : list.get(0);
+		for (RefactoringCommit refactoringCommit : refactorings){
+			db.persist(refactoringCommit);
+		}
+
+		return refactorings.isEmpty()? null : refactorings.get(0);
 	}
 }
