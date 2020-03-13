@@ -6,12 +6,14 @@ import org.apache.logging.log4j.Logger;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class RunQueue {
 	private static final Logger log = LogManager.getLogger(RunQueue.class);
-	private static int redeliveryCounter = 0;
+	//total count of queue failures during this run, e.g. a redelivery of a already delivered message or an empty message
+	private static int queueFailures = 0;
 
 	public final static String QUEUE_NAME = "refactoring";
 	private final Database db;
@@ -52,26 +54,38 @@ public class RunQueue {
 				 Channel channel = connection.createChannel()) {
 
 				GetResponse chResponse = channel.basicGet(QUEUE_NAME, true);
-
-				if (chResponse != null && !chResponse.getEnvelope().isRedeliver()) {
-					String message = new String(chResponse.getBody());
-					log.debug("Got a new element from rabbitmq queue: " + message);
-					processRepository(message);
-				} else if(chResponse != null && chResponse.getEnvelope().isRedeliver()) {
-					String message = new String(chResponse.getBody());
-					log.error("Got a redelivery from the queue: " + message);
-					redeliveryCounter++;
-					Thread.sleep(1000 * redeliveryCounter);
-				} else {
-					redeliveryCounter++;
-					log.error("Got an empty response from the queue: " + QUEUE_NAME + " and chResponse = " + chResponse);
-					Thread.sleep(1000 * redeliveryCounter);
-				}
-
-				if(redeliveryCounter > 50)
-					System.exit(0);
+				processResponse(chResponse, channel);
 			}
 		}
+	}
+
+	private void processResponse(GetResponse chResponse, Channel channel) throws InterruptedException, IOException {
+		if (chResponse != null && !chResponse.getEnvelope().isRedeliver()) {
+			String message = new String(chResponse.getBody());
+			log.debug("Got a new element from rabbitmq queue: " + message);
+			processRepository(message);
+		} else {
+			handleQueueError(chResponse, channel);
+		}
+	}
+
+	private void handleQueueError(GetResponse chResponse, Channel channel) throws InterruptedException, IOException {
+		//exit the programme if the queue is empty, all projects were processed.
+		AMQP.Queue.DeclareOk status = channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+		if(status != null && status.getMessageCount() == 0){
+			System.exit(0);
+		}
+
+		queueFailures++;
+		if(queueFailures > 50)
+			System.exit(0);
+
+		if(chResponse != null && chResponse.getEnvelope().isRedeliver()) {
+			log.error("Got a redelivery from the queue: " + Arrays.toString(chResponse.getBody()));
+		} else {
+			log.error("Got an empty response from the queue: " + QUEUE_NAME + " and chResponse = " + chResponse);
+		}
+		Thread.sleep(1000 * queueFailures);
 	}
 
 	private void processRepository(String message) {
