@@ -4,6 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class Database {
 	private SessionFactory sf;
@@ -74,8 +78,29 @@ public class Database {
 		return Long.parseLong(result.toString());
 	}
 
-	public void rollback() {
-		session.getTransaction().rollback();
+	//safely rollback a transaction with the db
+	public void rollback() throws SQLException {
+		//this session object itself should never be null, thus we don't check for it
+		//nothing to do in this case, recovering the session or transaction is to much effort and the db takes care of a failed transaction
+		if(!session.isOpen()) {
+			log.error("Encountered is closed session during rollback. Doing nothing.");
+			return;
+		}
+
+		if(!session.isConnected()){
+			Connection connection =	sf.getSessionFactoryOptions().getServiceRegistry().
+					getService(ConnectionProvider.class).getConnection();
+			session.reconnect(connection);
+		}
+
+		//standard case for a rollback
+		if(session.isConnected() && session.getTransaction() != null) {
+			session.getTransaction().rollback();
+		}
+		//other cases:
+		//1. not connected to the DB : we could raise an error here, because something is probably wrong with the db
+		//2. connected but no transaction object : nothing to do
+		log.error("Session is a bad state: " + session.toString());
 	}
 
 	public CommitMetaData loadCommitMetaData(long id) {
