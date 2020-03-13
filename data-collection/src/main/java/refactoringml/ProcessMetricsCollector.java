@@ -7,7 +7,6 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
@@ -20,7 +19,6 @@ import static refactoringml.util.CKUtils.cleanClassName;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
-import static refactoringml.util.JGitUtils.getReverseWalk;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
 
@@ -44,7 +42,7 @@ public class ProcessMetricsCollector {
 	//if this commit contained a refactoring, then collect its process metrics for all affected class files,
 	//otherwise only update the file process metrics
 	public void collectMetrics(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits) throws IOException {
-		collectProcessMetricsOfRefactoredCommit(commit, superCommitMetaData, allRefactoringCommits);
+		collectProcessMetricsOfRefactoredCommit(superCommitMetaData, allRefactoringCommits);
 
 		// we go now change by change in the commit to update the process metrics there
 		// Also if a stable instance is found it is stored with the metrics in the DB
@@ -53,7 +51,7 @@ public class ProcessMetricsCollector {
 	}
 
 	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
-	private void collectProcessMetricsOfRefactoredCommit(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits) {
+	private void collectProcessMetricsOfRefactoredCommit(CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits) {
 		for (RefactoringCommit refactoringCommit : allRefactoringCommits) {
 			String fileName = refactoringCommit.getFilePath();
 			ProcessMetricTracker currentProcessMetricsTracker = pmDatabase.find(fileName);
