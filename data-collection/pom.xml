@@ -2,12 +2,12 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>br.usp.ime</groupId>
-  <artifactId>refactoring-analyzer</artifactId>
+  <groupId>nl.tudelft.refactoringai</groupId>
+  <artifactId>data-collection</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>refactoring-analyzer</name>
+  <name>data-collection</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,7 +70,7 @@
 		  <artifactId>refactoringminer</artifactId>
 		  <version>1.0</version>
 		  <scope>system</scope>
-		  <systemPath>${project.basedir}/lib/RefactoringMiner-762e93ecafff48761eaa26e39626f43258781c4a.jar</systemPath>
+		  <systemPath>${project.basedir}/lib/RefactoringMiner-5e9b5f1131f0908c6bb82f9ae95a4c5723551bcd.jar</systemPath>
 	  </dependency>
 
 
