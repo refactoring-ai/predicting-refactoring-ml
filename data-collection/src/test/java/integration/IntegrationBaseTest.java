@@ -34,7 +34,7 @@ public abstract class IntegrationBaseTest {
 	private List<StableCommit> stableCommits;
 
 	protected final boolean drop() {
-		return false;
+		return true;
 	}
 
 	protected String getLastCommit() {

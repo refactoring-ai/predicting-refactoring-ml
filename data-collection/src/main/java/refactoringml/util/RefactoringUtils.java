@@ -1,17 +1,16 @@
 package refactoringml.util;
 
+import com.google.common.collect.Sets;
 import gr.uom.java.xmi.UMLOperation;
 import gr.uom.java.xmi.UMLType;
 import gr.uom.java.xmi.decomposition.VariableDeclaration;
 import gr.uom.java.xmi.diff.*;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.jgit.diff.Edit;
 import org.refactoringminer.api.Refactoring;
 import org.refactoringminer.api.RefactoringType;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RefactoringUtils {
@@ -320,4 +319,38 @@ public class RefactoringUtils {
 	public static boolean isStudied(Refactoring refactoring){
 		return refactoringTypeInNumber(refactoring) >= 0;
 	}
+
+	public static Set<ImmutablePair<String, String>> refactoredFilesAndClasses(Refactoring refactoring, Set<ImmutablePair<String, String>> classes) {
+		/**
+		 * if only one class is the origin of the refactoring (like most of them),
+		 * just return the current list
+ 		 */
+		if(classes.size() == 1)
+			return classes;
+
+		/**
+		 * if it's one of the refactorings below, this is a class-level refactoring
+		 * so let's return the list with all of classes, as we want data points for each
+		 * of these classes
+ 		 */
+		boolean extractSuperClassOrInterface = refactoring instanceof ExtractSuperclassRefactoring;
+		boolean moveSourceFolder = refactoring instanceof MoveSourceFolderRefactoring;
+		boolean renamePackageFolder = refactoring instanceof RenamePackageRefactoring;
+		if(extractSuperClassOrInterface || moveSourceFolder || renamePackageFolder)
+			return classes;
+
+		/**
+		 * if we get to here, we have in our hands a refactoring like
+		 * Move and Inline, which might have more than a single
+		 * class as origin for the refactoring.
+		 *
+		 * We, thus, would have to parse the refactoring description.
+		 * However, RMiner's implementation currently use a LinkedHashSet<>, which keeps
+		 * the order of insertion. In its implementation, the first element in the list
+		 * is always the origin. For now, we hope this won't change in RMiner.
+		 */
+		Iterator<ImmutablePair<String, String>> it = classes.iterator();
+		return Sets.newHashSet(it.next());
+	}
+
 }
