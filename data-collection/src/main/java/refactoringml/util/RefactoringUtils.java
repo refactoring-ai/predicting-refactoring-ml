@@ -350,8 +350,6 @@ public class RefactoringUtils {
 		 * is always the origin. For now, we hope this won't change in RMiner.
 		 */
 		Iterator<ImmutablePair<String, String>> it = classes.iterator();
-		it.hasNext();
-
 		return Sets.newHashSet(it.next());
 	}
 
