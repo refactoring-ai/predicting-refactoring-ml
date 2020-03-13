@@ -134,10 +134,8 @@ public class ProcessMetricsCollector {
 	private void outputNonRefactoredClass (ProcessMetricTracker pmTracker) throws IOException {
 		String tempDir = null;
 		try {
-			RevCommit commitBackThen = getReverseWalk(repository, "master")
-					.parseCommit(ObjectId.fromString(pmTracker.getBaseCommitMetaData().getCommitId()));
-			log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitBackThen.getId());
-
+			String commitBackThen = pmTracker.getBaseCommitMetaData().getCommitId();
+			log.debug("Class " + pmTracker.getFileName() + " is an example of a not refactored instance with the stable commit: " + commitBackThen);
 
 			// we extract the source code from back then (as that's the one that never deserved a refactoring)
 			String sourceCodeBackThen = readFileFromGit(repository, commitBackThen, pmTracker.getFileName());
@@ -145,7 +143,7 @@ public class ProcessMetricsCollector {
 			tempDir = createTmpDir();
 
 			// we save it in the permanent storage...
-			writeFile(fileStoragePath + commitBackThen.getName() + "/" + "not-refactored/" + pmTracker.getFileName(), sourceCodeBackThen);
+			writeFile(fileStoragePath +  pmTracker.getFileName() + "/" + "not-refactored/" + pmTracker.getFileName(), sourceCodeBackThen);
 			// ... as well as in the temp one, so that we can calculate the CK metrics
 			writeFile(tempDir + pmTracker.getFileName(), sourceCodeBackThen);
 

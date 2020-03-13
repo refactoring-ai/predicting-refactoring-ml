@@ -1,7 +1,9 @@
 package refactoringml;
 
+import com.github.javaparser.utils.Log;
 import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.validator.CreditCardValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -125,6 +127,8 @@ public class RefactoringAnalyzer {
 					}
 				}
 			}
+		} catch (Exception e){
+			log.error("Failed to collect commit meta data for refactored commit: "+ commit.getId(), e);
 		}
 
 		return allRefactorings;
