@@ -341,7 +341,7 @@ public class RefactoringUtils {
 
 		/**
 		 * if we get to here, we have in our hands a refactoring like
-		 * Move and Inline, or Extract and Move Method, which might have more than a single
+		 * Move and Inline, which might have more than a single
 		 * class as origin for the refactoring.
 		 *
 		 * We, thus, would have to parse the refactoring description.
