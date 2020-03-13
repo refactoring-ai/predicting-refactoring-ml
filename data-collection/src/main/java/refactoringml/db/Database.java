@@ -6,7 +6,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.TransactionException;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -23,6 +22,13 @@ public class Database {
 	public void openSession() {
 		this.session = sf.openSession();
 		session.beginTransaction();
+	}
+
+	//shutdown the session factory and all connections
+	public void shutdown(){
+		close();
+		sf.close();
+		sf = null;
 	}
 
 	public void commit() {

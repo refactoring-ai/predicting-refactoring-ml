@@ -73,12 +73,12 @@ public class RunQueue {
 		//exit the programme if the queue is empty, all projects were processed.
 		AMQP.Queue.DeclareOk status = channel.queueDeclare(QUEUE_NAME, true, false, false, null);
 		if(status != null && status.getMessageCount() == 0){
-			System.exit(0);
+			shutdown(channel);
 		}
 
 		queueFailures++;
 		if(queueFailures > 50)
-			System.exit(0);
+			shutdown(channel);
 
 		if(chResponse != null && chResponse.getEnvelope().isRedeliver()) {
 			log.error("Got a redelivery from the queue: " + Arrays.toString(chResponse.getBody()));
@@ -86,6 +86,18 @@ public class RunQueue {
 			log.error("Got an empty response from the queue: " + QUEUE_NAME + " and chResponse = " + chResponse);
 		}
 		Thread.sleep(1000 * queueFailures);
+	}
+
+	//properly shutdown the worker with the given exitcode
+	//Only use for intentional shutdowns
+	private void shutdown(Channel channel) throws IOException {
+		//shutdown the connection with the rabbit queue
+		if (channel != null && channel.isOpen())
+			channel.getConnection().close();
+		//shutdown the connection with the MYSQL database
+		db.shutdown();
+		//end the worker
+		System.exit(0);
 	}
 
 	private void processRepository(String message) {
