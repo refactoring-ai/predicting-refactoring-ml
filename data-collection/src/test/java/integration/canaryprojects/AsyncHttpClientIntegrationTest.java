@@ -1,15 +1,9 @@
 package integration.canaryprojects;
 
 import integration.IntegrationBaseTest;
-import org.junit.Assert;
-import org.junit.jupiter.api.Disabled;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import refactoringml.db.RefactoringCommit;
-import refactoringml.db.StableCommit;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AsyncHttpClientIntegrationTest extends IntegrationBaseTest {
