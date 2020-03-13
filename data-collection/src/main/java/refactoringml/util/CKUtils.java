@@ -32,9 +32,12 @@ public class CKUtils {
 
 		try {
 			timeoutTask.get(timeout, TimeUnit.SECONDS);
-		} catch (TimeoutException | InterruptedException | ExecutionException e){
+		} catch (TimeoutException e){
 			log.error("CK failed to calculate metrics for " + tempdir + " on the commit " + commitHash
-					+ " in the project: " + projectUrl + " with a timeout of " + timeout + " seconds.");
+					+ " in the project: " + projectUrl + " with a timeout of " + timeout + " seconds.", e);
+		} catch (InterruptedException | ExecutionException e){
+			log.error("Failed to calculate CK metrics for " + tempdir + " on the commit " + commitHash
+					+ " in the project: " + projectUrl+ tempdir, e);
 		} finally {
 			executor.shutdownNow();
 		}
