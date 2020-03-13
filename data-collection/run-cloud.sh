@@ -3,8 +3,8 @@
 QUEUE_CLASS="refactoringml.RunQueue"
 IMPORT_CLASS="refactoringml.RunImport"
 
-JAR_PATH=target/refactoring-analyzer-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-REFACTORINGMINER_JAR_PATH=lib/RefactoringMiner-762e93ecafff48761eaa26e39626f43258781c4a.jar
+JAR_PATH=target/data-collection-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+REFACTORINGMINER_JAR_PATH="lib/RefactoringMiner-[0-9a-zA-Z]*.jar"
 
 if [ "$TASK" = "worker" ]
 then

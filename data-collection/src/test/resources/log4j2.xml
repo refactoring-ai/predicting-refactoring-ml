@@ -7,8 +7,8 @@
 
         <RollingFile
                 name="RollingFile_ERROR"
-                fileName="./logs/data_collection_test_ERROR.log"
-                filePattern="./logs/data_collection_test_ERROR.log.%i"
+                fileName="./logs/data-collection_test_ERROR.log"
+                filePattern="./logs/data-collection_test_ERROR.log.%i"
                 ignoreExceptions="false">
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
@@ -19,8 +19,8 @@
 
         <RollingFile
                 name="RollingFile_DEBUG"
-                fileName="./logs/data_collection_test_DEBUG.log"
-                filePattern="./logs/data_collection_test_DEBUG.log.%i"
+                fileName="./logs/data-collection_test_DEBUG.log"
+                filePattern="./logs/data-collection_test_DEBUG.log.%i"
                 ignoreExceptions="false">
             <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
@@ -31,8 +31,8 @@
 
         <RollingFile
                 name="RollingFile_INFO"
-                fileName="./logs/data_collection_test_INFO.log"
-                filePattern="./logs/data_collection_test_INFO.log.%i"
+                fileName="./logs/data-collection_test_INFO.log"
+                filePattern="./logs/data-collection_test_INFO.log.%i"
                 ignoreExceptions="false">
             <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>

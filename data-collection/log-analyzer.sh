@@ -1,10 +1,11 @@
 #! /bin/bash
 
-infoFile="logs/data-collection_INFO.txt*"
-debugFile="logs/data_collection_DEBUG.txt*"
-errorFile="logs/data-collection_ERROR.txt*"
+infoFile="logs/data-collection_INFO.log*"
+debugFile="logs/data-collection_DEBUG.log*"
+errorFile="logs/data-collection_ERROR.log*"
 terminalFile="logs/docker-terminal.log"
-outFile="logs/statistics.md"
+outFile="logs/run_statistics.md"
+outFileProjects="logs/project_statistics.md"
 
 #General Statistics
 echo "## General Statistics" > $outFile
@@ -72,5 +73,5 @@ for commit in $longestCommitHash; do
 done
 
 #Individual project results
-echo "## Individual Project Results" >> $outFile
-egrep -A 10 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile >> $outFile
+echo "## Individual Project Results" >> $outFileProjects
+egrep -A 10 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile > $outFileProjects
