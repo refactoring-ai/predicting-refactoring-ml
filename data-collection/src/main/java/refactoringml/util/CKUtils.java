@@ -6,9 +6,9 @@ import com.github.mauricioaniche.ck.CKMethodResult;
 import com.github.mauricioaniche.ck.CKNotifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import refactoringml.ProcessMetricsCollector;
 import refactoringml.db.ClassMetric;
 import refactoringml.db.MethodMetric;
+
 import java.util.Arrays;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -17,7 +17,7 @@ import static refactoringml.util.PropertiesUtils.getProperty;
 import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
 public class CKUtils {
-	private static final Logger log = LogManager.getLogger(ProcessMetricsCollector.class);
+	private static final Logger log = LogManager.getLogger(CKUtils.class);
 	private static long timeout = Long.parseLong(getProperty("timeoutRefactoringMiner"));
 
 	//TODO: figure out if we could parallelize the CK tool for various class files on the same commit
