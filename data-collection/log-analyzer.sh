@@ -1,8 +1,8 @@
 #! /bin/bash
 
-infoFile="logs/data-collection_INFO.txt*"
-debugFile="logs/data_collection_DEBUG.txt*"
-errorFile="logs/data-collection_ERROR.txt*"
+infoFile="logs/data_collection_INFO.log*"
+debugFile="logs/data_collection_DEBUG.log*"
+errorFile="logs/data_collection_ERROR.log*"
 terminalFile="logs/docker-terminal.log"
 outFile="logs/run_statistics.md"
 outFileProjects="logs/project_statistics.md"
