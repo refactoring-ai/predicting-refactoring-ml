@@ -79,7 +79,7 @@ public class Database {
 	}
 
 	//safely rollback a transaction with the db
-	public void rollback() throws SQLException {
+	public void rollback() {
 		//this session object itself should never be null, thus we don't check for it
 		//nothing to do in this case, recovering the session or transaction is to much effort and the db takes care of a failed transaction
 		if(!session.isOpen()) {
@@ -88,9 +88,13 @@ public class Database {
 		}
 
 		if(!session.isConnected()){
-			Connection connection =	sf.getSessionFactoryOptions().getServiceRegistry().
-					getService(ConnectionProvider.class).getConnection();
-			session.reconnect(connection);
+			try{
+				Connection connection =	sf.getSessionFactoryOptions().getServiceRegistry().
+						getService(ConnectionProvider.class).getConnection();
+				session.reconnect(connection);
+			} catch (SQLException e) {
+				log.error("Failed to reconnect session object.", e);
+			}
 		}
 
 		//standard case for a rollback
