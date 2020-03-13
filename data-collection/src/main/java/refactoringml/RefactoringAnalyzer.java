@@ -1,9 +1,7 @@
 package refactoringml;
 
-import com.github.javaparser.utils.Log;
 import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.validator.CreditCardValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -64,7 +62,7 @@ public class RefactoringAnalyzer {
 				log.debug("Process Commit [" + commit.getId().getName() + "] with Refactoring: [" + refactoringSummary + "]");
 
 				//loop over all refactored classes, multiple classes can be refactored by the same refactoring, e.g. Extract Interface Refactoring
-				for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
+				for (ImmutablePair<String, String> pair : refactoredFilesAndClasses(refactoring, refactoring.getInvolvedClassesBeforeRefactoring())) {
 					String refactoredClassFile = pair.getLeft();
 					String refactoredClassName = pair.getRight();
 
