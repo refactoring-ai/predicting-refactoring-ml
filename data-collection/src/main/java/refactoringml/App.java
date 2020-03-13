@@ -142,32 +142,33 @@ public class App {
 
 					refactoringsToProcess = null;
 					commitIdToProcess = null;
-					// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
-					if (currentCommit.getParentCount() == 1)
-						miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
-
 					//stores all the ck metrics for the current commit
 					List<RefactoringCommit> allRefactoringCommits = new ArrayList<>();
-
 					// stores the commit meta data
 					CommitMetaData superCommitMetaData = new CommitMetaData(currentCommit, project);
-					// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
-					boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
-					if(thereIsRefactoringToProcess)
-						//remove all not studied refactorings from the list
-						refactoringsToProcess = refactoringsToProcess.stream().filter(Refactoring -> isStudied(Refactoring)).collect(Collectors.toList());
 
-					//check if refactoring miner detected a refactoring we study
-					if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
-						db.persist(superCommitMetaData);
-						allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess);
-					} else if (currentCommit.getParentCount() == 1 && thereIsRefactoringToProcess) {
-						// timeout happened, so count it as an exception
-						log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash);
-					}else if (currentCommit.getParentCount() == 1) {
-						// timeout happened, so count it as an exception
-						log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
-						exceptionsCount++;
+					// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
+					if (!isFirst(currentCommit)){
+						miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
+
+						// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
+						boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
+						if(thereIsRefactoringToProcess)
+							//remove all not studied refactorings from the list
+							refactoringsToProcess = refactoringsToProcess.stream().filter(Refactoring -> isStudied(Refactoring)).collect(Collectors.toList());
+
+						//check if refactoring miner detected a refactoring we study
+						if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
+							db.persist(superCommitMetaData);
+							allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess);
+						} else if (thereIsRefactoringToProcess) {
+							// timeout happened, so count it as an exception
+							log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash);
+						} else {
+							// timeout happened, so count it as an exception
+							log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
+							exceptionsCount++;
+						}
 					}
 
 					//collect the process metrics for the current commit
@@ -205,6 +206,8 @@ public class App {
 			FileUtils.deleteDirectory(new File(newTmpDir));
 		}
 	}
+
+	private boolean isFirst(RevCommit commit) {return commit.getParentCount() == 0;}
 
 	private String getProjectStatistics(Project project){
 		long stableInstancesCount = db.findAllStableCommits(project.getId());
