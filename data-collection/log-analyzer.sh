@@ -21,28 +21,6 @@ for ((i=15;i<=50;i+=5)); do
 	echo -e " 1. ${currentStable} stablecommit instances were found for threshold ${i}" >> $outFile
 done
 
-echo "## Detailed Statistics" >> $outFile
-commitProcessStatistics=$(egrep -oh "Processing commit [a-zA-Z0-9]+ took [0-9]+ milliseconds." $debugFile)
-commitProcessingTimes=$(echo "${commitProcessStatistics}" | egrep -oh " [0-9]+ " | sort -n)
-
-commitCount=$(echo "${commitProcessStatistics}" | wc -l)
-fastestCommitProcessingTime=$(echo "${commitProcessingTimes}" | head -1)
-longestCommitProcessingTime=$(echo "${commitProcessingTimes}" | tail -1)
-fastestCommitHash=$(echo "${commitProcessStatistics}" | egrep "took${fastestCommitProcessingTime}milliseconds." | sed 's/^.*commit/commit/' | sed -e 's/commit \(.*\) took.*/\1/')
-longestCommitHash=$(echo "${commitProcessStatistics}" | egrep "took${longestCommitProcessingTime}milliseconds." | sed 's/^.*commit/commit/' | sed -e 's/commit \(.*\) took.*/\1/')
-totalCommitProcessingTime=$(echo "${commitProcessingTimes}" | awk '{s+=$1} END {print s}')
-averageCommitProcessingTime=$(($totalCommitProcessingTime / $commitCount))
-
-echo "In **total ${commitCount} commits** were processed in **${totalCommitProcessingTime} milliseconds**, thus the average time is ${averageCommitProcessingTime} milliseconds.  " >> $outFile
-echo -e "The **fastest commit** was processed in **${fastestCommitProcessingTime} millisecond(s)** with id(s):  " >> $outFile
-for commit in $fastestCommitHash; do
-	echo -e " 1. ${commit}  " >> $outFile
-done
-echo -e "The **slowest commit** was processed in **${longestCommitProcessingTime} milliseconds** with id(s):  " >> $outFile
-for commit in $longestCommitHash; do
-	echo -e " * ${commit}" >> $outFile
-done
-
 #Exceptions
 echo "## Exceptions" >> $outFile
 exceptionCount=$(egrep -oh '^([a-zA-Z]+.)+Exception:' $errorFile |wc -l)
@@ -69,6 +47,28 @@ echo "**${errorCount} errors** occurred during runtime, **${uniqueErrorsCount}**
 for e in $uniqueErrors; do
 	currentErrorCount=$(grep "${e}" $errorFile $terminalFile | wc -l)
 	echo -e " 1. **${currentErrorCount}** errors at **${e}** occurred during runtime." >> $outFile
+done
+
+echo "## Detailed Statistics" >> $outFile
+commitProcessStatistics=$(egrep -oh "Processing commit [a-zA-Z0-9]+ took [0-9]+ milliseconds." $debugFile)
+commitProcessingTimes=$(echo "${commitProcessStatistics}" | egrep -oh " [0-9]+ " | sort -n)
+
+commitCount=$(echo "${commitProcessStatistics}" | wc -l)
+fastestCommitProcessingTime=$(echo "${commitProcessingTimes}" | head -1)
+longestCommitProcessingTime=$(echo "${commitProcessingTimes}" | tail -1)
+fastestCommitHash=$(echo "${commitProcessStatistics}" | egrep "took${fastestCommitProcessingTime}milliseconds." | sed 's/^.*commit/commit/' | sed -e 's/commit \(.*\) took.*/\1/')
+longestCommitHash=$(echo "${commitProcessStatistics}" | egrep "took${longestCommitProcessingTime}milliseconds." | sed 's/^.*commit/commit/' | sed -e 's/commit \(.*\) took.*/\1/')
+totalCommitProcessingTime=$(echo "${commitProcessingTimes}" | awk '{s+=$1} END {print s}')
+averageCommitProcessingTime=$(($totalCommitProcessingTime / $commitCount))
+
+echo "In **total ${commitCount} commits** were processed in **${totalCommitProcessingTime} milliseconds**, thus the average time is ${averageCommitProcessingTime} milliseconds.  " >> $outFile
+echo -e "The **fastest commit** was processed in **${fastestCommitProcessingTime} millisecond(s)** with id(s):  " >> $outFile
+for commit in $fastestCommitHash; do
+	echo -e " 1. ${commit}  " >> $outFile
+done
+echo -e "The **slowest commit** was processed in **${longestCommitProcessingTime} milliseconds** with id(s):  " >> $outFile
+for commit in $longestCommitHash; do
+	echo -e " * ${commit}" >> $outFile
 done
 
 #Individual project results
