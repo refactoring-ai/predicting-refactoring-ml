@@ -321,15 +321,22 @@ public class RefactoringUtils {
 	}
 
 	public static Set<ImmutablePair<String, String>> refactoredFilesAndClasses(Refactoring refactoring, Set<ImmutablePair<String, String>> classes) {
-		// if only one class is the origin of the refactoring (like most of them),
-		// just return the current list
+		/**
+		 * if only one class is the origin of the refactoring (like most of them),
+		 * just return the current list
+ 		 */
 		if(classes.size() == 1)
 			return classes;
 
-		// if it's a Extract Super Class or Interface, this is a class-level refactoring
-		// so let's return all of them
+		/**
+		 * if it's one of the refactorings below, this is a class-level refactoring
+		 * so let's return the list with all of classes, as we want data points for each
+		 * of these classes
+ 		 */
 		boolean extractSuperClassOrInterface = refactoring instanceof ExtractSuperclassRefactoring;
-		if(extractSuperClassOrInterface)
+		boolean moveSourceFolder = refactoring instanceof MoveSourceFolderRefactoring;
+		boolean renamePackageFolder = refactoring instanceof RenamePackageRefactoring;
+		if(extractSuperClassOrInterface || moveSourceFolder || renamePackageFolder)
 			return classes;
 
 		/**
