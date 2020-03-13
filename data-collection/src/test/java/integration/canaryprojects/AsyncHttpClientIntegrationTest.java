@@ -1,4 +1,4 @@
-package integration.realprojects;
+package integration.canaryprojects;
 
 import integration.IntegrationBaseTest;
 import org.junit.Assert;
@@ -26,7 +26,7 @@ public class AsyncHttpClientIntegrationTest extends IntegrationBaseTest {
     @Override
     protected String getStableCommitThreshold() {return "10";};
 
-    @Test
+    @Test @Ignore
     public void t1() {
 
 
