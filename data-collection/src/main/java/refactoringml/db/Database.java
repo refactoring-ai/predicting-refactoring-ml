@@ -36,6 +36,14 @@ public class Database {
 		close();
 	}
 
+	//Handles all the logic to update an object to the database
+	public void updateComplete(Object obj){
+		openSession();
+		update(obj);
+		commit();
+		close();
+	}
+
 	public void update(Object obj) {
 		session.update(obj);
 	}

@@ -1,7 +1,6 @@
 package refactoringml;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
@@ -22,49 +21,64 @@ import refactoringml.util.Counter.CounterResult;
 import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.FileUtils.createTmpDir;
+import static refactoringml.util.FileUtils.newDir;
 import static refactoringml.util.JGitUtils.*;
 import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class App {
-	private String gitUrl;
-	private String filesStoragePath;
-	private Database db;
-	private String lastCommitToProcess;
-	private boolean storeFullSourceCode;
-
 	private static final Logger log = LogManager.getLogger(App.class);
-	private String datasetName;
+	private String currentTempDir;
+
+	//url of the project to analyze
+	private String gitUrl;
+	//if source code storage is activated it is stored here
+	private String filesStoragePath;
+	//handles the logic with the MYSQL db
+	private Database db;
+	//the last commit to process on the selected branch
+	private String lastCommitToProcess;
+	//Do you want to save the affected source code for each commit?
+	private boolean storeFullSourceCode;
+	//name of the project
+	private String projectName;
+	//number of unhandled exceptions encountered during runtime, @WARN quite unreliable
 	private int exceptionsCount = 0;
-
+	//timeout in seconds for the refactoring miner
 	private int refactoringMinerTimeout;
+	//current commitId processed by the RefactoringMiner
 	private String commitIdToProcess;
+	//all by RefactoringMiner detected refactorings for the current commit
 	private List<Refactoring> refactoringsToProcess;
-
-	private String newTmpDir;
+	//the git repository is cloned to this path, to analyze it there
 	private String clonePath;
-	private String lastCommitHash;
+	//main branch of the current repository, this one will be analyzed
 	private String mainBranch;
+	//Metrics about the current project
+	private Project project;
+	//JGit repository object for the current run
+	private Repository repository;
 
-	public App (String datasetName,
+	public App (String projectName,
 	            String gitUrl,
 	            String filesStoragePath,
 	            Database db, 
 	            boolean storeFullSourceCode) {
-		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
+		this(projectName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
 	}
-	public App (String datasetName,
+	public App (String projectName,
 	            String gitUrl,
 	            String filesStoragePath,
 	            Database db,
 	            String lastCommitToProcess,
 	            boolean storeFullSourceCode) {
 
-		this.datasetName = datasetName;
+		this.projectName = projectName;
 		this.gitUrl = gitUrl;
 		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
 		this.db = db;
@@ -72,10 +86,9 @@ public class App {
 		this.storeFullSourceCode = storeFullSourceCode;
 
 		// creates a temp dir to store the project
-		newTmpDir = createTmpDir();
-		clonePath = (Project.isLocal(gitUrl) ? gitUrl : newTmpDir + "repo").trim();
+		currentTempDir = createTmpDir();
+		clonePath = (Project.isLocal(gitUrl) ? gitUrl : currentTempDir + "repo").trim();
 		this.refactoringMinerTimeout = Integer.parseInt(getProperty("timeoutRefactoringMiner"));
-
 	}
 
 	public Project run () throws Exception {
@@ -88,109 +101,51 @@ public class App {
 		long startProjectTime = System.currentTimeMillis();
 		// creates the directory in the storage
 		if(storeFullSourceCode) {
-			new File(filesStoragePath).mkdirs();
+			newDir(filesStoragePath);
 		}
 
 		try {
-			ImmutablePair pair = initGitRepository();
-			Repository repo = (Repository) pair.getLeft();
-			Git git = (Git) pair.getRight();
-
-			Project project = initProject(git);
+			Git git = initGitRepository();
+			project = initProject(git);
 			log.debug("Created project for analysis: " + project.toString());
 			db.persistComplete(project);
 
-			//get all necessary objects
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repo, filesStoragePath);
-			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repo, filesStoragePath, storeFullSourceCode);
-			RefactoringHandler handler = getRefactoringHandler(git);
+			//get all necessary objects to analyze the commits
 			GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
+			RefactoringHandler handler = getRefactoringHandler(git);
+			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repository, filesStoragePath, storeFullSourceCode);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repository, filesStoragePath);
 
 			// get all commits in the repo, and to each commit with a refactoring, extract the metrics
-			RevWalk walk = JGitUtils.getReverseWalk(repo, mainBranch);
+			RevWalk walk = JGitUtils.getReverseWalk(repository, mainBranch);
 			RevCommit currentCommit = walk.next();
 			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
 			// we only analyze commits that have one parent or the first commit with 0 parents
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
-				long startCommitTime = System.currentTimeMillis();
-				String commitHash = currentCommit.getId().getName();
-
-				// i.e., ignore merge commits
-				if (currentCommit.getParentCount() > 1)
-					continue;
-
 				// did we find the last commit to process?
 				// if so, process it and then stop
 				if (currentCommit.toString().equals(lastCommitToProcess))
 					endFound = true;
 
-				try {
-					db.openSession();
+				// i.e., ignore merge commits
+				if (currentCommit.getParentCount() > 1)
+					continue;
 
-					refactoringsToProcess = null;
-					commitIdToProcess = null;
-					//stores all the ck metrics for the current commit
-					List<RefactoringCommit> allRefactoringCommits = new ArrayList<>();
-					// stores the commit meta data
-					CommitMetaData superCommitMetaData = new CommitMetaData(currentCommit, project);
-
-					// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
-					if (!isFirst(currentCommit)){
-						miner.detectAtCommit(repo, commitHash, handler, refactoringMinerTimeout);
-
-						// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
-						boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
-						if(thereIsRefactoringToProcess)
-							//remove all not studied refactorings from the list
-							refactoringsToProcess = refactoringsToProcess.stream().filter(RefactoringUtils::isStudied).collect(Collectors.toList());
-
-						//check if refactoring miner detected a refactoring we study
-						if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
-							db.persist(superCommitMetaData);
-							allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess);
-						} else if (thereIsRefactoringToProcess) {
-							// timeout happened, so count it as an exception
-							log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash);
-						} else {
-							// timeout happened, so count it as an exception
-							log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
-							exceptionsCount++;
-						}
-					}
-
-					//collect the process metrics for the current commit
-					processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits);
-
-					db.commit();
-				} catch (Exception e) {
-					exceptionsCount++;
-					log.error("Unhandled exception when collecting commit data: ", e);
-					db.rollback();
-				} finally {
-					db.close();
-				}
-				long elapsedCommitTime = System.currentTimeMillis() - startCommitTime;
-				log.debug("Processing commit " + commitHash + " took " + elapsedCommitTime + " milliseconds.");
+				processCommit(currentCommit, miner, handler, refactoringAnalyzer, processMetrics);
 			}
 			walk.close();
 
 			// set finished data
 			// note that if this process crashes, finished date will be equals to null in the database
-			// these projects must be deleted manually afterwards....
-			db.openSession();
 			project.setFinishedDate(Calendar.getInstance());
 			project.setExceptions(exceptionsCount);
-			db.update(project);
-			db.commit();
-			db.close();
+			db.updateComplete(project);
 
-			double elapsedTime = (System.currentTimeMillis() - startProjectTime) / 1000.0 / 60.0;
-			log.info("Finished mining " + gitUrl + " in " + elapsedTime + " minutes");
-			log.info(getProjectStatistics(project));
+			logProjectStatistics(startProjectTime);
 			return project;
 		} finally {
 			// delete the tmp dir that stores the project
-			FileUtils.deleteDirectory(new File(newTmpDir));
+			FileUtils.deleteDirectory(new File(currentTempDir));
 		}
 	}
 
@@ -198,37 +153,92 @@ public class App {
 
 	//Initialize the git repository for this run, by downloading it
 	//Returns the jgit repository object and the git object
-	private ImmutablePair initGitRepository() throws Exception {
+	private Git initGitRepository() throws Exception {
 		GitService gitService = new GitServiceImpl();
-		final Repository repo = gitService.cloneIfNotExists(clonePath, gitUrl);
+		repository = gitService.cloneIfNotExists(clonePath, gitUrl);
 		final Git git = Git.open(new File(lastSlashDir(clonePath) + ".git"));
 
 		// identifies the main branch of that repo
 		mainBranch = discoverMainBranch(git);
-		lastCommitHash = getHead(git);
-
-		return new ImmutablePair(repo, git);
+		return git;
 	}
 
 	//Initialize the project object for this run
-	private Project initProject(Git git) throws GitAPIException {
+	private Project initProject(Git git) throws GitAPIException, IOException {
 		CounterResult counterResult = Counter.countProductionAndTestFiles(clonePath);
 		long projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
 		int numberOfCommits = numberOfCommits(git);
-
-		return new Project(datasetName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
+		String lastCommitHash = getHead(git);
+		return new Project(projectName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
 				numberOfCommits, getProperty("stableCommitThresholds"), lastCommitHash, counterResult, projectSize);
 	}
 
-	private String getProjectStatistics(Project project){
+	private void processCommit(RevCommit currentCommit, GitHistoryRefactoringMiner miner, RefactoringHandler handler, RefactoringAnalyzer refactoringAnalyzer, ProcessMetricsCollector processMetrics){
+		long startCommitTime = System.currentTimeMillis();
+		String commitHash = currentCommit.getId().getName();
+		try{
+			db.openSession();
+
+			refactoringsToProcess = null;
+			commitIdToProcess = null;
+
+			//stores all the ck metrics for the current commit
+			List<RefactoringCommit> allRefactoringCommits = new ArrayList<>();
+			// stores the commit meta data
+			CommitMetaData superCommitMetaData = new CommitMetaData(currentCommit, project);
+
+			// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
+			if (!isFirst(currentCommit)){
+				miner.detectAtCommit(repository, commitHash, handler, refactoringMinerTimeout);
+
+				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
+				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
+				if(thereIsRefactoringToProcess)
+					//remove all not studied refactorings from the list
+					refactoringsToProcess = refactoringsToProcess.stream().filter(RefactoringUtils::isStudied).collect(Collectors.toList());
+
+				//check if refactoring miner detected a refactoring we study
+				if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
+					db.persist(superCommitMetaData);
+					allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess);
+				} else if (thereIsRefactoringToProcess) {
+					// timeout happened, so count it as an exception
+					log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash);
+				} else {
+					// timeout happened, so count it as an exception
+					log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
+					exceptionsCount++;
+				}
+			}
+
+			//collect the process metrics for the current commit
+			processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits);
+			db.commit();
+		} catch (Exception e) {
+			exceptionsCount++;
+			log.error("Unhandled exception when collecting commit data: ", e);
+			db.rollback();
+		} finally {
+			db.close();
+		}
+		long elapsedCommitTime = System.currentTimeMillis() - startCommitTime;
+		log.debug("Processing commit " + commitHash + " took " + elapsedCommitTime + " milliseconds.");
+	}
+
+	//Log the project statistics after the run
+	private void logProjectStatistics(long startProjectTime){
+		double elapsedTime = (System.currentTimeMillis() - startProjectTime) / 1000.0 / 60.0;
+		StringBuilder statistics = new StringBuilder("Finished mining " + gitUrl + " in " + elapsedTime + " minutes");
+
 		long stableInstancesCount = db.findAllStableCommits(project.getId());
 		long refactoringInstancesCount = db.findAllRefactoringCommits(project.getId());
-		StringBuilder statistics = new StringBuilder("\nFound " + refactoringInstancesCount + " refactoring- and " + stableInstancesCount + " stable instances in the project.");
+		statistics.append("\nFound ").append(refactoringInstancesCount).append(" refactoring- and ").append(stableInstancesCount).append(" stable instances in the project.");
 		for(int level: project.getCommitCountThresholds()){
 			stableInstancesCount = db.findAllStableCommits(project.getId(), level);
 			statistics.append("\n\t\tFound ").append(stableInstancesCount).append(" stable instances in the project with threshold: ").append(level);
 		}
-		return statistics + "\n" + project.toString();
+		statistics.append("\n").append(project.toString());
+		log.info(statistics);
 	}
 
 	private RefactoringHandler getRefactoringHandler(Git git) {
