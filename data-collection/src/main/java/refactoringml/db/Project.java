@@ -122,6 +122,9 @@ public class Project {
 
 	public int getMaxCommitThreshold() {return maxCommitThreshold;}
 
+	//Every time an exception is reaching the App class, the db is rollback but not the PMDatabase
+	public boolean isInconsistent(){return exceptionsCount > 0;}
+
 	@Override
 	public String toString() {
 		return "Project{" +
@@ -129,17 +132,18 @@ public class Project {
 				", datasetName='" + datasetName + '\'' +
 				", gitUrl='" + gitUrl + '\'' +
 				", projectName='" + projectName + '\'' +
-				", dateOfProcessing=" + dateOfProcessing +
-				", finishedDate=" + finishedDate +
-				", commits=" + commits +
-				", commitCountThresholds=" + commitCountThresholds.toString() +
-				", javaLoc=" + javaLoc +
-				", numberOfProductionFiles=" + numberOfProductionFiles +
-				", numberOfTestFiles=" + numberOfTestFiles +
-				", productionLoc=" + productionLoc +
-				", testLoc=" + testLoc +
-				", exceptionsCount=" + exceptionsCount +
-				", lastCommitHash='" + lastCommitHash + '\'' +
+				", dateOfProcessing=" + dateOfProcessing + '\'' +
+				", finishedDate=" + finishedDate + '\'' +
+				", commits=" + commits + '\'' +
+				", commitCountThresholds=" + commitCountThresholds.toString() + '\'' +
+				", javaLoc=" + javaLoc + '\'' +
+				", numberOfProductionFiles=" + numberOfProductionFiles + '\'' +
+				", numberOfTestFiles=" + numberOfTestFiles + '\'' +
+				", productionLoc=" + productionLoc + '\'' +
+				", testLoc=" + testLoc + '\'' +
+				", exceptionsCount=" + exceptionsCount + '\'' +
+				", lastCommitHash=" + lastCommitHash + '\'' +
+				", isInconsistent=" + isInconsistent() + '\'' +
 				'}';
 	}
 }
