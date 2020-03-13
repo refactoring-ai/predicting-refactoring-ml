@@ -32,6 +32,22 @@ public class Database {
 		session.persist(obj);
 	}
 
+	//Handles all the logic to persist an object to the database
+	public void persistComplete(Object obj){
+		openSession();
+		persist(obj);
+		commit();
+		close();
+	}
+
+	//Handles all the logic to update an object to the database
+	public void updateComplete(Object obj){
+		openSession();
+		update(obj);
+		commit();
+		close();
+	}
+
 	public void update(Object obj) {
 		session.update(obj);
 	}

@@ -75,6 +75,10 @@ public class FileUtils {
 		}
 	}
 
+	public static boolean newDir(String path){
+		return new File(path).mkdirs();
+	}
+
 	//Write the content to a new file at the given path. Creates a new directory at the path if necessary.
 	public static void writeFile(String filePath, Object content) throws FileNotFoundException {
 		new File(dirsOnly(filePath)).mkdirs();
