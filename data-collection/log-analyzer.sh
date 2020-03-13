@@ -4,7 +4,8 @@ infoFile="logs/data-collection_INFO.txt*"
 debugFile="logs/data_collection_DEBUG.txt*"
 errorFile="logs/data-collection_ERROR.txt*"
 terminalFile="logs/docker-terminal.log"
-outFile="logs/statistics.md"
+outFile="logs/run_statistics.md"
+outFileProjects="logs/project_statistics.md"
 
 #General Statistics
 echo "## General Statistics" > $outFile
@@ -73,4 +74,4 @@ done
 
 #Individual project results
 echo "## Individual Project Results" >> $outFile
-egrep -A 10 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile >> $outFile
+egrep -A 10 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile > $outFileProjects
