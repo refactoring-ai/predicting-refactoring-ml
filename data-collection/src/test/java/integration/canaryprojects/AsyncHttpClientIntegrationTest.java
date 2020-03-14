@@ -2,10 +2,12 @@ package integration.canaryprojects;
 
 import integration.IntegrationBaseTest;
 import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Disabled
 public class AsyncHttpClientIntegrationTest extends IntegrationBaseTest {
     @Override
     protected String getLastCommit() {
