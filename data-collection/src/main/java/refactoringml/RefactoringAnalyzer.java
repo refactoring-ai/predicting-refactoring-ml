@@ -132,21 +132,6 @@ public class RefactoringAnalyzer {
 		return allRefactorings;
     }
 
-	private String getMethodAndOrVariableNameIfAny(RefactoringCommit refactoringCommit) {
-		if(refactoringCommit.getLevel() == Level.METHOD.ordinal()) {
-			return refactoringCommit.getMethodMetrics().getShortMethodName();
-		}
-		if(refactoringCommit.getLevel() == Level.VARIABLE.ordinal()) {
-			return refactoringCommit.getMethodMetrics().getShortMethodName() + "-" + refactoringCommit.getVariableMetrics().getVariableName();
-		}
-		if(refactoringCommit.getLevel() == Level.ATTRIBUTE.ordinal()) {
-			return refactoringCommit.getFieldMetrics().getFieldName();
-		}
-
-		// this is no method, variable, or attribute refactoring
-		return "";
-	}
-
 	private void saveSourceCode(String commit, String fileNameBefore, String sourceCodeBefore, String fileNameAfter, String sourceCodeAfter, RefactoringCommit refactoringCommit) throws FileNotFoundException {
 		String completeFileNameBefore = createFileName(fileNameBefore, refactoringCommit);
 		writeFile(fileStorageDir + commit + "/before-refactoring/" + completeFileNameBefore, sourceCodeBefore);
