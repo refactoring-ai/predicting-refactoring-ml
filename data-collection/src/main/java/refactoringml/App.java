@@ -207,7 +207,7 @@ public class App {
 					log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash);
 				} else {
 					// timeout happened, so count it as an exception
-					log.error("Refactoring Miner returned null for " + commitHash + " due to a timeout after " + refactoringMinerTimeout + " seconds.");
+					log.error("Refactoring Miner timed out in commit " + commitHash);
 					exceptionsCount++;
 				}
 			}
