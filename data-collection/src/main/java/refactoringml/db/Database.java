@@ -128,11 +128,12 @@ public class Database {
 			} catch (TransactionException e) {
 				log.error("Failed to rollback session: " + session.toString(), e);
 			}
+		} else {
+			//other cases:
+			//1. not connected to the DB : we could raise an error here, because something is probably wrong with the db
+			//2. connected but no transaction object : nothing to do
+			log.error("Session is in a bad state: " + session.toString());
 		}
-		//other cases:
-		//1. not connected to the DB : we could raise an error here, because something is probably wrong with the db
-		//2. connected but no transaction object : nothing to do
-		log.error("Session is in a bad state: " + session.toString());
 	}
 
 	public CommitMetaData loadCommitMetaData(long id) {
