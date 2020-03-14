@@ -13,17 +13,19 @@ import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.RefactoringUtils;
-import java.io.*;
+
+import javax.persistence.PersistenceException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.*;
-import static refactoringml.util.FilePathUtils.*;
+import static refactoringml.util.FilePathUtils.enforceUnixPaths;
+import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.FileUtils.*;
-import static refactoringml.util.FileUtils.writeFile;
-import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
 
@@ -126,7 +128,7 @@ public class RefactoringAnalyzer {
 				}
 			}
 		} catch (Exception e){
-			log.error("Failed to collect commit meta data for refactored commit: "+ commit.getId(), e);
+			log.error("Failed to collect commit data for refactored commit: "+ superCommitMetaData.getCommitId(), e);
 		}
 
 		return allRefactorings;
@@ -159,7 +161,6 @@ public class RefactoringAnalyzer {
 
 			//Ignore all subclass callbacks from CK, that are not relevant in this case
 			if(!cleanedCkClassName.equals(refactoredClass)){
-				log.debug("CK found a subclass callback for class " + refactoredClass + "and ignores it on commit " + commitMetaData.getCommitId());
 				return;
 			}
 			// collect the class level metrics
