@@ -37,7 +37,6 @@ public class HibernateConfig {
 
 			settings.put("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
 			settings.put("hibernate.c3p0.acquire_increment", 1);
-			settings.put("hibernate.c3p0.idle_test_period", 120);
 			settings.put("hibernate.c3p0.min_size", 1);
 			settings.put("hibernate.c3p0.max_size", 5);
 			settings.put("hibernate.c3p0.max_statements", 100);
@@ -56,10 +55,14 @@ public class HibernateConfig {
 			settings.put("hibernate.c3p0.acquireRetryAttempts", 10);
 			settings.put("hibernate.c3p0.acquireRetryDelay", 5);
 
-			settings.put("hibernate.c3p0.preferredTestQuery", "SELECT 1");
-			settings.put("hibernate.c3p0.testConnectionOnCheckout", true);
-
 			settings.put("hibernate.c3p0.autoCommitOnClose", false);
+
+			// testing connections on checkout is more reliable, but also
+			// less performant: https://www.mchange.com/projects/c3p0/#idleConnectionTestPeriod
+			// for now, it's ok, as we don't really need high performance...
+			settings.put("hibernate.c3p0.testConnectionOnCheckout", true);
+			settings.put("hibernate.c3p0.idle_test_period", 120);settings.put("hibernate.c3p0.idle_test_period", 120);
+			settings.put("hibernate.c3p0.preferredTestQuery", "SELECT 1");
 
 			configuration.setProperties(settings);
 
