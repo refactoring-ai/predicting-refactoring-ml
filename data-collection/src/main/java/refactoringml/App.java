@@ -45,8 +45,8 @@ public class App {
 	private String lastCommitToProcess;
 	//Do you want to save the affected source code for each commit?
 	private boolean storeFullSourceCode;
-	//name of the project
-	private String projectName;
+	//name of the dataset
+	private String datasetName;
 	//number of unhandled exceptions encountered during runtime, @WARN quite unreliable
 	private int exceptionsCount = 0;
 	//timeout in seconds for the refactoring miner
@@ -64,21 +64,21 @@ public class App {
 	//JGit repository object for the current run
 	private Repository repository;
 
-	public App (String projectName,
+	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
 	            Database db, 
 	            boolean storeFullSourceCode) {
-		this(projectName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
+		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
 	}
-	public App (String projectName,
+	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
 	            Database db,
 	            String lastCommitToProcess,
 	            boolean storeFullSourceCode) {
 
-		this.projectName = projectName;
+		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
 		this.db = db;
@@ -169,7 +169,8 @@ public class App {
 		long projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
 		int numberOfCommits = numberOfCommits(git);
 		String lastCommitHash = getHead(git);
-		return new Project(projectName, gitUrl, extractProjectNameFromGitUrl(gitUrl), Calendar.getInstance(),
+		String projectName = extractProjectNameFromGitUrl(gitUrl);
+		return new Project(datasetName, gitUrl, projectName, Calendar.getInstance(),
 				numberOfCommits, getProperty("stableCommitThresholds"), lastCommitHash, counterResult, projectSize);
 	}
 

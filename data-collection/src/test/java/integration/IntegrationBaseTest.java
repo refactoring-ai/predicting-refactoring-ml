@@ -55,17 +55,18 @@ public abstract class IntegrationBaseTest {
 		outputDir = createTmpDir();
 		tmpDir = createTmpDir();
 
-		String repoLocalDir = "repos/" + extractProjectNameFromGitUrl(getRepo());
+		String projectName = extractProjectNameFromGitUrl(getRepo());
+		String repoLocalDir = "repos/" + projectName;
 		boolean projectAlreadyCloned = new File(repoLocalDir).exists();
 		if(!projectAlreadyCloned)
 			new GitServiceImpl().cloneIfNotExists(repoLocalDir, getRepo());
 
-		deleteProject(extractProjectNameFromGitUrl(getRepo()));
+		deleteProject(projectName);
 
 		//set the stableCommitThreshold in the PMDatabase to test various configs
 		setProperty("stableCommitThresholds", getStableCommitThreshold());
 
-		App app = new App("integration-test",
+		App app = new App("integration-test-dataset",
 				repoLocalDir,
 				outputDir,
 				db,
