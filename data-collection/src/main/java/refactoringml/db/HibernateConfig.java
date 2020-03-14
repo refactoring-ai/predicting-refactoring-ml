@@ -37,24 +37,29 @@ public class HibernateConfig {
 
 			settings.put("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider");
 			settings.put("hibernate.c3p0.acquire_increment", 1);
-			settings.put("hibernate.c3p0.idle_test_period", 60);
+			settings.put("hibernate.c3p0.idle_test_period", 120);
 			settings.put("hibernate.c3p0.min_size", 1);
 			settings.put("hibernate.c3p0.max_size", 5);
-			settings.put("hibernate.c3p0.max_statements", 50);
+			settings.put("hibernate.c3p0.max_statements", 100);
 
-			settings.put("hibernate.c3p0.timeout", 300);
-			settings.put("hibernate.c3p0.maxConnectionAge", 3600);
+			settings.put("hibernate.c3p0.numHelperThreads", 10);
 
-			settings.put("hibernate.c3p0.maxIdleTimeExcessConnections", 3600);
+			// this one should be here only for debug purposes
+			// settings.put("hibernate.c3p0.debugUnreturnedConnectionStackTraces", true);
+			// settings.put("hibernate.c3p0.unreturnedConnectionTimeout", 120);
+
+			settings.put("hibernate.c3p0.timeout", 0);
+			settings.put("hibernate.c3p0.maxConnectionAge", 0);
+
+			settings.put("hibernate.c3p0.maxIdleTimeExcessConnections", 0);
 
 			settings.put("hibernate.c3p0.acquireRetryAttempts", 10);
-			settings.put("hibernate.c3p0.acquireRetryDelay", 60);
+			settings.put("hibernate.c3p0.acquireRetryDelay", 5);
 
 			settings.put("hibernate.c3p0.preferredTestQuery", "SELECT 1");
 			settings.put("hibernate.c3p0.testConnectionOnCheckout", true);
 
 			settings.put("hibernate.c3p0.autoCommitOnClose", false);
-			settings.put("hibernate.c3p0.unreturnedConnectionTimeout", 300);
 
 			configuration.setProperties(settings);
 
