@@ -53,11 +53,8 @@ public class RefactoringAnalyzer {
 	public List<RefactoringCommit> collectCommitData(RevCommit commit, CommitMetaData superCommitMetaData, List<Refactoring> refactoringsToProcess) throws IOException {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
 
-		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-			diffFormatter.setRepository(repository);
-			diffFormatter.setDetectRenames(true);
+		try {
 			RevCommit commitParent = commit.getParent(0);
-			List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
 
 			//Iterate over all Refactorings found for this commit
 			for (Refactoring refactoring : refactoringsToProcess) {
@@ -69,55 +66,22 @@ public class RefactoringAnalyzer {
 					String refactoredClassFile = pair.getLeft();
 					String refactoredClassName = pair.getRight();
 
-					//filter the diff entries for class files affected by this refactoring
-					Optional<DiffEntry> refactoredEntry = entries.stream()
-							.filter(entry -> {
-								String oldFile = enforceUnixPaths(entry.getOldPath());
-								String newFile = enforceUnixPaths(entry.getNewPath());
-								return refactoredClassFile.equals(oldFile) ||
-										refactoredClassFile.equals(newFile);
-							})
-							.findFirst();
-
-					// this should not happen...
-					if (refactoredEntry.isEmpty()) {
-						log.error("Old classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getOldPath())).collect(Collectors.toList()) + " but " + refactoredClassFile + " is not there.");
-						log.error("New classes in DiffEntry: " + entries.stream().map(x -> enforceUnixPaths(x.getNewPath())).collect(Collectors.toList()) + " but " + refactoredClassFile + " is not there.");
-						throw new RuntimeException("RefactoringMiner finds a refactoring for class '" + refactoredClassName + "', but we can't find it in DiffEntry: '" + refactoring.getRefactoringType() + "'. Check RefactoringAnalyzer.java for reasons why this can happen.");
-					}
-
-					// we found the file, let's get its metrics!
-					DiffEntry entry = refactoredEntry.get();
-					diffFormatter.toFileHeader(entry);
-
-					String oldFileName = enforceUnixPaths(entry.getOldPath());
-					String currentFileName = enforceUnixPaths(entry.getNewPath());
-
-					if(nonClassFile(oldFileName)){
-						log.error("Refactoring miner found a refactoring for a newly introduced class file on commit: " + commit.getName() + " for new class file: " + currentFileName);
-						continue;
-					}
-
-					// Now, we get the contents of the file before
-					String sourceCodeBefore = readFileFromGit(repository, commitParent, oldFileName);
-					// save the old version of the file in a temp dir to execute the CK tool
-					// Note: in older versions of the tool, we used to use the 'new name' for the file name. It does not make a lot of difference,
-					// but later we notice it might do in cases of file renames and refactorings in the same commit.
-					tempDir = createTmpDir();
-					writeFile(tempDir + "/" + oldFileName, sourceCodeBefore);
-
-					RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, superCommitMetaData, refactoring, refactoringSummary);
-					cleanTempDir(tempDir);
+					// build the full RefactoringCommit object
+					RefactoringCommit refactoringCommit = buildRefactoringCommitObject(superCommitMetaData, commitParent, refactoring, refactoringSummary, refactoredClassName, refactoredClassFile);
 
 					if (refactoringCommit != null) {
 						// mark it for the process metrics collection
 						allRefactorings.add(refactoringCommit);
-						storeSourceCode(commit, oldFileName, currentFileName, sourceCodeBefore, refactoringCommit);
+
+						if(storeFullSourceCode)
+							storeSourceCode(refactoringCommit.getId(), refactoring, commitParent, commit);
 					} else {
 						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
 					}
 				}
+
 			}
+
 		} catch (Exception e){
 			log.error("Failed to collect commit data for refactored commit: "+ superCommitMetaData.getCommitId(), e);
 		}
@@ -125,26 +89,33 @@ public class RefactoringAnalyzer {
 		return allRefactorings;
     }
 
-	protected void storeSourceCode(RevCommit commit, String oldFileName, String currentFileName, String sourceCodeBefore, RefactoringCommit refactoringCommit) throws IOException {
-		if (storeFullSourceCode) {
-			// let's get the source code of the file after the refactoring
-			// but only if not deleted
-			String sourceCodeAfter = !nonClassFile(currentFileName) ? readFileFromGit(repository, commit, oldFileName) : "";
+	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, RevCommit commitParent, Refactoring refactoring, String refactoringSummary, String refactoredClassName, String oldFileName) throws IOException {
+		// Now, we get the contents of the file before
+		String sourceCodeBefore = readFileFromGit(repository, commitParent, oldFileName);
+		tempDir = createTmpDir();
+		writeFile(tempDir + "/" + oldFileName, sourceCodeBefore);
 
-			// store the before and after versions for the deep learning training
-			// note that we save the file before with the same name of the current file name,
-			// as to help in finding it (from the SQL query to the file)
-			saveSourceCode(oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
-		}
+		RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, superCommitMetaData, refactoring, refactoringSummary);
+		cleanTempDir(tempDir);
+		return refactoringCommit;
 	}
 
-	private void saveSourceCode(String fileNameBefore, String sourceCodeBefore, String fileNameAfter, String sourceCodeAfter, RefactoringCommit refactoringCommit) throws FileNotFoundException {
-		String onlyFileNameBefore = fileNameOnly(fileNameBefore);
-		writeFile(fileStorageDir + refactoringCommit.getId() + "/before-refactoring/" + onlyFileNameBefore, sourceCodeBefore);
+	private void storeSourceCode(long id, Refactoring refactoring, RevCommit commitParent, RevCommit currentCommit) throws IOException {
 
-		if(!sourceCodeAfter.isEmpty()) {
-			String onlyFileNameAfter = fileNameOnly(fileNameAfter);
-			writeFile(fileStorageDir + refactoringCommit.getId() + "/after-refactoring/" + onlyFileNameAfter, sourceCodeAfter);
+		// for the before refactoring, we get its source code in the previous commit
+		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
+			String fileName = pair.getLeft();
+
+			String sourceCode = readFileFromGit(repository, commitParent, fileName);
+			writeFile(fileStorageDir + id + "/before/" + fileNameOnly(fileName), sourceCode);
+		}
+
+		// for the after refactoring, we get its source code in the current commit
+		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesAfterRefactoring()) {
+			String fileName = pair.getLeft();
+
+			String sourceCode = readFileFromGit(repository, currentCommit, fileName);
+			writeFile(fileStorageDir + id + "/after/" + fileNameOnly(fileName), sourceCode);
 		}
 	}
 
