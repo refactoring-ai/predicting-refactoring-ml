@@ -354,18 +354,4 @@ public class RefactoringUtils {
 		return Sets.newHashSet(it.next());
 	}
 
-	public static String getMethodAndOrVariableNameIfAny(RefactoringCommit refactoringCommit) {
-		if(refactoringCommit.getLevel() == Level.METHOD.ordinal()) {
-			return refactoringCommit.getMethodMetrics().getShortMethodName();
-		}
-		if(refactoringCommit.getLevel() == Level.VARIABLE.ordinal()) {
-			return refactoringCommit.getMethodMetrics().getShortMethodName() + "-" + refactoringCommit.getVariableMetrics().getVariableName();
-		}
-		if(refactoringCommit.getLevel() == Level.ATTRIBUTE.ordinal()) {
-			return refactoringCommit.getFieldMetrics().getFieldName();
-		}
-
-		// this is no method, variable, or attribute refactoring
-		return "";
-	}
 }

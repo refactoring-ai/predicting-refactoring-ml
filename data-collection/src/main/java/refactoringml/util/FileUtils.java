@@ -102,4 +102,5 @@ public class FileUtils {
 	public static  boolean nonClassFile(String fileName) {
 		return fileName.equals("/dev/null");
 	}
+
 }

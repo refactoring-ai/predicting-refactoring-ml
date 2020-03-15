@@ -12,6 +12,8 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
+import refactoringml.util.FilePathUtils;
+import refactoringml.util.FileUtils;
 import refactoringml.util.RefactoringUtils;
 
 import javax.persistence.PersistenceException;
@@ -23,8 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.*;
-import static refactoringml.util.FilePathUtils.enforceUnixPaths;
-import static refactoringml.util.FilePathUtils.lastSlashDir;
+import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
@@ -120,7 +121,7 @@ public class RefactoringAnalyzer {
 							// store the before and after versions for the deep learning training
 							// note that we save the file before with the same name of the current file name,
 							// as to help in finding it (from the SQL query to the file)
-							saveSourceCode(commit.getId().getName(), oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
+							saveSourceCode(oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
 						}
 					} else {
 						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
@@ -134,24 +135,14 @@ public class RefactoringAnalyzer {
 		return allRefactorings;
     }
 
-	private void saveSourceCode(String commit, String fileNameBefore, String sourceCodeBefore, String fileNameAfter, String sourceCodeAfter, RefactoringCommit refactoringCommit) throws FileNotFoundException {
-		String completeFileNameBefore = createFileName(fileNameBefore, refactoringCommit);
-		writeFile(fileStorageDir + commit + "/before-refactoring/" + completeFileNameBefore, sourceCodeBefore);
+	private void saveSourceCode(String fileNameBefore, String sourceCodeBefore, String fileNameAfter, String sourceCodeAfter, RefactoringCommit refactoringCommit) throws FileNotFoundException {
+		String onlyFileNameBefore = fileNameOnly(fileNameBefore);
+		writeFile(fileStorageDir + refactoringCommit.getId() + "/before-refactoring/" + onlyFileNameBefore, sourceCodeBefore);
 
 		if(!sourceCodeAfter.isEmpty()) {
-			String completeFileNameAfter = createFileName(fileNameAfter, refactoringCommit);
-			writeFile(fileStorageDir + commit + "/after-refactoring/" + completeFileNameAfter, sourceCodeAfter);
+			String onlyFileNameAfter = fileNameOnly(fileNameAfter);
+			writeFile(fileStorageDir + refactoringCommit.getId() + "/after-refactoring/" + onlyFileNameAfter, sourceCodeAfter);
 		}
-	}
-
-	private String createFileName(String fileName, RefactoringCommit refactoringCommit){
-		return String.format("%s-%d-%s-%d-%s",
-				fileName,
-				refactoringCommit.getLevel(),
-				refactoringCommit.getRefactoring(),
-				(refactoringCommit.getLevel() == Level.METHOD.ordinal()
-						|| refactoringCommit.getLevel() == Level.VARIABLE.ordinal() ? refactoringCommit.getMethodMetrics().getStartLine() : 0),
-				getMethodAndOrVariableNameIfAny(refactoringCommit));
 	}
 
 	private RefactoringCommit calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {

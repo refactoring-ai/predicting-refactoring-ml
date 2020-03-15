@@ -22,11 +22,7 @@ public class FilePathUtils {
 	}
 
 	public static String fileNameOnly (String fileName) {
-		return new File(enforceUnixPaths(fileName)).getName();
-	}
-
-	public static boolean createAllDirs (String base, String fileName) {
-		return new File(lastSlashDir(base) + dirsOnly(fileName)).mkdirs();
+		return new File(fileName).getName();
 	}
 
 	/*

@@ -59,6 +59,14 @@ public class UtilsTest {
 		}
 	}
 
+	@Test
+	public void onlyFileName() {
+		Assert.assertEquals("File.java", FilePathUtils.fileNameOnly("/some/dir/File.java"));
+		Assert.assertEquals("File.java", FilePathUtils.fileNameOnly("File.java"));
+		Assert.assertEquals("File.java", FilePathUtils.fileNameOnly("/File.java"));
+	}
+
+
 	private String generateRandomString(){
 		Random rnd = new Random();
 
