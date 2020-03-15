@@ -7,6 +7,11 @@ terminalFile="logs/docker-terminal.log"
 outFile="logs/run_statistics.md"
 outFileProjects="logs/project_statistics.md"
 
+#Individual project results
+echo "## Individual Project Results" >> $outFileProjects
+egrep -A 6 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile > $outFileProjects
+
+
 #General Statistics
 echo "## General Statistics" > $outFile
 totalTime=$(grep -oh '.git in [0-9]*.[0-9]*' $infoFile | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | awk '{s+=$1} END {print s}')
@@ -50,10 +55,22 @@ for e in $uniqueErrors; do
 	echo -e " 1. **${currentErrorCount}** errors at **${e}** occurred during runtime." >> $outFile
 done
 
-echo "## Detailed Statistics" >> $outFile
+
+#Project statistics
+echo "## Detailed Statistics from Project Statistics" >> $outFile
+commitCount=$(egrep -oh "commits=[0-9]+" $outFileProjects | sed -e 's/^commits=\([0-9]*\).*$/\1/' | awk '{s+=$1} END {print s}')
+averageCommitProcessingTime=`bc <<< "scale=5; ${totalTime} / ${commitCount}"`
+productionFilesCount=$(egrep -oh "numberOfProductionFiles=[0-9]+" $outFileProjects | sed -e 's/^numberOfProductionFiles=\([0-9]*\).*$/\1/' | awk '{s+=$1} END {print s}')
+testFilesCount=$(egrep -oh "numberOfTestFiles=[0-9]+" $outFileProjects | sed -e 's/^numberOfTestFiles=\([0-9]*\).*$/\1/' | awk '{s+=$1} END {print s}')
+javaLoc=$(egrep -oh "javaLoc=[0-9]+" $outFileProjects | sed -e 's/^javaLoc=\([0-9]*\).*$/\1/' | awk '{s+=$1} END {print s}')
+echo "In **total ${commitCount} commits** were processed with an average time of ${averageCommitProcessingTime} minutes." >> $outFile
+echo -e "A total of **${productionFilesCount} production files** and a total of **${testFilesCount} test files** with a total of **${javaLoc} LOC** were processed." >> $outFile
+
+
+#Debug logs
+echo "## Detailed Statistics from Debug Logs" >> $outFile
 commitProcessStatistics=$(egrep -oh "Processing commit [a-zA-Z0-9]+ took [0-9]+ milliseconds." $debugFile)
 commitProcessingTimes=$(echo "${commitProcessStatistics}" | egrep -oh " [0-9]+ " | sort -n)
-
 commitCount=$(echo "${commitProcessStatistics}" | wc -l)
 fastestCommitProcessingTime=$(echo "${commitProcessingTimes}" | head -1)
 longestCommitProcessingTime=$(echo "${commitProcessingTimes}" | tail -1)
@@ -72,6 +89,3 @@ for commit in $longestCommitHash; do
 	echo -e " * ${commit}" >> $outFile
 done
 
-#Individual project results
-echo "## Individual Project Results" >> $outFileProjects
-egrep -A 10 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile > $outFileProjects
