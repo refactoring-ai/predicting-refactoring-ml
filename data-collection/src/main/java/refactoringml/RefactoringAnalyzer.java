@@ -4,25 +4,17 @@ import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
-import refactoringml.util.FilePathUtils;
-import refactoringml.util.FileUtils;
 import refactoringml.util.RefactoringUtils;
 
-import javax.persistence.PersistenceException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.*;
@@ -106,16 +98,24 @@ public class RefactoringAnalyzer {
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
 			String fileName = pair.getLeft();
 
-			String sourceCode = readFileFromGit(repository, commitParent, fileName);
-			writeFile(fileStorageDir + id + "/before/" + fileNameOnly(fileName), sourceCode);
+			try {
+				String sourceCode = readFileFromGit(repository, commitParent, fileName);
+				writeFile(fileStorageDir + id + "/before/" + fileNameOnly(fileName), sourceCode);
+			} catch(Exception e) {
+				log.error("Could not write raw source code for file before refactoring, id=" + id + ", file name=" + fileName + ", commit=" + commitParent.getId().getName(), e);
+			}
 		}
 
 		// for the after refactoring, we get its source code in the current commit
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesAfterRefactoring()) {
 			String fileName = pair.getLeft();
 
-			String sourceCode = readFileFromGit(repository, currentCommit, fileName);
-			writeFile(fileStorageDir + id + "/after/" + fileNameOnly(fileName), sourceCode);
+			try {
+				String sourceCode = readFileFromGit(repository, currentCommit, fileName);
+				writeFile(fileStorageDir + id + "/after/" + fileNameOnly(fileName), sourceCode);
+			} catch(Exception e) {
+				log.error("Could not write raw source code for file after refactoring, id=" + id + ", file name=" + fileName + ", commit=" + currentCommit.getId().getName(), e);
+			}
 		}
 	}
 
