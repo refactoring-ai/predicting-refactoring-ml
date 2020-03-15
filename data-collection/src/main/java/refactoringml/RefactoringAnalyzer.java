@@ -112,17 +112,7 @@ public class RefactoringAnalyzer {
 					if (refactoringCommit != null) {
 						// mark it for the process metrics collection
 						allRefactorings.add(refactoringCommit);
-
-						if (storeFullSourceCode) {
-							// let's get the source code of the file after the refactoring
-							// but only if not deleted
-							String sourceCodeAfter = !nonClassFile(currentFileName) ? readFileFromGit(repository, commit, oldFileName) : "";
-
-							// store the before and after versions for the deep learning training
-							// note that we save the file before with the same name of the current file name,
-							// as to help in finding it (from the SQL query to the file)
-							saveSourceCode(oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
-						}
+						storeSourceCode(commit, oldFileName, currentFileName, sourceCodeBefore, refactoringCommit);
 					} else {
 						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
 					}
@@ -134,6 +124,19 @@ public class RefactoringAnalyzer {
 
 		return allRefactorings;
     }
+
+	protected void storeSourceCode(RevCommit commit, String oldFileName, String currentFileName, String sourceCodeBefore, RefactoringCommit refactoringCommit) throws IOException {
+		if (storeFullSourceCode) {
+			// let's get the source code of the file after the refactoring
+			// but only if not deleted
+			String sourceCodeAfter = !nonClassFile(currentFileName) ? readFileFromGit(repository, commit, oldFileName) : "";
+
+			// store the before and after versions for the deep learning training
+			// note that we save the file before with the same name of the current file name,
+			// as to help in finding it (from the SQL query to the file)
+			saveSourceCode(oldFileName, sourceCodeBefore, currentFileName, sourceCodeAfter, refactoringCommit);
+		}
+	}
 
 	private void saveSourceCode(String fileNameBefore, String sourceCodeBefore, String fileNameAfter, String sourceCodeAfter, RefactoringCommit refactoringCommit) throws FileNotFoundException {
 		String onlyFileNameBefore = fileNameOnly(fileNameBefore);
