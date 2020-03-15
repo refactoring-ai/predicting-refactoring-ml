@@ -1,16 +1,22 @@
 package integration.toyprojects;
 
 import integration.IntegrationBaseTest;
-import org.junit.Assert;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.RefactoringCommit;
-import refactoringml.db.StableCommit;
+import refactoringml.util.FileUtils;
+import refactoringml.util.JGitUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static refactoringml.util.JGitUtils.extractProjectNameFromGitUrl;
 
 // tests related to PR #128: https://github.com/refactoring-ai/predicting-refactoring-ml/pull/128
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -19,6 +25,10 @@ public class R6ToyProjectTest extends IntegrationBaseTest {
 	@Override
 	protected String getRepo() {
 		return "https://github.com/refactoring-ai/toyrepo-r6.git";
+	}
+
+	protected boolean storeSourceCode() {
+		return true;
 	}
 
 	// normal refactoring stores just one data point
@@ -87,6 +97,35 @@ public class R6ToyProjectTest extends IntegrationBaseTest {
 		// Utils is where the method was!
 		Assertions.assertEquals("a.Utils", one.getClassName());
 
+	}
+
+	@Test
+	void assertStoreSourceCode() throws IOException {
+
+		String[] allJavaFiles = FileUtils.getAllJavaFiles(outputDir);
+		Arrays.stream(allJavaFiles).forEach(x -> System.out.println(x));
+		Assertions.assertEquals(14, allJavaFiles.length);
+
+		List<RefactoringCommit> rcs = getRefactoringCommits();
+		for (RefactoringCommit rc : rcs) {
+
+			List<String> files = Arrays.stream(allJavaFiles).filter(x -> x.contains("/" + rc.getId() + "/")).collect(Collectors.toList());
+
+			boolean found = files.stream().anyMatch(x -> x.contains("/after/"));
+			Assertions.assertTrue(found);
+		}
+
+		// TODO: assert the content of the file
+		// Repository repo = getRepository();
+		// JGitUtils.readFileFromGit(repo, "4125d9a212381d132e47c1d53b8dbb0b0a7eb7f3", )
+
+	}
+
+	private Repository getRepository() throws IOException {
+		String projectName = extractProjectNameFromGitUrl(getRepo());
+		String repoLocalDir = "repos/" + projectName;
+		Git git = Git.open(new File(repoLocalDir));
+		return git.getRepository();
 	}
 
 }
