@@ -1,5 +1,16 @@
 version: '3'
 services:
+  socat:
+    container_name: socat
+    image: bobrik/socat
+    command: TCP-LISTEN:1234,fork UNIX-CONNECT:/var/run/docker.sock
+    ports:
+      - "1234:1234"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER_URI="http://socat:1234"
+
   queue:
     image: rabbitmq:3.8-rc-management
     ports:
@@ -34,6 +45,7 @@ services:
       - TASK=import
       - FILE_TO_IMPORT=projects-test.csv
       - QUEUE_HOST=queue
+      - DOCKER_URI=http://socat:1234
     depends_on:
       - queue
 
@@ -43,7 +55,6 @@ services:
       - .:/data-collection
       - ./volumes/storage:/storage
     environment:
-      - WORKER=worker_%i
       - TASK=worker
       - QUEUE_HOST=queue
       - STORAGE_PATH=/storage
@@ -52,6 +63,7 @@ services:
       - REF_DBPWD=refactoring
       - THRESHOLD=50
       - STORE_FILES=false
+      - DOCKER_URI=http://socat:1234
     depends_on:
       - db
       - queue

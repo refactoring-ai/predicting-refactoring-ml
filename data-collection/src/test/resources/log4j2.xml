@@ -3,8 +3,8 @@
     <Properties>
         <Property name="exceptions">false</Property>
         <Property name="fileSize">20 MB</Property>
-        <Property name="filePath">./logs/data-collection_test</Property>
-        <Property name="workerName">test</Property>
+	<Property name="workerName">test</Property>
+        <Property name="filePath">./logs/data-collection_${workerName}</Property>
         <Property name="pattern">${workerName} %d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n</Property>
     </Properties>
 
