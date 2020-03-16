@@ -46,8 +46,6 @@ public class RefactoringAnalyzer {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
 
 		try {
-			RevCommit commitParent = commit.getParent(0);
-
 			//Iterate over all Refactorings found for this commit
 			for (Refactoring refactoring : refactoringsToProcess) {
 				String refactoringSummary = refactoring.toString().trim();
@@ -59,14 +57,14 @@ public class RefactoringAnalyzer {
 					String refactoredClassName = pair.getRight();
 
 					// build the full RefactoringCommit object
-					RefactoringCommit refactoringCommit = buildRefactoringCommitObject(superCommitMetaData, commitParent, refactoring, refactoringSummary, refactoredClassName, refactoredClassFile);
+					RefactoringCommit refactoringCommit = buildRefactoringCommitObject(superCommitMetaData, refactoring, refactoringSummary, refactoredClassName, refactoredClassFile);
 
 					if (refactoringCommit != null) {
 						// mark it for the process metrics collection
 						allRefactorings.add(refactoringCommit);
 
 						if(storeFullSourceCode)
-							storeSourceCode(refactoringCommit.getId(), refactoring, commitParent, commit);
+							storeSourceCode(refactoringCommit.getId(), refactoring, commit);
 					} else {
 						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
 					}
@@ -81,18 +79,37 @@ public class RefactoringAnalyzer {
 		return allRefactorings;
     }
 
-	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, RevCommit commitParent, Refactoring refactoring, String refactoringSummary, String refactoredClassName, String oldFileName) throws IOException {
-		// Now, we get the contents of the file before
-		String sourceCodeBefore = readFileFromGit(repository, commitParent, oldFileName);
-		tempDir = createTmpDir();
-		writeFile(tempDir + "/" + oldFileName, sourceCodeBefore);
+	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, String refactoredClassName, String fileName) {
+		String parentCommitId = superCommitMetaData.getParentCommitId();
 
-		RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, superCommitMetaData, refactoring, refactoringSummary);
-		cleanTempDir(tempDir);
-		return refactoringCommit;
+		try {
+			/**
+			 * Now, we get the contents of the file in the previous version,
+			 * which we use to extract the features.
+			 */
+			String sourceCodeInPreviousVersion = readFileFromGit(repository, parentCommitId, fileName);
+			tempDir = createTmpDir();
+			writeFile(tempDir + "/" + fileName, sourceCodeInPreviousVersion);
+
+			RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, superCommitMetaData, refactoring, refactoringSummary);
+			cleanTempDir(tempDir);
+
+			return refactoringCommit;
+		} catch(IOException e) {
+			/**
+			 * We could not open the file in the previous commit. This often happens when
+			 * RMiner finds a refactoring in a new file. That can happen in corner cases.
+			 * See example in https://github.com/tsantalis/RefactoringMiner/issues/89
+			 */
+			log.error("Could not find (previous) version of " + fileName + " in parent commit " + parentCommitId + " (commit " + superCommitMetaData.getCommitId() + "), commit url:" + superCommitMetaData.getCommitUrl(), e);
+
+			return null;
+		}
 	}
 
-	private void storeSourceCode(long id, Refactoring refactoring, RevCommit commitParent, RevCommit currentCommit) throws IOException {
+	private void storeSourceCode(long id, Refactoring refactoring, RevCommit currentCommit) throws IOException {
+
+		RevCommit commitParent = currentCommit.getParent(0);
 
 		// for the before refactoring, we get its source code in the previous commit
 		for (ImmutablePair<String, String> pair : refactoring.getInvolvedClassesBeforeRefactoring()) {
