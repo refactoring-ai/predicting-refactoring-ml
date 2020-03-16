@@ -20,6 +20,14 @@ public class Database {
 	}
 
 	public void openSession() {
+
+		// if there's an open session, let's close it first.
+		// this should not happen, though, only due to bad logic
+		if(this.session!=null) {
+			log.error("Session is open, but we are opening another one!");
+			close();
+		}
+
 		this.session = sf.openSession();
 		session.beginTransaction();
 	}
