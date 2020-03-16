@@ -4,7 +4,7 @@
         <Property name="exceptions">false</Property>
         <Property name="fileSize">20 MB</Property>
         <Property name="filePath">./logs/data-collection</Property>
-        <Property name="workerName">${env:TASK}</Property>
+        <Property name="workerName">${env:WORKER}</Property>
         <Property name="pattern">${workerName} %d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n</Property>
     </Properties>
 

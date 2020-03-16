@@ -43,6 +43,7 @@ services:
       - .:/data-collection
       - ./volumes/storage:/storage
     environment:
+      - WORKER=worker_%i
       - TASK=worker
       - QUEUE_HOST=queue
       - STORAGE_PATH=/storage
