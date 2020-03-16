@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 
 public class FilePathUtils {
-	private static final Logger log = LogManager.getLogger(FilePathUtils.class);
 
 	public static String classFromFileName (String fileName) {
 		String[] splittedFile = enforceUnixPaths(fileName).replace("\\", "/").split("/");
@@ -22,11 +21,7 @@ public class FilePathUtils {
 	}
 
 	public static String fileNameOnly (String fileName) {
-		return new File(enforceUnixPaths(fileName)).getName();
-	}
-
-	public static boolean createAllDirs (String base, String fileName) {
-		return new File(lastSlashDir(base) + dirsOnly(fileName)).mkdirs();
+		return new File(fileName).getName();
 	}
 
 	/*

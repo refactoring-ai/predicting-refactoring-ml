@@ -37,6 +37,10 @@ public abstract class IntegrationBaseTest {
 		return true;
 	}
 
+	protected boolean storeSourceCode() {
+		return false;
+	}
+
 	protected String getLastCommit() {
 		return null;
 	}
@@ -71,7 +75,7 @@ public abstract class IntegrationBaseTest {
 				outputDir,
 				db,
 				getLastCommit(),
-				false);
+				storeSourceCode());
 
 		project = app.run();
 	}
