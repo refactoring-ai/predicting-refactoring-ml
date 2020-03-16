@@ -216,7 +216,9 @@ public class App {
 
 			//collect the process metrics for the current commit
 			processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits);
-			db.commit(commitHash);
+			long startTimeTransaction = System.currentTimeMillis();
+			db.commit();
+			log.debug("Committing the transaction for commit " + commitHash + " took " + (System.currentTimeMillis() - startTimeTransaction) + " milliseconds.");
 		} catch (Exception e) {
 			exceptionsCount++;
 			log.error("Unhandled exception when collecting commit data: ", e);
