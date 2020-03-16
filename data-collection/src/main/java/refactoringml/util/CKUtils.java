@@ -25,7 +25,9 @@ public class CKUtils {
 	public static void calculate(String tempdir, String commitHash, String projectUrl, CKNotifier ckNotifier){
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 		FutureTask timeoutTask = new FutureTask(() -> {
+			long startTimeCK = System.currentTimeMillis();
 			new CK().calculate(tempdir, ckNotifier);
+			log.debug("CK miner took " + (System.currentTimeMillis() - startTimeCK) + " milliseconds to calculate the metrics for file: " + tempdir + " on commit: " + commitHash);
 			return null;
 		});
 		executor.submit(timeoutTask);

@@ -1,5 +1,6 @@
 package refactoringml.db;
 
+import com.github.mauricioaniche.ck.CK;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -39,8 +40,10 @@ public class Database {
 		sf = null;
 	}
 
-	public void commit() {
+	public void commit(String commitId) {
+		long startTimeTransaction = System.currentTimeMillis();
 		this.session.getTransaction().commit();
+		log.debug("Committing the transaction for commit " + commitId + " took " + (System.currentTimeMillis() - startTimeTransaction) + " milliseconds.");
 	}
 
 	public void persist(Object obj) {
@@ -51,7 +54,7 @@ public class Database {
 	public void persistComplete(Object obj){
 		openSession();
 		persist(obj);
-		commit();
+		commit("");
 		close();
 	}
 
@@ -59,7 +62,7 @@ public class Database {
 	public void updateComplete(Object obj){
 		openSession();
 		update(obj);
-		commit();
+		commit("");
 		close();
 	}
 
