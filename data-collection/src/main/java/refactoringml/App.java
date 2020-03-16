@@ -190,9 +190,7 @@ public class App {
 
 			// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 			if (!isFirst(currentCommit)){
-				long startTimeRMiner = System.currentTimeMillis();
 				miner.detectAtCommit(repository, commitHash, handler, refactoringMinerTimeout);
-				log.debug("Refactoring miner took " + (System.currentTimeMillis() - startTimeRMiner) + " milliseconds to mine the commit: " + commitHash);
 
 				// if timeout has happened, refactoringsToProcess and commitIdToProcess will be null
 				boolean thereIsRefactoringToProcess = refactoringsToProcess != null && commitIdToProcess != null;
@@ -216,7 +214,7 @@ public class App {
 
 			//collect the process metrics for the current commit
 			processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits);
-			db.commit(commitHash);
+			db.commit();
 		} catch (Exception e) {
 			exceptionsCount++;
 			log.error("Unhandled exception when collecting commit data: ", e);
