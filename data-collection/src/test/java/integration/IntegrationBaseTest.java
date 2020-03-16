@@ -256,6 +256,26 @@ public abstract class IntegrationBaseTest {
 	}
 
 	@Test
+	public void monitorDuplicateStableInstances(){
+		this.session = sf.openSession();
+		int uniqueStableCommits = session.createSQLQuery("Select DISTINCT s.className, s.filePath, s.isTest, s.level, s.commitThreshold, s.classMetrics_id, s.commitMetaData_id, s.fieldMetrics_id, s.methodMetrics_id, s.processMetrics_id, s.project_id, s.variableMetrics_id From StableCommit s where s.project_id = " + project.getId())
+				.list().size();
+		this.session.close();
+		this.session = null;
+		Assert.assertEquals(uniqueStableCommits, getStableCommits().size());
+	}
+
+	@Test
+	public void monitorDuplicateRefactoringInstances(){
+		this.session = sf.openSession();
+		int uniqueStableCommits = session.createSQLQuery("Select DISTINCT  s.refactoring, s.refactoringSummary, s.className, s.filePath, s.isTest, s.level, s.classMetrics_id, s.commitMetaData_id, s.fieldMetrics_id, s.methodMetrics_id, s.processMetrics_id, s.project_id, s.variableMetrics_id From RefactoringCommit s where s.project_id = " + project.getId())
+				.list().size();
+		this.session.close();
+		this.session = null;
+		Assert.assertEquals(uniqueStableCommits, getRefactoringCommits().size());
+	}
+
+	@Test
 	public void relevantCommitMetaData(){
 		session = sf.openSession();
 		List<String> allRelevantCommitIds = session.createQuery("SELECT DISTINCT r.commitMetaData.commitId FROM RefactoringCommit r").list();
