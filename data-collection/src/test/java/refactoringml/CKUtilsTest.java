@@ -81,5 +81,9 @@ public class CKUtilsTest {
 		fullVersion = "contains/1[ @a.b.NonNull Entry ]";
 		simplified = CKUtils.simplifyFullMethodName(fullVersion);
 		Assert.assertEquals("contains/1[Entry]", simplified);
+
+		fullVersion = "contains/1[ @a.b.NonNull @a.b.C Entry ]";
+		simplified = CKUtils.simplifyFullMethodName(fullVersion);
+		Assert.assertEquals("contains/1[Entry]", simplified);
 	}
 }
