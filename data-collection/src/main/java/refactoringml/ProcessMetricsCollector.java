@@ -15,7 +15,7 @@ import refactoringml.util.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import static refactoringml.util.CKUtils.cleanClassName;
+import static refactoringml.util.CKUtils.cleanCkClassName;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
@@ -169,7 +169,7 @@ public class ProcessMetricsCollector {
 		List<StableCommit> stableCommits = new ArrayList<>();
 
 		CKUtils.calculate(tempDir, commitMetaData.getCommitId(), project.getGitUrl(), ck -> {
-			String cleanedCkClassName = cleanClassName(ck.getClassName());
+			String cleanedCkClassName = cleanCkClassName(ck.getClassName());
 			ClassMetric classMetric = extractClassMetrics(ck);
 
 			Set<CKMethodResult> methods = ck.getMethods();

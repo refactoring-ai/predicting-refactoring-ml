@@ -45,7 +45,24 @@ public class CKUtils {
 		}
 	}
 
-	public static String simplifyFullName(String fullName) {
+	/**
+	 * This method simplifies full method names, so that both
+	 * CK's and RefactoringMiner's format match.
+	 *
+	 * Basically:
+	 * 1) removes full names in parameters
+	 *    e.g., a/1[a.b.C] --> a/1[C]
+	 * 2) removes any generic type information
+	 *    e.g., a/1[A<B>] --> a/1[A]
+	 * 3) removes any annotation
+	 *    e.g., a/1[@B A] --> a/1[A]
+	 *
+	 * Maybe the same behavior could had been achieved by
+	 * RefactoringUtils#fullMethodName, as we get the full name of the method
+	 * from the UMLOperation object. However, it's much harder to test and we know
+	 * way less about that object...
+	 */
+	public static String simplifyFullMethodName(String fullName) {
 		if(!fullName.contains("["))
 			return fullName;
 
@@ -80,22 +97,19 @@ public class CKUtils {
 	// Why? Because the way JDT resolves (and stringuifies) class names in TypeDeclarations
 	// is different from the way it resolves (and stringuifies) in MethodBinding...
 	// We also remove the generic types as RefactoringMiner doesn't return the generics.
-
-	// TODO: maybe the best implementation here is to actually implement a smarter string parser
-	// that understands the full syntax...
-	private static String cleanGenerics(String clazzName) {
-		clazzName = clazzName.replaceAll("\\$", "\\.");
+	private static String cleanGenerics(String code) {
+		code = code.replaceAll("\\$", "\\.");
 
 		// while there's a < in the string, we then look for its corresponding >.
 		// we then extract this part out of the string.
 		// we repeat it until there's no more <
-		while(clazzName.contains("<")) {
-			int openIndex = clazzName.indexOf("<");
+		while(code.contains("<")) {
+			int openIndex = code.indexOf("<");
 			int qty = 0;
 			int closeIndex;
-			for (closeIndex = openIndex + 1; closeIndex < clazzName.length(); closeIndex++) {
+			for (closeIndex = openIndex + 1; closeIndex < code.length(); closeIndex++) {
 
-				char ch = clazzName.charAt(closeIndex);
+				char ch = code.charAt(closeIndex);
 				if (ch == '<')
 					qty++;
 				else if (ch == '>') {
@@ -106,15 +120,18 @@ public class CKUtils {
 				}
 			}
 
-			String leftPart = clazzName.substring(0, openIndex);
-			String rightPart = closeIndex + 1 == clazzName.length() ? "" : clazzName.substring(closeIndex + 1);
-			clazzName = leftPart + rightPart;
+			String leftPart = code.substring(0, openIndex);
+			String rightPart = closeIndex + 1 == code.length() ? "" : code.substring(closeIndex + 1);
+			code = leftPart + rightPart;
 		}
 
-		return clazzName.trim();
+		return code.trim();
 	}
 
-	public static String cleanClassName(String clazzName) {
+	/*
+	Only works with the class type from ck.
+	 */
+	public static String cleanCkClassName(String clazzName) {
 		return clazzName.replaceAll("\\$", "\\.");
 	}
 
@@ -170,7 +187,7 @@ public class CKUtils {
 	//Extract the method metrics from a CKMethodResult
 	public static MethodMetric extractMethodMetrics(CKMethodResult ckMethodResult){
 		return new MethodMetric(
-				CKUtils.simplifyFullName(ckMethodResult.getMethodName()),
+				CKUtils.simplifyFullMethodName(ckMethodResult.getMethodName()),
 				cleanMethodName(ckMethodResult.getMethodName()),
 				ckMethodResult.getStartLine(),
 				ckMethodResult.getCbo(),

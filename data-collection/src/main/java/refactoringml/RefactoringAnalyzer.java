@@ -139,7 +139,7 @@ public class RefactoringAnalyzer {
 	private RefactoringCommit calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
 		final List<RefactoringCommit> refactorings = new ArrayList<>();
 		CKUtils.calculate(tempDir, commitMetaData.getCommitId(), project.getGitUrl(), ck -> {
-			String cleanedCkClassName = cleanClassName(ck.getClassName());
+			String cleanedCkClassName = cleanCkClassName(ck.getClassName());
 
 			//Ignore all subclass callbacks from CK, that are not relevant in this case
 			if(!cleanedCkClassName.equals(refactoredClass)){
@@ -152,14 +152,14 @@ public class RefactoringAnalyzer {
 
 			// if it's a method or a variable-level refactoring, collect the data
 			if(isMethodLevelRefactoring(refactoring) || isVariableLevelRefactoring(refactoring)) {
-				String fullRefactoredMethod = CKUtils.simplifyFullName(RefactoringUtils.fullMethodName(getRefactoredMethod(refactoring)));
+				String fullRefactoredMethod = CKUtils.simplifyFullMethodName(RefactoringUtils.fullMethodName(getRefactoredMethod(refactoring)));
 
-				Optional<CKMethodResult> ckMethod = ck.getMethods().stream().filter(x -> CKUtils.simplifyFullName(x.getMethodName().toLowerCase()).equals(fullRefactoredMethod.toLowerCase()))
+				Optional<CKMethodResult> ckMethod = ck.getMethods().stream().filter(x -> CKUtils.simplifyFullMethodName(x.getMethodName().toLowerCase()).equals(fullRefactoredMethod.toLowerCase()))
 						.findFirst();
 
 				if(!ckMethod.isPresent()) {
 					// for some reason we did not find the method, let's remove it from the refactorings.
-					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
+					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullMethodName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
 					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the refactoring type: " + refactoring.getName() + " on commit " + commitMetaData.getCommitId() +
 							" on class " + refactoredClass +
 							"\nAll methods found by CK: " + methods);
