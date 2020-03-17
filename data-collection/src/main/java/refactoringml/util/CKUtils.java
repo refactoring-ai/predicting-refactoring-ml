@@ -88,6 +88,8 @@ public class CKUtils {
 
 	}
 
+	//Remove annotations from method names, e.g. @NonNull
+	//Don't use this on method bodies, it could cause issues in some cases, e.g. an @ as part of a String.
 	private static String removeAnnotations(String code) {
 		return code.replaceAll("@.* ", "");
 	}
