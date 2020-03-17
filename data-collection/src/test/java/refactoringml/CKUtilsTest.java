@@ -65,4 +65,21 @@ public class CKUtilsTest {
 
 		Assert.assertEquals("setParameters/1[Map]", simplified);
 	}
+
+	// that can happen in RMiner...
+	// see https://github.com/refactoring-ai/predicting-refactoring-ml/issues/142
+	@Test
+	public void methodWithAnnotation() {
+		String fullVersion = "contains/1[@NonNull Entry]";
+		String simplified = CKUtils.simplifyFullName(fullVersion);
+		Assert.assertEquals("contains/1[Entry]", simplified);
+
+		fullVersion = "contains/1[@a.b.NonNull Entry]";
+		simplified = CKUtils.simplifyFullName(fullVersion);
+		Assert.assertEquals("contains/1[Entry]", simplified);
+
+		fullVersion = "contains/1[ @a.b.NonNull Entry ]";
+		simplified = CKUtils.simplifyFullName(fullVersion);
+		Assert.assertEquals("contains/1[Entry]", simplified);
+	}
 }

@@ -53,6 +53,7 @@ public class CKUtils {
 		String rightPart = fullName.substring(fullName.indexOf("[") + 1, fullName.length()-1);
 
 		rightPart = cleanGenerics(rightPart);
+		rightPart = removeAnnotations(rightPart);
 
 		String[] parameters = rightPart.split(",");
 		String cleanParams = Arrays.stream(parameters).map(p -> {
@@ -68,6 +69,10 @@ public class CKUtils {
 				parameters.length > 0 ? cleanParams : "",
 				parameters.length > 0 ? "]" : "");
 
+	}
+
+	private static String removeAnnotations(String code) {
+		return code.replaceAll("@.* ", "");
 	}
 
 	// we replace the $ that appears in the name of a class when there is a subclass, e.g., A$B becomes A.B
