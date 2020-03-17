@@ -1,48 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
+    <Properties>
+        <Property name="exceptions">false</Property>
+        <Property name="fileSize">20 MB</Property>
+        #docker container names start with a front slash (/)
+        <Property name="filePath">./logs${docker:containerName}</Property>
+        <Property name="pattern">${docker:containerName} %d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n</Property>
+    </Properties>
+
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <PatternLayout pattern="${pattern}"/>
         </Console>
 
         <Console name="Console_INFO" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <PatternLayout pattern="${pattern}"/>
             <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
 
         <RollingFile
                 name="RollingFile_ERROR"
-                fileName="./logs/data-collection_ERROR.log"
-                filePattern="./logs/data-collection_ERROR.log.%i"
-                ignoreExceptions="false">
+                fileName="${filePath}_ERROR.log"
+                filePattern="${filePath}_ERROR.log.%i"
+                ignoreExceptions="${exceptions}">
             <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <PatternLayout pattern="${pattern}"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <SizeBasedTriggeringPolicy size="${fileSize}"/>
             </Policies>
         </RollingFile>
 
         <RollingFile
                 name="RollingFile_DEBUG"
-                fileName="./logs/data-collection_DEBUG.log"
-                filePattern="./logs/data-collection_DEBUG.log.%i"
-                ignoreExceptions="false">
+                fileName="${filePath}_DEBUG.log"
+                filePattern="${filePath}_DEBUG.log.%i"
+                ignoreExceptions="${exceptions}">
             <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <PatternLayout pattern="${pattern}"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <SizeBasedTriggeringPolicy size="${fileSize}"/>
             </Policies>
         </RollingFile>
 
         <RollingFile
                 name="RollingFile_INFO"
-                fileName="./logs/data-collection_INFO.log"
-                filePattern="./logs/data-collection_INFO.log.%i"
-                ignoreExceptions="false">
+                fileName="${filePath}_INFO.log"
+                filePattern="${filePath}_INFO.log.%i"
+                ignoreExceptions="${exceptions}">
             <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L %m%n"/>
+            <PatternLayout pattern="${pattern}"/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <SizeBasedTriggeringPolicy size="${fileSize}"/>
             </Policies>
         </RollingFile>
     </Appenders>

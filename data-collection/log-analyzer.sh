@@ -1,8 +1,8 @@
 #! /bin/bash
-
-infoFile="logs/data-collection_INFO.log*"
-debugFile="logs/data-collection_DEBUG.log*"
-errorFile="logs/data-collection_ERROR.log*"
+./logs/data-collection_${workerName}
+infoFile="logs/data-collection_[a-zA-Z0-9-_]*_INFO.log*"
+debugFile="logs/data-collection_[a-zA-Z0-9-_]*_DEBUG.log*"
+errorFile="logs/data-collection_[a-zA-Z0-9-_]*_ERROR.log*"
 terminalFile="logs/docker-terminal.log"
 outFile="logs/run_statistics.md"
 outFileProjects="logs/project_statistics.md"
@@ -88,4 +88,3 @@ echo -e "The **slowest commit** was processed in **${longestCommitProcessingTime
 for commit in $longestCommitHash; do
 	echo -e " * ${commit}" >> $outFile
 done
-
