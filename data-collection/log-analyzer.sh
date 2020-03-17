@@ -1,5 +1,4 @@
 #! /bin/bash
-./logs/data-collection_${workerName}
 infoFile="logs/data-collection_[a-zA-Z0-9-_]*_INFO.log*"
 debugFile="logs/data-collection_[a-zA-Z0-9-_]*_DEBUG.log*"
 errorFile="logs/data-collection_[a-zA-Z0-9-_]*_ERROR.log*"
@@ -8,22 +7,22 @@ outFile="logs/run_statistics.md"
 outFileProjects="logs/project_statistics.md"
 
 #Individual project results
-echo "## Individual Project Results" >> $outFileProjects
-egrep -A 6 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile > $outFileProjects
+echo "## Individual Project Results" > $outFileProjects
+egrep -A 10 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile >> $outFileProjects
 
 
 #General Statistics
 echo "## General Statistics" > $outFile
-totalTime=$(grep -oh '.git in [0-9]*.[0-9]*' $infoFile | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | awk '{s+=$1} END {print s}')
+totalTime=$(egrep -oh '.git in [0-9]*.[0-9]*' $infoFile | egrep -o '[+-]?[0-9]+([.][0-9]+)?' | awk '{s+=$1} END {print s}')
 totalProjects=$(egrep -oh 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile | wc -l)
 echo "A total of **${totalProjects} projects** were processed with a total App execution time of **${totalTime} minutes**.  " >> $outFile
-totalRefactorings=$(grep 'refactoring- and ' $infoFile | sed -e 's/Found \(.*\) refactoring-.*/\1/' | awk '{s+=$1} END {print s}')
+totalRefactorings=$(egrep 'refactoring- and ' $infoFile | sed -e 's/Found \(.*\) refactoring-.*/\1/' | awk '{s+=$1} END {print s}')
 echo "**${totalRefactorings} refactoring** instances were found in total.  " >> $outFile
-totalStableInstances=$(grep 'refactoring- and' $infoFile | sed -e 's/Found [0-9]* refactoring- and \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
+totalStableInstances=$(egrep 'refactoring- and' $infoFile | sed -e 's/Found [0-9]* refactoring- and \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
 echo "**${totalStableInstances} stable** instances were found in total." >> $outFile
 
 for ((i=15;i<=50;i+=5)); do
-	currentStable=$(grep "stable instances in the project with threshold: ${i}" $infoFile | sed -e 's/Found \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
+	currentStable=$(egrep "stable instances in the project with threshold: ${i}" $infoFile | sed -e 's/Found \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
 	echo -e " 1. ${currentStable} stablecommit instances were found for threshold ${i}" >> $outFile
 done
 
@@ -35,7 +34,7 @@ uniqueExceptionsCount=$(echo "${uniqueExceptions}" | wc -l)
 echo -e "**${exceptionCount} exceptions** occurred during runtime, **${uniqueExceptionsCount}** of these exceptions were **unique**.  " >> $outFile
 
 for e in $uniqueExceptions; do
-	currentExceptionCount=$(grep "${e}" $errorFile | sed 's/: .*//' | grep 'Exception' | wc -l)
+	currentExceptionCount=$(egrep "${e}" $errorFile | sed 's/: .*//' | egrep 'Exception' | wc -l)
 	echo -e " 1. **${currentExceptionCount} ${e}** occurred during runtime." >> $outFile
 done
 
@@ -51,7 +50,7 @@ uniqueErrorsCount=$(($(echo "${uniqueErrors}" | sort --unique | wc -l) + $unique
 echo "**${errorCount} errors** occurred during runtime, **${uniqueErrorsCount}** of these errors were at **unique** places.  " >> $outFile
 
 for e in $uniqueErrors; do
-	currentErrorCount=$(grep "${e}" $errorFile $terminalFile | wc -l)
+	currentErrorCount=$(egrep "${e}" $errorFile $terminalFile | wc -l)
 	echo -e " 1. **${currentErrorCount}** errors at **${e}** occurred during runtime." >> $outFile
 done
 
