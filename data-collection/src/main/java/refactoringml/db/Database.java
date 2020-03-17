@@ -101,9 +101,9 @@ public class Database {
 		return Long.parseLong(result.toString());
 	}
 
-	public long findAllStableCommits(long projectId, int level) {
+	public long findAllStableCommits(long projectId, int threshold) {
 		Session shortSession = sf.openSession();
-		String query = "Select count(*) From StableCommit where StableCommit.project_id = " + projectId + " AND StableCommit.commitThreshold = " + level;
+		String query = "Select count(*) From StableCommit where StableCommit.project_id = " + projectId + " AND StableCommit.commitThreshold = " + threshold;
 		Object result = shortSession.createSQLQuery(query).getSingleResult();
 		shortSession.close();
 		return Long.parseLong(result.toString());
