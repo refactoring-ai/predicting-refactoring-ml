@@ -23,7 +23,7 @@
                 fileName="${filePath}_ERROR.log"
                 filePattern="${filePath}_ERROR.log.%i"
                 ignoreExceptions="${exceptions}">
-            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <LevelRangeFilter minLevel="FATAL" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${pattern}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="${fileSize}"/>
@@ -63,7 +63,7 @@
             <AppenderRef ref="Console" level="info"/>
         </Logger>
 
-        <Root level="error">
+        <Root level="fatal">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile_ERROR"/>
         </Root>

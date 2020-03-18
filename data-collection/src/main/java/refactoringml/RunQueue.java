@@ -110,7 +110,7 @@ public class RunQueue {
 		try {
 			new App(dataset, gitUrl, storagePath, db, storeFullSourceCode).run();
 		} catch (Exception e) {
-			log.error("Error while processing " + gitUrl, e);
+			log.fatal("Error while processing " + gitUrl, e);
 		}
 	}
 
