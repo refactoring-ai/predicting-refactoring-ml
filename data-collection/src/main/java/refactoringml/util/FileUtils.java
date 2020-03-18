@@ -1,10 +1,8 @@
 package refactoringml.util;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
@@ -68,6 +66,15 @@ public class FileUtils {
 		PrintStream ps = new PrintStream(filePath);
 		ps.print(content);
 		ps.close();
+	}
+
+	//Write the toString of an object to a file at the given path. Creates a new file and directory at the path if necessary.
+	public static void appendToFile(String filePath, String content) throws IOException {
+		new File(dirsOnly(filePath)).mkdirs();
+		File file = new File(filePath);
+		FileWriter fr = new FileWriter(file, true);
+		fr.write(content);
+		fr.close();
 	}
 
 	//Write the content to a new file at the given path. Creates a new directory at the path if necessary.

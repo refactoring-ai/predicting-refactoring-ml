@@ -5,9 +5,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
+import refactoringml.util.PropertiesUtils;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
+
+import static refactoringml.util.FilePathUtils.enforceUnixPaths;
+import static refactoringml.util.FileUtils.appendToFile;
 import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class RunQueue {
@@ -109,8 +115,22 @@ public class RunQueue {
 
 		try {
 			new App(dataset, gitUrl, storagePath, db, storeFullSourceCode).run();
-		} catch (Exception e) {
-			log.fatal("Error while processing " + gitUrl, e);
+		} catch (org.eclipse.jgit.api.errors.TransportException te){
+			storeFailedProject(gitUrl, "Repository not available", te);
+		}
+		catch (Exception e) {
+			log.fatal(e.getClass().getCanonicalName() + " while processing " + gitUrl, e);
+			storeFailedProject(gitUrl, e.getClass().getCanonicalName(), e);
+		}
+	}
+
+	private void storeFailedProject(String gitUrl, String failureReason, Exception exception){
+		String failedProject = gitUrl + ", " + failureReason + ", " + exception.toString()  + "\n";
+		String filePath = enforceUnixPaths(PropertiesUtils.getProperty("failedProjectsFile"));
+		try {
+			appendToFile(filePath, failedProject);
+		} catch (IOException e) {
+			log.fatal("Failed to write to file: " + filePath, e);
 		}
 	}
 
