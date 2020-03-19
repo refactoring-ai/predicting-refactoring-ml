@@ -123,7 +123,7 @@ public class RunQueue {
 		String dataset = msg[2];
 		String gitUrl = msg[1];
 		String projectInfo = gitUrl + ", " + dataset;
-		appendToFile(failedProjectsFile, projectInfo);
+		appendToFile(failedProjectsFile, projectInfo + "\n");
 		try {
 			new App(dataset, gitUrl, storagePath, db, storeFullSourceCode).run();
 		} catch (org.eclipse.jgit.api.errors.TransportException te){
