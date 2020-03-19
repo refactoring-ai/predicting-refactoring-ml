@@ -30,9 +30,11 @@ public class R7ToyProjectTest extends IntegrationBaseTest {
 		return "https://github.com/refactoring-ai/toyrepo-r7.git";
 	}
 
-
 	@Test
 	void t1() {
-		getRefactoringCommits().forEach(x -> System.out.println(x.getRefactoringSummary()));
+		List<RefactoringCommit> refactorings = getRefactoringCommits();
+		Assertions.assertEquals(6, refactorings.size());
+
+		Assertions.assertTrue(refactorings.stream().anyMatch(x -> x.getRefactoring().equals("Extract Interface")));
 	}
 }
