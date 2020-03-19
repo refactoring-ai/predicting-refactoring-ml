@@ -44,6 +44,8 @@ public class UtilsTest {
 		for(int i = 0; i < 100; i++){
 			String randomString = generateRandomString();
 
+			Assert.assertTrue(IsTestFile("Test" + randomString + ".java"));
+			Assert.assertTrue(IsTestFile(randomString + "/Test" + randomString + ".java"));
 			//assert ant test conventions
 			Assert.assertTrue(IsTestFile(randomString + "test.java"));
 			Assert.assertTrue(IsTestFile(randomString + "Test.java"));
