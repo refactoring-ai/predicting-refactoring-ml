@@ -4,21 +4,18 @@ import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.refactoringminer.api.Refactoring;
-import org.refactoringminer.api.RefactoringType;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
-import refactoringml.util.JGitUtils;
 import refactoringml.util.RefactoringUtils;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.*;
@@ -71,11 +68,11 @@ public class RefactoringAnalyzer {
 					if(filesMap.containsKey(refactoredClassFile))
 						refactoredClassFile = filesMap.get(refactoredClassFile);
 
-					String refactoredClassName = pair.getRight();
+
+					ImmutablePair<String, String> refactoredClassName = new ImmutablePair<>(pair.getRight(), classAliases.get(pair.getRight()));
 
 					// build the full RefactoringCommit object
-					String refactoredClassNameAlias = classAliases.get(refactoredClassName);
-					RefactoringCommit refactoringCommit = buildRefactoringCommitObject(superCommitMetaData, refactoring, refactoringSummary, refactoredClassName, refactoredClassNameAlias, refactoredClassFile);
+					RefactoringCommit refactoringCommit = buildRefactoringCommitObject(superCommitMetaData, refactoring, refactoringSummary, refactoredClassName, refactoredClassFile);
 
 					if (refactoringCommit != null) {
 						// mark it for the process metrics collection
@@ -117,7 +114,7 @@ public class RefactoringAnalyzer {
 		return aliases;
 	}
 
-	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, String refactoredClassName, String refactoredClassNameAlias, String fileName) {
+	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, ImmutablePair<String, String> refactoredClassNames, String fileName) {
 		String parentCommitId = superCommitMetaData.getParentCommitId();
 
 		try {
@@ -129,7 +126,7 @@ public class RefactoringAnalyzer {
 			tempDir = createTmpDir();
 			writeFile(tempDir + "/" + fileName, sourceCodeInPreviousVersion);
 
-			RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, refactoredClassNameAlias, superCommitMetaData, refactoring, refactoringSummary);
+			RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassNames, superCommitMetaData, refactoring, refactoringSummary);
 			cleanTempDir(tempDir);
 
 			return refactoringCommit;
@@ -174,13 +171,13 @@ public class RefactoringAnalyzer {
 		}
 	}
 
-	private RefactoringCommit calculateCkMetrics(String refactoredClass, String refactoredClassAlias, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
+	private RefactoringCommit calculateCkMetrics(ImmutablePair<String,String> refactoredClasses, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
 		final List<RefactoringCommit> refactorings = new ArrayList<>();
 		CKUtils.calculate(tempDir, commitMetaData.getCommitId(), project.getGitUrl(), ck -> {
 			String cleanedCkClassName = cleanCkClassName(ck.getClassName());
 
 			//Ignore all subclass callbacks from CK, that are not relevant in this case
-			if(!cleanedCkClassName.equals(refactoredClass) && !cleanedCkClassName.equals(refactoredClassAlias)){
+			if(!cleanedCkClassName.equals(refactoredClasses.getLeft()) && !cleanedCkClassName.equals(refactoredClasses.getRight())){
 				return;
 			}
 			// collect the class level metrics
@@ -199,7 +196,7 @@ public class RefactoringAnalyzer {
 					// for some reason we did not find the method, let's remove it from the refactorings.
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullMethodName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
 					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the refactoring type: " + refactoring.getName() + " on commit " + commitMetaData.getCommitId() +
-							" on class " + refactoredClass +
+							" on class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight()+
 							"\nAll methods found by CK: " + methods);
 					return;
 				} else {
@@ -249,7 +246,7 @@ public class RefactoringAnalyzer {
 		});
 
 		if(refactorings.isEmpty()) {
-			log.error("We did not find class " + refactoredClass + " in CK's output (" + commitMetaData + ")");
+			log.error("We did not find class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight() + " in CK's output (" + commitMetaData + ")");
 		} else {
 			for (RefactoringCommit refactoringCommit : refactorings) {
 				db.persist(refactoringCommit);
