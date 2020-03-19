@@ -3,23 +3,27 @@ package refactoringml;
 import com.rabbitmq.client.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.docker.DockerLookup;
 import refactoringml.db.Database;
 import refactoringml.db.HibernateConfig;
 import refactoringml.util.PropertiesUtils;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
-
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.FileUtils.appendToFile;
+import static refactoringml.util.FileUtils.removeFromFile;
 import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class RunQueue {
 	private static final Logger log = LogManager.getLogger(RunQueue.class);
 	//total count of queue failures during this run, e.g. a redelivery of a already delivered message or an empty message
 	private static int queueFailures = 0;
+	//name of the docker container if any exists, otherwise null
+	private String containerName;
+	//Store all failed projects of this worker in this file
+	private File failedProjectsFile;
 
 	public final static String QUEUE_NAME = "refactoring";
 	private final Database db;
@@ -32,7 +36,13 @@ public class RunQueue {
 		this.storagePath = storagePath;
 		this.storeFullSourceCode = storeFullSourceCode;
 		db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
+		DockerLookup dockerLookup = new DockerLookup();
 
+		containerName = enforceUnixPaths(dockerLookup.lookup(null, "containerName")).replace("/", "");
+		if(containerName == null)
+			containerName = "null";
+		failedProjectsFile = new File(enforceUnixPaths(PropertiesUtils.getProperty("failedProjectsFile") + "_" + containerName));
+		failedProjectsFile.getParentFile().mkdirs();
 		log.debug(toString());
 	}
 
@@ -106,38 +116,36 @@ public class RunQueue {
 		System.exit(0);
 	}
 
-	private void processRepository(String message) {
+	private void processRepository(String message) throws IOException {
 		log.debug("Got a new element from rabbitmq queue: " + message);
 
 		String[] msg = message.split(",");
 		String dataset = msg[2];
 		String gitUrl = msg[1];
-
+		String projectInfo = gitUrl + ", " + dataset;
+		appendToFile(failedProjectsFile, projectInfo);
 		try {
 			new App(dataset, gitUrl, storagePath, db, storeFullSourceCode).run();
 		} catch (org.eclipse.jgit.api.errors.TransportException te){
 			storeFailedProject(gitUrl, "Repository not available", te);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			log.fatal(e.getClass().getCanonicalName() + " while processing " + gitUrl, e);
 			storeFailedProject(gitUrl, e.getClass().getCanonicalName(), e);
 		}
+		removeFromFile(failedProjectsFile, projectInfo);
 	}
 
-	private void storeFailedProject(String gitUrl, String failureReason, Exception exception){
+	private void storeFailedProject(String gitUrl, String failureReason, Exception exception) throws IOException {
 		String failedProject = gitUrl + ", " + failureReason + ", " + exception.toString()  + "\n";
-		String filePath = enforceUnixPaths(PropertiesUtils.getProperty("failedProjectsFile"));
-		try {
-			appendToFile(filePath, failedProject);
-		} catch (IOException e) {
-			log.fatal("Failed to write to file: " + filePath, e);
-		}
+		appendToFile(failedProjectsFile, failedProject);
 	}
 
 	@Override
 	public String toString(){
 		return "RunQueue{\n"+
 				"QUEUE_NAME = " + QUEUE_NAME + "\n" +
+				"containerName=" + containerName + "\n" +
+				"failedProjectsFile=" + failedProjectsFile.getAbsolutePath() + "\n" +
 				"host = " + host + "\n" +
 				"storagePath = " + storagePath + "\n" +
 				"storeFullSourceCode = " + storeFullSourceCode +
