@@ -149,6 +149,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
 
     // check the number of test and production files as well as their LOC
     @Test
+    @Ignore
     public void projectMetrics() {
         assertProjectMetrics(35, 12, 23, 7020, 1880, 5140);
     }
