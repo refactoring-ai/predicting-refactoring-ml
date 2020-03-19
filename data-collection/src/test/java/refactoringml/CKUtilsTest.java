@@ -86,4 +86,16 @@ public class CKUtilsTest {
 		simplified = CKUtils.simplifyFullMethodName(fullVersion);
 		Assert.assertEquals("contains/1[Entry]", simplified);
 	}
+
+	// See https://github.com/refactoring-ai/predicting-refactoring-ml/issues/142#issuecomment-601123167
+	@Test
+	public void genericAndTypeAfterwards() {
+		String fullVersion = "drawNode/2[Canvas,BinarySearchTree<TreeNode<E>>.Node]";
+		String simplified = CKUtils.simplifyFullMethodName(fullVersion);
+		Assert.assertEquals("drawNode/2[Canvas,Node]", simplified);
+
+		fullVersion = "drawNode/2[Canvas,BinarySearchTree<TreeNode<E>>]";
+		simplified = CKUtils.simplifyFullMethodName(fullVersion);
+		Assert.assertEquals("drawNode/2[Canvas,BinarySearchTree]", simplified);
+	}
 }
