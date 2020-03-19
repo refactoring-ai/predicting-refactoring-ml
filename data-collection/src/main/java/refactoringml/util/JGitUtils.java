@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -11,10 +13,14 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
 
 public class JGitUtils {
 	private static final Logger log = LogManager.getLogger(JGitUtils.class);
@@ -85,5 +91,30 @@ public class JGitUtils {
 		}
 		String cleanRepositoryUrl = repositoryUrl.replace(".git", "");
 		return String.format("%s/commit/%s", cleanRepositoryUrl, commitId);
+	}
+
+	/**
+	 * In some cases, RMiner actually returns the 'new' path, even in its 'classesBeforeRefactoringMethod'.
+	 * See issue https://github.com/refactoring-ai/predicting-refactoring-ml/issues/144
+	 * To counteract this, we then get a map with all old and new files, so that we can
+	 * always use the old file to retrieve the version we actually extract features from.
+	 *
+	 * Note that key is the new file, and value is the old file.
+	 * So, if we don't find the file in this map, this means it's already the old file.
+	 */
+	public static HashMap<String, String> getMapWithOldAndNewFiles(Repository repository, RevCommit commit) throws IOException {
+		HashMap<String, String> map = new HashMap<>();
+
+		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+			diffFormatter.setRepository(repository);
+			diffFormatter.setDetectRenames(true);
+			RevCommit commitParent = commit.getParent(0);
+
+			List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
+
+			entries.stream().forEach(e -> map.put(e.getNewPath(), e.getOldPath()));
+		}
+
+		return map;
 	}
 }

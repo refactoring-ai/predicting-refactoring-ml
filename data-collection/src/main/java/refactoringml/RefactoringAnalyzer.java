@@ -13,12 +13,14 @@ import refactoringml.util.RefactoringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.FileUtils.*;
+import static refactoringml.util.JGitUtils.getMapWithOldAndNewFiles;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.RefactoringUtils.*;
 
@@ -46,6 +48,13 @@ public class RefactoringAnalyzer {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
 
 		try {
+
+			// get the map between new path -> old path
+			HashMap<String, String> filesMap = getMapWithOldAndNewFiles(repository, commit);
+
+			// get the map between class names
+			HashMap<String, String> classAliases = getClassAliases(refactoringsToProcess);
+
 			//Iterate over all Refactorings found for this commit
 			for (Refactoring refactoring : refactoringsToProcess) {
 				String refactoringSummary = refactoring.toString().trim();
@@ -53,8 +62,14 @@ public class RefactoringAnalyzer {
 
 				//loop over all refactored classes, multiple classes can be refactored by the same refactoring, e.g. Extract Interface Refactoring
 				for (ImmutablePair<String, String> pair : refactoredFilesAndClasses(refactoring, refactoring.getInvolvedClassesBeforeRefactoring())) {
+					// get the name of the file before the refactoring
+					// if the one returned by RMiner exists in the map, we use the one in the map instead
 					String refactoredClassFile = pair.getLeft();
-					String refactoredClassName = pair.getRight();
+					if(filesMap.containsKey(refactoredClassFile))
+						refactoredClassFile = filesMap.get(refactoredClassFile);
+
+
+					ImmutablePair<String, String> refactoredClassName = new ImmutablePair<>(pair.getRight(), classAliases.get(pair.getRight()));
 
 					// build the full RefactoringCommit object
 					RefactoringCommit refactoringCommit = buildRefactoringCommitObject(superCommitMetaData, refactoring, refactoringSummary, refactoredClassName, refactoredClassFile);
@@ -79,7 +94,27 @@ public class RefactoringAnalyzer {
 		return allRefactorings;
     }
 
-	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, String refactoredClassName, String fileName) {
+	/**
+	 * Get a map that contains classes that were renamed in this commit.
+	 *
+	 * Note that the map is name after -> name before. This is due to the fact that
+	 * RMiner sometimes returns, for other refactorings, "the name before" = "the name after renaming".
+	 */
+	private HashMap<String, String> getClassAliases(List<Refactoring> refactoringsToProcess) {
+		HashMap<String, String> aliases = new HashMap<>();
+
+		for (Refactoring rename : possibleClassRenames(refactoringsToProcess)) {
+
+			String nameBefore = rename.getInvolvedClassesBeforeRefactoring().iterator().next().getRight();
+			String nameAfter = rename.getInvolvedClassesAfterRefactoring().iterator().next().getRight();
+
+			aliases.put(nameAfter, nameBefore);
+		}
+
+		return aliases;
+	}
+
+	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, ImmutablePair<String, String> refactoredClassNames, String fileName) {
 		String parentCommitId = superCommitMetaData.getParentCommitId();
 
 		try {
@@ -91,7 +126,7 @@ public class RefactoringAnalyzer {
 			tempDir = createTmpDir();
 			writeFile(tempDir + "/" + fileName, sourceCodeInPreviousVersion);
 
-			RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassName, superCommitMetaData, refactoring, refactoringSummary);
+			RefactoringCommit refactoringCommit = calculateCkMetrics(refactoredClassNames, superCommitMetaData, refactoring, refactoringSummary);
 			cleanTempDir(tempDir);
 
 			return refactoringCommit;
@@ -136,13 +171,13 @@ public class RefactoringAnalyzer {
 		}
 	}
 
-	private RefactoringCommit calculateCkMetrics(String refactoredClass, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
+	private RefactoringCommit calculateCkMetrics(ImmutablePair<String,String> refactoredClasses, CommitMetaData commitMetaData, Refactoring refactoring, String refactoringSummary) {
 		final List<RefactoringCommit> refactorings = new ArrayList<>();
 		CKUtils.calculate(tempDir, commitMetaData.getCommitId(), project.getGitUrl(), ck -> {
 			String cleanedCkClassName = cleanCkClassName(ck.getClassName());
 
 			//Ignore all subclass callbacks from CK, that are not relevant in this case
-			if(!cleanedCkClassName.equals(refactoredClass)){
+			if(!cleanedCkClassName.equals(refactoredClasses.getLeft()) && !cleanedCkClassName.equals(refactoredClasses.getRight())){
 				return;
 			}
 			// collect the class level metrics
@@ -161,7 +196,7 @@ public class RefactoringAnalyzer {
 					// for some reason we did not find the method, let's remove it from the refactorings.
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullMethodName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
 					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the refactoring type: " + refactoring.getName() + " on commit " + commitMetaData.getCommitId() +
-							" on class " + refactoredClass +
+							" on class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight()+
 							"\nAll methods found by CK: " + methods);
 					return;
 				} else {
@@ -210,8 +245,12 @@ public class RefactoringAnalyzer {
 			refactorings.add(refactoringCommit);
 		});
 
-		for (RefactoringCommit refactoringCommit : refactorings){
-			db.persist(refactoringCommit);
+		if(refactorings.isEmpty()) {
+			log.error("We did not find class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight() + " in CK's output (" + commitMetaData + ")");
+		} else {
+			for (RefactoringCommit refactoringCommit : refactorings) {
+				db.persist(refactoringCommit);
+			}
 		}
 
 		return refactorings.isEmpty()? null : refactorings.get(0);
