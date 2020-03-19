@@ -18,7 +18,7 @@ import static refactoringml.util.RefactoringUtils.cleanMethodName;
 
 public class CKUtils {
 	private static final Logger log = LogManager.getLogger(CKUtils.class);
-	private static long timeout = Long.parseLong(getProperty("timeoutRefactoringMiner"));
+	private static long timeout = Long.parseLong(getProperty("timeoutCK"));
 
 	//TODO: figure out if we could parallelize the CK tool for various class files on the same commit
 	//Calls the CK.calculate with a timeout.
