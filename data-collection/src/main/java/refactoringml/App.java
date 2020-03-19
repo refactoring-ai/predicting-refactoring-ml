@@ -166,7 +166,12 @@ public class App {
 	//Initialize the project object for this run
 	private Project initProject(Git git) throws GitAPIException, IOException {
 		CounterResult counterResult = Counter.countProductionAndTestFiles(clonePath);
-		long projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
+		long projectSize = -1;
+		try{
+			projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
+		} catch (IllegalArgumentException e){
+			log.info("For project: " + gitUrl + " the project size could not be determined.", e);
+		}
 		int numberOfCommits = numberOfCommits(git);
 		String lastCommitHash = getHead(git);
 		String projectName = extractProjectNameFromGitUrl(gitUrl);
