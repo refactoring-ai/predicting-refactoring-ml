@@ -5,6 +5,7 @@ errorFile="logs/data-collection_[a-zA-Z0-9_-]*_ERROR.log*"
 terminalFile="logs/docker-terminal.log"
 outFile="logs/run_statistics.md"
 outFileProjects="logs/project_statistics.md"
+failedProjectsDir="logs/failed-projects_[a-zA-Z0-9_-]*"
 
 #Individual project results
 echo "## Individual Project Results" > $outFileProjects
@@ -16,6 +17,13 @@ echo "## General Statistics" > $outFile
 totalTime=$(egrep -oh '.git in [0-9]*.[0-9]*' $infoFile | egrep -o '[+-]?[0-9]+([.][0-9]+)?' | awk '{s+=$1} END {print s}')
 totalProjects=$(egrep -oh 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile | wc -l)
 echo "A total of **${totalProjects} projects** were processed with a total App execution time of **${totalTime} minutes**.  " >> $outFile
+failedProjects=$(egrep -oh ".+.git, " $failedProjectsDir)
+failedProjectsCount=$(egrep -oh ".+.git, " $failedProjectsDir | wc -l)
+echo "**${failedProjectsCount} projects failed**:" >> $outFile
+for p in $failedProjects; do
+	echo " 1. ${p}" >> $outFile
+done
+
 totalRefactorings=$(egrep 'refactoring- and ' $infoFile | sed -e 's/.*Found \(.*\) refactoring-.*/\1/' | awk '{s+=$1} END {print s}')
 echo "**${totalRefactorings} refactoring** instances were found in total.  " >> $outFile
 totalStableInstances=$(egrep 'refactoring- and' $infoFile | sed -e 's/.*Found [0-9]* refactoring- and \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
@@ -25,6 +33,7 @@ for ((i=15;i<=50;i+=5)); do
 	currentStable=$(egrep "stable instances in the project with threshold: ${i}" $infoFile | sed -e 's/.*Found \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
 	echo -e " 1. ${currentStable} stablecommit instances were found for threshold ${i}" >> $outFile
 done
+
 
 #Exceptions
 echo "## Exceptions" >> $outFile
