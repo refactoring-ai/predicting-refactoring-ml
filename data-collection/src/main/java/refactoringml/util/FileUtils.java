@@ -1,13 +1,11 @@
 package refactoringml.util;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Scanner;
-
+import java.util.stream.Collectors;
 import static refactoringml.util.FilePathUtils.*;
 
 public class FileUtils {
@@ -68,6 +66,21 @@ public class FileUtils {
 		PrintStream ps = new PrintStream(filePath);
 		ps.print(content);
 		ps.close();
+	}
+
+	//Write the toString of an object to a file at the given path. Creates a new file and directory at the path if necessary.
+	public static void appendToFile(File file, String content) throws IOException {
+		FileWriter fr = new FileWriter(file, true);
+		fr.write(content);
+		fr.close();
+	}
+
+	//remove all matching lines from the file
+	public static void removeFromFile(File file, String condition) throws IOException {
+		List<String> lines = org.apache.commons.io.FileUtils.readLines(file);
+		List<String> cleanedLines = lines.stream().filter(line ->
+				!line.contains(condition)).collect(Collectors.toList());
+		org.apache.commons.io.FileUtils.writeLines(file, cleanedLines, false);
 	}
 
 	//Write the content to a new file at the given path. Creates a new directory at the path if necessary.
