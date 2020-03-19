@@ -354,4 +354,12 @@ public class RefactoringUtils {
 		return Sets.newHashSet(it.next());
 	}
 
+	/**
+	 * Return on the refactorings that might change the name of the class.
+	 */
+	public static List<Refactoring> possibleClassRenames(List<Refactoring> refactorings) {
+		List<RefactoringType> renameTypes = Arrays.asList(RefactoringType.MOVE_RENAME_CLASS, RefactoringType.RENAME_CLASS, RefactoringType.MOVE_CLASS);
+		return refactorings.stream().filter(r -> renameTypes.contains(r.getRefactoringType())).collect(Collectors.toList());
+	}
+
 }
