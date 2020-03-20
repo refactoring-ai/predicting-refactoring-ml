@@ -27,7 +27,7 @@ public class CKUtils {
 		FutureTask timeoutTask = new FutureTask(() -> {
 			long startTimeCK = System.currentTimeMillis();
 			new CK().calculate(tempdir, ckNotifier);
-			log.debug("CK miner took " + (System.currentTimeMillis() - startTimeCK) + " milliseconds to calculate the metrics for file: " + tempdir + " on commit: " + commitHash);
+			log.debug("CK miner took " + (System.currentTimeMillis() - startTimeCK) + " milliseconds to calculate the metrics for file: " + tempdir + " on commit: " + commitHash + " from project " + projectUrl);
 			return null;
 		});
 		executor.submit(timeoutTask);
@@ -36,10 +36,10 @@ public class CKUtils {
 			timeoutTask.get(timeout, TimeUnit.SECONDS);
 		} catch (TimeoutException e){
 			log.error("CK failed to calculate metrics for " + tempdir + " on the commit " + commitHash
-					+ " in the project: " + projectUrl + " with a timeout of " + timeout + " seconds.", e);
+					+ " from the project: " + projectUrl + " with a timeout of " + timeout + " seconds.", e);
 		} catch (InterruptedException | ExecutionException e){
 			log.error("Failed to calculate CK metrics for " + tempdir + " on the commit " + commitHash
-					+ " in the project: " + projectUrl+ tempdir, e);
+					+ " from the project: " + projectUrl, e);
 		} finally {
 			executor.shutdownNow();
 		}

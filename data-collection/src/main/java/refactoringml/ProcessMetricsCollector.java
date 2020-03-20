@@ -20,6 +20,7 @@ import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.readFileFromGit;
+import static refactoringml.util.LogUtils.createErrorState;
 import static refactoringml.util.RefactoringUtils.*;
 
 public class ProcessMetricsCollector {
@@ -158,7 +159,7 @@ public class ProcessMetricsCollector {
 				db.persist(stableCommit);
 			}
 		} catch(Exception e) {
-			log.error(e.getClass().getCanonicalName() + " when processing metrics for commit: " + pmTracker.getBaseCommitMetaData().getCommitId(), e);
+			log.error(e.getClass().getCanonicalName() + " while processing stable process metrics." + createErrorState(pmTracker.getBaseCommitMetaData().getCommitId(), project), e);
 		} finally {
 			cleanTempDir(tempDir);
 		}

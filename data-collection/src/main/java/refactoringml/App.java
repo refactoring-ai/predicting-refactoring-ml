@@ -29,6 +29,7 @@ import static refactoringml.util.FilePathUtils.lastSlashDir;
 import static refactoringml.util.FileUtils.createTmpDir;
 import static refactoringml.util.FileUtils.newDir;
 import static refactoringml.util.JGitUtils.*;
+import static refactoringml.util.LogUtils.createErrorState;
 import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class App {
@@ -211,10 +212,10 @@ public class App {
 					allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess);
 				} else if (thereIsRefactoringToProcess) {
 					// timeout happened, so count it as an exception
-					log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash);
+					log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash + createErrorState(commitHash, project));
 				} else {
 					// timeout happened, so count it as an exception
-					log.error("Refactoring Miner timed out in commit " + commitHash);
+					log.error("Refactoring Miner timed out for commit: " + commitHash + createErrorState(commitHash, project));
 					exceptionsCount++;
 				}
 			}
@@ -226,8 +227,8 @@ public class App {
 			log.debug("Committing the transaction for commit " + commitHash + " took " + (System.currentTimeMillis() - startTimeTransaction) + " milliseconds.");
 		} catch (Exception e) {
 			exceptionsCount++;
-			log.error("Unhandled exception when collecting commit data: ", e);
-			db.rollback();
+			log.error("Unhandled exception when collecting commit data for commit: " + commitHash + createErrorState(commitHash, project), e);
+			db.rollback(createErrorState(commitHash, project));
 		} finally {
 			db.close();
 		}
@@ -262,7 +263,7 @@ public class App {
 			@Override
 			public void handleException(String commitId, Exception e) {
 				exceptionsCount++;
-				log.error("RefactoringMiner could not handle commit Id " + commitId, e);
+				log.error("RefactoringMiner could not handle commit: " + commitId + createErrorState(commitId, project), e);
 				resetGitRepo();
 			}
 
@@ -270,7 +271,7 @@ public class App {
 				try {
 					git.reset().setMode(ResetCommand.ResetType.HARD).call();
 				} catch (GitAPIException e1) {
-					log.error("Reset failed for repository: " + gitUrl + " after a commit couldn't be handled.", e1);
+					log.error("Reset failed for repository: " + gitUrl + " after a commit couldn't be handled." + createErrorState("UNK", project), e1);
 				}
 			}
 		};
