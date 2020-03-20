@@ -385,4 +385,14 @@ public class RefactoringUtils {
 	public static List<Refactoring> possibleClassRenames(List<Refactoring> refactorings) {
 		return refactorings.stream().filter(RefactoringUtils::isClassRename).collect(Collectors.toList());
 	}
+
+	/**
+     * We detect anonymous classes by means of a simple heuristic: if the last part of a full class
+     * name starts with a lower case, odds are that it's an anonymous class.
+	 */
+	public static boolean isAnonymousClass(String fullName) {
+		String[] parts = fullName.split("\\.");
+		return Character.isLowerCase(parts[parts.length - 1].charAt(0));
+
+	}
 }

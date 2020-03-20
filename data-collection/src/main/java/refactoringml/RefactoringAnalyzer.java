@@ -78,8 +78,19 @@ public class RefactoringAnalyzer {
 						continue;
 					}
 
-					// now, we get the name of the class that was refactored
-					ImmutablePair<String, String> refactoredClassName = new ImmutablePair<>(pair.getRight(), classAliases.get(pair.getRight()));
+					/**
+					 * Now, we get the name of the class that was refactored. However, we skip refactorings in anonymous classes.
+					 * For us, it's pretty hard to get the code metrics for those (as CK 0.5.2 doesn't return
+					 * good names for anonymous classes).
+					 * (If the heuristic fail, it's not a problem, as later we won't be able to find code metrics for it; so we will never
+					 * store "bad data")
+					 */
+					String refactoredClassNameFromRMiner = pair.getRight();
+					if(isAnonymousClass(refactoredClassNameFromRMiner)) {
+						log.info("Refactoring in an anonymous class, which we skip: " + refactoredClassNameFromRMiner + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
+						continue;
+					}
+					ImmutablePair<String, String> refactoredClassName = new ImmutablePair<>(refactoredClassNameFromRMiner, classAliases.get(refactoredClassNameFromRMiner));
 
 					// build the full RefactoringCommit object
 					RefactoringCommit refactoringCommit = buildRefactoringCommitObject(superCommitMetaData, refactoring, refactoringSummary, refactoredClassName, refactoredClassFile);
@@ -91,7 +102,8 @@ public class RefactoringAnalyzer {
 						if(storeFullSourceCode)
 							storeSourceCode(refactoringCommit.getId(), refactoring, commit);
 					} else {
-						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName()  + " with the refactoring" + refactoringSummary + " from project " + project.toString());
+						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
+						// TODO: should we count the number of times we get here?
 					}
 				}
 			}
