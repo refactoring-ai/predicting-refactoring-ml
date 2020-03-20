@@ -28,7 +28,7 @@
 	  <dependency>
 		  <groupId>com.github.mauricioaniche</groupId>
 		  <artifactId>ck</artifactId>
-		  <version>0.5.1</version>
+		  <version>0.5.2</version>
 	  </dependency>
 
 	  <!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
