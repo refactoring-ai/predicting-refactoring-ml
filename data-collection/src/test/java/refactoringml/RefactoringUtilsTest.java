@@ -19,4 +19,10 @@ public class RefactoringUtilsTest {
 		Assertions.assertFalse(RefactoringUtils.isAnonymousClass("a.b.c.d.ColumnQueryImpl"));
 		Assertions.assertFalse(RefactoringUtils.isAnonymousClass("a.b.c.d.ColumnQueryImpl.A"));
 	}
+
+	@Test
+	void defaultPackage() {
+		Assertions.assertFalse(RefactoringUtils.isAnonymousClass("ColumnQueryImpl"));
+		Assertions.assertTrue(RefactoringUtils.isAnonymousClass("ColumnQueryImpl.execute.result.doExecute"));
+	}
 }
