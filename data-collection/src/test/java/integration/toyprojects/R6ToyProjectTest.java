@@ -28,7 +28,7 @@ public class R6ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "https://github.com/refactoring-ai/toyrepo-r6.git";
+		return "https://github.com/refactoring-ai-testing/toyrepo-r6.git";
 	}
 
 	protected boolean storeSourceCode() {
