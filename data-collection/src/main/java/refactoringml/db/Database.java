@@ -20,7 +20,6 @@ public class Database {
 	}
 
 	public void openSession() {
-
 		// if there's an open session, let's close it first.
 		// this should not happen, though, only due to bad logic
 		if(this.session!=null) {
@@ -110,11 +109,11 @@ public class Database {
 	}
 
 	//safely rollback a transaction with the db
-	public void rollback() {
+	public void rollback(String logExtension) {
 		//this session object itself should never be null, thus we don't check for it
 		//nothing to do in this case, recovering the session or transaction is to much effort and the db takes care of a failed transaction
 		if(!session.isOpen()) {
-			log.error("Session was already closed during attempted rollback: Doing Nothing.");
+			log.error("Session was already closed during attempted rollback: Doing Nothing." + logExtension);
 			return;
 		}
 
@@ -124,7 +123,7 @@ public class Database {
 						getService(ConnectionProvider.class).getConnection();
 				session.reconnect(connection);
 			} catch (SQLException e) {
-				log.error("Failed to reconnect session object.", e);
+				log.error("Failed to reconnect session object." + logExtension, e);
 			}
 		}
 
@@ -134,13 +133,13 @@ public class Database {
 				session.getTransaction().rollback();
 				return;
 			} catch (TransactionException e) {
-				log.error("Failed to rollback session: " + session.toString(), e);
+				log.error("Failed to rollback session: " + session.toString() + logExtension, e);
 			}
 		} else {
 			//other cases:
 			//1. not connected to the DB : we could raise an error here, because something is probably wrong with the db
 			//2. connected but no transaction object : nothing to do
-			log.error("Session is in a bad state: " + session.toString());
+			log.error("Session is in a bad state: " + session.toString() + logExtension);
 		}
 	}
 

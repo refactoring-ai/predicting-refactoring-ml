@@ -22,6 +22,8 @@ import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.getMapWithOldAndNewFiles;
 import static refactoringml.util.JGitUtils.readFileFromGit;
+import static refactoringml.util.LogUtils.createErrorState;
+import static refactoringml.util.LogUtils.createRefactoringErrorState;
 import static refactoringml.util.RefactoringUtils.*;
 
 public class RefactoringAnalyzer {
@@ -48,7 +50,6 @@ public class RefactoringAnalyzer {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
 
 		try {
-
 			// get the map between new path -> old path
 			HashMap<String, String> filesMap = getMapWithOldAndNewFiles(repository, commit);
 
@@ -92,14 +93,12 @@ public class RefactoringAnalyzer {
 						if(storeFullSourceCode)
 							storeSourceCode(refactoringCommit.getId(), refactoring, commit);
 					} else {
-						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
+						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName()  + " with the refactoring" + refactoringSummary + " from project " + project.toString());
 					}
 				}
-
 			}
-
 		} catch (Exception e){
-			log.error("Failed to collect commit data for refactored commit: "+ superCommitMetaData.getCommitId(), e);
+			log.error("Failed to collect commit data for a refactored commit." + createErrorState(superCommitMetaData.getCommitId(), project), e);
 		}
 
 		return allRefactorings;
@@ -145,7 +144,7 @@ public class RefactoringAnalyzer {
 			/**
 			 * We could not open the file in the previous commit. This should not happen.
 			 */
-			log.error("Could not find (previous) version of " + fileName + " in parent commit " + parentCommitId + " (commit " + superCommitMetaData.getCommitId() + "), commit url:" + superCommitMetaData.getCommitUrl(), e);
+			log.error("Could not find (previous) version of " + fileName + " in parent commit " + parentCommitId + createRefactoringErrorState(superCommitMetaData.getCommitId(), project, refactoringSummary), e);
 
 			return null;
 		}
@@ -163,7 +162,7 @@ public class RefactoringAnalyzer {
 				String sourceCode = readFileFromGit(repository, commitParent, fileName);
 				writeFile(fileStorageDir + id + "/before/" + fileNameOnly(fileName), sourceCode);
 			} catch(Exception e) {
-				log.error("Could not write raw source code for file before refactoring, id=" + id + ", file name=" + fileName + ", commit=" + commitParent.getId().getName(), e);
+				log.error("Could not write raw source code for file before refactoring, id=" + id + ", file name=" + fileName + createRefactoringErrorState(currentCommit.getName(), project, refactoring.toString().trim()), e);
 			}
 		}
 
@@ -175,7 +174,7 @@ public class RefactoringAnalyzer {
 				String sourceCode = readFileFromGit(repository, currentCommit, fileName);
 				writeFile(fileStorageDir + id + "/after/" + fileNameOnly(fileName), sourceCode);
 			} catch(Exception e) {
-				log.error("Could not write raw source code for file after refactoring, id=" + id + ", file name=" + fileName + ", commit=" + currentCommit.getId().getName(), e);
+				log.error("Could not write raw source code for file after refactoring, id=" + id + ", file name=" + fileName + createRefactoringErrorState(currentCommit.getName(), project, refactoring.toString().trim()), e);
 			}
 		}
 	}
@@ -204,9 +203,9 @@ public class RefactoringAnalyzer {
 				if(!ckMethod.isPresent()) {
 					// for some reason we did not find the method, let's remove it from the refactorings.
 					String methods = ck.getMethods().stream().map(x -> CKUtils.simplifyFullMethodName(x.getMethodName())).reduce("", (a, b) -> a + ", " + b);
-					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the refactoring type: " + refactoring.getName() + " on commit " + commitMetaData.getCommitId() +
+					log.error("CK did not find the refactored method: " + fullRefactoredMethod + " for the refactoring type: " + refactoring.getName() +
 							" on class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight()+
-							"\nAll methods found by CK: " + methods);
+							"\nAll methods found by CK: " + methods +  createRefactoringErrorState(commitMetaData.getCommitId(), project, refactoringSummary));
 					return;
 				} else {
 					CKMethodResult ckMethodResult = ckMethod.get();
@@ -262,7 +261,7 @@ public class RefactoringAnalyzer {
 		 *      See this issue in CK: https://github.com/mauricioaniche/ck/issues/54.
 		 */
 		if(refactorings.isEmpty()) {
-			log.error("We did not find class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight() + " in CK's output. Commit metadata=" + commitMetaData + ", Refactoring=" + refactoringSummary);
+			log.error("CK did not find class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight() + createRefactoringErrorState(commitMetaData.getCommitId(), project, refactoringSummary));
 		} else {
 			for (RefactoringCommit refactoringCommit : refactorings) {
 				db.persist(refactoringCommit);
