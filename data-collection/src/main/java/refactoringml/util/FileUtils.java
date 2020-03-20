@@ -50,6 +50,17 @@ public class FileUtils {
 		return lastSlashDir(rawTempDir);
 	}
 
+	//Remove all existing temp dirs containing repo in their name
+	public static void cleanOldTempDir() throws IOException {
+		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+		String[] directories = tmpdir.list((current, name) -> new File(current, name).isDirectory() && name.contains("repo"));
+		if(directories == null)
+			return;
+		for (String dir : directories){
+			cleanTempDir(dir);
+		}
+	}
+
 	public static void cleanTempDir (String tempDir) throws IOException {
 		if(tempDir != null) {
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(tempDir));
