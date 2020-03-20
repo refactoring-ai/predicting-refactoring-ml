@@ -103,7 +103,6 @@ public class RefactoringAnalyzer {
 							storeSourceCode(refactoringCommit.getId(), refactoring, commit);
 					} else {
 						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
-						// TODO: should we count the number of times we get here?
 					}
 				}
 			}
