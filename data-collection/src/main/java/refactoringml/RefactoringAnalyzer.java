@@ -245,8 +245,15 @@ public class RefactoringAnalyzer {
 			refactorings.add(refactoringCommit);
 		});
 
+		/**
+		 * It is possible that we did not find the class among the results of CK.
+		 * Possible causes are:
+		 *
+		 *   1) Anonymous classes. It can be really hard to match anonymous classes from CK with the ones from RMiner.
+		 *      See this issue in CK: https://github.com/mauricioaniche/ck/issues/54.
+		 */
 		if(refactorings.isEmpty()) {
-			log.error("We did not find class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight() + " in CK's output (" + commitMetaData + ")");
+			log.error("We did not find class " + refactoredClasses.getLeft() + "/" + refactoredClasses.getRight() + " in CK's output. Commit metadata=" + commitMetaData + ", Refactoring=" + refactoringSummary);
 		} else {
 			for (RefactoringCommit refactoringCommit : refactorings) {
 				db.persist(refactoringCommit);
