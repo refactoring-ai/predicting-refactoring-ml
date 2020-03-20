@@ -1,0 +1,18 @@
+version: '3'
+services:
+  db:
+    image: mariadb:10.4
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=refactoring
+      - MYSQL_DATABASE=refactoringdb
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"

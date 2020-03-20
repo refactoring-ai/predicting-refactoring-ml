@@ -19,19 +19,13 @@ services:
     volumes:
       - ./volumes/rabbitmq:/var/lib/rabbitmq
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "8080:8080"
-
   import:
     build: .
     volumes:
       - .:/data-collection
     environment:
       - TASK=import
-      - FILE_TO_IMPORT=
+      - FILE_TO_IMPORT=${FILE_TO_IMPORT:-projects-final.csv}
       - QUEUE_HOST=queue
       - DOCKER_URI=http://socat:1234
     depends_on:
@@ -46,9 +40,9 @@ services:
       - TASK=worker
       - QUEUE_HOST=queue
       - STORAGE_PATH=/storage
-      - REF_URL="private"
-      - REF_USER="private"
-      - REF_DBPWD="private"
+      - REF_USER=${DB_USER:-root}
+      - REF_DBPWD=${DB_PWD:-refactoring}
+      - REF_URL=${DB_URL:-jdbc:mysql://db:3306/refactoringdb?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC}
       - THRESHOLD=50
       - STORE_FILES=false
       - DOCKER_URI=http://socat:1234
