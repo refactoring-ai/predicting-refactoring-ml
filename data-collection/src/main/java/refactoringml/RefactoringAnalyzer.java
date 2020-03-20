@@ -74,7 +74,7 @@ public class RefactoringAnalyzer {
 					 * We can't use those, as we need a file in the previous commit to collect metrics.
 					 * Thus, we skip this refactoring.
 					 */
-					if(nonClassFile(refactoredClassFile)) {
+					if(fileDoesNotExist(refactoredClassFile)) {
 						log.info("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
 						continue;
 					}

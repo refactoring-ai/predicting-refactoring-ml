@@ -27,7 +27,7 @@ public class ProcessMetricTracker {
 	}
 
 	public ProcessMetricTracker(String fileName, CommitMetaData commitMetaData) {
-		if(FileUtils.nonClassFile(fileName))
+		if(FileUtils.fileDoesNotExist(fileName))
 			throw new IllegalArgumentException(fileName + " is an illegal file name for a class file.");
 
 		this.fileName = fileName;

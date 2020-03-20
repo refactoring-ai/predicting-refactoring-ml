@@ -95,7 +95,7 @@ public class FileUtils {
 		return data;
 	}
 
-	public static  boolean nonClassFile(String fileName) {
+	public static boolean fileDoesNotExist(String fileName) {
 		return fileName.equals("/dev/null");
 	}
 
