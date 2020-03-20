@@ -24,5 +24,6 @@ public class R8ToyProjectTest extends IntegrationBaseTest {
 
 		Assertions.assertEquals("Rename Variable", refactorings.get(0).getRefactoring());
 
+		// TODO: we need some assertion here that makes sure the exception is not thrown. Ideas?
 	}
 }
