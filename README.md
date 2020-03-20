@@ -58,19 +58,21 @@ The data collection tool can be executed via Docker containers. It should be as 
 
 ```
 git clone https://github.com/mauricioaniche/predicting-refactoring-ml.git
-cd predicting-refactoring-ml/data-collection
-mvn clean compile package
-docker-compose build
-docker-compose up <-- single worker
-docker-compose up --scale worker=N <-- N workers
+cd predicting-refactoring-ml
+sudo ./run-data-collection.sh projects-final.csv 4
 ```
 
-Configurations can be changed in the `docker-compose.yml` file. The current configurations are:
+Configurations can be done with the following **arguments**:
+ 1. [FILE_TO_IMPORT] - Csv file with all projects
+ 1. [Worker_Count] - Number of concurrent worker for the data collection, running the `RunQueue` class
+ * **Optional**: 
+     1. [DB_URL] - fully qualified url to a custom database, e.g. `jdbc:mysql://db:3306/refactoringdb`
+     1. [DB_USER] - user name for the custom database
+     1. [DB_PWD] - password for the custom database
 
-* The list of projects to be processed is in `projects-final.csv`. You can change it under `import->environment->FILE_TO_IMPORT`.
-* All the data is stored in a containerized MySQL database. You can directly access it via localhost:3308, root, refactoringdb. You can change it under `db` and `worker->environment->REF_URL`, `REF_USER`, and `REF_PWD`.
-* The MySQL database, the RabbitMQ queue, and the storage are all stored under the `/volumes` folder. Feel free to change where the volumes are stored.
-* The configurations of the workers (basically the same as defined in the manual execution) can be defined in `worker->environment`.
+* The default database is a containerized MySQL database (mariaDB), y can directly access it via localhost:3308, root, refactoringdb. You can change it in `docker-compose_db.yml->db` and `docker-compose.yml->worker->environment->REF_URL`, `REF_USER`, and `REF_PWD`.
+* The default MySQL database, the RabbitMQ queue, and the source code are all stored in the `data-collection/volumes` folder. Feel free to change where the volumes are stored.
+* The configurations of the workers (basically the same as defined in the manual execution) can be defined in `docker-compose.yml->worker->environment`.
 * `http://localhost:15672` takes you to the RabbitMQ admin (user: guest, pwd:guest) and `localhost:8080` takes you to adminer, a simple DB interface.
 Feel free to start as many workers as you want and/or your infrastructure enables you!
 
