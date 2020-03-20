@@ -12,8 +12,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
-import static refactoringml.util.FileUtils.appendToFile;
-import static refactoringml.util.FileUtils.removeFromFile;
+import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.PropertiesUtils.getProperty;
 
 public class RunQueue {
@@ -57,6 +56,7 @@ public class RunQueue {
 		boolean storeFullSourceCode = Boolean.parseBoolean(System.getenv("STORE_FILES"));
 		String storagePath = System.getenv("STORAGE_PATH");
 
+		cleanOldTempDir();
 		new RunQueue(queueHost, url, user, pwd, storagePath, storeFullSourceCode).run();
 	}
 
