@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class R2ToyProjectTest extends IntegrationBaseTest {
 	@Override
 	protected String getRepo() {
-		return "https://github.com/refactoring-ai/toyrepo-r2.git";
+		return "https://github.com/refactoring-ai-testing/toyrepo-r2.git";
 	}
 
 	// This test helped us to realize (again) that when class name and file name don't match, we can't link the

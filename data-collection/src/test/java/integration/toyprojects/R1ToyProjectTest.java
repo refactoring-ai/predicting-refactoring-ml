@@ -12,7 +12,7 @@ public class R1ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "https://github.com/refactoring-ai/toyrepo-r1.git";
+		return "https://github.com/refactoring-ai-testing/toyrepo-r1.git";
 	}
 
 	@Test

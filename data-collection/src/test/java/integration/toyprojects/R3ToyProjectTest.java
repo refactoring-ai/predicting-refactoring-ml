@@ -17,7 +17,7 @@ public class R3ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "https://github.com/refactoring-ai/toyrepo-r3.git";
+		return "https://github.com/refactoring-ai-testing/toyrepo-r3.git";
 	}
 
 	// This test helped to check if refactoring in subclasses are working.

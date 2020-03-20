@@ -14,7 +14,7 @@ public class R5ToyProjectTest extends IntegrationBaseTest {
 
 	@Override
 	protected String getRepo() {
-		return "https://github.com/refactoring-ai/toyrepo-r5.git";
+		return "https://github.com/refactoring-ai-testing/toyrepo-r5.git";
 	}
 
 	// this test was to see whether the tool would collect classes with generics
