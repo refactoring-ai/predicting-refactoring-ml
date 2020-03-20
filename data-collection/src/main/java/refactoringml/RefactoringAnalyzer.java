@@ -68,7 +68,18 @@ public class RefactoringAnalyzer {
 					if(filesMap.containsKey(refactoredClassFile))
 						refactoredClassFile = filesMap.get(refactoredClassFile);
 
+					/**
+					 * Sometimes, RMiner finds refactorings in newly introduced classes. Often, as part of larger refactorings.
+					 * (See https://github.com/tsantalis/RefactoringMiner/issues/89 for a better understanding)
+					 * We can't use those, as we need a file in the previous commit to collect metrics.
+					 * Thus, we skip this refactoring.
+					 */
+					if(nonClassFile(refactoredClassFile)) {
+						log.info("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
+						continue;
+					}
 
+					// now, we get the name of the class that was refactored
 					ImmutablePair<String, String> refactoredClassName = new ImmutablePair<>(pair.getRight(), classAliases.get(pair.getRight()));
 
 					// build the full RefactoringCommit object
@@ -132,9 +143,7 @@ public class RefactoringAnalyzer {
 			return refactoringCommit;
 		} catch(IOException e) {
 			/**
-			 * We could not open the file in the previous commit. This often happens when
-			 * RMiner finds a refactoring in a new file. That can happen in corner cases.
-			 * See example in https://github.com/tsantalis/RefactoringMiner/issues/89
+			 * We could not open the file in the previous commit. This should not happen.
 			 */
 			log.error("Could not find (previous) version of " + fileName + " in parent commit " + parentCommitId + " (commit " + superCommitMetaData.getCommitId() + "), commit url:" + superCommitMetaData.getCommitUrl(), e);
 
