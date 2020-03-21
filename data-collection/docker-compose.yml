@@ -19,31 +19,13 @@ services:
     volumes:
       - ./volumes/rabbitmq:/var/lib/rabbitmq
 
-  db:
-    image: mariadb:10.4
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: refactoring
-      MYSQL_DATABASE: refactoringdb
-    ports:
-      - "3308:3306"
-    volumes:
-      - ./volumes/mysql:/var/lib/mysql
-
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "8080:8080"
-
   import:
     build: .
     volumes:
       - .:/data-collection
     environment:
       - TASK=import
-      - FILE_TO_IMPORT=
+      - FILE_TO_IMPORT=${FILE_TO_IMPORT:-projects-final.csv}
       - QUEUE_HOST=queue
       - DOCKER_URI=http://socat:1234
     depends_on:
@@ -58,13 +40,12 @@ services:
       - TASK=worker
       - QUEUE_HOST=queue
       - STORAGE_PATH=/storage
-      - REF_URL=jdbc:mysql://db:3306/refactoringdb?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
-      - REF_USER=root
-      - REF_DBPWD=refactoring
+      - REF_USER=${DB_USER:-root}
+      - REF_DBPWD=${DB_PWD:-refactoring}
+      - REF_URL=${DB_URL:-jdbc:mysql://db:3306/refactoringdb?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC}
       - THRESHOLD=50
       - STORE_FILES=false
       - DOCKER_URI=http://socat:1234
     depends_on:
-      - db
       - queue
       - import
