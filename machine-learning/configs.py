@@ -10,7 +10,7 @@ TEST = False
 # --------------------------------
 # Do we only look at production or test files or both?
 # 0 = only_production, 1 = only_test, 2 = production_and_test
-FILE_TYPE = 1
+FILE_TYPE = 2
 
 # --------------------------------
 # Database related

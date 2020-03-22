@@ -228,7 +228,7 @@ def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str
 
 # Add restriction whether to use only production, test or both files
 def file_type_filter() -> str:
-    if FILE_TYPE != FileType.test_and_production:
+    if FILE_TYPE != FileType.test_and_production.value:
         return " AND " + refactoringCommits + ".isTest = " + str(FILE_TYPE)
     else:
         return ""
