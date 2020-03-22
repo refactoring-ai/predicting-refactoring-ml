@@ -36,7 +36,6 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # get all refactoring examples we have in our dataset
     refactored_instances = refactoring.get_refactored_instances(dataset)
-
     # load non-refactoring examples
     non_refactored_instances = refactoring.get_non_refactored_instances(dataset)
 
@@ -49,6 +48,9 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     log("refactoring instance (after dropping NA)s: {}".format(refactored_instances.shape[0]))
     log("not refactoring instances (after dropping NA)s: {}".format(non_refactored_instances.shape[0]))
+
+    # Remove columns from refactored instances that are not in stable commits
+    refactored_instances = refactored_instances.drop(['refactoring', 'refactoringSummary'], axis=1)
 
     assert refactored_instances.shape[0] > 0, "No refactorings found"
 
@@ -73,6 +75,9 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     if USE_PROCESS_AND_AUTHORSHIP_METRICS and not refactoring.refactoring_level() == 'class':
         x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
+
+    # remove string values
+    x = x.drop(["className", "filePath", "isTest", "level", "commitDate"], axis=1)
 
     # number of default fields and methods is always 0
     # so, remove it from the data
