@@ -1,3 +1,6 @@
+from ml.enums.filetype import FileType
+from configs import FILE_TYPE
+
 # region database structure
 # table names for reference:
 commitMetaData: str = "commitmetadata"
@@ -215,11 +218,20 @@ def get_refactoring_levels(dataset="") -> str:
 def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str = "") -> str:
     refactoring_condition: str = instance_name + ".level = " + str(level)
     if m_refactoring != "":
-        refactoring_condition += " AND " + refactoringCommits + ".refactoring = \"" + m_refactoring + "\""
+        refactoring_condition += " AND " + refactoringCommits + ".refactoring = \"" + m_refactoring + "\""\
+                                 + file_type_filter()
 
     return get_instance_fields(instance_name, [(instance_name, tableMap[instance_name][1]),
                                                (commitMetaData, ["commitDate"])] + get_metrics_level(level),
                                refactoring_condition, dataset, " order by " + commitMetaData + ".commitDate")
+
+
+# Add restriction whether to use only production, test or both files
+def file_type_filter() -> str:
+    if FILE_TYPE != FileType.test_and_production:
+        return " AND " + refactoringCommits + ".isTest = " + str(FILE_TYPE)
+    else:
+        return ""
 
 
 # get the count of all refactorings for the given level

@@ -6,6 +6,13 @@
 TEST = False
 
 # --------------------------------
+# FileTypes
+# --------------------------------
+# Do we only look at production or test files or both?
+# 0 = only_production, 1 = only_test, 2 = production_and_test
+FILE_TYPE = 1
+
+# --------------------------------
 # Database related
 # --------------------------------
 # do we use the cached results? True=yes, False=no, go always to the db
