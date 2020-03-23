@@ -75,6 +75,11 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     if USE_PROCESS_AND_AUTHORSHIP_METRICS and not refactoring.refactoring_level() == 'class':
         x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
+    else:
+        # Remove -1 values from process metrics
+        x = x.query('''authorOwnership != -1 | bugFixCount != -1 | linesAdded != -1 | linesDeleted != -1\
+         | qtyMajorAuthors != -1 | qtyMinorAuthors != -1 | qtyOfAuthors != -1 | qtyOfCommits != -1 \
+         | refactoringsInvolved != -1''')
 
     # remove string values
     x = x.drop(["className", "filePath", "isTest", "level", "commitDate"], axis=1)
