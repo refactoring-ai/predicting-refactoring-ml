@@ -37,4 +37,9 @@ public class R7ToyProjectTest extends IntegrationBaseTest {
 
 		Assertions.assertTrue(refactorings.stream().anyMatch(x -> x.getRefactoring().equals("Extract Interface")));
 	}
+
+	@Test
+	public void processMetrics(){
+
+	}
 }

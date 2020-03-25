@@ -114,8 +114,9 @@ public class App {
 			//get all necessary objects to analyze the commits
 			GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
 			RefactoringHandler handler = getRefactoringHandler(git);
-			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repository, filesStoragePath, storeFullSourceCode);
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repository, filesStoragePath);
+			PMDatabase pmDatabase = new PMDatabase();
+			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repository, pmDatabase, filesStoragePath, storeFullSourceCode);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repository, pmDatabase, filesStoragePath);
 
 			// get all commits in the repo, and to each commit with a refactoring, extract the metrics
 			RevWalk walk = JGitUtils.getReverseWalk(repository, mainBranch);

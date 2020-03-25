@@ -1,7 +1,6 @@
 package refactoringml;
 
 import refactoringml.db.CommitMetaData;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +39,6 @@ public class PMDatabase {
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
 		ProcessMetricTracker pmTracker = new ProcessMetricTracker(database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData)));
 		pmTracker.setFileName(newFileName);
-		//the class file was renamed or moved, but the refactoring was not detected by refactoring miner
-		if(pmTracker.getCommitCounter() != 0){
-			pmTracker.resetCounter(commitMetaData);
-		}
 		ProcessMetricTracker oldPMTracker = removeFile(oldFileName);
 
 		database.put(newFileName, pmTracker);

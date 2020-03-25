@@ -32,12 +32,12 @@ public class ProcessMetricsCollector {
 
 	private static final Logger log = LogManager.getLogger(ProcessMetricsCollector.class);
 
-	public ProcessMetricsCollector(Project project, Database db, Repository repository, String fileStoragePath) {
+	public ProcessMetricsCollector(Project project, Database db, Repository repository, PMDatabase pmDatabase, String fileStoragePath) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-		pmDatabase = new PMDatabase();
+		this.pmDatabase = pmDatabase;
 	}
 
 	//if this commit contained a refactoring, then collect its process metrics for all affected class files,
@@ -49,6 +49,10 @@ public class ProcessMetricsCollector {
 		// Also if a stable instance is found it is stored with the metrics in the DB
 		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 		collectProcessMetricsOfStableCommits(commit, commitParent, superCommitMetaData);
+	}
+
+	private void handleRenames(){
+
 	}
 
 	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
@@ -94,13 +98,6 @@ public class ProcessMetricsCollector {
 					pmDatabase.removeFile(oldFileName);
 					log.debug("Deleted " + oldFileName + " from PMDatabase.");
 					continue;
-				}
-				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
-				// Thus, we are not tracking class renames here, but that is also not necessary, because the PM metrics are computed for each java file anyways.
-				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
-					String oldFileName = enforceUnixPaths(entry.getOldPath());
-					pmDatabase.renameFile(oldFileName, fileName, superCommitMetaData);
-					log.debug("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
 				}
 
 				// collect number of lines deleted and added in that file

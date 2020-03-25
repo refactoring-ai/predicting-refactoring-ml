@@ -33,16 +33,17 @@ public class RefactoringAnalyzer {
 	private Repository repository;
 	private boolean storeFullSourceCode;
 	private String fileStorageDir;
+	private PMDatabase pmDatabase;
 
 	private static final Logger log = LogManager.getLogger(RefactoringAnalyzer.class);
 
-	public RefactoringAnalyzer (Project project, Database db, Repository repository, String fileStorageDir, boolean storeFullSourceCode) {
+	public RefactoringAnalyzer (Project project, Database db, Repository repository, PMDatabase pmDatabase, String fileStorageDir, boolean storeFullSourceCode) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.storeFullSourceCode = storeFullSourceCode;
-
 		this.tempDir = null;
+		this.pmDatabase = pmDatabase;
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 	}
 
@@ -50,11 +51,13 @@ public class RefactoringAnalyzer {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
 
 		try {
+			//TODO: is this obsolete? JGit misses many files, e.g. after move source dir refactorings
 			// get the map between new path -> old path
 			HashMap<String, String> filesMap = getMapWithOldAndNewFiles(repository, commit);
 
 			// get the map between class names
 			HashMap<String, String> classAliases = getClassAliases(refactoringsToProcess);
+			HashMap<String, String> classAliases_Inverse = getClassAliases_Inverse(refactoringsToProcess);
 
 			//Iterate over all Refactorings found for this commit
 			for (Refactoring refactoring : refactoringsToProcess) {
@@ -66,7 +69,8 @@ public class RefactoringAnalyzer {
 					// get the name of the file before the refactoring
 					// if the one returned by RMiner exists in the map, we use the one in the map instead
 					String refactoredClassFile = pair.getLeft();
-					if(filesMap.containsKey(refactoredClassFile))
+					//ignore the filename from jgit for move source dirs etc, because it is unreliable (#133)
+					if(filesMap.containsKey(refactoredClassFile) && !isClassRename(refactoring))
 						refactoredClassFile = filesMap.get(refactoredClassFile);
 
 					/**
@@ -78,6 +82,12 @@ public class RefactoringAnalyzer {
 					if(fileDoesNotExist(refactoredClassFile)) {
 						log.info("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
 						continue;
+					}
+
+					if(isClassRename(refactoring)){
+						String newFilePath = classAliases_Inverse.get(refactoredClassFile);
+						pmDatabase.renameFile(refactoredClassFile, newFilePath, superCommitMetaData);
+						log.debug("Renamed " + refactoredClassFile + " to " + newFilePath + " in PMDatabase.");
 					}
 
 					// now, we get the name of the class that was refactored
@@ -104,45 +114,6 @@ public class RefactoringAnalyzer {
 		return allRefactorings;
     }
 
-	/**
-	 * Get a map that contains classes that were renamed in this commit.
-	 *
-	 * Note that the map is name after -> name before. This is due to the fact that
-	 * RMiner sometimes returns, for other refactorings, "the name before" = "the name after renaming".
-	 */
-	private HashMap<String, String> getClassAliases(List<Refactoring> refactoringsToProcess) {
-		HashMap<String, String> aliases = new HashMap<>();
-
-		for (Refactoring rename : possibleClassRenames(refactoringsToProcess)) {
-
-			String nameBefore = rename.getInvolvedClassesBeforeRefactoring().iterator().next().getRight();
-			String nameAfter = rename.getInvolvedClassesAfterRefactoring().iterator().next().getRight();
-
-			aliases.put(nameAfter, nameBefore);
-		}
-
-		return aliases;
-	}
-
-	/**
-	 * Get a map that contains classes that were renamed in this commit.
-	 *
-	 * Note that the map is name before -> name after. This is due to the fact that
-	 * RMiner sometimes returns, for other refactorings, "the name before" = "the name after renaming".
-	 */
-	private HashMap<String, String> getClassAliases_02(List<Refactoring> refactoringsToProcess) {
-		HashMap<String, String> aliases = new HashMap<>();
-
-		for (Refactoring rename : possibleClassRenames(refactoringsToProcess)) {
-
-			String nameBefore = rename.getInvolvedClassesBeforeRefactoring().iterator().next().getLeft();
-			String nameAfter = rename.getInvolvedClassesAfterRefactoring().iterator().next().getLeft();
-
-			aliases.put(nameBefore, nameAfter);
-		}
-
-		return aliases;
-	}
 
 	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, ImmutablePair<String, String> refactoredClassNames, String fileName) {
 		String parentCommitId = superCommitMetaData.getParentCommitId();
