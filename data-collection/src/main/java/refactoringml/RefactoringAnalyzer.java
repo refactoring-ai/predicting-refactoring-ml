@@ -124,6 +124,26 @@ public class RefactoringAnalyzer {
 		return aliases;
 	}
 
+	/**
+	 * Get a map that contains classes that were renamed in this commit.
+	 *
+	 * Note that the map is name before -> name after. This is due to the fact that
+	 * RMiner sometimes returns, for other refactorings, "the name before" = "the name after renaming".
+	 */
+	private HashMap<String, String> getClassAliases_02(List<Refactoring> refactoringsToProcess) {
+		HashMap<String, String> aliases = new HashMap<>();
+
+		for (Refactoring rename : possibleClassRenames(refactoringsToProcess)) {
+
+			String nameBefore = rename.getInvolvedClassesBeforeRefactoring().iterator().next().getLeft();
+			String nameAfter = rename.getInvolvedClassesAfterRefactoring().iterator().next().getLeft();
+
+			aliases.put(nameBefore, nameAfter);
+		}
+
+		return aliases;
+	}
+
 	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, ImmutablePair<String, String> refactoredClassNames, String fileName) {
 		String parentCommitId = superCommitMetaData.getParentCommitId();
 

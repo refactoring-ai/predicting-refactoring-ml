@@ -60,7 +60,7 @@ public class PMDatabase {
 	//Returns the ProcessMetricsTracker if it is stable
 	public ProcessMetricTracker reportChanges(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
 		ProcessMetricTracker pmTracker = database.getOrDefault(fileName, new ProcessMetricTracker(fileName, commitMetaData));
-		pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
+		pmTracker.reportCommit(commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
 
 		database.put(fileName, pmTracker);
 		return pmTracker;
