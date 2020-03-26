@@ -120,7 +120,7 @@ public class ApacheCommonsCSVIntegrationTest extends IntegrationBaseTest {
 
         // in refactorings_CSVFormat, we see that there are 82 refactorings in total.
         // after this commit, there was just one more refactoring. Thus, 81 refactorings
-        Assert.assertEquals(194, stableCommitListLevel2.get(0).getProcessMetrics().refactoringsInvolved);
+        Assert.assertEquals(195, stableCommitListLevel2.get(0).getProcessMetrics().refactoringsInvolved);
     }
 
     @Test

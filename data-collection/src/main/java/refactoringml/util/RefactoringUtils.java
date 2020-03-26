@@ -375,24 +375,6 @@ public class RefactoringUtils {
 		return aliases;
 	}
 
-	/**
-	 * Get a map that contains classes that were renamed in this commit.
-	 *
-	 * Note that the map is name before -> name after. This is due to the fact that
-	 * RMiner sometimes returns, for other refactorings, "the name before" = "the name after renaming".
-	 */
-	public static HashMap<String, String> getClassAliases_Inverse(List<Refactoring> refactoringsToProcess) {
-		HashMap<String, String> aliases = new HashMap<>();
-
-		for (Refactoring rename : possibleClassRenames(refactoringsToProcess)) {
-			String nameBefore = rename.getInvolvedClassesBeforeRefactoring().iterator().next().getLeft();
-			String nameAfter = rename.getInvolvedClassesAfterRefactoring().iterator().next().getLeft();
-			aliases.put(nameBefore, nameAfter);
-		}
-
-		return aliases;
-	}
-
 	public static boolean isClassRename(Refactoring refactoring){
 		List<RefactoringType> renameTypes = Arrays.asList(RefactoringType.MOVE_RENAME_CLASS, RefactoringType.RENAME_CLASS, RefactoringType.MOVE_CLASS);
 		return renameTypes.contains(refactoring.getRefactoringType());
