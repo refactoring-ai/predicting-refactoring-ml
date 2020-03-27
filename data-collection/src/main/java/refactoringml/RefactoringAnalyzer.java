@@ -65,7 +65,7 @@ public class RefactoringAnalyzer {
 					// if the one returned by RMiner exists in the map, we use the one in the map instead
 					String refactoredClassFile = enforceUnixPaths(pair.getLeft());
 					//ignore the filename from jgit for move source dirs etc, because it is unreliable (#133)
-					if(filesMap.containsKey(refactoredClassFile))
+					if(!isClassRename(refactoring) && filesMap.containsKey(refactoredClassFile))
 						refactoredClassFile = enforceUnixPaths(filesMap.get(refactoredClassFile));
 
 					/**
@@ -74,7 +74,7 @@ public class RefactoringAnalyzer {
 					 * We can't use those, as we need a file in the previous commit to collect metrics.
 					 * Thus, we skip this refactoring.
 					 */
-					if(fileDoesNotExist(refactoredClassFile)) {
+					if(!isClassRename(refactoring) && fileDoesNotExist(refactoredClassFile)) {
 						log.info("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
 						continue;
 					}

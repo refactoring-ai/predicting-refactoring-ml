@@ -169,13 +169,17 @@ public class JGitUtils {
 
 		Set<ImmutablePair<String, String>> results = new HashSet<>();
 		for(int i = 0; i < before.size(); i++){
-			results.add(new ImmutablePair<>(before.iterator().next().getLeft(), after.iterator().next().getLeft()));
+			String beforeFileName = before.iterator().next().getLeft();
+			String afterFileName = after.iterator().next().getLeft();
+			results.add(new ImmutablePair<>(beforeFileName, afterFileName));
 		}
 		return results;
 	}
 
 	//get the file names of the affected class from the diffentry
 	private static ImmutablePair<String, String> getClassNames(DiffEntry entry){
-		return new ImmutablePair<>(entry.getOldPath(), entry.getNewPath());
+		String beforeFileName = entry.getOldPath();
+		String afterFileName = entry.getNewPath();
+		return new ImmutablePair<>(beforeFileName, afterFileName);
 	}
 }

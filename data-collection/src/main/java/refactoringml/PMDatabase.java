@@ -38,6 +38,13 @@ public class PMDatabase {
 	 */
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
 		ProcessMetricTracker pmTracker = new ProcessMetricTracker(database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData)));
+		if(oldFileName.equals(newFileName)){
+			return pmTracker;
+		}
+		if(database.get(newFileName) != null){
+			return pmTracker;
+		}
+
 		pmTracker.setFileName(newFileName);
 		ProcessMetricTracker oldPMTracker = removeFile(oldFileName);
 

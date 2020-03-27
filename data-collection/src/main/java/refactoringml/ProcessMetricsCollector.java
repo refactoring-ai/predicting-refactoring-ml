@@ -51,7 +51,6 @@ public class ProcessMetricsCollector {
 		collectProcessMetricsOfStableCommits(commit, superCommitMetaData, entries);
 	}
 
-
 	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
 	private void collectProcessMetricsOfRefactoredCommit(CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits) {
 		for (RefactoringCommit refactoringCommit : allRefactoringCommits) {
