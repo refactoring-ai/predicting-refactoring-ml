@@ -21,7 +21,7 @@ public class FluentIntegrationTest extends IntegrationBaseTest {
 
 		//test the refactorings for a specific file
 		List<RefactoringCommit> moveRefactorings = (List<RefactoringCommit>) filterCommit(getRefactoringCommits(), moveSource).stream().filter(
-				commit -> commit.getClassName().contains("/FluentTest.java"))
+				commit -> commit.getClassName().contains("FluentTest"))
 				.collect(Collectors.toList());
 		assertRefactoring(moveRefactorings, moveSource, "Move Class", 1);
 		assertRefactoring(moveRefactorings, moveSource, "Pull Up Method", 5);
