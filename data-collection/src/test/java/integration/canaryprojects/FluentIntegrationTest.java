@@ -3,9 +3,7 @@ package integration.canaryprojects;
 import integration.IntegrationBaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import refactoringml.db.ProcessMetrics;
 import refactoringml.db.RefactoringCommit;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,15 +17,13 @@ public class FluentIntegrationTest extends IntegrationBaseTest {
 	@Test
 	public void moveSourceRefactoring(){
 		String moveSource = "85c68373dabe32334933bdf6e67091534fc1504a";
-		assertRefactoring(getRefactoringCommits(), moveSource, "Move Source Dir", 46);
-	}
+		assertRefactoring(getRefactoringCommits(), moveSource, "Move Class", 33);
 
-	/*@Test
-	public void moveSourceRefactoringPMs(){
-		String moveSource = "85c68373dabe32334933bdf6e67091534fc1504a";
-		RefactoringCommit moveSourceCommit = filterCommit(getRefactoringCommits(), moveSource).stream().filter(
-				commit -> commit.getClassName().contains("FluentTest.java"))
-				.collect(Collectors.toList()).get(0);
-		assertProcessMetrics(moveSourceCommit, new ProcessMetrics().toString(10, 10, 10, 1, 1, 1, 1.0, 10, 10));
-	}*/
+		//test the refactorings for a specific file
+		List<RefactoringCommit> moveRefactorings = (List<RefactoringCommit>) filterCommit(getRefactoringCommits(), moveSource).stream().filter(
+				commit -> commit.getClassName().contains("/FluentTest.java"))
+				.collect(Collectors.toList());
+		assertRefactoring(moveRefactorings, moveSource, "Move Class", 1);
+		assertRefactoring(moveRefactorings, moveSource, "Pull Up Method", 5);
+	}
 }

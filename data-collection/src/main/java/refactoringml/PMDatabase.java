@@ -1,6 +1,8 @@
 package refactoringml;
 
 import refactoringml.db.CommitMetaData;
+import refactoringml.util.LogUtils;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +41,10 @@ public class PMDatabase {
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
 		ProcessMetricTracker pmTracker = new ProcessMetricTracker(database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData)));
 		if(oldFileName.equals(newFileName)){
-			throw new IllegalArgumentException("The old and new file name for a rename refactoring are both: " + oldFileName);
+			throw new IllegalArgumentException("The old and new file name for a rename refactoring are both: " + oldFileName
+					+ LogUtils.createRefactoringErrorState(commitMetaData.getCommitId(), "Rename Refactoring"));
 		}
-		//Check if the new file name maps onto an already tracked file name and thus,
-		if (database.get(newFileName) != null){
-			throw new IllegalStateException("The java class " + oldFileName + " was renamed into " + newFileName + ", but this file is already tracked. Maybe we missed a class file deletion?");
-		}
-
+		//If a filename already exists in the database, overwrite the process metrics with the ones from this refactoring
 		pmTracker.setFileName(newFileName);
 		ProcessMetricTracker oldPMTracker = removeFile(oldFileName);
 

@@ -12,4 +12,8 @@ public class LogUtils {
     public static String createRefactoringErrorState(String commitId, Project project, String refactoringSummary) {
         return "\n{refactoring: " + refactoringSummary + " commit: " + commitId + " from project: " + project;
     }
+
+    public static String createRefactoringErrorState(String commitId, String refactoringSummary) {
+        return "\n{refactoring: " + refactoringSummary + " commit: " + commitId +"}";
+    }
 }
