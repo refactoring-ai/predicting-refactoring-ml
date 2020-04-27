@@ -105,7 +105,6 @@ public class R6ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	void assertStoreSourceCode() {
-
 		String[] allJavaFiles = FileUtils.getAllJavaFiles(outputDir);
 		Assertions.assertEquals(14, allJavaFiles.length);
 

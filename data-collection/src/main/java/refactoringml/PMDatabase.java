@@ -1,6 +1,7 @@
 package refactoringml;
 
 import refactoringml.db.CommitMetaData;
+import refactoringml.util.LogUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,11 +40,12 @@ public class PMDatabase {
 	 */
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
 		ProcessMetricTracker pmTracker = new ProcessMetricTracker(database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData)));
-		pmTracker.setFileName(newFileName);
-		//the class file was renamed or moved, but the refactoring was not detected by refactoring miner
-		if(pmTracker.getCommitCounter() != 0){
-			pmTracker.resetCounter(commitMetaData);
+		if(oldFileName.equals(newFileName)){
+			throw new IllegalArgumentException("The old and new file name for a rename refactoring are both: " + oldFileName
+					+ LogUtils.createRefactoringErrorState(commitMetaData.getCommitId(), "Rename Refactoring"));
 		}
+		//If a filename already exists in the database, overwrite the process metrics with the ones from this refactoring
+		pmTracker.setFileName(newFileName);
 		ProcessMetricTracker oldPMTracker = removeFile(oldFileName);
 
 		database.put(newFileName, pmTracker);
@@ -60,7 +62,7 @@ public class PMDatabase {
 	//Returns the ProcessMetricsTracker if it is stable
 	public ProcessMetricTracker reportChanges(String fileName, CommitMetaData commitMetaData, String authorName, int linesAdded, int linesDeleted) {
 		ProcessMetricTracker pmTracker = database.getOrDefault(fileName, new ProcessMetricTracker(fileName, commitMetaData));
-		pmTracker.reportCommit(commitMetaData.getCommitId(), commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
+		pmTracker.reportCommit(commitMetaData.getCommitMessage(), authorName, linesAdded, linesDeleted);
 
 		database.put(fileName, pmTracker);
 		return pmTracker;
