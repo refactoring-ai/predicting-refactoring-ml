@@ -47,7 +47,6 @@ public class RefactoringAnalyzer {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
 
 		try {
-			//TODO: is this obsolete? JGit misses many files, e.g. after move source dir refactorings
 			//get the map between new path -> old path
 			HashMap<String, String> filesMap = getMapWithOldAndNewFiles(entries);
 
@@ -64,7 +63,7 @@ public class RefactoringAnalyzer {
 					// get the name of the file before the refactoring
 					// if the one returned by RMiner exists in the map, we use the one in the map instead
 					String refactoredClassFile = enforceUnixPaths(pair.getLeft());
-					//ignore the filename from jgit for move source dirs etc, because it is unreliable (#133)
+					//ignore the filename from JGit for move source dirs etc, because it is unreliable (#133)
 					if(!isClassRename(refactoring) && filesMap.containsKey(refactoredClassFile))
 						refactoredClassFile = enforceUnixPaths(filesMap.get(refactoredClassFile));
 
@@ -74,7 +73,7 @@ public class RefactoringAnalyzer {
 					 * We can't use those, as we need a file in the previous commit to collect metrics.
 					 * Thus, we skip this refactoring.
 					 */
-					if(!isClassRename(refactoring) && fileDoesNotExist(refactoredClassFile)) {
+					if(fileDoesNotExist(refactoredClassFile)) {
 						log.info("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
 						continue;
 					}

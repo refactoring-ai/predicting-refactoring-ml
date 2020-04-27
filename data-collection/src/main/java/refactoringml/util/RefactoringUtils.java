@@ -354,7 +354,6 @@ public class RefactoringUtils {
 		return Sets.newHashSet(it.next());
 	}
 
-
 	/**
 	 * Get a map that contains classes that were renamed in this commit.
 	 *

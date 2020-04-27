@@ -135,7 +135,7 @@ public class JGitUtils {
 		Set<ImmutablePair<String, String>> renamedClassesJGit = null;
 		if(entries  != null) {
 			Set<DiffEntry> renameEntries = entries.stream()
-					.filter(diffEntry -> diffEntry.getChangeType() == DiffEntry.ChangeType.RENAME)
+					.filter(diffEntry -> diffEntry.getChangeType().equals(DiffEntry.ChangeType.RENAME))
 					.collect(Collectors.toSet());
 			renamedClassesJGit = renameEntries.stream()
 					.map(JGitUtils::getClassNames)
@@ -165,7 +165,7 @@ public class JGitUtils {
 		Set<ImmutablePair<String, String>> before = refactoredFilesAndClasses(refactoring, refactoring.getInvolvedClassesBeforeRefactoring());
 		Set<ImmutablePair<String, String>> after = refactoredFilesAndClasses(refactoring, refactoring.getInvolvedClassesAfterRefactoring());
 		if(before.size() != after.size())
-			throw new IllegalStateException();
+			throw new IllegalStateException("The size of the list of filenames before the refactoring is different from the size afterwards.");
 
 		Set<ImmutablePair<String, String>> results = new HashSet<>();
 		for(int i = 0; i < before.size(); i++){

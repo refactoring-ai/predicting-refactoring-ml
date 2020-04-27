@@ -39,10 +39,11 @@ public class PMDatabase {
 	public ProcessMetricTracker renameFile(String oldFileName, String newFileName, CommitMetaData commitMetaData){
 		ProcessMetricTracker pmTracker = new ProcessMetricTracker(database.getOrDefault(oldFileName, new ProcessMetricTracker(newFileName, commitMetaData)));
 		if(oldFileName.equals(newFileName)){
-			return pmTracker;
+			throw new IllegalArgumentException("The old and new file name for a rename refactoring are both: " + oldFileName);
 		}
-		if(database.get(newFileName) != null){
-			return pmTracker;
+		//Check if the new file name maps onto an already tracked file name and thus,
+		if (database.get(newFileName) != null){
+			throw new IllegalStateException("The java class " + oldFileName + " was renamed into " + newFileName + ", but this file is already tracked. Maybe we missed a class file deletion?");
 		}
 
 		pmTracker.setFileName(newFileName);

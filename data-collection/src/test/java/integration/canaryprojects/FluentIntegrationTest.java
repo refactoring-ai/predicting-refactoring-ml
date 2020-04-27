@@ -25,8 +25,9 @@ public class FluentIntegrationTest extends IntegrationBaseTest {
 	/*@Test
 	public void moveSourceRefactoringPMs(){
 		String moveSource = "85c68373dabe32334933bdf6e67091534fc1504a";
-		List<RefactoringCommit> moveSourceCommit = filterCommit(getRefactoringCommits(), moveSource).stream().filter(commit ->
-				commit.getClassName().contains("FluentTest.java")).collect(Collectors.toList());
-		//assertProcessMetrics(moveSourceCommit, new ProcessMetrics().toString(10, 10, 10, 1, 1, 1, 1.0, 10, 10));
+		RefactoringCommit moveSourceCommit = filterCommit(getRefactoringCommits(), moveSource).stream().filter(
+				commit -> commit.getClassName().contains("FluentTest.java"))
+				.collect(Collectors.toList()).get(0);
+		assertProcessMetrics(moveSourceCommit, new ProcessMetrics().toString(10, 10, 10, 1, 1, 1, 1.0, 10, 10));
 	}*/
 }

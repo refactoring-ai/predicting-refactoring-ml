@@ -70,7 +70,7 @@ public class ProcessMetricsCollector {
 
 	//update the process metrics for all renames that were missed by RefactoringMiner
 	private void processRenames(Set<ImmutablePair<String, String>> refactoringRenames, Set<ImmutablePair<String, String>> jGitRenames, CommitMetaData superCommitMetadata) {
-		//get all renames not detected by RefactoringMiner
+		//get all renames detected by RefactoringMiner
 		if(refactoringRenames != null){
 			for(ImmutablePair<String, String> rename : refactoringRenames){
 				//check if the class file name was changed, not only the class name
