@@ -89,11 +89,13 @@ processMetricsFields = ["authorOwnership",
                         "qtyOfAuthors",
                         "qtyOfCommits",
                         "refactoringsInvolved"]
-commitMetaDataFields = ["commitDate",
+commitMetaDataFields = [
+                        "commitDate",
                         "commitId",
                         "commitMessage",
                         "commitUrl",
-                        "parentCommitId"]
+                        "parentCommitId"
+                                        ]
 projectFields = ["commitCountThresholds",
                  "commits",
                  "datasetName",
@@ -110,7 +112,8 @@ projectFields = ["commitCountThresholds",
                  "projectName",
                  "projectSizeInBytes",
                  "testLoc"]
-refactoringCommitFields = ["className",
+refactoringCommitFields = [
+                           "className",
                            "filePath",
                            "isTest",
                            "level",
@@ -137,7 +140,8 @@ tableMap = {commitMetaData: (commitMetaData + "_id", commitMetaDataFields),
             variableMetrics: (variableMetrics + "s_id", variableMetricsFields),
             processMetrics: (processMetrics + "_id", processMetricsFields),
             classMetrics: (classMetrics + "s_id", classMetricsFields),
-            project: (project + "_id", projectFields), refactoringCommits: ("id", refactoringCommitFields),
+            project: (project + "_id", projectFields),
+            refactoringCommits: ("id", refactoringCommitFields),
             stableCommits: ("id", stableCommitFields)}
 
 
@@ -221,8 +225,7 @@ def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str
         refactoring_condition += " AND " + refactoringCommits + ".refactoring = \"" + m_refactoring + "\""\
                                  + file_type_filter()
 
-    return get_instance_fields(instance_name, [(instance_name, tableMap[instance_name][1]),
-                                               (commitMetaData, ["commitDate"])] + get_metrics_level(level),
+    return get_instance_fields(instance_name, [(instance_name, []), (commitMetaData, [])] + get_metrics_level(level),
                                refactoring_condition, dataset, " order by " + commitMetaData + ".commitDate")
 
 
