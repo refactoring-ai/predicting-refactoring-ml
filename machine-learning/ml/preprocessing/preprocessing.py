@@ -65,6 +65,13 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     assert non_refactored_instances.shape[1] == refactored_instances.shape[1], "number of columns differ from both datasets"
     merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
 
+    # Remove the faulty process metrics (with -1 as value)
+    log("instances before dropping faulty process metrics: {}".format(len(merged_dataset.index)))
+    merged_dataset = merged_dataset.query('''authorOwnership != -1 & bugFixCount != -1 & linesAdded != -1 & linesDeleted != -1\
+                                            & qtyMajorAuthors != -1 & qtyMinorAuthors != -1 & qtyOfAuthors != -1 & qtyOfCommits != -1 \
+                                            & refactoringsInvolved != -1''')
+    log("instances after dropping faulty process metrics: {}".format(len(merged_dataset.index)))
+
     # separate the x from the y (as required by the scikit-learn API)
     x = merged_dataset.drop("prediction", axis=1)
     y = merged_dataset["prediction"]
