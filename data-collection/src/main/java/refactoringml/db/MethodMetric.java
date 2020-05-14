@@ -20,6 +20,9 @@ public class MethodMetric {
 	@Column(nullable = true) private int methodReturnQty;
 	@Column(nullable = true) private int methodVariablesQty;
 	@Column(nullable = true) private int methodParametersQty;
+	@Column(nullable = true) private int methodInvocationsQty;
+	@Column(nullable = true) private int methodInvocationsLocalQty;
+	@Column(nullable = true) private int methodInvocationsIndirectLocalQty;
 	@Column(nullable = true) private int methodLoopQty;
 	@Column(nullable = true) private int methodComparisonsQty;
 	@Column(nullable = true) private int methodTryCatchQty;
@@ -38,11 +41,14 @@ public class MethodMetric {
 	public MethodMetric() {}
 
 	public MethodMetric(String fullMethodName, String shortMethodName, int startLine, int methodCbo, int methodWmc, int methodRfc, int loc, int methodReturnQty,
-	                    int methodVariablesQty, int methodParametersQty, int methodLoopQty, int methodComparisonsQty, int methodTryCatchQty, int methodParenthesizedExpsQty, int methodStringLiteralsQty, int methodNumbersQty,
+	                    int methodVariablesQty, int methodParametersQty, int methodInvocations, int methodInvocationsLocal, int methodInvocationsIndirectLocal, int methodLoopQty, int methodComparisonsQty, int methodTryCatchQty, int methodParenthesizedExpsQty, int methodStringLiteralsQty, int methodNumbersQty,
 	                    int methodAssignmentsQty, int methodMathOperationsQty, int methodMaxNestedBlocks, int methodAnonymousClassesQty, int methodSubClassesQty, int methodLambdasQty, int methodUniqueWordsQty) {
 		this.fullMethodName = fullMethodName;
 		this.shortMethodName = shortMethodName;
 		this.startLine = startLine;
+		this.methodInvocationsQty = methodInvocations;
+		this.methodInvocationsLocalQty = methodInvocationsLocal;
+		this.methodInvocationsIndirectLocalQty = methodInvocationsIndirectLocal;
 		this.methodCbo = methodCbo;
 		this.methodWmc = methodWmc;
 		this.methodRfc = methodRfc;
@@ -129,4 +135,10 @@ public class MethodMetric {
 	public int getMethodMaxNestedBlocks() {
 		return methodMaxNestedBlocks;
 	}
+
+	public int getMethodInvocationsQty() { return methodInvocationsQty; }
+
+	public int getMethodInvocationsLocalQty() { return methodInvocationsLocalQty; }
+
+	public int getMethodInvocationsIndirectLocalQty() { return methodInvocationsIndirectLocalQty; }
 }

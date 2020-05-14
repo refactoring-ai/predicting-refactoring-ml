@@ -3,6 +3,7 @@ package integration.toyprojects;
 import integration.IntegrationBaseTest;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -50,6 +51,17 @@ public class R7ToyProjectTest extends IntegrationBaseTest {
 
 		String moveRefactoring3 = "a0f7fbbfb859a23027705d2fdb12291795752736";
 		assertRefactoring(refactoringCommitList, moveRefactoring3, "Move Class", 1);
+	}
+
+	@Test
+	public void methodInvocations(){
+		String commit = "dce3865b05fe0b6e1db8e23f17dec498018d3f2f";
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
+		RefactoringCommit lastCommit = refactoringCommitList.stream().filter(refactoringCommit ->
+				refactoringCommit.getCommit().equals(commit) && refactoringCommit.getFilePath().endsWith("A.java") && refactoringCommit.getRefactoring().equals("Extract Method")).findFirst().get();
+		Assert.assertEquals(1, lastCommit.getMethodMetrics().getMethodInvocationsQty());
+		Assert.assertEquals(0, lastCommit.getMethodMetrics().getMethodInvocationsLocalQty());
+		Assert.assertEquals(0, lastCommit.getMethodMetrics().getMethodInvocationsIndirectLocalQty());
 	}
 
 	@Test
