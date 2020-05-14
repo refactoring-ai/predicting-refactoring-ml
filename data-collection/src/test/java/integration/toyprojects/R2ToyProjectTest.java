@@ -75,6 +75,16 @@ public class R2ToyProjectTest extends IntegrationBaseTest {
 	}
 
 	@Test
+	public void classCohesion(){
+		String commit = "a03a3d71f7838cf964551fdc2be22b37fe9a35e6";
+		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
+		RefactoringCommit lastRefactoring = refactoringCommitList.stream().filter(refactoringCommit ->
+				refactoringCommit.getCommit().equals(commit) && refactoringCommit.getFilePath().endsWith("Person.java")).findFirst().get();
+		Assert.assertEquals(365, lastRefactoring.getClassMetrics().getClassTCC());
+		Assert.assertEquals(1024, lastRefactoring.getClassMetrics().getClassLCC());
+	}
+
+	@Test
 	public void projectMetrics() {
 		assertProjectMetrics(4, 3, 1, 64, 56, 8);
 	}

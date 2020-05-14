@@ -48,9 +48,9 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 		List<StableCommit> areNotInnerClassesInStable = getStableCommits().stream().filter(commit ->
 				!commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
-		Assert.assertEquals(1726, areNotInnerClassesInStable.size());
+		Assert.assertEquals(1702, areNotInnerClassesInStable.size());
 
-		Assert.assertEquals(1769, getStableCommits().size());
+		Assert.assertEquals(1745, getStableCommits().size());
 	}
 
 	@Test

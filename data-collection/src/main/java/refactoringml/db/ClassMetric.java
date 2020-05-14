@@ -14,13 +14,16 @@ public class ClassMetric {
 	private int classWmc;
 	private int classRfc;
 	private int classLcom;
+	private int classTCC;
+	private int classLCC;
+
 	private int classNumberOfMethods;
 	private int classNumberOfStaticMethods;
-
 	private int classNumberOfPublicMethods;
 	private int classNumberOfPrivateMethods;
 	private int classNumberOfProtectedMethods;
 	private int classNumberOfDefaultMethods;
+	private int classNumberOfVisibleMethods;
 	private int classNumberOfAbstractMethods;
 	private int classNumberOfFinalMethods;
 	private int classNumberOfSynchronizedMethods;
@@ -53,8 +56,8 @@ public class ClassMetric {
 	@Deprecated // hibernate purposes
 	public ClassMetric(){}
 
-	public ClassMetric(boolean isInnerClass, int classCbo, int classWmc, int classRfc, int classLcom, int classNumberOfMethods, int classNumberOfStaticMethods, int classNumberOfPublicMethods, int classNumberOfPrivateMethods, int classNumberOfProtectedMethods,
-	                   int classNumberOfDefaultMethods, int classNumberOfAbstractMethods, int classNumberOfFinalMethods, int classNumberOfSynchronizedMethods, int classNumberOfFields, int classNumberOfStaticFields,
+	public ClassMetric(boolean isInnerClass, int classCbo, int classWmc, int classRfc, int classLcom, float classTCC, float classLCC, int classNumberOfMethods, int classNumberOfStaticMethods, int classNumberOfPublicMethods, int classNumberOfPrivateMethods, int classNumberOfProtectedMethods,
+	                   int classNumberOfDefaultMethods, int classNumberOfVisibleMethods, int classNumberOfAbstractMethods, int classNumberOfFinalMethods, int classNumberOfSynchronizedMethods, int classNumberOfFields, int classNumberOfStaticFields,
 	                   int classNumberOfPublicFields, int classNumberOfPrivateFields, int classNumberOfProtectedFields, int classNumberOfDefaultFields, int classNumberOfFinalFields, int classNumberOfSynchronizedFields,
 	                   int classNosi, int classLoc, int classReturnQty, int classLoopQty, int classComparisonsQty, int classTryCatchQty, int classParenthesizedExpsQty, int classStringLiteralsQty, int classNumbersQty, int classAssignmentsQty,
 	                   int classMathOperationsQty, int classVariablesQty, int classMaxNestedBlocks, int classAnonymousClassesQty, int classSubClassesQty, int classLambdasQty, int classUniqueWordsQty) {
@@ -63,12 +66,15 @@ public class ClassMetric {
 		this.classWmc = classWmc;
 		this.classRfc = classRfc;
 		this.classLcom = classLcom;
+		this.classTCC = (int) (classTCC * 1024);
+		this.classLCC = (int) (classLCC * 1024);
 		this.classNumberOfMethods = classNumberOfMethods;
 		this.classNumberOfStaticMethods = classNumberOfStaticMethods;
 		this.classNumberOfPublicMethods = classNumberOfPublicMethods;
 		this.classNumberOfPrivateMethods = classNumberOfPrivateMethods;
 		this.classNumberOfProtectedMethods = classNumberOfProtectedMethods;
 		this.classNumberOfDefaultMethods = classNumberOfDefaultMethods;
+		this.classNumberOfVisibleMethods = classNumberOfVisibleMethods;
 		this.classNumberOfAbstractMethods = classNumberOfAbstractMethods;
 		this.classNumberOfFinalMethods = classNumberOfFinalMethods;
 		this.classNumberOfSynchronizedMethods = classNumberOfSynchronizedMethods;
@@ -297,4 +303,10 @@ public class ClassMetric {
 	public int getClassUniqueWordsQty() {
 		return classUniqueWordsQty;
 	}
+
+	public int getClassTCC() { return classTCC; }
+
+	public int getClassLCC() { return classLCC; }
+
+	public int getClassNumberOfVisibleMethods() { return classNumberOfVisibleMethods; }
 }

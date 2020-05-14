@@ -31,7 +31,7 @@ public class TelegramServerIntegrationTest extends IntegrationBaseTest {
 	@Test
 	public void stableInstances(){
 		int stableInstances15 = getStableCommits().stream().filter(instance -> instance.getCommitThreshold() == 15).collect(Collectors.toList()).size();
-		Assert.assertEquals(62, stableInstances15);
+		Assert.assertEquals(56, stableInstances15);
 
 		int stableInstances25 = getStableCommits().stream().filter(instance -> instance.getCommitThreshold() == 25).collect(Collectors.toList()).size();
 		Assert.assertEquals(0, stableInstances25);
