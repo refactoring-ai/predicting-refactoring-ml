@@ -41,7 +41,7 @@ public class RepoCleaner {
         System.out.println("Parsed a total of " + parsed.size() + " repositories.");
 
         parsed.stream().distinct().collect(Collectors.toList());
-        System.out.println("Write a total of " + parsed.size() + " repositories to disk.");
+        System.out.println("Wrote a total of " + parsed.size() + " repositories to disk.");
         writeCSV(fileOut, parsed);
     }
 
