@@ -75,7 +75,10 @@ public class ProcessMetricsCollector {
 			for(ImmutablePair<String, String> rename : refactoringRenames){
 				//check if the class file name was changed, not only the class name
 				if (!rename.left.equals(rename.right)){
-					pmDatabase.renameFile(rename.left, rename.right, superCommitMetadata);
+					ProcessMetricTracker oldPMTracker = pmDatabase.renameFile(rename.left, rename.right, superCommitMetadata);
+					//hotfix for the case in which we rename a file but missed the refactoring
+					if(pmDatabase.find(rename.right).getCommitCountThreshold() > 0)
+						pmDatabase.reportRefactoring(rename.right, superCommitMetadata);
 					log.debug("Renamed " + rename.left + " to " + rename.right + " in PMDatabase.");
 				}
 			}
