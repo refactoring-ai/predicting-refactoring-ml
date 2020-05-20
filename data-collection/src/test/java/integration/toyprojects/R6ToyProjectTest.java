@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.util.FileUtils;
-import refactoringml.util.JGitUtils;
 
 import java.io.File;
 import java.io.IOException;

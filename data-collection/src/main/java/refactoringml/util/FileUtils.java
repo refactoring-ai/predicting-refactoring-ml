@@ -18,9 +18,9 @@ public class FileUtils {
 		try {
 			return Files.walk(Paths.get(path))
 					.filter(Files::isRegularFile)
-					.filter(x -> !x.toAbsolutePath().toString().contains(".git"))
+					.filter(x -> !x.toAbsolutePath().toString().contains(".git/"))
 					.filter(x -> IsJavaFile(x.toAbsolutePath().toString()))
-					.filter(x -> (regex!=null?x.toAbsolutePath().toString().contains(regex):true))
+					.filter(x -> (regex == null || x.toAbsolutePath().toString().contains(regex)))
 					.map(x -> x.toAbsolutePath().toString())
 					.toArray(String[]::new);
 		} catch(Exception e) {
