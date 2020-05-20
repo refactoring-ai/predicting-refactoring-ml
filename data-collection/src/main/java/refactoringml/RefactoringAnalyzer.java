@@ -45,6 +45,7 @@ public class RefactoringAnalyzer {
 
 	public List<RefactoringCommit> collectCommitData(RevCommit commit, CommitMetaData superCommitMetaData, List<Refactoring> refactoringsToProcess, List<DiffEntry> entries) {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
+		boolean persistedCommitMetaData = false;
 
 		try {
 			//get the map between new path -> old path
@@ -80,7 +81,7 @@ public class RefactoringAnalyzer {
 
 					/**
 					 * Now, we get the name of the class that was refactored. However, we skip refactorings in anonymous classes.
-					 * For us, it's pretty hard to get the code metrics for those (as CK 0.5.2 doesn't return
+					 * For us, it's pretty hard to get the code metrics for those (as CK 0.6.0 doesn't return
 					 * good names for anonymous classes).
 					 * (If the heuristic fail, it's not a problem, as later we won't be able to find code metrics for it; so we will never
 					 * store "bad data")
@@ -89,6 +90,10 @@ public class RefactoringAnalyzer {
 					if(isAnonymousClass(refactoredClassNameFromRMiner)) {
 						log.info("Refactoring in an anonymous class, which we skip: " + refactoredClassNameFromRMiner + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
 						continue;
+					}
+					if(!persistedCommitMetaData){
+						persistedCommitMetaData = true;
+						db.persist(superCommitMetaData);
 					}
 					ImmutablePair<String, String> refactoredClassName = new ImmutablePair<>(refactoredClassNameFromRMiner, classAliases.get(refactoredClassNameFromRMiner));
 
