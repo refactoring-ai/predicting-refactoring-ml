@@ -58,6 +58,7 @@
     <Loggers>
         <Logger name="refactoringml" level="debug" additivity="false">
             <AppenderRef ref="RollingFile_INFO"/>
+            <AppenderRef ref="RollingFile_DEBUG"/>
             <AppenderRef ref="RollingFile_ERROR"/>
             <AppenderRef ref="Console_INFO"/>
         </Logger>
