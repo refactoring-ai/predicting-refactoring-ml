@@ -75,7 +75,7 @@ public class RefactoringAnalyzer {
 					 * Thus, we skip this refactoring.
 					 */
 					if(fileDoesNotExist(refactoredClassFile)) {
-						log.info("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
+						log.debug("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
 						continue;
 					}
 
@@ -88,7 +88,7 @@ public class RefactoringAnalyzer {
 					 */
 					String refactoredClassNameFromRMiner = pair.getRight();
 					if(isAnonymousClass(refactoredClassNameFromRMiner)) {
-						log.info("Refactoring in an anonymous class, which we skip: " + refactoredClassNameFromRMiner + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
+						log.debug("Refactoring in an anonymous class, which we skip: " + refactoredClassNameFromRMiner + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
 						continue;
 					}
 					if(!persistedCommitMetaData){
