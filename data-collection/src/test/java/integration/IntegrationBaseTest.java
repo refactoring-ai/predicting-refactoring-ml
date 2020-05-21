@@ -45,6 +45,8 @@ public abstract class IntegrationBaseTest {
 		return null;
 	}
 
+	protected String getFirstCommit() { return null; }
+
 	protected abstract String getRepo();
 
 	protected String getStableCommitThreshold() {return "50";};
@@ -74,6 +76,7 @@ public abstract class IntegrationBaseTest {
 				repoLocalDir,
 				outputDir,
 				db,
+				getFirstCommit(),
 				getLastCommit(),
 				storeSourceCode());
 

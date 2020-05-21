@@ -66,6 +66,8 @@ public class App {
 	private Project project;
 	//JGit repository object for the current run
 	private Repository repository;
+	// which commit to start processing? (mostly for testing purposes)
+	private String firstCommitToProcess;
 
 	public App (String datasetName,
 	            String gitUrl,
@@ -74,15 +76,27 @@ public class App {
 	            boolean storeFullSourceCode) {
 		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
 	}
+
+	public App (String datasetName,
+				String gitUrl,
+				String filesStoragePath,
+				Database db,
+				String lastCommitToProcess,
+				boolean storeFullSourceCode) {
+		this(datasetName, gitUrl, filesStoragePath, db, null, lastCommitToProcess, storeFullSourceCode);
+
+	}
 	public App (String datasetName,
 	            String gitUrl,
 	            String filesStoragePath,
 	            Database db,
+	            String firstCommitToProcess,
 	            String lastCommitToProcess,
 	            boolean storeFullSourceCode) {
 
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
+		this.firstCommitToProcess = firstCommitToProcess;
 		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
 		this.db = db;
 		this.lastCommitToProcess = lastCommitToProcess;
@@ -124,11 +138,24 @@ public class App {
 			RevWalk walk = JGitUtils.getReverseWalk(repository, mainBranch);
 			RevCommit currentCommit = walk.next();
 			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
+
+			boolean firstCommitFound = firstCommitToProcess == null;
+
 			// we only analyze commits that have one parent or the first commit with 0 parents
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+				String commitHash = currentCommit.getId().getName();
+
+				// only really start the analysis once the firstCommitHash was found
+				if(!firstCommitFound) {
+					if(commitHash.equals(firstCommitToProcess))
+						firstCommitFound = true;
+					else
+						continue;
+				}
+
 				// did we find the last commit to process?
 				// if so, process it and then stop
-				if (currentCommit.toString().equals(lastCommitToProcess))
+				if (commitHash.equals(lastCommitToProcess))
 					endFound = true;
 
 				// i.e., ignore merge commits

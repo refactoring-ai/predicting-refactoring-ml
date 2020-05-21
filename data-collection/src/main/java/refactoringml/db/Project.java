@@ -132,18 +132,6 @@ public class Project {
 				", datasetName='" + datasetName + '\'' +
 				", gitUrl='" + gitUrl + '\'' +
 				", projectName='" + projectName + '\'' +
-				", dateOfProcessing=" + dateOfProcessing + '\'' +
-				", finishedDate=" + finishedDate + '\'' +
-				", commits=" + commits + '\'' +
-				", commitCountThresholds=" + commitCountThresholds.toString() + '\'' +
-				", javaLoc=" + javaLoc + '\'' +
-				", numberOfProductionFiles=" + numberOfProductionFiles + '\'' +
-				", numberOfTestFiles=" + numberOfTestFiles + '\'' +
-				", productionLoc=" + productionLoc + '\'' +
-				", testLoc=" + testLoc + '\'' +
-				", exceptionsCount=" + exceptionsCount + '\'' +
-				", lastCommitHash=" + lastCommitHash + '\'' +
-				", isInconsistent=" + isInconsistent() + '\'' +
 				'}';
 	}
 }

@@ -18,8 +18,7 @@ import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.getMapWithOldAndNewFiles;
 import static refactoringml.util.JGitUtils.readFileFromGit;
-import static refactoringml.util.LogUtils.createErrorState;
-import static refactoringml.util.LogUtils.createRefactoringErrorState;
+import static refactoringml.util.LogUtils.*;
 import static refactoringml.util.RefactoringUtils.*;
 
 public class RefactoringAnalyzer {
@@ -75,7 +74,7 @@ public class RefactoringAnalyzer {
 					 * Thus, we skip this refactoring.
 					 */
 					if(fileDoesNotExist(refactoredClassFile)) {
-						log.error("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
+						log.error("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + shortSummary(refactoringSummary));
 						continue;
 					}
 
@@ -88,7 +87,7 @@ public class RefactoringAnalyzer {
 					 */
 					String refactoredClassNameFromRMiner = pair.getRight();
 					if(isAnonymousClass(refactoredClassNameFromRMiner)) {
-						log.error("Refactoring in an anonymous class, which we skip: " + refactoredClassNameFromRMiner + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
+						log.error("Refactoring in an anonymous class, which we skip: " + refactoredClassNameFromRMiner + ", commit = " + superCommitMetaData + ", refactoring = " + shortSummary(refactoringSummary));
 						continue;
 					}
 					if(!persistedCommitMetaData){
