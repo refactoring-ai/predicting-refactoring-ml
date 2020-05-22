@@ -15,11 +15,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	protected String getStableCommitThreshold() {return "10";};
 
 	@Override
-	protected String getLastCommit() {
-		return "1596f3bbe57986361da4ac1a23634dd5b00d10df";
-	}
-
-	@Override
 	protected String getRepo() {
 		return "https://github.com/apache/commons-cli.git";
 	}

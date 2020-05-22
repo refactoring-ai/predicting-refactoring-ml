@@ -115,7 +115,7 @@ public class RefactoringAnalyzer {
 		}
 
 		return allRefactorings;
-    }
+	}
 
 	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, ImmutablePair<String, String> refactoredClassNames, String fileName) {
 		String parentCommitId = superCommitMetaData.getParentCommitId();

@@ -44,6 +44,8 @@ public class App {
 	private String filesStoragePath;
 	//handles the logic with the MYSQL db
 	private Database db;
+	// which commit to start processing? (mostly for testing purposes)
+	private String firstCommitToProcess;
 	//the last commit to process on the selected branch
 	private String lastCommitToProcess;
 	//Do you want to save the affected source code for each commit?
@@ -66,14 +68,12 @@ public class App {
 	private Project project;
 	//JGit repository object for the current run
 	private Repository repository;
-	// which commit to start processing? (mostly for testing purposes)
-	private String firstCommitToProcess;
 
 	public App (String datasetName,
-	            String gitUrl,
-	            String filesStoragePath,
-	            Database db, 
-	            boolean storeFullSourceCode) {
+				String gitUrl,
+				String filesStoragePath,
+				Database db,
+				boolean storeFullSourceCode) {
 		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
 	}
 
@@ -84,21 +84,21 @@ public class App {
 				String lastCommitToProcess,
 				boolean storeFullSourceCode) {
 		this(datasetName, gitUrl, filesStoragePath, db, null, lastCommitToProcess, storeFullSourceCode);
-
 	}
+
 	public App (String datasetName,
-	            String gitUrl,
-	            String filesStoragePath,
-	            Database db,
-	            String firstCommitToProcess,
-	            String lastCommitToProcess,
-	            boolean storeFullSourceCode) {
+				String gitUrl,
+				String filesStoragePath,
+				Database db,
+				String firstCommitToProcess,
+				String lastCommitToProcess,
+				boolean storeFullSourceCode) {
 
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
-		this.firstCommitToProcess = firstCommitToProcess;
 		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
 		this.db = db;
+		this.firstCommitToProcess = firstCommitToProcess;
 		this.lastCommitToProcess = lastCommitToProcess;
 		this.storeFullSourceCode = storeFullSourceCode;
 
@@ -140,18 +140,14 @@ public class App {
 			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
 
 			boolean firstCommitFound = firstCommitToProcess == null;
-
 			// we only analyze commits that have one parent or the first commit with 0 parents
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
 				String commitHash = currentCommit.getId().getName();
 
-				// only really start the analysis once the firstCommitHash was found
-				if(!firstCommitFound) {
-					if(commitHash.equals(firstCommitToProcess))
-						firstCommitFound = true;
-					else
-						continue;
-				}
+				//only start the analysis once the firstCommitHash was found
+				firstCommitFound = firstCommitFound || commitHash.equals(firstCommitToProcess);
+				if(!firstCommitFound)
+					continue;
 
 				// did we find the last commit to process?
 				// if so, process it and then stop

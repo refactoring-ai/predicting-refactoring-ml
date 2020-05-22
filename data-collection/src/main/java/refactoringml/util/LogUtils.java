@@ -18,6 +18,9 @@ public class LogUtils {
     }
 
     public static String shortSummary(String refactoringSummary) {
+        if(refactoringSummary == null)
+            throw new IllegalArgumentException("Refactoring summary is null");
+
         return refactoringSummary.length() <= 20 ? refactoringSummary : refactoringSummary.substring(0, 20);
     }
 }
