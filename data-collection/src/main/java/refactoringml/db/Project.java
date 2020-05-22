@@ -131,6 +131,9 @@ public class Project {
 				"id=" + id +
 				", datasetName='" + datasetName + '\'' +
 				", gitUrl='" + gitUrl + '\'' +
+				", commits=" + commits + '\'' +
+				", numberOfProductionFiles=" + numberOfProductionFiles + '\'' +
+				", numberOfTestFiles=" + numberOfTestFiles + '\'' +
 				", projectName='" + projectName + '\'' +
 				'}';
 	}
