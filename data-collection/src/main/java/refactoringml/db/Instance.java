@@ -20,6 +20,7 @@ public abstract class Instance {
     protected CommitMetaData commitMetaData;
 
     //relative filepath to the java file of the class file
+    @Column(columnDefinition="TEXT")
     protected String filePath;
     //name of the class, @Warning: might differ from the filename
     protected String className;
