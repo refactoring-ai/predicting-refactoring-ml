@@ -1,14 +1,14 @@
 import pandas as pd
 import traceback
 
-from sklearn.metrics import make_scorer
-from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, cross_validate
+from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, confusion_matrix
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, cross_validate, train_test_split
 
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances
 from ml.utils.cm import tp, tn, fn, fp
-from ml.utils.output import format_results, format_best_parameters
+from ml.utils.output import format_results, format_best_parameters, format_test_results
 from utils.date_utils import now
 from utils.log import log
 
@@ -51,13 +51,22 @@ class BinaryClassificationPipeline(MLPipeline):
                     # reset the seed
                     pd.np.random.seed(42)
 
+                    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
                     try:
                         log("Model {}".format(model.name()))
                         self._start_time()
-                        precision, recall, accuracy, tn, fp, fn, tp, model_to_save = self._run_single_model(model, x, y)
+                        prod_scores, test_scores, model_to_save = self._run_single_model(model, x, y, x_train, x_test, y_train, y_test)
 
-                        # log the results
-                        log(format_results(dataset, refactoring_name, model_name, precision, recall, accuracy, tn, fp, fn, tp, model_to_save, features))
+                        # log test scores
+                        log(format_test_results(dataset, refactoring_name, model_name + " test", test_scores["precision"],
+                                           test_scores["recall"], test_scores['accuracy'], test_scores['tn'],
+                                           test_scores['fp'], test_scores['fn'], test_scores['tp']))
+
+                        # log the prod results
+                        log(format_results(dataset, refactoring_name, model_name, prod_scores["precision"], prod_scores["recall"], prod_scores['accuracy'], prod_scores['tn'],
+                        prod_scores['fp'], prod_scores['fn'], prod_scores['tp'], model_to_save, features))
+
 
                         # we save the best estimator we had during the search
                         model.persist(dataset, refactoring_name, features, model_to_save, scaler)
@@ -72,7 +81,7 @@ class BinaryClassificationPipeline(MLPipeline):
                         log(str(traceback.format_exc()))
 
 
-    def _run_single_model(self, model_def, x, y):
+    def _run_single_model(self, model_def, x, y, x_train, x_test, y_train, y_test):
         model = model_def.model()
 
         # perform the search for the best hyper parameters
@@ -85,10 +94,36 @@ class BinaryClassificationPipeline(MLPipeline):
         elif SEARCH == 'grid':
             search = GridSearchCV(model, param_dist, cv=StratifiedKFold(n_splits=N_CV_SEARCH, shuffle=True), iid=False, n_jobs=-1)
 
-        log("Search started at %s\n" % now())
-        search.fit(x, y)
+        # Run predictions based on 80/20 split
+        test_scores = self._run_test_model(model_def, search, x_train, x_test, y_train, y_test)
+
+        # Run cross validation on whole dataset and safe production ready model
+        prod_scores, super_model = self._run_production_model(model_def, search, x, y)
+
+        # return the scores and the best estimator
+        return prod_scores, test_scores, super_model
+
+    def _run_test_model(self, model_def, search, x_train, x_test, y_train, y_test):
+        log("Test search started at %s\n" % now())
+        search.fit(x_train, y_train)
         log(format_best_parameters(search))
         best_estimator = search.best_estimator_
+
+        # Predict unseen results
+        y_pred = best_estimator.predict(x_test)
+
+        test_scores = {'accuracy': accuracy_score(y_test, y_pred), 'precision': precision_score(y_test, y_pred),
+                        'recall': recall_score(y_test, y_pred), 'tn': confusion_matrix(y_test, y_pred).ravel()[0],
+                        'fp': confusion_matrix(y_test, y_pred).ravel()[1],
+                        'fn': confusion_matrix(y_test, y_pred).ravel()[2],
+                        'tp': confusion_matrix(y_test, y_pred).ravel()[3]}
+
+        return test_scores
+
+    def _run_production_model(self, model_def, search, x, y):
+        log("Production search started at %s\n" % now())
+        search.fit(x, y)
+        log(format_best_parameters(search))
 
         # cross-validation
         log("Cross validation started at %s\n" % now())
@@ -110,8 +145,7 @@ class BinaryClassificationPipeline(MLPipeline):
         super_model = model_def.model(search.best_params_)
         super_model.fit(x, y)
 
-        # return the scores and the best estimator
-        return scores["test_precision"], scores["test_recall"], scores['test_accuracy'], scores['test_tn'], scores['test_fp'], scores['test_fn'], scores['test_tp'], super_model
+        return scores, super_model
 
 
 class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
