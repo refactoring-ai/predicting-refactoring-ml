@@ -9,12 +9,13 @@ import java.util.stream.Collectors;
 
 public class RepoCleaner {
     private static String androidReposRaw = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/android_repos.txt";
-    private static String githubReposRaw = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/project_list.csv";
+    private static String githubReposRaw = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/project_list_2.csv";
 
     private static String androidReposOut = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/android_repos_cleaned.csv";
-    private static String githubReposCleaned = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/project_list_cleaned.csv";
+    private static String githubReposCleaned = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/project_list_2_cleaned.csv";
 
-    private static String githubReposOut = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/project_list_cleaned_noDup.csv";
+    private static String githubReposOldIn = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/project_list_cleaned_noDup.csv";
+    private static String githubReposOut = "C:/Users/jange/Desktop/predicting-refactoring-ml/data-collection/project_list_2_cleaned_noDup.csv";
 
     public static void main(String[] args) throws IOException {
         writeAndRead(androidReposRaw,androidReposOut, RepoCleaner::extractRepoUrlAndroid);
@@ -28,11 +29,16 @@ public class RepoCleaner {
     private static void removeDuplicates() throws IOException {
         List<String> androidRepos = FileUtils.readLines(new File(androidReposOut));
         List<String> githubRepos = FileUtils.readLines(new File(githubReposCleaned));
+        List<String> githubReposOld = FileUtils.readLines(new File(githubReposOldIn));
 
         int githubReposCount = githubRepos.size();
         githubRepos.removeAll(androidRepos);
-
         System.out.println("Removed " + (githubReposCount -  githubRepos.size()) + " duplicate repositories from the github repository list.");
+
+        githubReposCount = githubRepos.size();
+        githubRepos.removeAll(githubReposOld);
+        System.out.println("Removed " + (githubReposCount -  githubRepos.size()) + " duplicate repositories from the github repository list.");
+
         writeCSV(githubReposOut, githubRepos);
     }
 
