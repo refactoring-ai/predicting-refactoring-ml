@@ -34,10 +34,10 @@ if [ $buildResult -eq 1 ]; then
 	echo "Start docker-compose..."
 	#optional maria db, e.g. for tests, the output is saved in the volumes/mysql folder
 	if [ $# -eq 2 ]; then	
-		docker-compose -f docker-compose.yml -f docker-compose_db.yml up --scale worker=$Worker_Count |&tee -a "${logDir}${terminalLog}"
+		docker-compose -f docker-compose.yml -f docker-compose_db.yml up --scale worker=$Worker_Count --force-recreate |&tee -a "${logDir}${terminalLog}"
 	#custom db
 	elif [ $# -eq 5 ]; then
-		docker-compose up --scale worker=$Worker_Count |&tee -a "${logDir}${terminalLog}"
+		docker-compose up --scale worker=$Worker_Count --force-recreate |&tee -a "${logDir}${terminalLog}"
 	fi	
 else 
 	echo "[FATAL] Failed to build the data-collection tool -> the data-collection will be aborted!"  |&tee -a "${logDir}${terminalLog}"
