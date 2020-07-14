@@ -1,14 +1,18 @@
-WORKDIR /data-collection
-VOLUME /data-collection
-VOLUME /storage
-
-#build
+# build
 FROM maven
+WORKDIR /data-collection
 COPY pom.xml .
-RUN mvn clean compile package
+COPY /lib/RefactoringMiner-5e9b5f1131f0908c6bb82f9ae95a4c5723551bcd.jar /data-collection/lib/RefactoringMiner-5e9b5f1131f0908c6bb82f9ae95a4c5723551bcd.jar 
+RUN mvn -Dskiptests clean compile package
 COPY . .
 
-#run
+# package without maven
 FROM openjdk:11
-ENTRYPOINT ["sh", "run-cloud.sh"]
-CMD []
+VOLUME /data-collection
+VOLUME /storage
+WORKDIR /data-collection
+
+COPY --from=0 /data-collection/target/*.jar ./
+COPY --from=0 /data-collection/lib/*.jar ./
+
+ENTRYPOINT ["sh", "run-cload.sh"]
