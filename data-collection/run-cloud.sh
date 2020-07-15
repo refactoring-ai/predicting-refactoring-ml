@@ -3,8 +3,12 @@
 QUEUE_CLASS="refactoringml.RunQueue"
 IMPORT_CLASS="refactoringml.RunImport"
 
-JAR_PATH=$(find -regextype posix-extended -regex '.*SNAPSHOT-jar-with-dependencies.jar')
+JAR_PATH=$(find -regextype posix-extended -regex '^.*SNAPSHOT-jar-with-dependencies.jar')
 REFACTORINGMINER_JAR_PATH=$(find -regextype posix-extended -regex '^.*RefactoringMiner-[0-9a-zA-Z]*.jar')
+
+echo $(find -regextype posix-extended -regex '.*.jar')
+echo $JAR_PATH
+echo $REFACTORINGMINER_JAR_PATH
 
 if [ "$TASK" = "worker" ]
 then
