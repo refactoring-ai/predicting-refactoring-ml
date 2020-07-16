@@ -3,11 +3,8 @@
 QUEUE_CLASS="refactoringml.RunQueue"
 IMPORT_CLASS="refactoringml.RunImport"
 
-JAR_PATH=$(find -regextype posix-extended -regex '^.*SNAPSHOT-jar-with-dependencies.jar')
+JAR_PATH=$(find -regextype posix-extended -regex '^.*DataCollection-With-Dependencies.jar')
 REFACTORINGMINER_JAR_PATH=$(find -regextype posix-extended -regex '^.*RefactoringMiner-[0-9a-zA-Z]*.jar')
-
-echo $JAR_PATH
-echo $REFACTORINGMINER_JAR_PATH
 
 if [ "$TASK" = "worker" ]
 then
@@ -32,5 +29,3 @@ java -Xmx800m -Xms350m -cp $REFACTORINGMINER_JAR_PATH:$JAR_PATH $IMPORT_CLASS
 
 fi
 echo "Done with task: ${TASK}!!"
-
-echo $(find -regextype posix-extended -regex '^.*SNAPSHOT-jar-with-dependencies.jar')

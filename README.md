@@ -18,16 +18,12 @@ It currently contains the following projects:
 
 
 ## The data collection tool
-
-### Compiling the tool
-
+### Running in a manual way
 Use Maven: `mvn clean compile`. Or just import it via IntelliJ; it will know what to do.
 
 If you want to export a jar file and run it somewhere else, just do `mvn clean package`. A .jar file will be created under the `target/` folder. You can use this jar to run the tool manually.
 
 To run the tests please run a local mariaDB database instance, for details see `src/main/test/java/integration/DataBaseInfor for details`.
-
-### Running in a manual way
 
 You can run the data collection by simply running the `RunSingleProject.java` class. This class contains a program that requires the following parameters, in this order:
 
@@ -59,7 +55,7 @@ The data collection tool can be executed via Docker containers. It should be as 
 ```
 git clone https://github.com/mauricioaniche/predicting-refactoring-ml.git
 cd predicting-refactoring-ml
-sudo ./run-data-collection.sh projects-final.csv 4
+sudo ./run-data-collection.sh FILE_TO_IMPORT Worker_Count
 ```
 
 Configurations can be done with the following **arguments**:
