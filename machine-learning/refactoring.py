@@ -1,4 +1,5 @@
-from configs import CLASS_LEVEL_REFACTORINGS, VARIABLE_LEVEL_REFACTORINGS, METHOD_LEVEL_REFACTORINGS, FIELD_LEVEL_REFACTORINGS
+from configs import CLASS_LEVEL_REFACTORINGS, VARIABLE_LEVEL_REFACTORINGS, METHOD_LEVEL_REFACTORINGS, \
+    FIELD_LEVEL_REFACTORINGS
 from db.QueryBuilder import get_level_refactorings, get_all_level_stable
 from db.DBConnector import execute_query
 
@@ -88,4 +89,4 @@ def build_refactorings():
     variable_level_refactorings = list(map(lambda r: VariableLevelRefactoring(r), VARIABLE_LEVEL_REFACTORINGS))
     field_level_refactorings = list(map(lambda r: FieldLevelRefactoring(r), FIELD_LEVEL_REFACTORINGS))
 
-    return class_level_refactorings + method_level_refactorings + variable_level_refactorings,field_level_refactorings
+    return class_level_refactorings + method_level_refactorings + variable_level_refactorings + field_level_refactorings

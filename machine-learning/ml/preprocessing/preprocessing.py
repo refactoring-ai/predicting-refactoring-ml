@@ -36,7 +36,6 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # get all refactoring examples we have in our dataset
     refactored_instances = refactoring.get_refactored_instances(dataset)
-
     # load non-refactoring examples
     non_refactored_instances = refactoring.get_non_refactored_instances(dataset)
 
