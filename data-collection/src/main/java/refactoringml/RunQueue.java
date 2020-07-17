@@ -34,14 +34,15 @@ public class RunQueue {
 		this.host = host;
 		this.storagePath = storagePath;
 		this.storeFullSourceCode = storeFullSourceCode;
-		db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
-		DockerLookup dockerLookup = new DockerLookup();
 
+		DockerLookup dockerLookup = new DockerLookup();
 		containerName = enforceUnixPaths(dockerLookup.lookup(null, "containerName")).replace("/", "");
 		if(containerName == null)
 			containerName = "null";
 		failedProjectsFile = new File(enforceUnixPaths(PropertiesUtils.getProperty("failedProjectsFile") + "_" + containerName));
 		failedProjectsFile.getParentFile().mkdirs();
+
+		db = new Database(new HibernateConfig().getSessionFactory(url, user, pwd));
 		log.debug(toString());
 	}
 
