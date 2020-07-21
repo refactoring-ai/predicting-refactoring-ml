@@ -36,7 +36,7 @@ def execute_query(sql_query):
     df_raw : DataFrame
         Pandas DataFrame with raw data resulting from query
     """
-    log(sql_query)
+    log("Fetch data from the db with this query: {}".format(sql_query))
 
     # Hash the query
     query_hash = hashlib.sha1(sql_query.encode()).hexdigest()
