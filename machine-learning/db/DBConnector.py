@@ -6,6 +6,7 @@ import os.path
 import configparser
 
 from configs import USE_CACHE, DB_AVAILABLE
+from utils.log import log
 
 config = configparser.ConfigParser()
 config.read(os.path.join(os.getcwd(), 'dbconfig.ini'))
@@ -35,6 +36,7 @@ def execute_query(sql_query):
     df_raw : DataFrame
         Pandas DataFrame with raw data resulting from query
     """
+    log(sql_query)
 
     # Hash the query
     query_hash = hashlib.sha1(sql_query.encode()).hexdigest()

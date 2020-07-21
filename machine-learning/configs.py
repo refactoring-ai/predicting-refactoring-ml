@@ -30,11 +30,6 @@ BALANCE_DATASET = True
 # options = [random, cluster_centroids, nearmiss]
 BALANCE_DATASET_STRATEGY = "random"
 
-# decide whether to run the test as a ordered set of events
-# if so, then, we don't do k-fold validation, but split it in train/test
-ORDERED_DATA = False
-ORDERED_DATA_TEST_SPLIT = 0.1
-
 # --------------------------------
 # Dataset scaling
 # --------------------------------
@@ -47,7 +42,7 @@ SCALE_DATASET = True
 # --------------------------------
 
 # use (or drop) process and authorship metrics
-USE_PROCESS_AND_AUTHORSHIP_METRICS = True
+DROP_PROCESS_AND_AUTHORSHIP_METRICS = True
 
 # perform feature reduction?
 FEATURE_REDUCTION = True
@@ -72,6 +67,8 @@ N_CV_SEARCH = 5
 # --------------------------------
 # Evaluation: Cross-validation configuration
 # --------------------------------
+
+TEST_SPLIT_SIZE = 0.2
 
 # number of folds for the final evaluation
 N_CV = 10

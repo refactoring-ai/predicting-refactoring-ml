@@ -4,7 +4,7 @@ import pandas as pd
 import sklearn
 from sklearn.model_selection import train_test_split
 
-from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, USE_PROCESS_AND_AUTHORSHIP_METRICS, \
+from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, DROP_PROCESS_AND_AUTHORSHIP_METRICS, \
     ORDERED_DATA_TEST_SPLIT
 from ml.preprocessing.feature_reduction import perform_feature_reduction
 from ml.preprocessing.sampling import perform_balancing
@@ -64,18 +64,17 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     assert non_refactored_instances.shape[1] == refactored_instances.shape[1], "number of columns differ from both datasets"
     merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
 
+    # just to be sure, shuffle the dataset
+    merged_dataset = merged_dataset.sample(frac=1, random_state = 42)
+
     # separate the x from the y (as required by the scikit-learn API)
     x = merged_dataset.drop("prediction", axis=1)
     y = merged_dataset["prediction"]
 
-    # class level refactoring is the only one with process and ownership metrics
-    if USE_PROCESS_AND_AUTHORSHIP_METRICS and not refactoring.refactoring_level() == 'class':
+    # do we want to try the models without process and authorship metrics?
+    if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
         x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
-
-    # number of default fields and methods is always 0
-    # so, remove it from the data
-    x = x.drop(["classNumberOfDefaultFields", "classNumberOfDefaultMethods"], axis=1)
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
@@ -145,7 +144,7 @@ def retrieve_ordered_labelled_instances(dataset, refactoring: LowLevelRefactorin
     assert non_refactored_instances.shape[1] == refactored_instances.shape[1], "number of columns differ from both datasets"
 
     # class level refactoring is the only one with process and ownership metrics
-    if USE_PROCESS_AND_AUTHORSHIP_METRICS and not refactoring.refactoring_level() == 'class':
+    if DROP_PROCESS_AND_AUTHORSHIP_METRICS and not refactoring.refactoring_level() == 'class':
         refactored_instances = refactored_instances.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
 
