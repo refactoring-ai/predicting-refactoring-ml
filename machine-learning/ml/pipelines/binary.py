@@ -4,7 +4,7 @@ import traceback
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, cross_validate, train_test_split
 
-from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV
+from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV, TEST_SPLIT_SIZE
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances
 from ml.utils.cm import tp, tn, fn, fp
@@ -45,28 +45,22 @@ class BinaryClassificationPipeline(MLPipeline):
 
                 features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
 
+                # we split in train and test
+                # (note that we use the same split for all the models)
+                x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST_SPLIT_SIZE, random_state=42)
+
                 for model in self._models_to_run:
                     model_name = model.name()
-
-                    # reset the seed
-                    pd.np.random.seed(42)
-
-                    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
                     try:
                         log("Model {}".format(model.name()))
                         self._start_time()
-                        prod_scores, test_scores, model_to_save = self._run_single_model(model, x, y, x_train, x_test, y_train, y_test)
+                        test_scores, model_to_save = self._run_single_model(model, x, y, x_train, x_test, y_train, y_test)
 
                         # log test scores
                         log(format_test_results(dataset, refactoring_name, model_name + " test", test_scores["precision"],
                                            test_scores["recall"], test_scores['accuracy'], test_scores['tn'],
                                            test_scores['fp'], test_scores['fn'], test_scores['tp']))
-
-                        # log the prod results
-                        log(format_results(dataset, refactoring_name, model_name, prod_scores["precision"], prod_scores["recall"], prod_scores['accuracy'], prod_scores['tn'],
-                        prod_scores['fp'], prod_scores['fn'], prod_scores['tp'], model_to_save, features))
-
 
                         # we save the best estimator we had during the search
                         model.persist(dataset, refactoring_name, features, model_to_save, scaler)
@@ -94,16 +88,17 @@ class BinaryClassificationPipeline(MLPipeline):
         elif SEARCH == 'grid':
             search = GridSearchCV(model, param_dist, cv=StratifiedKFold(n_splits=N_CV_SEARCH, shuffle=True), iid=False, n_jobs=-1)
 
-        # Run predictions based on 80/20 split
-        test_scores = self._run_test_model(model_def, search, x_train, x_test, y_train, y_test)
+        # Train and test the model
+        test_scores = self._evaluate_model(search, x_train, x_test, y_train, y_test)
 
         # Run cross validation on whole dataset and safe production ready model
-        prod_scores, super_model = self._run_production_model(model_def, search, x, y)
+        super_model = self._build_production_model(model_def, search.best_params_, x, y)
 
         # return the scores and the best estimator
-        return prod_scores, test_scores, super_model
+        return test_scores, super_model
 
-    def _run_test_model(self, model_def, search, x_train, x_test, y_train, y_test):
+
+    def _evaluate_model(self, search, x_train, x_test, y_train, y_test):
         log("Test search started at %s\n" % now())
         search.fit(x_train, y_train)
         log(format_best_parameters(search))
@@ -120,32 +115,13 @@ class BinaryClassificationPipeline(MLPipeline):
 
         return test_scores
 
-    def _run_production_model(self, model_def, search, x, y):
-        log("Production search started at %s\n" % now())
-        search.fit(x, y)
-        log(format_best_parameters(search))
+    def _build_production_model(self, model_def, best_params, x, y):
+        log("Production model build started at %s\n" % now())
 
-        # cross-validation
-        log("Cross validation started at %s\n" % now())
-
-        scoring = {'tp': make_scorer(tp), 'tn': make_scorer(tn),
-                   'fp': make_scorer(fp), 'fn': make_scorer(fn),
-                   'accuracy': 'accuracy',
-                   'precision': 'precision',
-                   'recall': 'recall'}
-
-        scores = cross_validate(model_def.model(search.best_params_),
-                                x, y,
-                                cv=StratifiedKFold(n_splits=N_CV,shuffle=True),
-                                n_jobs=-1,
-                                scoring=scoring)
-
-        # now, train a final model with all the data, so that we can use it
-        # for the comparison among the datasets
-        super_model = model_def.model(search.best_params_)
+        super_model = model_def.model(best_params)
         super_model.fit(x, y)
 
-        return scores, super_model
+        return super_model
 
 
 class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):

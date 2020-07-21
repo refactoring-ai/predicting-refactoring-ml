@@ -47,7 +47,7 @@ SCALE_DATASET = True
 # --------------------------------
 
 # use (or drop) process and authorship metrics
-USE_PROCESS_AND_AUTHORSHIP_METRICS = True
+DROP_PROCESS_AND_AUTHORSHIP_METRICS = True
 
 # perform feature reduction?
 FEATURE_REDUCTION = True
@@ -72,6 +72,8 @@ N_CV_SEARCH = 5
 # --------------------------------
 # Evaluation: Cross-validation configuration
 # --------------------------------
+
+TEST_SPLIT_SIZE = 0.2
 
 # number of folds for the final evaluation
 N_CV = 10
