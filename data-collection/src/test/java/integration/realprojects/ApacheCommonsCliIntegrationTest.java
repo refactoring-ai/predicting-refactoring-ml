@@ -19,6 +19,11 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 		return "https://github.com/apache/commons-cli.git";
 	}
 
+	@Override
+	protected String getLastCommit() {
+		return "c12260c05ebcd27558265395df79b8b049534fbd";
+	}
+
 	//Test the isInnerClass boolean for both RefactoringCommit and StableCommit .
 	@Test
 	public void isInnerClassRefactoring(){
@@ -255,6 +260,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 	@Test
 	public void projectMetrics() {
-		assertProjectMetrics(52, 23, 29, 7070, 2790, 4280);
+		assertProjectMetrics(52, 23, 29, 7070, 2790, 4285);
 	}
 }
