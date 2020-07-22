@@ -82,20 +82,16 @@ fieldMetricsFields = ["fieldAppearances",
                       "fieldName"]
 processMetricsFields = ["authorOwnership",
                         "bugFixCount",
-                        "linesAdded",
-                        "linesDeleted",
                         "qtyMajorAuthors",
                         "qtyMinorAuthors",
                         "qtyOfAuthors",
                         "qtyOfCommits",
                         "refactoringsInvolved"]
-commitMetaDataFields = [
-                        "commitDate",
+commitMetaDataFields = ["commitDate",
                         "commitId",
                         "commitMessage",
                         "commitUrl",
-                        "parentCommitId"
-                                        ]
+                        "parentCommitId"]
 projectFields = ["commitCountThresholds",
                  "commits",
                  "datasetName",
@@ -112,13 +108,13 @@ projectFields = ["commitCountThresholds",
                  "projectName",
                  "projectSizeInBytes",
                  "testLoc"]
-refactoringCommitFields = [
-                           "className",
+refactoringCommitFields = ["className",
                            "filePath",
                            "isTest",
                            "level",
-                           "refactoring",
-                           "refactoringSummary"]
+                           #"refactoring", this two fields are not used for the training
+                           #"refactoringSummary"
+                           ]
 stableCommitFields = ["className",
                       "filePath",
                       "isTest",
@@ -143,8 +139,6 @@ tableMap = {commitMetaData: (commitMetaData + "_id", commitMetaDataFields),
             project: (project + "_id", projectFields),
             refactoringCommits: ("id", refactoringCommitFields),
             stableCommits: ("id", stableCommitFields)}
-
-
 # endregion
 
 
@@ -206,8 +200,6 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
         sql += project_filter(instance_name, dataset)
 
     return sql + " " + order
-
-
 # endregion
 
 
