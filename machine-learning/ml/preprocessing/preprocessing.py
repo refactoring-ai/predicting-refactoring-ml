@@ -10,7 +10,7 @@ from refactoring import LowLevelRefactoring
 from utils.log import log
 
 
-def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
+def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_training_data: bool):
     """
     This method retrieves all the labelled instances for a given refactoring and dataset.
     It performs the following pipeline:
@@ -24,6 +24,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     :param dataset: a string containing the name of the dataset to be retrieved
     :param refactoring: the refactoring object, containing the refactoring to be retrieved
+    :param is_training_data: is the specified data set a training data set?
     :return:
         features: an array with the features of the instances
         x: a dataframe with the feature values
@@ -58,7 +59,8 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
         non_refactored_instances = non_refactored_instances.sample(frac=0.1)
 
     # now, combine both datasets (with both TRUE and FALSE predictions)
-    assert non_refactored_instances.shape[1] == refactored_instances.shape[1], "number of columns differ from both datasets"
+    if non_refactored_instances.shape[1] != refactored_instances.shape[1]:
+        raise ImportError("Number of columns differ from both datasets.")
     merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
 
     # just to be sure, shuffle the dataset
@@ -83,11 +85,11 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # apply some scaling to speed up the algorithm
     scaler = None
-    if SCALE_DATASET:
+    if is_training_data and SCALE_DATASET:
         x, scaler = perform_scaling(x)
 
     # let's reduce the number of features in the set
-    if FEATURE_REDUCTION:
+    if is_training_data and FEATURE_REDUCTION:
         x = perform_feature_reduction(x, y)
 
     return x.columns.values, x, y, scaler

@@ -68,7 +68,11 @@ N_CV_SEARCH = 5
 # Evaluation: Cross-validation configuration
 # --------------------------------
 
+# Specify either a train/ test split, e.g. 0.2 -> 80/ 20 split
 TEST_SPLIT_SIZE = 0.2
+# Or specify test data sets in the database
+# NOTE: set TEST_SPLIT_SIZE value to < 0, in order to indicate to use the given datasets instead of a random train/ test split
+TEST_DATASETS = ["test set github", "validation set github"]
 
 # number of folds for the final evaluation
 N_CV = 10
@@ -87,7 +91,7 @@ DEEP_MODELS = ['neural-network']
 
 # Empty dataset means 'all datasets'
 # options = ['', 'apache', 'github', 'fdroid']
-DATASETS = ['', 'apache', 'github', 'fdroid']
+DATASETS = ["github"]
 
 # --------------------------------
 # Refactorings
