@@ -208,11 +208,15 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
 def get_refactoring_levels(dataset="") -> str:
     return "SELECT refactoring, count(*) total from refactoringcommit where " + project_filter("refactoringcommit",
                                                                                                dataset) \
-           + " group by refactoring order by count(*) desc"
+            + valid_refactorings_filter(refactoringCommits) \
+            + " group by refactoring order by count(*) desc"
 
 
 def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str = "") -> str:
-    refactoring_condition: str = instance_name + ".level = " + str(level)
+    # only select valid refactorings from the database, if refactorings are selected
+    refactoring_condition: str = instance_name + ".level = " + str(level) + valid_refactorings_filter(instance_name)
+
+    # only select the specified refactoring type from the database
     if m_refactoring != "":
         refactoring_condition += " AND " + refactoringCommits + ".refactoring = \"" + m_refactoring + "\""\
                                  + file_type_filter()
@@ -229,12 +233,20 @@ def file_type_filter() -> str:
         return ""
 
 
+# only select valid refactorings from the database
+def valid_refactorings_filter(instance_name: str) -> str:
+    if instance_name == refactoringCommits:
+        return " AND " + instance_name + ".isValid = TRUE"
+    else:
+        return ""
+
+
 # get the count of all refactorings for the given level
 def get_level_refactorings_count(level: int, dataset: str = "") -> str:
     return "SELECT refactoring, count(*) FROM (" + \
            get_instance_fields(refactoringCommits, [(refactoringCommits, ["refactoring"])],
                                refactoringCommits + ".level = " + str(level), dataset) + \
-           ") t group by refactoring order by count(*) desc"
+           valid_refactorings_filter(refactoringCommits) + ") t group by refactoring order by count(*) desc"
 
 
 # get all refactoring instances with the given refactoring type and metrics in regard to the level
