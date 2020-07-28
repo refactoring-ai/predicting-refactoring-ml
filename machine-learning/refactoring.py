@@ -1,5 +1,3 @@
-import itertools
-
 from configs import Level, levelMap
 from db.QueryBuilder import get_level_refactorings, get_all_level_stable
 from db.DBConnector import execute_query
