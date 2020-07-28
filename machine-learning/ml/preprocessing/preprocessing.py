@@ -31,23 +31,28 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         y: the label (1=true, a refactoring has happened, 0=false, no refactoring has happened)
         scaler: the scaler object used in the scaling process.
     """
-
     # get all refactoring examples we have in our dataset
     refactored_instances = refactoring.get_refactored_instances(dataset)
     # load non-refactoring examples
     non_refactored_instances = refactoring.get_non_refactored_instances(dataset)
 
     log("raw number of refactoring instances: {}".format(refactored_instances.shape[0]))
-    log("raw number of not refactoring instances: {}".format(non_refactored_instances.shape[0]))
+    log("raw number of non-refactoring instances: {}".format(non_refactored_instances.shape[0]))
 
     # if there' still a row with NAs, drop it as it'll cause a failure later on.
     refactored_instances = refactored_instances.dropna()
     non_refactored_instances = non_refactored_instances.dropna()
 
-    log("refactoring instance (after dropping NA)s: {}".format(refactored_instances.shape[0]))
-    log("not refactoring instances (after dropping NA)s: {}".format(non_refactored_instances.shape[0]))
+    # test if any refactorings were found for the given refactoring type
+    if refactored_instances.shape[0] == 0:
+        print("No refactorings found for refactoring type: " + refactoring.name())
+        log("No refactorings found for refactoring type: " + refactoring.name())
+        return None, None, None, None
 
-    assert refactored_instances.shape[0] > 0, "No refactorings found"
+    log("refactoring instances (after dropping NA)s: {}".format(refactored_instances.shape[0]))
+    log("non-refactoring instances (after dropping NA)s: {}".format(non_refactored_instances.shape[0]))
+
+    assert non_refactored_instances.shape[0] > 0, "Found no non-refactoring instances for level: " + refactoring.refactoring_level()
 
     # set the prediction variable as true and false in the datasets
     refactored_instances["prediction"] = 1
@@ -72,7 +77,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
 
     # do we want to try the models without process and authorship metrics?
     if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
-        x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
+        x = x.drop(["authorOwnership", "bugFixCount", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples

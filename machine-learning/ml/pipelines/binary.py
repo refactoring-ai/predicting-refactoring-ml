@@ -1,14 +1,11 @@
 import pandas as pd
 import traceback
-
-from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, confusion_matrix
-from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, cross_validate, train_test_split
-
-from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV, TEST_SPLIT_SIZE, TEST_DATASETS
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, train_test_split
+from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, TEST_SPLIT_SIZE, TEST_DATASETS
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances
-from ml.utils.cm import tp, tn, fn, fp
-from ml.utils.output import format_results, format_best_parameters, format_test_results
+from ml.utils.output import format_best_parameters, format_test_results
 from utils.date_utils import now
 from utils.log import log
 
@@ -67,13 +64,18 @@ class BinaryClassificationPipeline(MLPipeline):
             # test set github, validation set github
             for refactoring in self._refactorings:
                 refactoring_name = refactoring.name()
-                log("**** Refactoring %s" % refactoring_name)
+                log("**** Refactoring Type: %s" % refactoring_name)
 
                 # we have two options to select a test set,
                 # 1.) Predefined in the database
                 # 2.) random percentage train/ test split
                 if TEST_SPLIT_SIZE < 0 and len(TEST_DATASETS) > 0:
                     train_features, x_train, y_train, scaler = retrieve_labelled_instances(dataset, refactoring, True)
+                    # test if any refactorings were found for the given refactoring type
+                    if x_train is None:
+                        print("Skip model building for refactoring type: " + refactoring.name())
+                        log("Skip model building for refactoring type: " + refactoring.name())
+                        continue
                     for test_dataset in TEST_DATASETS:
                         test_features, x_test, y_test, _ = retrieve_labelled_instances(test_dataset, refactoring, False)
                         x = pd.concat([x_train, x_test]).sample(frac=1, random_state = 42)
@@ -81,6 +83,11 @@ class BinaryClassificationPipeline(MLPipeline):
                         self._run_all_models(refactoring, refactoring_name, dataset, train_features, scaler, x, y, x_train, x_test, y_train, y_test)
                 else:
                     features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring, True)
+                    # test if any refactorings were found for the given refactoring type
+                    if x is None:
+                        print("Skip model building for refactoring type: " + refactoring.name())
+                        log("Skip model building for refactoring type: " + refactoring.name())
+                        continue
                     # we split in train and test
                     # (note that we use the same split for all the models)
                     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST_SPLIT_SIZE, random_state=42)
@@ -95,7 +102,6 @@ class BinaryClassificationPipeline(MLPipeline):
         """
         for model in self._models_to_run:
             model_name = model.name()
-
             try:
                 log("Model {}".format(model.name()))
                 self._start_time()
@@ -147,4 +153,3 @@ class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
 
     def _run_single_model(self, model_def, x, y):
         return model_def.run(x, y)
-
