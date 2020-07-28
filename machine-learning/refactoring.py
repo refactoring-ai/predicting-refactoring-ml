@@ -3,12 +3,14 @@ from configs import CLASS_LEVEL_REFACTORINGS, VARIABLE_LEVEL_REFACTORINGS, METHO
 from db.QueryBuilder import get_level_refactorings, get_all_level_stable
 from db.DBConnector import execute_query
 
-
 class LowLevelRefactoring():
     _name = ""
 
     def __init__(self, name):
         self._name = name
+
+    def get_metadata_instances(self, dataset):
+        pass
 
     def get_refactored_instances(self, dataset):
         pass

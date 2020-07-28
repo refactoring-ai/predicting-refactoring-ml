@@ -32,9 +32,14 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     """
 
     # get all refactoring examples we have in our dataset
-    refactored_instances = refactoring.get_refactored_instances(dataset)
+    refactorings = refactoring.get_refactored_instances(dataset)
+    refactored_instances = refactorings.drop("className", "commitId", "gitUrl", "variableName", "fullMethodName", axis=1)
+    refactored_metadata = refactorings[["className", "fullMethodName", "variableName", "commitId", "gitUrl"]]
+
     # load non-refactoring examples
-    non_refactored_instances = refactoring.get_non_refactored_instances(dataset)
+    non_refactorings = refactoring.get_non_refactored_instances(dataset)
+    non_refactored_instances = non_refactorings.drop("className", "commitId", "gitUrl", "variableName", "fullMethodName", axis=1)
+    non_refactored_metadata = non_refactorings[["className", "fullMethodName", "variableName", "commitId", "gitUrl"]]
 
     log("raw number of refactoring instances: {}".format(refactored_instances.shape[0]))
     log("raw number of not refactoring instances: {}".format(non_refactored_instances.shape[0]))
@@ -60,9 +65,12 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     # now, combine both datasets (with both TRUE and FALSE predictions)
     assert non_refactored_instances.shape[1] == refactored_instances.shape[1], "number of columns differ from both datasets"
     merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
+    merged_metadata = pd.concat([refactored_metadata, non_refactored_metadata])
+    assert merged_dataset.shape[0] == merged_metadata.shape[0], "Metadata is not in line anymore with the training data"
 
     # just to be sure, shuffle the dataset
     merged_dataset = merged_dataset.sample(frac=1, random_state = 42)
+    merged_metadata = merged_metadata.sample(frac=1, random_state = 42)
 
     # separate the x from the y (as required by the scikit-learn API)
     x = merged_dataset.drop("prediction", axis=1)
@@ -70,15 +78,18 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # do we want to try the models without process and authorship metrics?
     if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
-        x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
-                    "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
+        x = x.drop(["authorOwnership", "bugFixCount", "qtyMajorAuthors", "qtyMinorAuthors",
+                    "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
+
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
     if BALANCE_DATASET:
         log("instances before balancing: {}".format(Counter(y)))
-        x, y = perform_balancing(x, y)
+        x, y, indices = perform_balancing(x, y)
+        merged_metadata = merged_metadata.iloc[indices]
         assert x.shape[0] == y.shape[0], "Balancing did not work, x and y have different shapes."
+        assert x.shape[0] == merged_metadata.shape[0], "Metadata is not in line anymore with the training data"
         log("instances after balancing: {}".format(Counter(y)))
 
     # apply some scaling to speed up the algorithm
@@ -90,6 +101,6 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     if FEATURE_REDUCTION:
         x = perform_feature_reduction(x, y)
 
-    return x.columns.values, x, y, scaler
+    return x.columns.values, x, y, scaler, merged_metadata
 
 

@@ -31,5 +31,7 @@ def perform_balancing(x, y, strategy=None):
 
     # keeping column names
     new_x, new_y = rus.fit_resample(x, y)
-    new_x = pd.DataFrame(new_x, columns=x.columns)
-    return new_x, new_y
+    indices = rus.sample_indices_
+
+    new_x = x.iloc[indices] # keeping the same indices and column names
+    return new_x, new_y, indices

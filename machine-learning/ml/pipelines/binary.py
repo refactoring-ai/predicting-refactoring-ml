@@ -1,5 +1,6 @@
 import pandas as pd
 import traceback
+from ml.utils.classifier_result import save_results
 
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, cross_validate, train_test_split
@@ -43,7 +44,7 @@ class BinaryClassificationPipeline(MLPipeline):
                 refactoring_name = refactoring.name()
                 log("**** Refactoring %s" % refactoring_name)
 
-                features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
+                features, x, y, scaler, metadata = retrieve_labelled_instances(dataset, refactoring)
 
                 # we split in train and test
                 # (note that we use the same split for all the models)
@@ -65,6 +66,8 @@ class BinaryClassificationPipeline(MLPipeline):
                         # we save the best estimator we had during the search
                         model.persist(dataset, refactoring_name, features, model_to_save, scaler)
 
+                        self._log_classifier_results(model_name, refactoring_name, x, model, metadata)
+
                         self._finish_time(dataset, model, refactoring)
                     except Exception as e:
                         print(e)
@@ -73,6 +76,11 @@ class BinaryClassificationPipeline(MLPipeline):
                         log("An error occurred while working on refactoring " + refactoring_name + " model " + model.name())
                         log(str(e))
                         log(str(traceback.format_exc()))
+
+
+    def _log_classifier_results(self, model_name, refactoring_name, x, model, metadata):
+        predictions = model.predict(x)
+        save_results(predictions, model_name, refactoring_name, metadata)
 
 
     def _run_single_model(self, model_def, x, y, x_train, x_test, y_train, y_test):

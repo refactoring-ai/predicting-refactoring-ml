@@ -217,8 +217,11 @@ def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str
         refactoring_condition += " AND " + refactoringCommits + ".refactoring = \"" + m_refactoring + "\""\
                                  + file_type_filter()
 
-    return get_instance_fields(instance_name, [(instance_name, []), (commitMetaData, [])] + get_metrics_level(level),
-                               refactoring_condition, dataset, " order by " + commitMetaData + ".commitDate")
+    return get_instance_fields(instance_name, [(instance_name, ['className']), (commitMetaData, ["commitId"]),
+                                               (project, ["gitUrl"]), (variableMetrics, ["variableName"]),
+                                               (methodMetrics, ["fullMethodName"])]
+                               + get_metrics_level(level), refactoring_condition, dataset, " order by " +
+                               commitMetaData + ".commitDate")
 
 
 # Add restriction whether to use only production, test or both files
