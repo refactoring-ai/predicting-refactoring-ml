@@ -1,18 +1,7 @@
-from enum import IntEnum
-
 from configs import DATASETS
 from db.QueryBuilder import get_all_level_stable, get_level_refactorings_count, get_level_refactorings, get_refactoring_types
 from db.DBConnector import execute_query
 from utils.log import log_init, log_close
-
-
-class Level(IntEnum):
-    Class = 1
-    Method = 2
-    Variable = 3
-    Field = 4
-    Other = 5
-
 
 datasets = DATASETS
 
