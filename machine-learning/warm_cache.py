@@ -1,9 +1,12 @@
-from enum import Enum
+from enum import IntEnum
+
+from configs import DATASETS
 from db.QueryBuilder import get_all_level_stable, get_level_refactorings_count, get_level_refactorings, get_refactoring_types
 from db.DBConnector import execute_query
+from utils.log import log_init, log_close
 
 
-class Level(Enum):
+class Level(IntEnum):
     Class = 1
     Method = 2
     Variable = 3
@@ -11,11 +14,10 @@ class Level(Enum):
     Other = 5
 
 
-datasets = ['', 'apache', 'github', 'fdroid']
+datasets = DATASETS
 
-
-print('begin cache warmup')
-
+log_init()
+print('begin cache warm-up')
 
 for dataset in datasets:
     print("dataset: " + dataset)
@@ -34,10 +36,10 @@ for dataset in datasets:
 
     for level in Level:
         print("-- " + str(level) + " level refactoring count")
-        refactorings =  execute_query(get_level_refactorings_count(int(level), dataset))
+        refactorings = execute_query(get_level_refactorings_count(int(level), dataset))
         for refactoring_name in refactorings["refactoring"].values:
             print("---- " + refactoring_name)
             execute_query(get_level_refactorings(int(level), refactoring_name, dataset))
 
-
-print('end cache warmup')
+print('end cache warm-up')
+log_close()
