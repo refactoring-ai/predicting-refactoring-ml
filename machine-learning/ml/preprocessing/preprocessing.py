@@ -11,26 +11,6 @@ from utils.log import log
 
 
 def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_training_data: bool):
-    """
-    This method retrieves all the labelled instances for a given refactoring and dataset.
-    It performs the following pipeline:
-      1. Get all refactored and non refactored instances from the db.
-      2. Merge them into a single dataset, having 1=true and 0=false, as labels.
-      3. Removes possible NAs (the data collection process is tough; bad data might had make it through)
-      4. Shuffles the dataset (good practice)
-      5. Balances the dataset (if configured)
-      6. Scales the features values (if configured)
-      7. Performs feature reduction (if configured)
-
-    :param dataset: a string containing the name of the dataset to be retrieved
-    :param refactoring: the refactoring object, containing the refactoring to be retrieved
-    :param is_training_data: is the specified data set a training data set?
-    :return:
-        features: an array with the features of the instances
-        x: a dataframe with the feature values
-        y: the label (1=true, a refactoring has happened, 0=false, no refactoring has happened)
-        scaler: the scaler object used in the scaling process.
-    """
     # get all refactoring examples we have in our dataset
     refactored_instances = refactoring.get_refactored_instances(dataset)
     # load non-refactoring examples
@@ -47,6 +27,12 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     if refactored_instances.shape[0] == 0:
         print("No refactorings found for refactoring type: " + refactoring.name())
         log("No refactorings found for refactoring type: " + refactoring.name())
+        return None, None, None, None
+
+    # test if any refactorings were found for the given refactoring type
+    if non_refactored_instances.shape[0] == 0:
+        print("No non-refactorings found for refactoring type: " + refactoring.name())
+        log("No non-refactorings found for refactoring type: " + refactoring.name())
         return None, None, None, None
 
     log("refactoring instances (after dropping NA)s: {}".format(refactored_instances.shape[0]))
@@ -71,14 +57,14 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     # just to be sure, shuffle the dataset
     merged_dataset = merged_dataset.sample(frac=1, random_state = 42)
 
+    # do we want to try the models without process and authorship metrics?
+    if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
+        merged_dataset = merged_dataset.drop(["authorOwnership", "bugFixCount", "qtyMajorAuthors",
+                    "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
+
     # separate the x from the y (as required by the scikit-learn API)
     x = merged_dataset.drop("prediction", axis=1)
     y = merged_dataset["prediction"]
-
-    # do we want to try the models without process and authorship metrics?
-    if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
-        x = x.drop(["authorOwnership", "bugFixCount", "qtyMajorAuthors",
-                    "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
@@ -98,5 +84,4 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         x = perform_feature_reduction(x, y)
 
     return x.columns.values, x, y, scaler
-
 

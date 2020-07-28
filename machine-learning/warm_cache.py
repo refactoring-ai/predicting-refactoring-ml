@@ -1,4 +1,4 @@
-from configs import DATASETS, Level
+from configs import DATASETS, Level, VALIDATION_DATASETS
 from db.QueryBuilder import get_all_level_stable, get_level_refactorings_count, get_level_refactorings
 from db.DBConnector import execute_query
 from utils.log import log_init, log_close
@@ -8,7 +8,7 @@ log_init()
 print('Begin cache warm-up')
 start_time = time.time()
 
-for dataset in DATASETS:
+for dataset in (DATASETS):
     print("dataset: " + dataset)
     for level in Level:
         print("-- non refactored instances for " + str(level))

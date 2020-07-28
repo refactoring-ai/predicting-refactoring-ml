@@ -5,7 +5,7 @@
 # test runs reduce the dataset to 100 instances only
 from enum import IntEnum
 
-TEST = False
+TEST = True
 
 # --------------------------------
 # FileTypes
@@ -74,7 +74,7 @@ N_CV_SEARCH = 5
 TEST_SPLIT_SIZE = 0.2
 # Or specify test data sets in the database
 # NOTE: set TEST_SPLIT_SIZE value to < 0, in order to indicate to use the given datasets instead of a random train/ test split
-TEST_DATASETS = ["test set github", "validation set github"]
+VALIDATION_DATASETS = ["test set github", "validation set github"]
 
 # number of folds for the final evaluation
 N_CV = 10
@@ -92,13 +92,14 @@ MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest', 'logistic-r
 DEEP_MODELS = ['neural-network']
 
 # Empty dataset means 'all datasets'
-DATASETS = ["github"]
+DATASETS = [""]
+
 
 # --------------------------------
 # Refactorings
 # --------------------------------
 
-#refactoring levels
+# refactoring levels
 class Level(IntEnum):
     NONE = 0
     Class = 1
@@ -106,6 +107,7 @@ class Level(IntEnum):
     Variable = 3
     Field = 4
     Other = 5
+
 
 # Refactorings to study
 CLASS_LEVEL_REFACTORINGS = ["Extract Class",
@@ -155,7 +157,6 @@ FIELD_LEVEL_REFACTORINGS = ["Move Attribute",
 
 OTHER_LEVEL_REFACTORINGS = ["Move Source Folder",
                             "Change Package"]
-
 
 levelMap = {Level.NONE: [],
             Level.Class: CLASS_LEVEL_REFACTORINGS,
