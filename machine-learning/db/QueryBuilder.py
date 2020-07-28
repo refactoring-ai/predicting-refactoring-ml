@@ -218,8 +218,7 @@ def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str
                                  + file_type_filter()
 
     return get_instance_fields(instance_name, [(instance_name, ['className']), (commitMetaData, ["commitId"]),
-                                               (project, ["gitUrl"]), (variableMetrics, ["variableName"]),
-                                               (methodMetrics, ["fullMethodName"])]
+                                               (project, ["gitUrl"])]
                                + get_metrics_level(level), refactoring_condition, dataset, " order by " +
                                commitMetaData + ".commitDate")
 

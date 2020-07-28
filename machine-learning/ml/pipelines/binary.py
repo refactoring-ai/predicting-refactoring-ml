@@ -66,7 +66,7 @@ class BinaryClassificationPipeline(MLPipeline):
                         # we save the best estimator we had during the search
                         model.persist(dataset, refactoring_name, features, model_to_save, scaler)
 
-                        self._log_classifier_results(model_name, refactoring_name, x, model, metadata)
+                        self._log_classifier_results(model_name, refactoring_name, x, model_to_save, metadata)
 
                         self._finish_time(dataset, model, refactoring)
                     except Exception as e:

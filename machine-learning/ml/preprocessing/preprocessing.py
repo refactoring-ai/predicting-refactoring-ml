@@ -33,13 +33,13 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # get all refactoring examples we have in our dataset
     refactorings = refactoring.get_refactored_instances(dataset)
-    refactored_instances = refactorings.drop("className", "commitId", "gitUrl", "variableName", "fullMethodName", axis=1)
-    refactored_metadata = refactorings[["className", "fullMethodName", "variableName", "commitId", "gitUrl"]]
+    refactored_instances = refactorings.drop(["className", "commitId", "gitUrl"], axis=1)
+    refactored_metadata = refactorings[["className", "commitId", "gitUrl"]]
 
     # load non-refactoring examples
     non_refactorings = refactoring.get_non_refactored_instances(dataset)
-    non_refactored_instances = non_refactorings.drop("className", "commitId", "gitUrl", "variableName", "fullMethodName", axis=1)
-    non_refactored_metadata = non_refactorings[["className", "fullMethodName", "variableName", "commitId", "gitUrl"]]
+    non_refactored_instances = non_refactorings.drop(["className", "commitId", "gitUrl"], axis=1)
+    non_refactored_metadata = non_refactorings[["className", "commitId", "gitUrl"]]
 
     log("raw number of refactoring instances: {}".format(refactored_instances.shape[0]))
     log("raw number of not refactoring instances: {}".format(non_refactored_instances.shape[0]))

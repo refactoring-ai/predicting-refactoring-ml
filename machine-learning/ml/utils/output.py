@@ -45,34 +45,20 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
     results += f'\nCSV2,{dataset},{refactoring_name},{model_name},accuracy,{accuracy_scores_str}'
     return results
 
-def format_test_results(dataset, refactoring_name, model_name, precision_scores, recall_scores,
-                   accuracy_scores, tn, fp, fn, tp):
+
+def format_test_results(dataset, refactoring_name, model_name, precision_score, recall_score, accuracy_score,
+                        tn, fp, fn, tp):
     results = "Test Results"
 
-    accuracy_scores_str = ', '.join(list([f"{e:.2f}" for e in accuracy_scores]))
-    results += "\nAccuracy scores: " + accuracy_scores_str
-    results += "\nMean Accuracy: %0.2f" % accuracy_scores.mean()
-
-    precision_scores_str = ', '.join(list([f"{e:.2f}" for e in precision_scores]))
-    results += "\nPrecision scores: " + precision_scores_str
-    results += f'\nMean precision: {precision_scores.mean():.2f}'
-    recall_scores_str = ', '.join(list([f"{e:.2f}" for e in recall_scores]))
-    results += "\nRecall scores: " + recall_scores_str
-    results += f'\nMean recall: {recall_scores.mean():.2f}\n'
-
-    # summing up the results of the confusion matrix
-    total_tn = sum(tn)
-    total_fp = sum(fp)
-    total_fn = sum(fn)
-    total_tp = sum(tp)
+    results += "\nAccuracy score: " + str(accuracy_score)
+    results += "\nPrecision score: " + str(precision_score)
+    results += "\nRecall scores: " + str(recall_score)
 
     # TODO: print number by number of the confusion matrix
     # (for debugging purposes, we print it in the log already)
 
-    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision_scores.mean():.2f},{recall_scores.mean():.2f},{accuracy_scores.mean()},{total_tn},{total_fp},{total_fn},{total_tp}'
-    results += f'\nCSV2,{dataset},{refactoring_name},{model_name},precision,{precision_scores_str}'
-    results += f'\nCSV2,{dataset},{refactoring_name},{model_name},recall,{recall_scores_str}'
-    results += f'\nCSV2,{dataset},{refactoring_name},{model_name},accuracy,{accuracy_scores_str}'
+    results += f'\nCSV,{dataset},{refactoring_name},{model_name},{precision_score:.2f},{recall_score:.2f},' \
+               f'{accuracy_score},{tn},{fp},{fn},{tp}'
     return results
 
 
