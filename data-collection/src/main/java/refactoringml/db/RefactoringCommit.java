@@ -11,6 +11,10 @@ public class RefactoringCommit extends Instance {
 	@Lob
 	private String refactoringSummary;
 
+	//Is this refactoring instance valid, or do we have objections, e.g. to many (> 50) refactorings on the same class file and commit?
+	//TODO: currently, this evaluated by the database, instead do it in the data-collection pipeline
+	private Boolean isValid = true;
+
 	@Deprecated // hibernate purposes
 	public RefactoringCommit() {}
 
