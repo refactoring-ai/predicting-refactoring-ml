@@ -73,7 +73,6 @@ class BinaryClassificationPipeline(MLPipeline):
                     train_features, x_train, y_train, scaler = retrieve_labelled_instances(dataset, refactoring, False)
                     # test if any refactorings were found for the given refactoring type
                     if x_train is None:
-                        print("Skip model building for refactoring type: " + refactoring.name())
                         log("Skip model building for refactoring type: " + refactoring.name())
                         continue
 
@@ -85,7 +84,6 @@ class BinaryClassificationPipeline(MLPipeline):
                     features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring, False)
                     # test if any refactorings were found for the given refactoring type
                     if x is None:
-                        print("Skip model building for refactoring type: " + refactoring.name())
                         log("Skip model building for refactoring type: " + refactoring.name())
                         continue
                     # we split in train and test
@@ -121,9 +119,6 @@ class BinaryClassificationPipeline(MLPipeline):
 
                     self._finish_time(dataset, model, refactoring)
                 except Exception as e:
-                    print(e)
-                    print(str(traceback.format_exc()))
-
                     log("An error occurred while working on refactoring " + refactoring_name + " model " + model.name() + " with validation set " + test_name)
                     log(str(e))
                     log(str(traceback.format_exc()))

@@ -25,13 +25,11 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
 
     # test if any refactorings were found for the given refactoring type
     if refactored_instances.shape[0] == 0:
-        print("No refactorings found for refactoring type: " + refactoring.name())
         log("No refactorings found for refactoring type: " + refactoring.name())
         return None, None, None, None
 
     # test if any refactorings were found for the given refactoring type
     if non_refactored_instances.shape[0] == 0:
-        print("No non-refactorings found for refactoring type: " + refactoring.name())
         log("No non-refactorings found for refactoring type: " + refactoring.name())
         return None, None, None, None
 
