@@ -43,10 +43,14 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
     refactored_instances = refactored_instances.dropna()
     non_refactored_instances = non_refactored_instances.dropna()
 
+    # test if any refactorings were found for the given refactoring type
+    if refactored_instances.shape[0] == 0:
+        print("No refactorings found for refactoring type: " + refactoring.name())
+        log("No refactorings found for refactoring type: " + refactoring.name())
+        return None, None, None, None
+
     log("refactoring instance (after dropping NA)s: {}".format(refactored_instances.shape[0]))
     log("not refactoring instances (after dropping NA)s: {}".format(non_refactored_instances.shape[0]))
-
-    assert refactored_instances.shape[0] > 0, "No refactorings found"
 
     # set the prediction variable as true and false in the datasets
     refactored_instances["prediction"] = 1
@@ -70,7 +74,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring):
 
     # do we want to try the models without process and authorship metrics?
     if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
-        x = x.drop(["authorOwnership", "bugFixCount", "linesAdded", "linesDeleted", "qtyMajorAuthors",
+        x = x.drop(["authorOwnership", "bugFixCount", "qtyMajorAuthors",
                     "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
