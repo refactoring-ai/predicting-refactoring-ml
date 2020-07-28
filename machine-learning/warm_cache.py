@@ -2,11 +2,13 @@ from configs import DATASETS, Level
 from db.QueryBuilder import get_all_level_stable, get_level_refactorings_count, get_level_refactorings, get_refactoring_types
 from db.DBConnector import execute_query
 from utils.log import log_init, log_close
+import time
 
 datasets = DATASETS
 
 log_init()
-print('begin cache warm-up')
+print('Begin cache warm-up')
+start_time = time.time()
 
 for dataset in datasets:
     print("dataset: " + dataset)
@@ -21,5 +23,5 @@ for dataset in datasets:
         for refactoring_name in refactorings['refactoring']:
             refactoring_instances = execute_query(get_level_refactorings(int(level), refactoring_name, dataset))
 
-print('end cache warm-up')
+print('Cache warm-up took %s seconds.' % (time.time() - start_time))
 log_close()
