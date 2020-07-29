@@ -74,33 +74,30 @@ class BinaryClassificationPipeline(MLPipeline):
                 # we have two options to select a test set,
                 # 1.) Predefined in the database
                 if TEST_SPLIT_SIZE < 0 and len(VALIDATION_DATASETS) > 0:
-                    train_features, x_train, y_train, scaler = retrieve_labelled_instances(dataset, refactoring, False)
+                    train_features, x_train, y_train, scaler = retrieve_labelled_instances(dataset, refactoring, True)
                     # test if any refactorings were found for the given refactoring type
                     if x_train is None:
                         log("Skip model building for refactoring type: " + refactoring.name())
                         continue
 
-                    test_features, x_tests, y_tests, dataset_name = [], [], [], []
+                    x_tests, y_tests, dataset_name = [], [], []
                     for validation_dataset in VALIDATION_DATASETS:
                         dataset_name.append(validation_dataset)
-                        test_features_s, x_test, y_test, _ = retrieve_labelled_instances(validation_dataset, refactoring, False)
+                        test_features, x_test, y_test, _ = retrieve_labelled_instances(validation_dataset, refactoring, False, train_features)
                         # test if any refactorings were found for the given refactoring type
                         if x_test is None:
                             log("Skip model building for refactoring type: " + refactoring.name())
                             continue
-                        if len(test_features) == 0:
-                            test_features, x_tests, y_tests = [test_features_s], [x_test], [y_test]
+                        if len(x_tests) == 0:
+                            x_tests, y_tests = [x_test], [y_test]
                         else:
-                            test_features.append(test_features_s)
                             x_tests.append(x_test)
                             y_tests.append(y_test)
 
-                    # combine all feature arrays
-                    features = np.concatenate([train_features] + test_features)
                     # shuffle X and Y again, just to be save
                     x = pd.concat([x_train] + x_tests).sample(frac=1, random_state = 42)
                     y = pd.concat([y_train] + y_tests).sample(frac=1, random_state = 42)
-                    self._run_all_models(refactoring, refactoring_name, dataset, features, scaler, x, y, x_train, x_tests, y_train, y_tests, dataset_name)
+                    self._run_all_models(refactoring, refactoring_name, dataset, train_features, scaler, x, y, x_train, x_tests, y_train, y_tests, dataset_name)
                 # 2.) random percentage train/ test split
                 else:
                     features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring, True)

@@ -1,8 +1,9 @@
 from collections import Counter
 
 import pandas as pd
+import numpy as np
 
-from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, DROP_PROCESS_AND_AUTHORSHIP_METRICS
+from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, DROP_METRICS
 from ml.preprocessing.feature_reduction import perform_feature_reduction
 from ml.preprocessing.sampling import perform_balancing
 from ml.preprocessing.scaling import perform_scaling
@@ -10,7 +11,8 @@ from refactoring import LowLevelRefactoring
 from utils.log import log
 
 
-def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_training_data: bool):
+def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_training_data: bool = True,
+                                allowed_features = None):
     log("---- Retrieve labeled instances for dataset: %s" % dataset)
 
     # get all refactoring examples we have in our dataset
@@ -29,7 +31,6 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     if refactored_instances.shape[0] == 0:
         log("No refactorings found for refactoring type: " + refactoring.name())
         return None, None, None, None
-
     # test if any refactorings were found for the given refactoring type
     if non_refactored_instances.shape[0] == 0:
         log("No non-refactorings found for refactoring type: " + refactoring.name())
@@ -57,10 +58,8 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     # just to be sure, shuffle the dataset
     merged_dataset = merged_dataset.sample(frac=1, random_state = 42)
 
-    # do we want to try the models without process and authorship metrics?
-    if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
-        merged_dataset = merged_dataset.drop(["authorOwnership", "bugFixCount", "qtyMajorAuthors",
-                    "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"], axis=1)
+    # do we want to try the models without some metrics, e.g. process and authorship metrics?
+    merged_dataset = merged_dataset.drop(DROP_METRICS, axis=1)
 
     # separate the x from the y (as required by the scikit-learn API)
     x = merged_dataset.drop("prediction", axis=1)
@@ -68,7 +67,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
 
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
-    if BALANCE_DATASET:
+    if is_training_data and BALANCE_DATASET:
         log("instances before balancing: {}".format(Counter(y)))
         x, y = perform_balancing(x, y)
         assert x.shape[0] == y.shape[0], "Balancing did not work, x and y have different shapes."
@@ -80,8 +79,12 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         x, scaler = perform_scaling(x)
 
     # let's reduce the number of features in the set
-    if is_training_data and FEATURE_REDUCTION:
+    if is_training_data and FEATURE_REDUCTION and allowed_features is None:
         x = perform_feature_reduction(x, y)
+    # enforce the specified feature set
+    elif allowed_features is not None:
+        drop_list = [column for column in x.columns.values if column not in allowed_features]
+        x = x.drop(drop_list, axis=1)
+        assert x.shape[1] == len(allowed_features), "Incorrect number of features for dataset " + dataset
 
     return x.columns.values, x, y, scaler
-

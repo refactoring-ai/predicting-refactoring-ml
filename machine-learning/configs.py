@@ -45,6 +45,11 @@ SCALE_DATASET = True
 
 # use (or drop) process and authorship metrics
 DROP_PROCESS_AND_AUTHORSHIP_METRICS = True
+#
+PROCESS_AND_AUTHORSHIP_METRICS = ["authorOwnership", "bugFixCount", "qtyMajorAuthors", "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"]
+
+# Drop these metrics as well
+DROP_METRICS = []
 
 # perform feature reduction?
 FEATURE_REDUCTION = True
@@ -167,6 +172,9 @@ levelMap = {Level.NONE: [],
 # --------------------------------
 # DO NOT CHANGE FROM HERE ON
 # --------------------------------
+if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
+    DROP_METRICS += PROCESS_AND_AUTHORSHIP_METRICS
+
 
 # Let's change some parameters (i.e., make them smaller) if this is a test run
 if TEST:
