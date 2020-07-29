@@ -3,7 +3,7 @@ import numpy as np
 import traceback
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, train_test_split
-from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, TEST_SPLIT_SIZE, VALIDATION_DATASETS
+from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, TEST_SPLIT_SIZE, VALIDATION_DATASETS, TEST
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances
 from ml.utils.output import format_best_parameters, format_test_results
@@ -20,20 +20,24 @@ def _build_production_model(model_def, best_params, x, y):
     return super_model
 
 
-def _evaluate_model(search, x_train, x_test, y_train, y_test):
+def _evaluate_model(search, x_train, x_tests, y_train, y_tests):
     log("Test search started at %s\n" % now(), False)
     search.fit(x_train, y_train)
-    log(format_best_parameters(search))
+    log(format_best_parameters(search), False)
     best_estimator = search.best_estimator_
 
-    # Predict unseen results
-    y_pred = best_estimator.predict(x_test)
-
-    test_scores = {'accuracy': accuracy_score(y_test, y_pred), 'precision': precision_score(y_test, y_pred),
-                    'recall': recall_score(y_test, y_pred), 'tn': confusion_matrix(y_test, y_pred).ravel()[0],
-                    'fp': confusion_matrix(y_test, y_pred).ravel()[1],
-                    'fn': confusion_matrix(y_test, y_pred).ravel()[2],
-                    'tp': confusion_matrix(y_test, y_pred).ravel()[3]}
+    test_scores = {'accuracy': [], 'precision': [], 'recall': [], 'tn': [], 'fp': [], 'fn': [], 'tp': []}
+    # Predict unseen results for all validation sets
+    for index, x_test in enumerate(x_tests):
+        y_pred = best_estimator.predict(x_test)
+        y_test = y_tests[index]
+        test_scores["accuracy"] += [accuracy_score(y_test, y_pred)]
+        test_scores["precision"] += [precision_score(y_test, y_pred)]
+        test_scores["recall"] += [recall_score(y_test, y_pred)]
+        test_scores["tn"] += confusion_matrix(y_test, y_pred).ravel()[0]
+        test_scores["fp"] += confusion_matrix(y_test, y_pred).ravel()[1]
+        test_scores["fn"] += confusion_matrix(y_test, y_pred).ravel()[2]
+        test_scores["tp"] += confusion_matrix(y_test, y_pred).ravel()[3]
 
     return test_scores
 
@@ -118,31 +122,28 @@ class BinaryClassificationPipeline(MLPipeline):
         """
         for model in self._models_to_run:
             model_name = model.name()
-            for index, x_test in enumerate(x_tests):
-                y_test = y_tests[index]
-                test_name = test_names[index]
-                try:
-                    log("\nBuild Model {}".format(model.name()))
-                    self._start_time()
-                    test_scores, model_to_save = self._run_single_model(model, x, y, x_train, x_test, y_train, y_test)
+            if TEST:
+                model_name += " test"
+            try:
+                log("\nBuilding Model {}".format(model.name()))
+                self._start_time()
+                test_scores, model_to_save = self._run_single_model(model, x, y, x_train, x_tests, y_train, y_tests)
 
-                    # log test scores
-                    #TODO: handle case wheere recall, accuracy and precision are single values and not lists
-                    log(format_test_results(dataset, refactoring_name, test_name, model_name + " test", test_scores["precision"],
+                # log test scores
+                log(format_test_results(dataset, refactoring_name, test_names, model_name, test_scores["precision"],
                                             test_scores["recall"], test_scores['accuracy'], test_scores['tn'],
                                             test_scores['fp'], test_scores['fn'], test_scores['tp']))
 
-                    # we save the best estimator we had during the search
-                    model.persist(dataset, refactoring_name, features, model_to_save, scaler)
+                # we save the best estimator we had during the search
+                model.persist(dataset, refactoring_name, features, model_to_save, scaler)
+                self._finish_time(dataset, model, refactoring)
+            except Exception as e:
+                log("An error occurred while working on refactoring " + refactoring_name + " model " + model.name()
+                       + " with datasets: " + test_names)
+                log(str(e))
+                log(str(traceback.format_exc()))
 
-                    self._finish_time(dataset, model, refactoring)
-                except Exception as e:
-                    log("An error occurred while working on refactoring " + refactoring_name + " model " + model.name()
-                        + " with dataset: " + test_name)
-                    log(str(e))
-                    log(str(traceback.format_exc()))
-
-    def _run_single_model(self, model_def, x, y, x_train, x_test, y_train, y_test):
+    def _run_single_model(self, model_def, x, y, x_train, x_tests, y_train, y_tests):
         model = model_def.model()
 
         # perform the search for the best hyper parameters
@@ -156,7 +157,7 @@ class BinaryClassificationPipeline(MLPipeline):
             search = GridSearchCV(model, param_dist, cv=StratifiedKFold(n_splits=N_CV_SEARCH, shuffle=True), iid=False, n_jobs=-1)
 
         # Train and test the model
-        test_scores = _evaluate_model(search, x_train, x_test, y_train, y_test)
+        test_scores = _evaluate_model(search, x_train, x_tests, y_train, y_tests)
 
         # Run cross validation on whole dataset and safe production ready model
         super_model = _build_production_model(model_def, search.best_params_, x, y)
