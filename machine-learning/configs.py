@@ -71,7 +71,7 @@ N_CV_SEARCH = 5
 # --------------------------------
 
 # Specify either a train/ test split, e.g. 0.2 -> 80/ 20 split
-TEST_SPLIT_SIZE = 0.2
+TEST_SPLIT_SIZE = -1
 # Or specify test data sets in the database
 # NOTE: set TEST_SPLIT_SIZE value to < 0, in order to indicate to use the given datasets instead of a random train/ test split
 VALIDATION_DATASETS = ["test set github", "validation set github"]
@@ -92,7 +92,7 @@ MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest', 'logistic-r
 DEEP_MODELS = ['neural-network']
 
 # Empty dataset means 'all datasets'
-DATASETS = [""]
+DATASETS = ["github"]
 
 
 # --------------------------------

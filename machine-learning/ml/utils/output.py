@@ -46,7 +46,7 @@ def format_results(dataset, refactoring_name, model_name, precision_scores, reca
     return results
 
 def format_test_results(dataset, refactoring_name, validation_name, model_name, precision_scores, recall_scores,
-                   accuracy_scores, tn, fp, fn, tp):
+                   accuracy_scores, tn, fp, fn, tp) -> str:
     results = "Test Results for validation: " + validation_name
 
     accuracy_scores_str = ', '.join(list([f"{e:.2f}" for e in accuracy_scores]))

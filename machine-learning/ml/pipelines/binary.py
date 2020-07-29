@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import traceback
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, train_test_split
@@ -20,7 +21,7 @@ def _build_production_model(model_def, best_params, x, y):
 
 
 def _evaluate_model(search, x_train, x_test, y_train, y_test):
-    log("Test search started at %s\n" % now())
+    log("Test search started at %s\n" % now(), False)
     search.fit(x_train, y_train)
     log(format_best_parameters(search))
     best_estimator = search.best_estimator_
@@ -68,7 +69,6 @@ class BinaryClassificationPipeline(MLPipeline):
 
                 # we have two options to select a test set,
                 # 1.) Predefined in the database
-                # 2.) random percentage train/ test split
                 if TEST_SPLIT_SIZE < 0 and len(VALIDATION_DATASETS) > 0:
                     train_features, x_train, y_train, scaler = retrieve_labelled_instances(dataset, refactoring, False)
                     # test if any refactorings were found for the given refactoring type
@@ -76,12 +76,30 @@ class BinaryClassificationPipeline(MLPipeline):
                         log("Skip model building for refactoring type: " + refactoring.name())
                         continue
 
-                    test_features, x_test, y_test, _ = [retrieve_labelled_instances(validation_dataset, refactoring, False) for validation_dataset in VALIDATION_DATASETS]
-                    x = pd.concat([x_train, x_test]).sample(frac=1, random_state = 42)
-                    y = pd.concat([y_train, y_test]).sample(frac=1, random_state = 42)
-                    self._run_all_models(refactoring, refactoring_name, dataset, train_features, scaler, x, y, x_train, x_test, y_train, y_test)
+                    test_features, x_tests, y_tests, dataset_name = [], [], [], []
+                    for validation_dataset in VALIDATION_DATASETS:
+                        dataset_name.append(validation_dataset)
+                        test_features_s, x_test, y_test, _ = retrieve_labelled_instances(validation_dataset, refactoring, False)
+                        # test if any refactorings were found for the given refactoring type
+                        if x_test is None:
+                            log("Skip model building for refactoring type: " + refactoring.name())
+                            continue
+                        if len(test_features) == 0:
+                            test_features, x_tests, y_tests = [test_features_s], [x_test], [y_test]
+                        else:
+                            test_features.append(test_features_s)
+                            x_tests.append(x_test)
+                            y_tests.append(y_test)
+
+                    # combine all feature arrays
+                    features = np.concatenate([train_features] + test_features)
+                    # shuffle X and Y again, just to be save
+                    x = pd.concat([x_train] + x_tests).sample(frac=1, random_state = 42)
+                    y = pd.concat([y_train] + y_tests).sample(frac=1, random_state = 42)
+                    self._run_all_models(refactoring, refactoring_name, dataset, features, scaler, x, y, x_train, x_tests, y_train, y_tests, dataset_name)
+                # 2.) random percentage train/ test split
                 else:
-                    features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring, False)
+                    features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring, True)
                     # test if any refactorings were found for the given refactoring type
                     if x is None:
                         log("Skip model building for refactoring type: " + refactoring.name())
@@ -100,16 +118,16 @@ class BinaryClassificationPipeline(MLPipeline):
         """
         for model in self._models_to_run:
             model_name = model.name()
-            for index in range(1, len(x_tests)):
-                x_test = x_tests[index]
+            for index, x_test in enumerate(x_tests):
                 y_test = y_tests[index]
                 test_name = test_names[index]
                 try:
-                    log("Model {}".format(model.name()))
+                    log("\nBuild Model {}".format(model.name()))
                     self._start_time()
                     test_scores, model_to_save = self._run_single_model(model, x, y, x_train, x_test, y_train, y_test)
 
                     # log test scores
+                    #TODO: handle case wheere recall, accuracy and precision are single values and not lists
                     log(format_test_results(dataset, refactoring_name, test_name, model_name + " test", test_scores["precision"],
                                             test_scores["recall"], test_scores['accuracy'], test_scores['tn'],
                                             test_scores['fp'], test_scores['fn'], test_scores['tp']))
@@ -119,7 +137,8 @@ class BinaryClassificationPipeline(MLPipeline):
 
                     self._finish_time(dataset, model, refactoring)
                 except Exception as e:
-                    log("An error occurred while working on refactoring " + refactoring_name + " model " + model.name() + " with validation set " + test_name)
+                    log("An error occurred while working on refactoring " + refactoring_name + " model " + model.name()
+                        + " with dataset: " + test_name)
                     log(str(e))
                     log(str(traceback.format_exc()))
 

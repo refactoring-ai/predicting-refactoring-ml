@@ -11,6 +11,8 @@ from utils.log import log
 
 
 def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_training_data: bool):
+    log("---- Retrieve labeled instances for dataset: %s" % dataset)
+
     # get all refactoring examples we have in our dataset
     refactored_instances = refactoring.get_refactored_instances(dataset)
     # load non-refactoring examples

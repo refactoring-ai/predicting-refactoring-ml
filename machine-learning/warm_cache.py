@@ -8,8 +8,8 @@ log_init()
 log('Begin cache warm-up')
 start_time = time.time()
 
-for dataset in (DATASETS):
-    log("dataset: " + dataset)
+for dataset in (DATASETS + VALIDATION_DATASETS):
+    log("\n**** dataset: " + dataset)
     for level in Level:
         log("-- non refactored instances for " + str(level))
         non_refactored = execute_query(get_all_level_stable(int(level), dataset))
