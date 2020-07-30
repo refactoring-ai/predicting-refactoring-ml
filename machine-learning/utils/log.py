@@ -1,4 +1,5 @@
 import random
+from pathlib import Path
 
 from configs import TEST, USE_CACHE, BALANCE_DATASET, BALANCE_DATASET_STRATEGY, SCALE_DATASET, FEATURE_REDUCTION, \
     N_CV_FEATURE_REDUCTION, SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV, DATASETS, MODELS, DEEP_MODELS, \
@@ -31,6 +32,7 @@ def print_config():
 
 def log_init():
     global _f
+    Path("results/").mkdir(parents=True, exist_ok=True)
     _f = open("results/{}-result.txt".format(random.randint(1, 999999)), "w+")
 
     log(r"  __  __ _      _ _    ___      __         _           _           ")

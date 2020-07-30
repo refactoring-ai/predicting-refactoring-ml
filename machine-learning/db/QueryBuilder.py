@@ -163,6 +163,8 @@ def get_metrics_level(level: int):
     elif level == 4:
         return [(classMetrics, classMetricsFields), (fieldMetrics, fieldMetricsFields),
                 (processMetrics, processMetricsFields)]
+    elif level == 5:
+        return [(classMetrics, classMetricsFields), (processMetrics, processMetricsFields)]
 
 
 # Create a sql select statement for the given instance and requested fields
@@ -190,16 +192,19 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
     join_conditions = join_conditions[:-5]
 
     sql: str = "SELECT " + required_fields + " FROM " + required_tables + " WHERE " + join_conditions
-    if conditions != "":
+    if len(conditions) > 2:
         if not sql.endswith(' WHERE '):
             sql += " AND "
         sql += conditions
-    if dataset != "":
+    if len(dataset) > 0:
         if not sql.endswith(' WHERE '):
             sql += " AND "
         sql += project_filter(instance_name, dataset)
-
-    return sql + " " + order
+    if sql.endswith(' WHERE '):
+        sql = sql[:-7]
+    if len(order) > 8:
+        sql += " " + order
+    return sql
 # endregion
 
 
@@ -267,6 +272,6 @@ def get_all_level_stable(level: int, dataset: str = "") -> str:
 # get all unique refactoring types as a list
 # Optional dataset: filter to this specific project
 def get_refactoring_types(dataset: str = "") -> str:
-    return ""
-    # TODO: implement
+    return "SELECT DISTINCT refactoring FROM " \
+           "(" + get_instance_fields(refactoringCommits, [(refactoringCommits, ["refactoring"])], "", dataset) + ") t"
 # endregion

@@ -3,6 +3,8 @@
 # --------------------------------
 # is it a test run?
 # test runs reduce the dataset to 100 instances only
+from enum import IntEnum
+
 TEST = False
 
 # --------------------------------
@@ -87,11 +89,21 @@ DEEP_MODELS = ['neural-network']
 
 # Empty dataset means 'all datasets'
 # options = ['', 'apache', 'github', 'fdroid']
-DATASETS = ['', 'apache', 'github', 'fdroid']
+DATASETS = ['']
+
 
 # --------------------------------
 # Refactorings
 # --------------------------------
+
+#refactoring levels
+class Level(IntEnum):
+    NONE = 0
+    Class = 1
+    Method = 2
+    Variable = 3
+    Field = 4
+    Other = 5
 
 # Refactorings to study
 CLASS_LEVEL_REFACTORINGS = ["Extract Class",
@@ -141,6 +153,14 @@ FIELD_LEVEL_REFACTORINGS = ["Move Attribute",
 
 OTHER_LEVEL_REFACTORINGS = ["Move Source Folder",
                             "Change Package"]
+
+
+levelMap = {Level.NONE: [],
+            Level.Class: CLASS_LEVEL_REFACTORINGS,
+            Level.Method: METHOD_LEVEL_REFACTORINGS,
+            Level.Field: FIELD_LEVEL_REFACTORINGS,
+            Level.Variable: VARIABLE_LEVEL_REFACTORINGS,
+            Level.Other: OTHER_LEVEL_REFACTORINGS}
 # --------------------------------
 # DO NOT CHANGE FROM HERE ON
 # --------------------------------

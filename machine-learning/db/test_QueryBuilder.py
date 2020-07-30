@@ -1,7 +1,7 @@
 import unittest
 from db.QueryBuilder import project_filter, join_tables, get_metrics_level, get_instance_fields, \
     get_refactoring_levels, get_level_refactorings_count, get_all_level_refactorings, get_all_level_stable, \
-    get_level_refactorings
+    get_level_refactorings, get_refactoring_types
 
 
 class QueryBuilderUnitTest(unittest.TestCase):
@@ -30,24 +30,24 @@ class QueryBuilderUnitTest(unittest.TestCase):
 
 
     def test_get_instance_fields(self):
-        sqlExpected: str = "SELECT refactoringcommit.className, commitmetadata.commitId FROM refactoringcommit, commitmetadata WHERE refactoringcommit.commitmetadata_id = commitmetadata.id "
+        sqlExpected: str = "SELECT refactoringcommit.className, commitmetadata.commitId FROM refactoringcommit, commitmetadata WHERE refactoringcommit.commitmetadata_id = commitmetadata.id"
         sqlBuilt: str = get_instance_fields("refactoringcommit",
                                             [("refactoringcommit", ["className"]), ("commitmetadata", ["commitId"])])
         self.assertEqual(sqlExpected, sqlBuilt)
 
-        sqlExpected += "AND commitmetadata.parentCommitId != null "
+        sqlExpected += " AND commitmetadata.parentCommitId != null"
         sqlBuilt: str = get_instance_fields("refactoringcommit",
                                             [("refactoringcommit", ["className"]), ("commitmetadata", ["commitId"])],
                                             "commitmetadata.parentCommitId != null")
 
-        sqlExpected += "AND refactoringcommit.project_id in (select id from project where datasetName = \"integration-test\") "
+        sqlExpected += " AND refactoringcommit.project_id in (select id from project where datasetName = \"integration-test\")"
         sqlBuilt: str = get_instance_fields("refactoringcommit",
                                             [("refactoringcommit", ["className"]), ("commitmetadata", ["commitId"])],
                                             "commitmetadata.parentCommitId != null",
                                             "integration-test")
         self.assertEqual(sqlExpected, sqlBuilt)
 
-        sqlExpected += "order by commitmetadata.commitDate"
+        sqlExpected += " order by commitmetadata.commitDate"
         sqlBuilt: str = get_instance_fields("refactoringcommit",
                                             [("refactoringcommit", ["className"]), ("commitmetadata", ["commitId"])],
                                             "commitmetadata.parentCommitId != null",
@@ -87,6 +87,11 @@ class QueryBuilderUnitTest(unittest.TestCase):
         sqlBuilt: str = get_level_refactorings_count(2, "integration-test")
         self.assertEqual(sqlExpected, sqlBuilt)
 
+
+    def test_get_refactoring_types(self):
+        sqlExpected: str = "SELECT DISTINCT refactoring FROM (SELECT refactoringcommit.refactoring FROM refactoringcommit WHERE refactoringcommit.project_id in (select id from project where datasetName = \"integration-test\")) t"
+        sqlBuilt: str = get_refactoring_types("integration-test")
+        self.assertEqual(sqlExpected, sqlBuilt)
 
 if __name__ == '__main__':
     unittest.main()

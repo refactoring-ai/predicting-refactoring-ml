@@ -41,9 +41,14 @@ class BinaryClassificationPipeline(MLPipeline):
 
             for refactoring in self._refactorings:
                 refactoring_name = refactoring.name()
-                log("**** Refactoring %s" % refactoring_name)
+                log("**** Refactoring Type: %s" % refactoring_name)
 
                 features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring)
+                # test if any refactorings were found for the given refactoring type
+                if x is None:
+                    print("Skip model building for refactoring type: " + refactoring.name())
+                    log("Skip model building for refactoring type: " + refactoring.name())
+                    continue
 
                 # we split in train and test
                 # (note that we use the same split for all the models)
