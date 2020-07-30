@@ -15,10 +15,10 @@ mydb = None
 
 if DB_AVAILABLE:
     mydb = mysql.connector.connect(
-      host=config['db']["ip"],
-      user=config['db']["user"],
-      passwd=config['db']["pwd"],
-      database=config['db']["database"]
+        host="localhost",
+        user="root",
+        passwd="refactoring",
+        database="refactoringtest"
     )
 
 # this method executes the query and stores the result in a local cache.
@@ -36,7 +36,7 @@ def execute_query(sql_query):
     df_raw : DataFrame
         Pandas DataFrame with raw data resulting from query
     """
-    log("Fetch data from the db with this query: {}".format(sql_query))
+    log("Fetch data from the db with this query: {}".format(sql_query), False)
 
     # Hash the query
     query_hash = hashlib.sha1(sql_query.encode()).hexdigest()
@@ -46,7 +46,7 @@ def execute_query(sql_query):
 
     # Read the file or execute query
     if USE_CACHE and os.path.exists(file_path):
-        # print("DEBUG: query is cached")
+        # log("DEBUG: query is cached")
         df_raw = pd.read_csv(file_path)
         return df_raw
     else:

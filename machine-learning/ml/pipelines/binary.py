@@ -1,12 +1,11 @@
 import pandas as pd
-import numpy as np
 import traceback
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, train_test_split
 from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, TEST_SPLIT_SIZE, VALIDATION_DATASETS, TEST
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances
-from ml.utils.output import format_best_parameters, format_test_results
+from ml.utils.output import format_best_parameters, format_results_single_run
 from utils.date_utils import now
 from utils.log import log
 
@@ -34,10 +33,10 @@ def _evaluate_model(search, x_train, x_tests, y_train, y_tests):
         test_scores["accuracy"] += [accuracy_score(y_test, y_pred)]
         test_scores["precision"] += [precision_score(y_test, y_pred)]
         test_scores["recall"] += [recall_score(y_test, y_pred)]
-        test_scores["tn"] += confusion_matrix(y_test, y_pred).ravel()[0]
-        test_scores["fp"] += confusion_matrix(y_test, y_pred).ravel()[1]
-        test_scores["fn"] += confusion_matrix(y_test, y_pred).ravel()[2]
-        test_scores["tp"] += confusion_matrix(y_test, y_pred).ravel()[3]
+        test_scores["tn"] += [confusion_matrix(y_test, y_pred).ravel()[0]]
+        test_scores["fp"] += [confusion_matrix(y_test, y_pred).ravel()[1]]
+        test_scores["fn"] += [confusion_matrix(y_test, y_pred).ravel()[2]]
+        test_scores["tp"] += [confusion_matrix(y_test, y_pred).ravel()[3]]
 
     return test_scores
 
@@ -108,7 +107,7 @@ class BinaryClassificationPipeline(MLPipeline):
                     # we split in train and test
                     # (note that we use the same split for all the models)
                     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST_SPLIT_SIZE, random_state=42)
-                    self._run_all_models(refactoring, refactoring_name, dataset, features, scaler, x, y, x_train, [x_test], y_train, [y_test], ["random split "])
+                    self._run_all_models(refactoring, refactoring_name, dataset, features, scaler, x, y, x_train, [x_test], y_train, [y_test], ["random split"])
 
     def _run_all_models(self, refactoring, refactoring_name, dataset, features, scaler, x, y, x_train, x_tests, y_train, y_tests, test_names):
         """
@@ -127,16 +126,17 @@ class BinaryClassificationPipeline(MLPipeline):
                 test_scores, model_to_save = self._run_single_model(model, x, y, x_train, x_tests, y_train, y_tests)
 
                 # log test scores
-                log(format_test_results(dataset, refactoring_name, test_names, model_name, test_scores["precision"],
+                log(format_results_single_run(dataset, refactoring_name, test_names, model_name, test_scores["precision"],
                                             test_scores["recall"], test_scores['accuracy'], test_scores['tn'],
-                                            test_scores['fp'], test_scores['fn'], test_scores['tp']))
+                                            test_scores['fp'], test_scores['fn'], test_scores['tp'],
+                                              model_to_save, features))
 
                 # we save the best estimator we had during the search
                 model.persist(dataset, refactoring_name, features, model_to_save, scaler)
                 self._finish_time(dataset, model, refactoring)
             except Exception as e:
                 log("An error occurred while working on refactoring " + refactoring_name + " model " + model.name()
-                       + " with datasets: " + test_names)
+                       + " with datasets: " + str(test_names))
                 log(str(e))
                 log(str(traceback.format_exc()))
 
