@@ -3,7 +3,7 @@ package refactoringml.db;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "RefactoringCommit", indexes = {@Index(columnList = "project_id"), @Index(columnList = "level"), @Index(columnList = "refactoring"), @Index(columnList = "isTest")})
+@Table(name = "RefactoringCommit", indexes = {@Index(columnList = "project_id"), @Index(columnList = "level"), @Index(columnList = "refactoring"), @Index(columnList = "isTest"), @Index(columnList = "isValid")})
 public class RefactoringCommit extends Instance {
 	//Describe the refactoring e.g. "Rename Class" or "Extract Method"
 	private String refactoring;
@@ -35,6 +35,7 @@ public class RefactoringCommit extends Instance {
 		return "RefactoringCommit{" +
 				"id=" + id +
 				super.toString() +
+				", isValid=" + isValid + '\'' +
 				", refactoring='" + refactoring + '\'' +
 				", refactoringSummary=" + refactoringSummary +
 				'}';
