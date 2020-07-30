@@ -1,8 +1,5 @@
 from collections import Counter
-
 import pandas as pd
-import numpy as np
-
 from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, DROP_METRICS
 from ml.preprocessing.feature_reduction import perform_feature_reduction
 from ml.preprocessing.sampling import perform_balancing
@@ -20,8 +17,8 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     # load non-refactoring examples
     non_refactored_instances = refactoring.get_non_refactored_instances(dataset)
 
-    log("raw number of refactoring instances: {}".format(refactored_instances.shape[0]))
-    log("raw number of non-refactoring instances: {}".format(non_refactored_instances.shape[0]))
+    log("raw number of refactoring instances: {}".format(refactored_instances.shape[0]), False)
+    log("raw number of non-refactoring instances: {}".format(non_refactored_instances.shape[0]), False)
 
     # if there' still a row with NAs, drop it as it'll cause a failure later on.
     refactored_instances = refactored_instances.dropna()
@@ -36,8 +33,8 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         log("No non-refactorings found for refactoring type: " + refactoring.name())
         return None, None, None, None
 
-    log("refactoring instances (after dropping NA)s: {}".format(refactored_instances.shape[0]))
-    log("non-refactoring instances (after dropping NA)s: {}".format(non_refactored_instances.shape[0]))
+    log("refactoring instances (after dropping NA)s: {}".format(refactored_instances.shape[0]), False)
+    log("non-refactoring instances (after dropping NA)s: {}".format(non_refactored_instances.shape[0]), False)
 
     assert non_refactored_instances.shape[0] > 0, "Found no non-refactoring instances for level: " + refactoring.refactoring_level()
 
@@ -68,10 +65,10 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     # balance the datasets, as we have way more 'non refactored examples' rather than refactoring examples
     # for now, we basically perform under sampling
     if is_training_data and BALANCE_DATASET:
-        log("instances before balancing: {}".format(Counter(y)))
+        log("instances before balancing: {}".format(Counter(y)), False)
         x, y = perform_balancing(x, y)
         assert x.shape[0] == y.shape[0], "Balancing did not work, x and y have different shapes."
-        log("instances after balancing: {}".format(Counter(y)))
+        log("instances after balancing: {}".format(Counter(y)), False)
 
     # apply some scaling to speed up the algorithm
     scaler = None
@@ -86,5 +83,5 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         drop_list = [column for column in x.columns.values if column not in allowed_features]
         x = x.drop(drop_list, axis=1)
         assert x.shape[1] == len(allowed_features), "Incorrect number of features for dataset " + dataset
-
+    log("Got %d instances with %d features for the dataset: %s." % (x.shape[0], x.shape[1], dataset))
     return x.columns.values, x, y, scaler
