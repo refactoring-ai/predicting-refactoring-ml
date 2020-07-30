@@ -149,8 +149,9 @@ def project_filter(instance_name: str, project_name: str) -> str:
 
 
 # returns a sql condition to join instances with the given table
-def join_tables(instance_name: str, table_name: str) -> str:
-    return instance_name + "." + tableMap[table_name][0] + " = " + table_name + ".id"
+def join_table(instance_name: str, table_name: str) -> str:
+    return " INNER JOIN " + table_name + \
+           " ON " + instance_name + "." + tableMap[table_name][0] + " = " + table_name + ".id"
 
 
 # returns a list of all metrics for the given level
@@ -178,20 +179,16 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
     # combine the required fields with their table names
     required_fields: str = ""
     required_tables: str = ""
-    join_conditions: str = ""
     for table_name, field_names in fields:
-        required_tables += table_name + ", "
         # don't join the instance with itself
         if (instance_name != table_name):
-            join_conditions += join_tables(instance_name, table_name) + " AND "
+            required_tables += join_table(instance_name, table_name)
         for field_name in field_names:
             required_fields += table_name + "." + field_name + ", "
     # remove the last chars because it is either a ", " or an " AND "
     required_fields = required_fields[:-2]
-    required_tables = required_tables[:-2]
-    join_conditions = join_conditions[:-5]
 
-    sql: str = "SELECT " + required_fields + " FROM " + required_tables + " WHERE " + join_conditions
+    sql: str = "SELECT " + required_fields + " FROM " + instance_name + required_tables + " WHERE "
     if len(conditions) > 2:
         if not sql.endswith(' WHERE '):
             sql += " AND "
