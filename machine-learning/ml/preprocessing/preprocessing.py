@@ -12,7 +12,7 @@ from utils.log import log
 
 
 def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_training_data: bool = True,
-                                allowed_features = None):
+                                scaler = None, allowed_features = None):
     log("---- Retrieve labeled instances for dataset: %s" % dataset)
 
     # get all refactoring examples we have in our dataset
@@ -74,9 +74,10 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         log("instances after balancing: {}".format(Counter(y)))
 
     # apply some scaling to speed up the algorithm
-    scaler = None
-    if is_training_data and SCALE_DATASET:
+    if SCALE_DATASET and scaler is None:
         x, scaler = perform_scaling(x)
+    elif SCALE_DATASET and scaler is not None:
+        x, scaler = perform_scaling(x, scaler)
 
     # let's reduce the number of features in the set
     if is_training_data and FEATURE_REDUCTION and allowed_features is None:

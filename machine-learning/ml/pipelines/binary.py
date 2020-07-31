@@ -65,7 +65,6 @@ class BinaryClassificationPipeline(MLPipeline):
         for dataset in self._datasets:
             log("Dataset {}".format(dataset))
 
-            # test set github, validation set github
             for refactoring in self._refactorings:
                 refactoring_name = refactoring.name()
                 log("**** Refactoring Type: %s" % refactoring_name)
@@ -82,7 +81,8 @@ class BinaryClassificationPipeline(MLPipeline):
                     x_tests, y_tests, dataset_name = [], [], []
                     for validation_dataset in VALIDATION_DATASETS:
                         dataset_name.append(validation_dataset)
-                        test_features, x_test, y_test, _ = retrieve_labelled_instances(validation_dataset, refactoring, False, train_features)
+                        test_features, x_test, y_test, _ = retrieve_labelled_instances(validation_dataset, refactoring,
+                                                                                       False, scaler, train_features)
                         # test if any refactorings were found for the given refactoring type
                         if x_test is None:
                             log("Skip model building for refactoring type: " + refactoring.name())
@@ -93,10 +93,11 @@ class BinaryClassificationPipeline(MLPipeline):
                             x_tests.append(x_test)
                             y_tests.append(y_test)
 
-                    # shuffle X and Y again, just to be save
-                    x = pd.concat([x_train] + x_tests).sample(frac=1, random_state = 42)
-                    y = pd.concat([y_train] + y_tests).sample(frac=1, random_state = 42)
-                    self._run_all_models(refactoring, refactoring_name, dataset, train_features, scaler, x, y, x_train, x_tests, y_train, y_tests, dataset_name)
+                    # X and Y where already shuffled in the retrieve_labelled_instances function
+                    x = pd.concat([x_train] + x_tests)
+                    y = pd.concat([y_train] + y_tests)
+                    self._run_all_models(refactoring, refactoring_name, dataset, train_features, scaler, x, y, x_train,
+                                         x_tests, y_train, y_tests, dataset_name)
                 # 2.) random percentage train/ test split
                 else:
                     features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring, True)
