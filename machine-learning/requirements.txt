@@ -5,8 +5,5 @@ numpy
 imblearn
 configparser
 joblib
-keras
-tensorflow-gpu
 matplotlib
 scipy
-keras-metrics

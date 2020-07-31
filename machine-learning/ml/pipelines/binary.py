@@ -1,11 +1,12 @@
-import pandas as pd
 import traceback
+import pandas as pd
+from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, TEST_SPLIT_SIZE, VALIDATION_DATASETS, TEST
+from ml.utils.output import format_results_single_run
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, train_test_split
-from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, TEST_SPLIT_SIZE, VALIDATION_DATASETS, TEST
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances
-from ml.utils.output import format_best_parameters, format_results_single_run
+from ml.utils.output import format_best_parameters
 from utils.date_utils import now
 from utils.log import log
 
@@ -85,13 +86,13 @@ class BinaryClassificationPipeline(MLPipeline):
                                                                                        False, scaler, train_features)
                         # test if any refactorings were found for the given refactoring type
                         if x_test is None:
-                            log("Skip model building for refactoring type: " + refactoring.name())
+                            log("Skip test set %s for refactoring type: %s" % (validation_dataset, refactoring.name()))
                             continue
-                        if len(x_tests) == 0:
-                            x_tests, y_tests = [x_test], [y_test]
-                        else:
-                            x_tests.append(x_test)
-                            y_tests.append(y_test)
+                        x_tests.append(x_test)
+                        y_tests.append(y_test)
+                    if len(x_tests) == 0:
+                        log("Skip model building for refactoring type: " + refactoring.name())
+                        continue
 
                     # X and Y where already shuffled in the retrieve_labelled_instances function
                     x = pd.concat([x_train] + x_tests)
@@ -162,11 +163,3 @@ class BinaryClassificationPipeline(MLPipeline):
 
         # return the scores and the best estimator
         return test_scores, super_model
-
-
-class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
-    def __init__(self, models_to_run, refactorings, datasets):
-        super().__init__(models_to_run, refactorings, datasets)
-
-    def _run_single_model(self, model_def, x, y):
-        return model_def.run(x, y)

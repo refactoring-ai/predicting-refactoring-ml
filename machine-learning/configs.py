@@ -94,7 +94,6 @@ N_CV_DNN = 10
 # models and datasets we have available
 MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest', 'logistic-regression', 'naive-bayes',
           'extra-trees']
-DEEP_MODELS = ['neural-network']
 
 # Empty dataset means 'all datasets'
 DATASETS = ["github"]

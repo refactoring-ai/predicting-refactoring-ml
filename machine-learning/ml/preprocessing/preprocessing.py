@@ -3,7 +3,7 @@ import pandas as pd
 from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, DROP_METRICS
 from ml.preprocessing.feature_reduction import perform_feature_reduction
 from ml.preprocessing.sampling import perform_balancing
-from ml.preprocessing.scaling import perform_scaling
+from ml.preprocessing.scaling import perform_scaling, perform_fit_scaling
 from refactoring import LowLevelRefactoring
 from utils.log import log
 
@@ -72,9 +72,9 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
 
     # apply some scaling to speed up the algorithm
     if SCALE_DATASET and scaler is None:
-        x, scaler = perform_scaling(x)
+        x, scaler = perform_fit_scaling(x)
     elif SCALE_DATASET and scaler is not None:
-        x, scaler = perform_scaling(x, scaler)
+        x = perform_scaling(x, scaler)
 
     # let's reduce the number of features in the set
     if is_training_data and FEATURE_REDUCTION and allowed_features is None:
