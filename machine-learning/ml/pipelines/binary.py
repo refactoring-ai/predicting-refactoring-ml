@@ -1,14 +1,12 @@
-import pandas as pd
 import traceback
 
-from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, confusion_matrix
-from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, cross_validate, train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, GridSearchCV, train_test_split
 
-from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV, TEST_SPLIT_SIZE
+from configs import SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, TEST_SPLIT_SIZE
 from ml.pipelines.pipelines import MLPipeline
 from ml.preprocessing.preprocessing import retrieve_labelled_instances
-from ml.utils.cm import tp, tn, fn, fp
-from ml.utils.output import format_results, format_best_parameters, format_test_results
+from ml.utils.output import format_best_parameters, format_test_results
 from utils.date_utils import now
 from utils.log import log
 
@@ -127,14 +125,4 @@ class BinaryClassificationPipeline(MLPipeline):
         super_model.fit(x, y)
 
         return super_model
-
-
-class DeepLearningBinaryClassificationPipeline(BinaryClassificationPipeline):
-    def __init__(self, models_to_run, refactorings, datasets):
-        super().__init__(models_to_run, refactorings, datasets)
-
-    def _run_single_model(self, model_def, x, y):
-        return model_def.run(x, y)
-
-
 

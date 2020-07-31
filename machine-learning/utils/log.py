@@ -2,7 +2,7 @@ import random
 from pathlib import Path
 
 from configs import TEST, USE_CACHE, BALANCE_DATASET, BALANCE_DATASET_STRATEGY, SCALE_DATASET, FEATURE_REDUCTION, \
-    N_CV_FEATURE_REDUCTION, SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV, DATASETS, MODELS, DEEP_MODELS, \
+    N_CV_FEATURE_REDUCTION, SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV, DATASETS, MODELS, \
     CLASS_LEVEL_REFACTORINGS, METHOD_LEVEL_REFACTORINGS, VARIABLE_LEVEL_REFACTORINGS, DB_AVAILABLE
 
 _f = None
@@ -23,7 +23,6 @@ def print_config():
     log(f"CV for evaluation: {N_CV}")
     log(f"Datasets: {DATASETS}")
     log(f"Models: {MODELS}")
-    log(f"Deep Learning Models: {DEEP_MODELS}")
     log(f"Class-level refactorings: {CLASS_LEVEL_REFACTORINGS}")
     log(f"Method-level refactorings: {METHOD_LEVEL_REFACTORINGS}")
     log(f"Variable-level refactorings: {VARIABLE_LEVEL_REFACTORINGS}")
