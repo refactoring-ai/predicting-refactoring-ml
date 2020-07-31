@@ -15,10 +15,10 @@ mydb = None
 
 if DB_AVAILABLE:
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="refactoring",
-        database="refactoringtest"
+        host=config['db']["ip"],
+        user=config['db']["user"],
+        passwd=config['db']["pwd"],
+        database=config['db']["database"]
     )
 
 # this method executes the query and stores the result in a local cache.
