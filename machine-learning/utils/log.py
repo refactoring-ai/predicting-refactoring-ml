@@ -49,7 +49,9 @@ def log_close():
     _f.close()
 
 
-def log(msg):
+def log(msg, print_msg: bool = True):
+    if print_msg:
+        print(msg)
     global _f
     _f.write(msg)
     _f.write("\n")

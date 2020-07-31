@@ -86,7 +86,7 @@ class QueryBuilderUnitTest(unittest.TestCase):
 
 
     def test_get_level_refactorings_count(self):
-        sqlExpected: str = "SELECT refactoring, count(*) FROM (SELECT refactoringcommit.refactoring FROM refactoringcommit WHERE refactoringcommit.level = 2 AND refactoringcommit.project_id in (select id from project where datasetName = \"integration-test\")  AND refactoringcommit.isValid = TRUE) t group by refactoring order by count(*) desc"
+        sqlExpected: str = "SELECT refactoring, count(*) FROM (SELECT refactoringcommit.refactoring FROM refactoringcommit WHERE refactoringcommit.level = 2 AND refactoringcommit.project_id in (select id from project where datasetName = \"integration-test\") AND refactoringcommit.isValid = TRUE) t group by refactoring order by count(*) desc"
         sqlBuilt: str = get_level_refactorings_count(2, "integration-test")
         self.assertEqual(sqlExpected, sqlBuilt)
 

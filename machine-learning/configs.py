@@ -45,6 +45,11 @@ SCALE_DATASET = True
 
 # use (or drop) process and authorship metrics
 DROP_PROCESS_AND_AUTHORSHIP_METRICS = True
+#
+PROCESS_AND_AUTHORSHIP_METRICS = ["authorOwnership", "bugFixCount", "qtyMajorAuthors", "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"]
+
+# Drop these metrics as well
+DROP_METRICS = []
 
 # perform feature reduction?
 FEATURE_REDUCTION = True
@@ -70,7 +75,11 @@ N_CV_SEARCH = 5
 # Evaluation: Cross-validation configuration
 # --------------------------------
 
-TEST_SPLIT_SIZE = 0.2
+# Specify either a train/ test split, e.g. 0.2 -> 80/ 20 split
+TEST_SPLIT_SIZE = -1
+# Or specify test data sets in the database
+# NOTE: set TEST_SPLIT_SIZE value to < 0, in order to indicate to use the given datasets instead of a random train/ test split
+VALIDATION_DATASETS = ["test set github", "validation set github"]
 
 # number of folds for the final evaluation
 N_CV = 10
@@ -87,15 +96,14 @@ MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest', 'logistic-r
           'extra-trees']
 
 # Empty dataset means 'all datasets'
-# options = ['', 'apache', 'github', 'fdroid']
-DATASETS = ['']
+DATASETS = ["github"]
 
 
 # --------------------------------
 # Refactorings
 # --------------------------------
 
-#refactoring levels
+# refactoring levels
 class Level(IntEnum):
     NONE = 0
     Class = 1
@@ -103,6 +111,7 @@ class Level(IntEnum):
     Variable = 3
     Field = 4
     Other = 5
+
 
 # Refactorings to study
 CLASS_LEVEL_REFACTORINGS = ["Extract Class",
@@ -153,7 +162,6 @@ FIELD_LEVEL_REFACTORINGS = ["Move Attribute",
 OTHER_LEVEL_REFACTORINGS = ["Move Source Folder",
                             "Change Package"]
 
-
 levelMap = {Level.NONE: [],
             Level.Class: CLASS_LEVEL_REFACTORINGS,
             Level.Method: METHOD_LEVEL_REFACTORINGS,
@@ -163,6 +171,9 @@ levelMap = {Level.NONE: [],
 # --------------------------------
 # DO NOT CHANGE FROM HERE ON
 # --------------------------------
+if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
+    DROP_METRICS += PROCESS_AND_AUTHORSHIP_METRICS
+
 
 # Let's change some parameters (i.e., make them smaller) if this is a test run
 if TEST:
