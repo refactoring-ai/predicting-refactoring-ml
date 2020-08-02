@@ -29,10 +29,13 @@ def print_config():
     log("--------------")
 
 
-def log_init():
+def log_init(name: str = None):
     global _f
     Path("results/").mkdir(parents=True, exist_ok=True)
-    _f = open("results/{}-result.txt".format(random.randint(1, 999999)), "w+")
+    if name is not None:
+        _f = open("results/%s-result.txt" % name, "w+")
+    else:
+        _f = open("results/{}-result.txt".format(random.randint(1, 999999)), "w+")
 
     log(r"  __  __ _      _ _    ___      __         _           _           ")
     log(r" |  \/  | |    | | |  | _ \___ / _|__ _ __| |_ ___ _ _(_)_ _  __ _ ")
@@ -49,7 +52,7 @@ def log_close():
     _f.close()
 
 
-def log(msg, print_msg: bool = True):
+def log(msg: stri, print_msg: bool = True):
     if print_msg:
         print(msg)
     global _f
