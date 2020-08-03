@@ -8,7 +8,6 @@
 .project
 ~          
 */repos/
-*/statistics/_cache/
 */logs*/
 data-collection/storage/
 
@@ -22,3 +21,4 @@ data-collection/storage/
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+**/bfg*

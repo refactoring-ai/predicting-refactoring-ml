@@ -1,7 +1,7 @@
 results/*
 results-*.txt
 
-_cache/*
+**/_cache/*
 dbconfig.ini
 
 .idea/*
