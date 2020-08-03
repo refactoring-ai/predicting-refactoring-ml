@@ -52,7 +52,7 @@ def log_close():
     _f.close()
 
 
-def log(msg: stri, print_msg: bool = True):
+def log(msg: str, print_msg: bool = True):
     if print_msg:
         print(msg)
     global _f

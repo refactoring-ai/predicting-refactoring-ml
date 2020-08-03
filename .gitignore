@@ -8,6 +8,7 @@
 .project
 ~          
 */repos/
+*/statistics/_cache/
 */logs*/
 data-collection/storage/
 
