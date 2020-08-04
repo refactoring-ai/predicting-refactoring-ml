@@ -1,6 +1,7 @@
 from collections import Counter
 import pandas as pd
-from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, DROP_METRICS
+from configs import SCALE_DATASET, TEST, FEATURE_REDUCTION, BALANCE_DATASET, DROP_METRICS, \
+    DROP_PROCESS_AND_AUTHORSHIP_METRICS, PROCESS_AND_AUTHORSHIP_METRICS, DROP_FAULTY_PROCESS_AND_AUTHORSHIP_METRICS
 from ml.preprocessing.feature_reduction import perform_feature_reduction
 from ml.preprocessing.sampling import perform_balancing
 from ml.preprocessing.scaling import perform_scaling, perform_fit_scaling
@@ -52,7 +53,7 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         raise ImportError("Number of columns differ from both datasets.")
     merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
 
-    # just to be sure, shuffle the dataset
+    #just to be sure, shuffle the dataset
     merged_dataset = merged_dataset.sample(frac=1, random_state = 42)
 
     # do we want to try the models without some metrics, e.g. process and authorship metrics?
@@ -84,5 +85,15 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         drop_list = [column for column in x.columns.values if column not in allowed_features]
         x = x.drop(drop_list, axis=1)
         assert x.shape[1] == len(allowed_features), "Incorrect number of features for dataset " + dataset
+
+    #Remove all instances with a -1 value in the process and authorship metrics, after the feature reduction to simplify the query
+    #and do not drop instances which are not affected by faulty process and authorship metrics, which are not in the feature set
+    if DROP_FAULTY_PROCESS_AND_AUTHORSHIP_METRICS and not DROP_PROCESS_AND_AUTHORSHIP_METRICS:
+        log("Instance count before dropping faulty process metrics: {}".format(len(merged_dataset.index)), False)
+        metrics = [metric for metric in PROCESS_AND_AUTHORSHIP_METRICS if metric in x.columns.values]
+        query = " and ".join(["%s != -1" % metric for metric in metrics])
+        merged_dataset = merged_dataset.query(query)
+        log("Instance count after dropping faulty process metrics: {}".format(len(merged_dataset.index)), False)
+
     log("Got %d instances with %d features for the dataset: %s." % (x.shape[0], x.shape[1], dataset))
     return x.columns.values, x, y, scaler
