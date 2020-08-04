@@ -1,15 +1,13 @@
 package refactoringml;
 
 import com.github.mauricioaniche.ck.CKMethodResult;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
-import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.util.io.DisabledOutputStream;
 import refactoringml.db.*;
 import refactoringml.util.*;
 import java.io.IOException;
@@ -19,6 +17,7 @@ import static refactoringml.util.CKUtils.cleanCkClassName;
 import static refactoringml.util.FilePathUtils.enforceUnixPaths;
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FileUtils.*;
+import static refactoringml.util.JGitUtils.getDiffFormater;
 import static refactoringml.util.JGitUtils.readFileFromGit;
 import static refactoringml.util.LogUtils.createErrorState;
 import static refactoringml.util.RefactoringUtils.*;
@@ -32,23 +31,24 @@ public class ProcessMetricsCollector {
 
 	private static final Logger log = LogManager.getLogger(ProcessMetricsCollector.class);
 
-	public ProcessMetricsCollector(Project project, Database db, Repository repository, String fileStoragePath) {
+	public ProcessMetricsCollector(Project project, Database db, Repository repository, PMDatabase pmDatabase, String fileStoragePath) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.fileStoragePath = FilePathUtils.lastSlashDir(fileStoragePath);
-		pmDatabase = new PMDatabase();
+		this.pmDatabase = pmDatabase;
 	}
 
 	//if this commit contained a refactoring, then collect its process metrics for all affected class files,
 	//otherwise only update the file process metrics
-	public void collectMetrics(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits) throws IOException {
+	public void collectMetrics(RevCommit commit, CommitMetaData superCommitMetaData, List<RefactoringCommit> allRefactoringCommits, List<DiffEntry> entries, Set<ImmutablePair<String, String>> refactoringRenames, Set<ImmutablePair<String, String>> jGitRenames) throws IOException {
 		collectProcessMetricsOfRefactoredCommit(superCommitMetaData, allRefactoringCommits);
+
+		processRenames(refactoringRenames, jGitRenames, superCommitMetaData);
 
 		// we go now change by change in the commit to update the process metrics there
 		// Also if a stable instance is found it is stored with the metrics in the DB
-		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
-		collectProcessMetricsOfStableCommits(commit, commitParent, superCommitMetaData);
+		collectProcessMetricsOfStableCommits(commit, superCommitMetaData, entries);
 	}
 
 	//Collect the ProcessMetrics of the RefactoringCommit before this commit happened and update the database entry with it
@@ -59,7 +59,7 @@ public class ProcessMetricsCollector {
 
 			ProcessMetrics dbProcessMetrics  = currentProcessMetricsTracker != null ?
 					new ProcessMetrics(currentProcessMetricsTracker.getCurrentProcessMetrics()) :
-					new ProcessMetrics(-1, -1, -1, -1, -1);
+					new ProcessMetrics(0, 0, 0, 0, 0);
 
 			refactoringCommit.setProcessMetrics(dbProcessMetrics);
 			db.update(refactoringCommit);
@@ -68,23 +68,49 @@ public class ProcessMetricsCollector {
 		}
 	}
 
+	//update the process metrics for all renames that were missed by RefactoringMiner
+	private void processRenames(Set<ImmutablePair<String, String>> refactoringRenames, Set<ImmutablePair<String, String>> jGitRenames, CommitMetaData superCommitMetadata) {
+		//get all renames detected by RefactoringMiner
+		if(refactoringRenames != null){
+			for(ImmutablePair<String, String> rename : refactoringRenames){
+				//check if the class file name was changed, not only the class name
+				if (!rename.left.equals(rename.right)){
+					ProcessMetricTracker oldPMTracker = pmDatabase.renameFile(rename.left, rename.right, superCommitMetadata);
+					//hotfix for the case in which we rename a file but missed the refactoring
+					if(pmDatabase.find(rename.right).getCommitCountThreshold() > 0)
+						pmDatabase.reportRefactoring(rename.right, superCommitMetadata);
+					log.debug("Renamed " + rename.left + " to " + rename.right + " in PMDatabase.");
+				}
+			}
+		}
+
+		//process the renames missed by refactoringminer
+		if(jGitRenames != null){
+			//get all renames missed by RefactoringMiner
+			if(refactoringRenames != null)
+				jGitRenames.removeAll(refactoringRenames);
+			if(jGitRenames.size() > 0){
+				log.debug("Refactoringminer missed these refactorings: " + jGitRenames + LogUtils.createErrorState(superCommitMetadata.getCommitId(), project));
+				//update the missed renames in the PM database
+				for(ImmutablePair<String, String> rename : jGitRenames){
+					log.debug("Renamed " + rename.left + " to " + rename.right + " in PMDatabase.");
+					pmDatabase.renameFile(rename.left, rename.right, superCommitMetadata);
+					pmDatabase.reportRefactoring(rename.right, superCommitMetadata);
+				}
+			}
+		}
+	}
+
 	//Update the process metrics of all affected class files:
 	//Reset the PMTracker for all class files, that were refactored on this commit
 	//Increase the PMTracker for all class files, that were not refactored but changed on this commit
-	private void collectProcessMetricsOfStableCommits(RevCommit commit, RevCommit commitParent, CommitMetaData superCommitMetaData) throws IOException {
-		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-			diffFormatter.setRepository(repository);
-			diffFormatter.setDiffComparator(RawTextComparator.DEFAULT);
-			diffFormatter.setDetectRenames(true);
-
-			for (DiffEntry entry : diffFormatter.scan(commitParent, commit)) {
+	private void collectProcessMetricsOfStableCommits(RevCommit commit, CommitMetaData superCommitMetaData, List<DiffEntry> entries) throws IOException {
+			for (DiffEntry entry : entries) {
 				String fileName = enforceUnixPaths(entry.getNewPath());
 
 				// do not collect these numbers if not a java file (save some memory)
 				if (!refactoringml.util.FileUtils.IsJavaFile(fileName))
 					continue;
-
-				//TODO: in case the metrics collection crashes earlier for a commit with class file renames, the PMDatabase is not updated
 
 				// if the class was deleted, we remove it from our pmDatabase
 				// this is a TTV as we can't correctly trace all renames and etc. But this doesn't affect the overall result,
@@ -95,16 +121,9 @@ public class ProcessMetricsCollector {
 					log.debug("Deleted " + oldFileName + " from PMDatabase.");
 					continue;
 				}
-				// entry.getChangeType() returns "MODIFY" for commit: bc15aee7cfaddde19ba6fefe0d12331fe98ddd46 instead of a rename, it works only if the class file was renamed
-				// Thus, we are not tracking class renames here, but that is also not necessary, because the PM metrics are computed for each java file anyways.
-				else if(entry.getChangeType() == DiffEntry.ChangeType.RENAME){
-					String oldFileName = enforceUnixPaths(entry.getOldPath());
-					pmDatabase.renameFile(oldFileName, fileName, superCommitMetaData);
-					log.debug("Renamed " + oldFileName + " to " + fileName + " in PMDatabase.");
-				}
 
 				// collect number of lines deleted and added in that file
-				List<Edit> editList = diffFormatter.toFileHeader(entry).toEditList();
+				List<Edit> editList = getDiffFormater().toFileHeader(entry).toEditList();
 				int linesDeleted = calculateLinesDeleted(editList);
 				int linesAdded = calculateLinesAdded(editList);
 
@@ -126,7 +145,6 @@ public class ProcessMetricsCollector {
 					}
 				}
 			}
-		}
 	}
 
 	//Store the refactoring instances in the DB

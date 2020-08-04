@@ -3,7 +3,7 @@
 QUEUE_CLASS="refactoringml.RunQueue"
 IMPORT_CLASS="refactoringml.RunImport"
 
-JAR_PATH=target/data-collection-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+JAR_PATH=lib/data-collection-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 REFACTORINGMINER_JAR_PATH=$(find lib/ -regextype posix-extended -regex '^.*RefactoringMiner-[0-9a-zA-Z]*.jar')
 
 if [ "$TASK" = "worker" ]

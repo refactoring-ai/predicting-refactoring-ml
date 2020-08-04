@@ -1,7 +1,8 @@
 import random
+from pathlib import Path
 
 from configs import TEST, USE_CACHE, BALANCE_DATASET, BALANCE_DATASET_STRATEGY, SCALE_DATASET, FEATURE_REDUCTION, \
-    N_CV_FEATURE_REDUCTION, SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV, DATASETS, MODELS, DEEP_MODELS, \
+    N_CV_FEATURE_REDUCTION, SEARCH, N_CV_SEARCH, N_ITER_RANDOM_SEARCH, N_CV, DATASETS, MODELS, \
     CLASS_LEVEL_REFACTORINGS, METHOD_LEVEL_REFACTORINGS, VARIABLE_LEVEL_REFACTORINGS, DB_AVAILABLE
 
 _f = None
@@ -22,7 +23,6 @@ def print_config():
     log(f"CV for evaluation: {N_CV}")
     log(f"Datasets: {DATASETS}")
     log(f"Models: {MODELS}")
-    log(f"Deep Learning Models: {DEEP_MODELS}")
     log(f"Class-level refactorings: {CLASS_LEVEL_REFACTORINGS}")
     log(f"Method-level refactorings: {METHOD_LEVEL_REFACTORINGS}")
     log(f"Variable-level refactorings: {VARIABLE_LEVEL_REFACTORINGS}")
@@ -31,6 +31,7 @@ def print_config():
 
 def log_init():
     global _f
+    Path("results/").mkdir(parents=True, exist_ok=True)
     _f = open("results/{}-result.txt".format(random.randint(1, 999999)), "w+")
 
     log(r"  __  __ _      _ _    ___      __         _           _           ")
@@ -48,7 +49,9 @@ def log_close():
     _f.close()
 
 
-def log(msg):
+def log(msg, print_msg: bool = True):
+    if print_msg:
+        print(msg)
     global _f
     _f.write(msg)
     _f.write("\n")

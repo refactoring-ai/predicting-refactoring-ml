@@ -1,11 +1,13 @@
 package refactoringml;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -42,6 +44,8 @@ public class App {
 	private String filesStoragePath;
 	//handles the logic with the MYSQL db
 	private Database db;
+	// which commit to start processing? (mostly for testing purposes)
+	private String firstCommitToProcess;
 	//the last commit to process on the selected branch
 	private String lastCommitToProcess;
 	//Do you want to save the affected source code for each commit?
@@ -66,23 +70,35 @@ public class App {
 	private Repository repository;
 
 	public App (String datasetName,
-	            String gitUrl,
-	            String filesStoragePath,
-	            Database db, 
-	            boolean storeFullSourceCode) {
+				String gitUrl,
+				String filesStoragePath,
+				Database db,
+				boolean storeFullSourceCode) {
 		this(datasetName, gitUrl, filesStoragePath, db, null, storeFullSourceCode);
 	}
+
 	public App (String datasetName,
-	            String gitUrl,
-	            String filesStoragePath,
-	            Database db,
-	            String lastCommitToProcess,
-	            boolean storeFullSourceCode) {
+				String gitUrl,
+				String filesStoragePath,
+				Database db,
+				String lastCommitToProcess,
+				boolean storeFullSourceCode) {
+		this(datasetName, gitUrl, filesStoragePath, db, null, lastCommitToProcess, storeFullSourceCode);
+	}
+
+	public App (String datasetName,
+				String gitUrl,
+				String filesStoragePath,
+				Database db,
+				String firstCommitToProcess,
+				String lastCommitToProcess,
+				boolean storeFullSourceCode) {
 
 		this.datasetName = datasetName;
 		this.gitUrl = gitUrl;
 		this.filesStoragePath = enforceUnixPaths(filesStoragePath + extractProjectNameFromGitUrl(gitUrl)); // add project as subfolder
 		this.db = db;
+		this.firstCommitToProcess = firstCommitToProcess;
 		this.lastCommitToProcess = lastCommitToProcess;
 		this.storeFullSourceCode = storeFullSourceCode;
 
@@ -114,18 +130,28 @@ public class App {
 			//get all necessary objects to analyze the commits
 			GitHistoryRefactoringMiner miner = new GitHistoryRefactoringMinerImpl();
 			RefactoringHandler handler = getRefactoringHandler(git);
-			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repository, filesStoragePath, storeFullSourceCode);
-			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repository, filesStoragePath);
+			PMDatabase pmDatabase = new PMDatabase();
+			final RefactoringAnalyzer refactoringAnalyzer = new RefactoringAnalyzer(project, db, repository, pmDatabase, filesStoragePath, storeFullSourceCode);
+			final ProcessMetricsCollector processMetrics = new ProcessMetricsCollector(project, db, repository, pmDatabase, filesStoragePath);
 
 			// get all commits in the repo, and to each commit with a refactoring, extract the metrics
 			RevWalk walk = JGitUtils.getReverseWalk(repository, mainBranch);
 			RevCommit currentCommit = walk.next();
 			log.info("Start mining project " + gitUrl + "(clone at " + clonePath + ")");
+
+			boolean firstCommitFound = firstCommitToProcess == null;
 			// we only analyze commits that have one parent or the first commit with 0 parents
 			for (boolean endFound = false; currentCommit!=null && !endFound; currentCommit = walk.next()) {
+				String commitHash = currentCommit.getId().getName();
+
+				//only start the analysis once the firstCommitHash was found
+				firstCommitFound = firstCommitFound || commitHash.equals(firstCommitToProcess);
+				if(!firstCommitFound)
+					continue;
+
 				// did we find the last commit to process?
 				// if so, process it and then stop
-				if (currentCommit.toString().equals(lastCommitToProcess))
+				if (commitHash.equals(lastCommitToProcess))
 					endFound = true;
 
 				// i.e., ignore merge commits
@@ -167,6 +193,7 @@ public class App {
 	//Initialize the project object for this run
 	private Project initProject(Git git) throws GitAPIException, IOException {
 		CounterResult counterResult = Counter.countProductionAndTestFiles(clonePath);
+		createDiffFormatter(repository);
 		long projectSize = -1;
 		try{
 			projectSize = FileUtils.sizeOfDirectory(new File(clonePath));
@@ -193,7 +220,7 @@ public class App {
 			List<RefactoringCommit> allRefactoringCommits = new ArrayList<>();
 			// stores the commit meta data
 			CommitMetaData superCommitMetaData = new CommitMetaData(currentCommit, project);
-
+			List<DiffEntry> entries = calculateDiffEntries(currentCommit);
 			// Note that we only run it if the commit has a parent, i.e, skip the first commit of the repo
 			if (!isFirst(currentCommit)){
 				long startTimeRMiner = System.currentTimeMillis();
@@ -208,8 +235,7 @@ public class App {
 
 				//check if refactoring miner detected a refactoring we study
 				if (thereIsRefactoringToProcess && !refactoringsToProcess.isEmpty()) {
-					db.persist(superCommitMetaData);
-					allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess);
+					allRefactoringCommits = refactoringAnalyzer.collectCommitData(currentCommit, superCommitMetaData, refactoringsToProcess, entries);
 				} else if (thereIsRefactoringToProcess) {
 					// timeout happened, so count it as an exception
 					log.debug("Refactoring Miner did not find any refactorings for commit: " + commitHash + createErrorState(commitHash, project));
@@ -221,7 +247,9 @@ public class App {
 			}
 
 			//collect the process metrics for the current commit
-			processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits);
+			Set<ImmutablePair<String, String>> refactoringRenames = getRefactoringMinerRenames(refactoringsToProcess);
+			Set<ImmutablePair<String, String>> jGitRenames = getJGitRenames(entries);
+			processMetrics.collectMetrics(currentCommit, superCommitMetaData, allRefactoringCommits, entries, refactoringRenames, jGitRenames);
 			long startTimeTransaction = System.currentTimeMillis();
 			db.commit();
 			log.debug("Committing the transaction for commit " + commitHash + " took " + (System.currentTimeMillis() - startTimeTransaction) + " milliseconds.");

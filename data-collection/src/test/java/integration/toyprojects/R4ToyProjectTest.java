@@ -22,7 +22,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void refactorings() {
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
-		Assert.assertEquals(6, refactoringCommitList.size());
+		Assert.assertEquals(7, refactoringCommitList.size());
 	}
 
 	@Test
@@ -45,7 +45,7 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 	@Test
 	public void isSubclass(){
 		List<RefactoringCommit> refactoringCommitList = getRefactoringCommits();
-		Assert.assertEquals(6, refactoringCommitList.size());
+		Assert.assertEquals(7, refactoringCommitList.size());
 
 		assertRefactoring(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b", "Rename Method", 1);
 		Assertions.assertEquals("a.Pets.CanisLupusFamiliaris", filterCommit(refactoringCommitList, "d3b912566712bdeda096c60a8887dd96b76ceb7b").get(0).getClassName());
@@ -186,6 +186,6 @@ public class R4ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	public void projectMetrics() {
-		assertProjectMetrics(2, 1, 1, 29, 21, 8);
+		assertProjectMetrics(3, 1, 2, 148, 21, 127);
 	}
 }

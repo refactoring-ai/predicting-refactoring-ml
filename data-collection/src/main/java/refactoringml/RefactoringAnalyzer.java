@@ -4,26 +4,21 @@ import com.github.mauricioaniche.ck.CKMethodResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.refactoringminer.api.Refactoring;
 import refactoringml.db.*;
 import refactoringml.util.CKUtils;
 import refactoringml.util.RefactoringUtils;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-
+import java.util.*;
 import static refactoringml.util.CKUtils.*;
 import static refactoringml.util.FilePathUtils.*;
 import static refactoringml.util.FileUtils.*;
 import static refactoringml.util.JGitUtils.getMapWithOldAndNewFiles;
 import static refactoringml.util.JGitUtils.readFileFromGit;
-import static refactoringml.util.LogUtils.createErrorState;
-import static refactoringml.util.LogUtils.createRefactoringErrorState;
+import static refactoringml.util.LogUtils.*;
 import static refactoringml.util.RefactoringUtils.*;
 
 public class RefactoringAnalyzer {
@@ -33,31 +28,33 @@ public class RefactoringAnalyzer {
 	private Repository repository;
 	private boolean storeFullSourceCode;
 	private String fileStorageDir;
+	private PMDatabase pmDatabase;
 
 	private static final Logger log = LogManager.getLogger(RefactoringAnalyzer.class);
 
-	public RefactoringAnalyzer (Project project, Database db, Repository repository, String fileStorageDir, boolean storeFullSourceCode) {
+	public RefactoringAnalyzer (Project project, Database db, Repository repository, PMDatabase pmDatabase, String fileStorageDir, boolean storeFullSourceCode) {
 		this.project = project;
 		this.db = db;
 		this.repository = repository;
 		this.storeFullSourceCode = storeFullSourceCode;
-
 		this.tempDir = null;
+		this.pmDatabase = pmDatabase;
 		this.fileStorageDir = lastSlashDir(fileStorageDir);
 	}
 
-	public List<RefactoringCommit> collectCommitData(RevCommit commit, CommitMetaData superCommitMetaData, List<Refactoring> refactoringsToProcess) throws IOException {
+	public List<RefactoringCommit> collectCommitData(RevCommit commit, CommitMetaData superCommitMetaData, List<Refactoring> refactoringsToProcess, List<DiffEntry> entries) {
 		List<RefactoringCommit> allRefactorings = new ArrayList<>();
+		boolean persistedCommitMetaData = false;
 
 		try {
-			// get the map between new path -> old path
-			HashMap<String, String> filesMap = getMapWithOldAndNewFiles(repository, commit);
+			//get the map between new path -> old path
+			HashMap<String, String> filesMap = getMapWithOldAndNewFiles(entries);
 
 			// get the map between class names
 			HashMap<String, String> classAliases = getClassAliases(refactoringsToProcess);
-
 			//Iterate over all Refactorings found for this commit
 			for (Refactoring refactoring : refactoringsToProcess) {
+
 				String refactoringSummary = refactoring.toString().trim();
 				log.debug("Process Commit [" + commit.getId().getName() + "] with Refactoring: [" + refactoringSummary + "]");
 
@@ -65,9 +62,10 @@ public class RefactoringAnalyzer {
 				for (ImmutablePair<String, String> pair : refactoredFilesAndClasses(refactoring, refactoring.getInvolvedClassesBeforeRefactoring())) {
 					// get the name of the file before the refactoring
 					// if the one returned by RMiner exists in the map, we use the one in the map instead
-					String refactoredClassFile = pair.getLeft();
-					if(filesMap.containsKey(refactoredClassFile))
-						refactoredClassFile = filesMap.get(refactoredClassFile);
+					String refactoredClassFile = enforceUnixPaths(pair.getLeft());
+					//ignore the filename from JGit for move source dirs etc, because it is unreliable (#133)
+					if(!isClassRename(refactoring) && filesMap.containsKey(refactoredClassFile))
+						refactoredClassFile = enforceUnixPaths(filesMap.get(refactoredClassFile));
 
 					/**
 					 * Sometimes, RMiner finds refactorings in newly introduced classes. Often, as part of larger refactorings.
@@ -76,12 +74,27 @@ public class RefactoringAnalyzer {
 					 * Thus, we skip this refactoring.
 					 */
 					if(fileDoesNotExist(refactoredClassFile)) {
-						log.info("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + refactoringSummary);
+						log.error("Refactoring in a newly introduced file, which we skip: " + pair.getLeft() + ", commit = " + superCommitMetaData + ", refactoring = " + shortSummary(refactoringSummary));
 						continue;
 					}
 
-					// now, we get the name of the class that was refactored
-					ImmutablePair<String, String> refactoredClassName = new ImmutablePair<>(pair.getRight(), classAliases.get(pair.getRight()));
+					/**
+					 * Now, we get the name of the class that was refactored. However, we skip refactorings in anonymous classes.
+					 * For us, it's pretty hard to get the code metrics for those (as CK 0.6.0 doesn't return
+					 * good names for anonymous classes).
+					 * (If the heuristic fail, it's not a problem, as later we won't be able to find code metrics for it; so we will never
+					 * store "bad data")
+					 */
+					String refactoredClassNameFromRMiner = pair.getRight();
+					if(isAnonymousClass(refactoredClassNameFromRMiner)) {
+						log.error("Refactoring in an anonymous class, which we skip: " + refactoredClassNameFromRMiner + ", commit = " + superCommitMetaData + ", refactoring = " + shortSummary(refactoringSummary));
+						continue;
+					}
+					if(!persistedCommitMetaData){
+						persistedCommitMetaData = true;
+						db.persist(superCommitMetaData);
+					}
+					ImmutablePair<String, String> refactoredClassName = new ImmutablePair<>(refactoredClassNameFromRMiner, classAliases.get(refactoredClassNameFromRMiner));
 
 					// build the full RefactoringCommit object
 					RefactoringCommit refactoringCommit = buildRefactoringCommitObject(superCommitMetaData, refactoring, refactoringSummary, refactoredClassName, refactoredClassFile);
@@ -93,7 +106,7 @@ public class RefactoringAnalyzer {
 						if(storeFullSourceCode)
 							storeSourceCode(refactoringCommit.getId(), refactoring, commit);
 					} else {
-						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName()  + " with the refactoring" + refactoringSummary + " from project " + project.toString());
+						log.debug("RefactoringCommit instance was not created for the class: " + refactoredClassName + " and the refactoring type: " + refactoring.getName()  + " on commit " + commit.getName());
 					}
 				}
 			}
@@ -102,26 +115,6 @@ public class RefactoringAnalyzer {
 		}
 
 		return allRefactorings;
-    }
-
-	/**
-	 * Get a map that contains classes that were renamed in this commit.
-	 *
-	 * Note that the map is name after -> name before. This is due to the fact that
-	 * RMiner sometimes returns, for other refactorings, "the name before" = "the name after renaming".
-	 */
-	private HashMap<String, String> getClassAliases(List<Refactoring> refactoringsToProcess) {
-		HashMap<String, String> aliases = new HashMap<>();
-
-		for (Refactoring rename : possibleClassRenames(refactoringsToProcess)) {
-
-			String nameBefore = rename.getInvolvedClassesBeforeRefactoring().iterator().next().getRight();
-			String nameAfter = rename.getInvolvedClassesAfterRefactoring().iterator().next().getRight();
-
-			aliases.put(nameAfter, nameBefore);
-		}
-
-		return aliases;
 	}
 
 	protected RefactoringCommit buildRefactoringCommitObject(CommitMetaData superCommitMetaData, Refactoring refactoring, String refactoringSummary, ImmutablePair<String, String> refactoredClassNames, String fileName) {

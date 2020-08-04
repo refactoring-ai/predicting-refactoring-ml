@@ -1,9 +1,11 @@
 package refactoringml.util;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Constants;
@@ -14,16 +16,18 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
+import org.refactoringminer.api.Refactoring;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static refactoringml.util.RefactoringUtils.refactoredFilesAndClasses;
 
 public class JGitUtils {
 	private static final Logger log = LogManager.getLogger(JGitUtils.class);
+	private static DiffFormatter diffFormatter;
 
 	public static int numberOfCommits(Git git) throws GitAPIException {
 		Iterable<RevCommit> commits = git.log().call();
@@ -102,19 +106,80 @@ public class JGitUtils {
 	 * Note that key is the new file, and value is the old file.
 	 * So, if we don't find the file in this map, this means it's already the old file.
 	 */
-	public static HashMap<String, String> getMapWithOldAndNewFiles(Repository repository, RevCommit commit) throws IOException {
+	public static HashMap<String, String> getMapWithOldAndNewFiles(List<DiffEntry> entries) {
 		HashMap<String, String> map = new HashMap<>();
-
-		try (DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-			diffFormatter.setRepository(repository);
-			diffFormatter.setDetectRenames(true);
-			RevCommit commitParent = commit.getParent(0);
-
-			List<DiffEntry> entries = diffFormatter.scan(commitParent, commit);
-
-			entries.stream().forEach(e -> map.put(e.getNewPath(), e.getOldPath()));
-		}
-
+		entries.forEach(e -> map.put(e.getNewPath(), e.getOldPath()));
 		return map;
+	}
+
+	//get a diff-formater for the given repository
+	public static DiffFormatter getDiffFormater(){
+		return diffFormatter;
+	}
+
+	public static void createDiffFormatter(Repository repository){
+		diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+		diffFormatter.setRepository(repository);
+		diffFormatter.setDetectRenames(true);
+	}
+
+	//Calculate the JGit diff-entries for the given repository and commit
+	public static List<DiffEntry> calculateDiffEntries(RevCommit commit) throws IOException {
+		RevCommit commitParent = commit.getParentCount() == 0 ? null : commit.getParent(0);
+		return getDiffFormater().scan(commitParent, commit);
+	}
+
+	//all renames detected by JGit
+	// returns the filename before and after the rename
+	public static Set<ImmutablePair<String, String>> getJGitRenames(List<DiffEntry> entries){
+		Set<ImmutablePair<String, String>> renamedClassesJGit = null;
+		if(entries  != null) {
+			Set<DiffEntry> renameEntries = entries.stream()
+					.filter(diffEntry -> diffEntry.getChangeType().equals(DiffEntry.ChangeType.RENAME))
+					.collect(Collectors.toSet());
+			renamedClassesJGit = renameEntries.stream()
+					.map(JGitUtils::getClassNames)
+					.collect(Collectors.toSet());
+		}
+		return renamedClassesJGit;
+	}
+
+	//all rename class files detected by refactoring miner
+	// returns the filename before and after the rename
+	public static Set<ImmutablePair<String, String>> getRefactoringMinerRenames(List<Refactoring> refactoringsToProcess){
+		Set<ImmutablePair<String, String>> renamedClassesRMiner = null;
+		if(refactoringsToProcess != null){
+			Set<Refactoring> renameRefactorings = refactoringsToProcess.stream()
+					.filter(RefactoringUtils::isClassRename)
+					.collect(Collectors.toSet());
+			renamedClassesRMiner = renameRefactorings.stream()
+					.map(JGitUtils::getClassNames)
+					.flatMap(Collection::stream)
+					.collect(Collectors.toSet());
+		}
+		return renamedClassesRMiner;
+	}
+
+	//Get the file names of all refactored classes before and after the refactoring
+	private static Set<ImmutablePair<String, String>> getClassNames(Refactoring refactoring){
+		Set<ImmutablePair<String, String>> before = refactoredFilesAndClasses(refactoring, refactoring.getInvolvedClassesBeforeRefactoring());
+		Set<ImmutablePair<String, String>> after = refactoredFilesAndClasses(refactoring, refactoring.getInvolvedClassesAfterRefactoring());
+		if(before.size() != after.size())
+			throw new IllegalStateException("The size of the list of filenames before the refactoring is different from the size afterwards.");
+
+		Set<ImmutablePair<String, String>> results = new HashSet<>();
+		for(int i = 0; i < before.size(); i++){
+			String beforeFileName = before.iterator().next().getLeft();
+			String afterFileName = after.iterator().next().getLeft();
+			results.add(new ImmutablePair<>(beforeFileName, afterFileName));
+		}
+		return results;
+	}
+
+	//get the file names of the affected class from the diffentry
+	private static ImmutablePair<String, String> getClassNames(DiffEntry entry){
+		String beforeFileName = entry.getOldPath();
+		String afterFileName = entry.getNewPath();
+		return new ImmutablePair<>(beforeFileName, afterFileName);
 	}
 }

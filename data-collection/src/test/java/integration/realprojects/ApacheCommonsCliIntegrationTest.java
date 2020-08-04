@@ -15,13 +15,13 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 	protected String getStableCommitThreshold() {return "10";};
 
 	@Override
-	protected String getLastCommit() {
-		return "1596f3bbe57986361da4ac1a23634dd5b00d10df";
+	protected String getRepo() {
+		return "https://github.com/apache/commons-cli.git";
 	}
 
 	@Override
-	protected String getRepo() {
-		return "https://github.com/apache/commons-cli.git";
+	protected String getLastCommit() {
+		return "c12260c05ebcd27558265395df79b8b049534fbd";
 	}
 
 	//Test the isInnerClass boolean for both RefactoringCommit and StableCommit .
@@ -48,9 +48,9 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 		List<StableCommit> areNotInnerClassesInStable = getStableCommits().stream().filter(commit ->
 				!commit.getClassMetrics().isInnerClass()).collect(Collectors.toList());
-		Assert.assertEquals(1726, areNotInnerClassesInStable.size());
+		Assert.assertEquals(1702, areNotInnerClassesInStable.size());
 
-		Assert.assertEquals(1769, getStableCommits().size());
+		Assert.assertEquals(1745, getStableCommits().size());
 	}
 
 	@Test
@@ -260,6 +260,6 @@ public class ApacheCommonsCliIntegrationTest extends IntegrationBaseTest {
 
 	@Test
 	public void projectMetrics() {
-		assertProjectMetrics(52, 23, 29, 7070, 2790, 4280);
+		assertProjectMetrics(52, 23, 29, 7078, 2793, 4285);
 	}
 }

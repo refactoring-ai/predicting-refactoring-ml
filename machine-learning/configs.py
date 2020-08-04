@@ -3,7 +3,16 @@
 # --------------------------------
 # is it a test run?
 # test runs reduce the dataset to 100 instances only
+from enum import IntEnum
+
 TEST = False
+
+# --------------------------------
+# FileTypes
+# --------------------------------
+# Do we only look at production or test files or both?
+# 0 = only_production, 1 = only_test, 2 = production_and_test
+FILE_TYPE = 2
 
 # --------------------------------
 # Database related
@@ -23,11 +32,6 @@ BALANCE_DATASET = True
 # options = [random, cluster_centroids, nearmiss]
 BALANCE_DATASET_STRATEGY = "random"
 
-# decide whether to run the test as a ordered set of events
-# if so, then, we don't do k-fold validation, but split it in train/test
-ORDERED_DATA = False
-ORDERED_DATA_TEST_SPLIT = 0.1
-
 # --------------------------------
 # Dataset scaling
 # --------------------------------
@@ -40,7 +44,12 @@ SCALE_DATASET = True
 # --------------------------------
 
 # use (or drop) process and authorship metrics
-USE_PROCESS_AND_AUTHORSHIP_METRICS = True
+DROP_PROCESS_AND_AUTHORSHIP_METRICS = True
+#
+PROCESS_AND_AUTHORSHIP_METRICS = ["authorOwnership", "bugFixCount", "qtyMajorAuthors", "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"]
+
+# Drop these metrics as well
+DROP_METRICS = []
 
 # perform feature reduction?
 FEATURE_REDUCTION = True
@@ -66,6 +75,12 @@ N_CV_SEARCH = 5
 # Evaluation: Cross-validation configuration
 # --------------------------------
 
+# Specify either a train/ test split, e.g. 0.2 -> 80/ 20 split
+TEST_SPLIT_SIZE = -1
+# Or specify test data sets in the database
+# NOTE: set TEST_SPLIT_SIZE value to < 0, in order to indicate to use the given datasets instead of a random train/ test split
+VALIDATION_DATASETS = ["test set github", "validation set github"]
+
 # number of folds for the final evaluation
 N_CV = 10
 
@@ -79,15 +94,24 @@ N_CV_DNN = 10
 # models and datasets we have available
 MODELS = ['svm', 'svm-non-linear', 'decision-tree', 'random-forest', 'logistic-regression', 'naive-bayes',
           'extra-trees']
-DEEP_MODELS = ['neural-network']
 
 # Empty dataset means 'all datasets'
-# options = ['', 'apache', 'github', 'fdroid']
-DATASETS = ['', 'apache', 'github', 'fdroid']
+DATASETS = ["github"]
+
 
 # --------------------------------
 # Refactorings
 # --------------------------------
+
+# refactoring levels
+class Level(IntEnum):
+    NONE = 0
+    Class = 1
+    Method = 2
+    Variable = 3
+    Field = 4
+    Other = 5
+
 
 # Refactorings to study
 CLASS_LEVEL_REFACTORINGS = ["Extract Class",
@@ -137,9 +161,19 @@ FIELD_LEVEL_REFACTORINGS = ["Move Attribute",
 
 OTHER_LEVEL_REFACTORINGS = ["Move Source Folder",
                             "Change Package"]
+
+levelMap = {Level.NONE: [],
+            Level.Class: CLASS_LEVEL_REFACTORINGS,
+            Level.Method: METHOD_LEVEL_REFACTORINGS,
+            Level.Field: FIELD_LEVEL_REFACTORINGS,
+            Level.Variable: VARIABLE_LEVEL_REFACTORINGS,
+            Level.Other: OTHER_LEVEL_REFACTORINGS}
 # --------------------------------
 # DO NOT CHANGE FROM HERE ON
 # --------------------------------
+if DROP_PROCESS_AND_AUTHORSHIP_METRICS:
+    DROP_METRICS += PROCESS_AND_AUTHORSHIP_METRICS
+
 
 # Let's change some parameters (i.e., make them smaller) if this is a test run
 if TEST:

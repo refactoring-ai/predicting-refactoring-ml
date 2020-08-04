@@ -45,6 +45,8 @@ public abstract class IntegrationBaseTest {
 		return null;
 	}
 
+	protected String getFirstCommit() { return null; }
+
 	protected abstract String getRepo();
 
 	protected String getStableCommitThreshold() {return "50";};
@@ -74,6 +76,7 @@ public abstract class IntegrationBaseTest {
 				repoLocalDir,
 				outputDir,
 				db,
+				getFirstCommit(),
 				getLastCommit(),
 				storeSourceCode());
 
@@ -151,7 +154,7 @@ public abstract class IntegrationBaseTest {
 			return refactoringCommits;
 
 		this.session = sf.openSession();
-		refactoringCommits = session.createQuery("From RefactoringCommit where project = :project order by id asc")
+		refactoringCommits = session.createQuery("From RefactoringCommit where project = :project AND isValid = TRUE order by id asc")
 				.setParameter("project", project)
 				.list();
 		this.session.close();
@@ -268,17 +271,18 @@ public abstract class IntegrationBaseTest {
 	@Test
 	public void monitorDuplicateRefactoringInstances(){
 		Session shortSession = sf.openSession();
-		String query = "SELECT COUNT(*) FROM (SELECT DISTINCT s.refactoring, s.refactoringSummary, s.className, s.filePath, s.isTest, s.level, s.classMetrics_id, s.commitMetaData_id, s.fieldMetrics_id, s.methodMetrics_id, s.processMetrics_id, s.project_id, s.variableMetrics_id From RefactoringCommit s where s.project_id = " + project.getId() + ") t";
+		String query = "SELECT COUNT(*) FROM (SELECT DISTINCT s.refactoring, s.refactoringSummary, s.className, s.filePath, s.isTest, s.level, s.classMetrics_id, s.commitMetaData_id, s.fieldMetrics_id, s.methodMetrics_id, s.processMetrics_id, s.project_id, s.variableMetrics_id From RefactoringCommit s where s.isValid = TRUE AND s.project_id = " + project.getId() + ") t";
 		Object result = shortSession.createSQLQuery(query).getSingleResult();
 		shortSession.close();
 		int uniqueRefactoringCommits = Integer.parseInt(result.toString());
 		Assert.assertEquals(uniqueRefactoringCommits, getRefactoringCommits().size());
 	}
 
+	//Test if we have invalid or redundant commit-metadata collected
 	@Test
 	public void relevantCommitMetaData(){
 		session = sf.openSession();
-		List<String> allRelevantCommitIds = session.createQuery("SELECT DISTINCT r.commitMetaData.commitId FROM RefactoringCommit r").list();
+		List<String> allRelevantCommitIds = session.createQuery("SELECT DISTINCT r.commitMetaData.commitId FROM RefactoringCommit r WHERE r.isValid = TRUE").list();
 		allRelevantCommitIds.addAll(session.createQuery("SELECT DISTINCT s.commitMetaData.commitId FROM StableCommit s").list());
 		allRelevantCommitIds = allRelevantCommitIds.stream().distinct().collect(Collectors.toList());
 		List<String> allCommitMetaDatas = session.createQuery("SELECT DISTINCT c.commitId From CommitMetaData c").list();

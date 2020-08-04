@@ -1,43 +1,25 @@
-from enum import Enum
-from db.QueryBuilder import get_all_level_stable, get_level_refactorings_count, get_level_refactorings, get_refactoring_types
+from configs import DATASETS, Level, VALIDATION_DATASETS
+from db.QueryBuilder import get_all_level_stable, get_level_refactorings_count, get_level_refactorings
 from db.DBConnector import execute_query
+from utils.log import log_init, log_close, log
+import time
 
+log_init()
+log('Begin cache warm-up')
+start_time = time.time()
 
-class Level(Enum):
-    Class = 1
-    Method = 2
-    Variable = 3
-    Field = 4
-    Other = 5
-
-
-datasets = ['', 'apache', 'github', 'fdroid']
-
-
-print('begin cache warmup')
-
-
-for dataset in datasets:
-    print("dataset: " + dataset)
-
-    print("-- non refactored methods")
-    execute_query(get_all_level_stable(2, dataset))
-    print("-- non refactored variables")
-    execute_query(get_all_level_stable(3, dataset))
-    print("-- non refactored classes")
-    execute_query(get_all_level_stable(1, dataset))
-    print("-- non refactored fields")
-    execute_query(get_all_level_stable(4, dataset))
-
-    print("-- refactoring types")
-    execute_query(get_refactoring_types(dataset))
-
+for dataset in (DATASETS + VALIDATION_DATASETS):
+    log("\n**** dataset: " + dataset)
     for level in Level:
-        print("-- " + str(level) + " level refactoring count")
-        refactorings =  execute_query(get_level_refactorings_count(int(level), dataset))
-        for refactoring_name in refactorings["refactoring"].values:
-            print("---- " + refactoring_name)
-            execute_query(get_level_refactorings(int(level), refactoring_name, dataset))
+        log("-- non refactored instances for " + str(level))
+        non_refactored = execute_query(get_all_level_stable(int(level), dataset))
+        log(str(len(non_refactored)) + " non-refactored instances were found for level: " + str(level))
 
+        log("-- " + str(level) + " refactoring types with count")
+        refactorings = execute_query(get_level_refactorings_count(int(level), dataset))
+        log(refactorings.to_string())
+        for refactoring_name in refactorings['refactoring']:
+            refactoring_instances = execute_query(get_level_refactorings(int(level), refactoring_name, dataset))
 
-print('end cache warmup')
+log('Cache warm-up took %s seconds.' % (time.time() - start_time))
+log_close()

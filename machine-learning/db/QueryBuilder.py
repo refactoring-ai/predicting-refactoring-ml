@@ -1,3 +1,6 @@
+from ml.enums.filetype import FileType
+from configs import FILE_TYPE
+
 # region database structure
 # table names for reference:
 commitMetaData: str = "commitmetadata"
@@ -79,8 +82,6 @@ fieldMetricsFields = ["fieldAppearances",
                       "fieldName"]
 processMetricsFields = ["authorOwnership",
                         "bugFixCount",
-                        "linesAdded",
-                        "linesDeleted",
                         "qtyMajorAuthors",
                         "qtyMinorAuthors",
                         "qtyOfAuthors",
@@ -111,8 +112,9 @@ refactoringCommitFields = ["className",
                            "filePath",
                            "isTest",
                            "level",
-                           "refactoring",
-                           "refactoringSummary"]
+                           #"refactoring", this two fields are not used for the training
+                           #"refactoringSummary"
+                           ]
 stableCommitFields = ["className",
                       "filePath",
                       "isTest",
@@ -134,10 +136,9 @@ tableMap = {commitMetaData: (commitMetaData + "_id", commitMetaDataFields),
             variableMetrics: (variableMetrics + "s_id", variableMetricsFields),
             processMetrics: (processMetrics + "_id", processMetricsFields),
             classMetrics: (classMetrics + "s_id", classMetricsFields),
-            project: (project + "_id", projectFields), refactoringCommits: ("id", refactoringCommitFields),
+            project: (project + "_id", projectFields),
+            refactoringCommits: ("id", refactoringCommitFields),
             stableCommits: ("id", stableCommitFields)}
-
-
 # endregion
 
 
@@ -148,8 +149,9 @@ def project_filter(instance_name: str, project_name: str) -> str:
 
 
 # returns a sql condition to join instances with the given table
-def join_tables(instance_name: str, table_name: str) -> str:
-    return instance_name + "." + tableMap[table_name][0] + " = " + table_name + ".id"
+def join_table(instance_name: str, table_name: str) -> str:
+    return " INNER JOIN " + table_name + \
+           " ON " + instance_name + "." + tableMap[table_name][0] + " = " + table_name + ".id"
 
 
 # returns a list of all metrics for the given level
@@ -162,6 +164,8 @@ def get_metrics_level(level: int):
     elif level == 4:
         return [(classMetrics, classMetricsFields), (fieldMetrics, fieldMetricsFields),
                 (processMetrics, processMetricsFields)]
+    elif level == 5:
+        return [(classMetrics, classMetricsFields), (processMetrics, processMetricsFields)]
 
 
 # Create a sql select statement for the given instance and requested fields
@@ -175,32 +179,29 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
     # combine the required fields with their table names
     required_fields: str = ""
     required_tables: str = ""
-    join_conditions: str = ""
     for table_name, field_names in fields:
-        required_tables += table_name + ", "
         # don't join the instance with itself
         if (instance_name != table_name):
-            join_conditions += join_tables(instance_name, table_name) + " AND "
+            required_tables += join_table(instance_name, table_name)
         for field_name in field_names:
             required_fields += table_name + "." + field_name + ", "
     # remove the last chars because it is either a ", " or an " AND "
     required_fields = required_fields[:-2]
-    required_tables = required_tables[:-2]
-    join_conditions = join_conditions[:-5]
 
-    sql: str = "SELECT " + required_fields + " FROM " + required_tables + " WHERE " + join_conditions
-    if conditions != "":
+    sql: str = "SELECT " + required_fields + " FROM " + instance_name + required_tables + " WHERE "
+    if len(conditions) > 2:
         if not sql.endswith(' WHERE '):
             sql += " AND "
         sql += conditions
-    if dataset != "":
+    if len(dataset) > 0:
         if not sql.endswith(' WHERE '):
             sql += " AND "
         sql += project_filter(instance_name, dataset)
-
-    return sql + " " + order
-
-
+    if sql.endswith(' WHERE '):
+        sql = sql[:-7]
+    if len(order) > 8:
+        sql += " " + order
+    return sql
 # endregion
 
 
@@ -209,17 +210,37 @@ def get_instance_fields(instance_name: str, fields, conditions: str = "", datase
 def get_refactoring_levels(dataset="") -> str:
     return "SELECT refactoring, count(*) total from refactoringcommit where " + project_filter("refactoringcommit",
                                                                                                dataset) \
-           + " group by refactoring order by count(*) desc"
+            + valid_refactorings_filter(refactoringCommits) \
+            + " group by refactoring order by count(*) desc"
 
 
 def __get_level(instance_name: str, level: int, m_refactoring: str, dataset: str = "") -> str:
-    refactoring_condition: str = instance_name + ".level = " + str(level)
-    if m_refactoring != "":
-        refactoring_condition += " AND " + refactoringCommits + ".refactoring = \"" + m_refactoring + "\""
+    # only select valid refactorings from the database, if refactorings are selected
+    refactoring_condition: str = instance_name + ".level = " + str(level) + valid_refactorings_filter(instance_name)
 
-    return get_instance_fields(instance_name, [(instance_name, tableMap[instance_name][1]),
-                                               (commitMetaData, ["commitDate"])] + get_metrics_level(level),
+    # only select the specified refactoring type from the database
+    if m_refactoring != "":
+        refactoring_condition += " AND " + refactoringCommits + ".refactoring = \"" + m_refactoring + "\""\
+                                 + file_type_filter()
+
+    return get_instance_fields(instance_name, [(instance_name, []), (commitMetaData, [])] + get_metrics_level(level),
                                refactoring_condition, dataset, " order by " + commitMetaData + ".commitDate")
+
+
+# Add restriction whether to use only production, test or both files
+def file_type_filter() -> str:
+    if FILE_TYPE != FileType.test_and_production.value:
+        return " AND " + refactoringCommits + ".isTest = " + str(FILE_TYPE)
+    else:
+        return ""
+
+
+# only select valid refactorings from the database
+def valid_refactorings_filter(instance_name: str) -> str:
+    if instance_name == refactoringCommits:
+        return " AND " + instance_name + ".isValid = TRUE"
+    else:
+        return ""
 
 
 # get the count of all refactorings for the given level
@@ -227,7 +248,7 @@ def get_level_refactorings_count(level: int, dataset: str = "") -> str:
     return "SELECT refactoring, count(*) FROM (" + \
            get_instance_fields(refactoringCommits, [(refactoringCommits, ["refactoring"])],
                                refactoringCommits + ".level = " + str(level), dataset) + \
-           ") t group by refactoring order by count(*) desc"
+           valid_refactorings_filter(refactoringCommits) + ") t group by refactoring order by count(*) desc"
 
 
 # get all refactoring instances with the given refactoring type and metrics in regard to the level
@@ -248,6 +269,6 @@ def get_all_level_stable(level: int, dataset: str = "") -> str:
 # get all unique refactoring types as a list
 # Optional dataset: filter to this specific project
 def get_refactoring_types(dataset: str = "") -> str:
-    return ""
-    # TODO: implement
+    return "SELECT DISTINCT refactoring FROM " \
+           "(" + get_instance_fields(refactoringCommits, [(refactoringCommits, ["refactoring"])], "", dataset) + ") t"
 # endregion

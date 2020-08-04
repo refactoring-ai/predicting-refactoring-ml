@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import refactoringml.db.RefactoringCommit;
 import refactoringml.util.FileUtils;
-import refactoringml.util.JGitUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,7 +104,6 @@ public class R6ToyProjectTest extends IntegrationBaseTest {
 
 	@Test
 	void assertStoreSourceCode() {
-
 		String[] allJavaFiles = FileUtils.getAllJavaFiles(outputDir);
 		Assertions.assertEquals(14, allJavaFiles.length);
 

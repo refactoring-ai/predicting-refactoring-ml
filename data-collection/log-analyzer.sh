@@ -8,12 +8,12 @@ outFileProjects="logs/project_statistics.md"
 
 #Individual project results
 echo "## Individual Project Results" > $outFileProjects
-egrep -A 10 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile >> $outFileProjects
+egrep -A 15 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile >> $outFileProjects
 
 
 #General Statistics
 echo "## General Statistics" > $outFile
-totalTime=$(egrep -oh '.git in [0-9]*.[0-9]*' $infoFile | egrep -o '[+-]?[0-9]+([.][0-9]+)?' | awk '{s+=$1} END {print s}')
+totalTime=$(egrep -oh ' in [0-9]*.[0-9]*' $infoFile | egrep -o '[+-]?[0-9]+([.][0-9]+)?' | awk '{s+=$1} END {print s}')
 totalProjects=$(egrep -oh 'Finished mining http.+ in [0-9]+.[0-9]+ minutes' $infoFile | wc -l)
 echo "A total of **${totalProjects} projects** were processed with a total App execution time of **${totalTime} minutes**.  " >> $outFile
 totalRefactorings=$(egrep 'refactoring- and ' $infoFile | sed -e 's/.*Found \(.*\) refactoring-.*/\1/' | awk '{s+=$1} END {print s}')
@@ -24,6 +24,10 @@ echo "**${totalStableInstances} stable** instances were found in total." >> $out
 for ((i=15;i<=50;i+=5)); do
 	currentStable=$(egrep "stable instances in the project with threshold: ${i}" $infoFile | sed -e 's/.*Found \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
 	echo -e " 1. ${currentStable} stablecommit instances were found for threshold ${i}" >> $outFile
+done
+for ((i=60;i<=100;i+=10)); do
+        currentStable=$(egrep "stable instances in the project with threshold: ${i}" $infoFile | sed -e 's/.*Found \(.*\) stable.*/\1/' | awk '{s+=$1} END {print s}')
+        echo -e " 1. ${currentStable} stablecommit instances were found for threshold ${i}" >> $outFile
 done
 
 #Exceptions
@@ -54,11 +58,10 @@ for e in $uniqueErrors; do
 	echo -e " 1. **${currentErrorCount}** errors at **${e}** occurred during runtime." >> $outFile
 done
 
-
 #Project statistics
 echo "## Detailed Statistics from Project Statistics" >> $outFile
 commitCount=$(egrep -oh "commits=[0-9]+" $outFileProjects | sed -e 's/^commits=\([0-9]*\).*$/\1/' | awk '{s+=$1} END {print s}')
-averageCommitProcessingTime=`bc <<< "scale=5; ${totalTime} / ${commitCount} * 1000 * 60"`
+averageCommitProcessingTime=$(echo "scale=5; ${totalTime} / ${commitCount} * 1000 * 60" | bc -l)
 productionFilesCount=$(egrep -oh "numberOfProductionFiles=[0-9]+" $outFileProjects | sed -e 's/^numberOfProductionFiles=\([0-9]*\).*$/\1/' | awk '{s+=$1} END {print s}')
 testFilesCount=$(egrep -oh "numberOfTestFiles=[0-9]+" $outFileProjects | sed -e 's/^numberOfTestFiles=\([0-9]*\).*$/\1/' | awk '{s+=$1} END {print s}')
 javaLoc=$(egrep -oh "javaLoc=[0-9]+" $outFileProjects | sed -e 's/^javaLoc=\([0-9]*\).*$/\1/' | awk '{s+=$1} END {print s}')
