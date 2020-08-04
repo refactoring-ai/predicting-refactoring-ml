@@ -42,14 +42,17 @@ SCALE_DATASET = True
 # --------------------------------
 # Feature reduction
 # --------------------------------
-
-# use (or drop) process and authorship metrics
-DROP_PROCESS_AND_AUTHORSHIP_METRICS = True
-#
+#Remove all instances where one of process and authorship metrics is -1 (faulty).
+DROP_FAULTY_PROCESS_AND_AUTHORSHIP_METRICS = True
+# Use (or drop) process and authorship metrics, this cancels DROP_FAULTY_PROCESS_AND_AUTHORSHIP_METRICS.
+DROP_PROCESS_AND_AUTHORSHIP_METRICS = False
+#a list of all process and authorship metrics
 PROCESS_AND_AUTHORSHIP_METRICS = ["authorOwnership", "bugFixCount", "qtyMajorAuthors", "qtyMinorAuthors", "qtyOfAuthors", "qtyOfCommits", "refactoringsInvolved"]
 
 # Drop these metrics as well
-DROP_METRICS = []
+# TODO: validate this
+#   number of default fields and methods is always 0. Thus, remove them from the data.
+DROP_METRICS = ["classNumberOfDefaultFields", "classNumberOfDefaultMethods"]
 
 # perform feature reduction?
 FEATURE_REDUCTION = True
