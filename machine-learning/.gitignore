@@ -1,5 +1,5 @@
-results/*
-results-*.txt
+**/results/*
+**/results-*.txt
 
 **/_cache/*
 dbconfig.ini
