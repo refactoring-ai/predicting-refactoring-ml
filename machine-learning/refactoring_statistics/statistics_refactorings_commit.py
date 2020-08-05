@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from db.DBConnector import execute_query
-from statistics.plot_utils import heatmap
+from refactoring_statistics.plot_utils import heatmap
 from utils.log import log_init, log_close, log
 import time
 from os import path
@@ -113,9 +113,9 @@ def co_occurence_commit(refactorings, probability_threshold = 0.0):
     #create a subplot, in order to name the columns and rows
     fig, ax = plt.subplots(figsize=(co_occurrence_matrix.shape[1], co_occurrence_matrix.shape[0]), dpi=160)
     im, cbar = heatmap(co_occurrence_matrix, filtered_labels_rows, filtered_labels_columns, ax=ax, cmap="YlGn", cbarlabel="Co-occurence [P/ Commit]")
-    plt.title("Co-occurrence of refactoring types on the same commit (min[row | col] > %s)" % probability_threshold)
-    plt.savefig("results/Refactorings_co-occurrence_commit_likelihood_%s_%s.png" % (probability_threshold, str(co_occurrence_matrix.shape)))
-    print("Saved figure: Co-occurrence of refactoring types on the same commit (min[row | col] > %s)" % probability_threshold)
+    plt.title("Co-occurrence of refactoring types on the same commit (min[row | col] > %s.2f)" % probability_threshold)
+    plt.savefig("results/Refactorings_co-occurrence_commit_likelihood_%s.2f_%s.png" % (probability_threshold, str(co_occurrence_matrix.shape)))
+    print("Saved figure: Co-occurrence of refactoring types on the same commit (min[row | col] > %s.2f)" % probability_threshold)
 
 
 def co_occurence_window(refactorings, table: str = "6H", probability_threshold = 0.0):
@@ -138,10 +138,10 @@ def co_occurence_window(refactorings, table: str = "6H", probability_threshold =
     if not path.exists("results/Refactorings_window_%s_statistics.csv" % table):
         for refactoring_name in refactorings:
             query = "SELECT "
-            query += ", ".join(["SUM(IF(`%s count` > 0, 1, 0)) AS `%s`" % (refactoring_type, refactoring_type) for refactoring_type in refactorings])
+            query += ", ".join(["SUM(IF(`%s` > 0, 1, 0)) AS `%s`" % (refactoring_type, refactoring_type) for refactoring_type in refactorings])
             query += ",COUNT(*) AS `Window Count` "
             query += ",SUM(`Commit Count`) AS `Window Size Total` "
-            query += ("FROM RefactoringsWindow_%s WHERE `%s count` > 0" % (table, refactoring_name))
+            query += ("FROM RefactoringsWindow_%s WHERE `%s` > 0" % (table, refactoring_name))
             refactoringspercommit = execute_query(query)
             refactoringspercommit["Refactoring Type"] = refactoring_name
             dataframe = pd.concat([dataframe, refactoringspercommit])
@@ -166,10 +166,10 @@ def co_occurence_window(refactorings, table: str = "6H", probability_threshold =
     #plot the matrix
     #create a subplot, in order to name the columns and rows
     fig, ax = plt.subplots(figsize=(co_occurrence_matrix.shape[1], co_occurrence_matrix.shape[0]), dpi=160)
-    im, cbar = heatmap(co_occurrence_matrix, filtered_labels_rows, filtered_labels_columns, ax=ax, cmap="YlGn", cbarlabel="Co-occurence [P/ Commit]")
-    plt.title("Co-occurrence of refactoring types in the same commit time window of &s (min[row | col] > %s)" % (table, probability_threshold))
-    plt.savefig("results/Refactorings_co-occurrence_window_likelihood_%s_%s.png" % (probability_threshold, str(co_occurrence_matrix.shape)))
-    print("Saved figure: Co-occurrence of refactoring types in the same commit time window of &s (min[row | col] > %s)" % (table, probability_threshold))
+    im, cbar = heatmap(co_occurrence_matrix.to_numpy(), filtered_labels_rows, filtered_labels_columns, ax=ax, cmap="YlGn", cbarlabel="Co-occurence [P/ Commit]")
+    plt.title("Co-occurrence of refactoring types in the same commit time window of &s (min[row | col] > %s.2f)" % (table, probability_threshold))
+    plt.savefig("results/Refactorings_co-occurrence_window_likelihood_%s.2f_%s.png" % (probability_threshold, str(co_occurrence_matrix.shape)))
+    print("Saved figure: Co-occurrence of refactoring types in the same commit time window of &s (min[row | col] > %s.2f)" % (table, probability_threshold))
 
 #all refactoring types
 refactorings = ["Change Attribute Type",
@@ -211,18 +211,19 @@ refactorings = ["Change Attribute Type",
                 "Replace Variable With Attribute",
                 "Split Parameter",
                 "Split Variable"]
-log_init()
+
+log_init(header=False, config=False)
 log('Begin Statistics')
 start_time = time.time()
 
 #Co-occurrence of refactoring types on the same commit
-co_occurence_commit(refactorings)
-co_occurence_commit(refactorings, 0.1)
-co_occurence_commit(refactorings, 0.2)
-co_occurence_commit(refactorings, 0.3)
-co_occurence_commit(refactorings, 0.5)
+for threshold in np.arange(0.0, 0.6, 0.1):
+    co_occurence_commit(refactorings, threshold)
 
 #Co-occurrence of refactoring types in the same commit window
+for table in [6]:
+    for threshold in np.arange(0.0, 0.6, 0.1):
+        co_occurence_window(refactorings, str(table) + "H", threshold,)
 
 log('Processing statistics took %s seconds.' % (time.time() - start_time))
 log_close()

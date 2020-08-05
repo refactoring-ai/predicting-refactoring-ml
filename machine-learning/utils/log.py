@@ -29,7 +29,7 @@ def print_config():
     log("--------------")
 
 
-def log_init(name: str = None):
+def log_init(name: str = None, header: bool = True, config: bool = True):
     global _f
     Path("results/").mkdir(parents=True, exist_ok=True)
     if name is not None:
@@ -37,14 +37,16 @@ def log_init(name: str = None):
     else:
         _f = open("results/{}-result.txt".format(random.randint(1, 999999)), "w+")
 
-    log(r"  __  __ _      _ _    ___      __         _           _           ")
-    log(r" |  \/  | |    | | |  | _ \___ / _|__ _ __| |_ ___ _ _(_)_ _  __ _ ")
-    log(r" | |\/| | |__  |_  _| |   / -_)  _/ _` / _|  _/ _ \ '_| | ' \/ _` |")
-    log(r" |_|  |_|____|   |_|  |_|_\___|_| \__,_\__|\__\___/_| |_|_||_\__, |")
-    log(r"                                                             |___/ ")
-    log("")
+    if header:
+        log(r"  __  __ _      _ _    ___      __         _           _           ")
+        log(r" |  \/  | |    | | |  | _ \___ / _|__ _ __| |_ ___ _ _(_)_ _  __ _ ")
+        log(r" | |\/| | |__  |_  _| |   / -_)  _/ _` / _|  _/ _ \ '_| | ' \/ _` |")
+        log(r" |_|  |_|____|   |_|  |_|_\___|_| \__,_\__|\__\___/_| |_|_||_\__, |")
+        log(r"                                                             |___/ ")
+        log("")
 
-    print_config()
+    if config:
+        print_config()
 
 
 def log_close():
