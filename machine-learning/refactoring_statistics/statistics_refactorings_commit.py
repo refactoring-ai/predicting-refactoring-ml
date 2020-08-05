@@ -44,6 +44,8 @@ def filter_probability(dataframe, threshold, labels, file_addition: str):
         Filter the max likelihood of each row and column with threshold.
     labels
         Labels fitting the rows and columns of the diagonal matrix.
+    file_addition
+        Add this to the output file in order to distinguish it, e.g.
     """
     filtered_rows_matrix, filtered_labels_rows, filtered_labels_columns, drop_columns = [], [], [], []
     #filter all columns
@@ -52,13 +54,16 @@ def filter_probability(dataframe, threshold, labels, file_addition: str):
             drop_columns.append(name)
         else:
             filtered_labels_columns.append(name)
-    dataframe_probality_filtered = dataframe.drop(drop_columns, axis=1)
+    dataframe_probabality_filtered = dataframe.drop(drop_columns, axis=1)
     #filter all rows
-    for index, row in dataframe_probality_filtered.iterrows():
+    index: int = 0
+    # the index of iterrows, is not reliable, sometimes it always returns zero
+    for i, row in dataframe_probabality_filtered.iterrows():
         if row.max() > threshold:
             filtered_rows_matrix.append(row)
             filtered_labels_rows.append(labels[index])
-    co_occurrence_matrix = pd.DataFrame(filtered_rows_matrix, columns=dataframe_probality_filtered.columns)
+        index += 1
+    co_occurrence_matrix = pd.DataFrame(filtered_rows_matrix, columns=dataframe_probabality_filtered.columns)
     co_occurrence_matrix.to_csv(f"results/Refactorings_{file_addition}_probability_{threshold:.2f}.csv", index=False)
     print(f"Co-occurrence likelihood matrix with shape: {co_occurrence_matrix.shape} and threshold: {threshold:.2f} was computed and  stored.")
     return co_occurrence_matrix, filtered_labels_rows, filtered_labels_columns
@@ -88,7 +93,7 @@ def co_occurence_commit(refactorings, probability_threshold = 0.0):
             query = "SELECT "
             query += ", ".join([f"SUM(IF(`{refactoring_type} count` > 0, 1, 0)) AS `{refactoring_type}`" for refactoring_type in refactorings])
             query += ", COUNT(commitMetaData_id) AS `Commit Count` "
-            query += (f"FROM refactoringspercommit WHERE `{refactoring_name} count` > 0")
+            query += f"FROM refactoringspercommit WHERE `{refactoring_name} count` > 0"
             refactoringspercommit = execute_query(query)
             refactoringspercommit["Refactoring Type"] = refactoring_name
             dataframe = pd.concat([dataframe, refactoringspercommit])
@@ -99,7 +104,7 @@ def co_occurence_commit(refactorings, probability_threshold = 0.0):
         dataframe = pd.read_csv(file_path)
 
     # extract the labels for the plot and remove unplotted data
-    labels = dataframe["Refactoring Type"]
+    labels = dataframe["Refactoring Type"].values
     commit_count = dataframe["Commit Count"].values
     dataframe = dataframe.drop(["Refactoring Type", "Commit Count"], axis=1)
 
@@ -112,7 +117,7 @@ def co_occurence_commit(refactorings, probability_threshold = 0.0):
     #plot the matrix
     #create a subplot, in order to name the columns and rows
     fig, ax = plt.subplots(figsize=(co_occurrence_matrix.shape[1], co_occurrence_matrix.shape[0]), dpi=160)
-    im, cbar = heatmap(co_occurrence_matrix.to_numpy(), filtered_labels_rows, filtered_labels_columns, ax=ax, cmap="YlGn", cbarlabel="Co-occurence [P/ Commit]")
+    im, cbar = heatmap(co_occurrence_matrix, filtered_labels_rows, filtered_labels_columns, ax=ax, cmap="YlGn", cbarlabel="Co-occurrence [P/ Commit]")
 
     plt.title(f"Co-occurrence of refactoring types on the same commit (min[row | col] > {probability_threshold:.2f})")
     plt.savefig(f"results/Refactorings_co-occurrence_commit_likelihood_{probability_threshold:.2f}_{co_occurrence_matrix.shape}.png")
@@ -154,7 +159,7 @@ def co_occurence_window(refactorings, table_name: str, probability_threshold=0.0
         dataframe = pd.read_csv(file_path)
 
     # extract the labels for the plot and remove unplotted data
-    labels = dataframe["Refactoring Type"]
+    labels = dataframe["Refactoring Type"].values
     window_count = dataframe["Window Count"].values
     window_size = dataframe["Window Size Total"].values
     dataframe = dataframe.drop(["Refactoring Type", "Window Count", "Window Size Total"], axis=1)
@@ -168,7 +173,7 @@ def co_occurence_window(refactorings, table_name: str, probability_threshold=0.0
     #plot the matrix
     #create a subplot, in order to name the columns and rows
     fig, ax = plt.subplots(figsize=(co_occurrence_matrix.shape[1], co_occurrence_matrix.shape[0]), dpi=160)
-    im, cbar = heatmap(co_occurrence_matrix.to_numpy(), filtered_labels_rows, filtered_labels_columns, ax=ax, cmap="YlGn", cbarlabel="Co-occurence [P/ Window]")
+    im, cbar = heatmap(co_occurrence_matrix, filtered_labels_rows, filtered_labels_columns, ax=ax, cmap="YlGn", cbarlabel="Co-occurrence [P/ Window]")
     plt.title(f"Co-occurrence of refactoring types in the same commit time window of {table_name} (min[row | col] > {probability_threshold:.2f})")
     plt.savefig(f"results/Refactorings_co-occurrence_window_likelihood_{probability_threshold:.2f}_{co_occurrence_matrix.shape}.png")
     print(f"Saved figure: Co-occurrence of refactoring types in the same commit time window of {table_name} (min[row | col] > {probability_threshold:.2f})")
@@ -218,12 +223,15 @@ log_init(header=False, config=False)
 log('Begin Statistics')
 start_time = time.time()
 
+log(f"-- Refactorings on the same commit")
 #Co-occurrence of refactoring types on the same commit
 for threshold in np.arange(0.0, 0.6, 0.1):
     co_occurence_commit(refactorings, threshold)
 
+log(f"\n-- Refactorings in a window")
 #Co-occurrence of refactoring types in the same commit window
-for table in [6, 12]:
+for table in [6, 12, 24]:
+    log(f"---- Refactorings in a window of {table} hours")
     for threshold in np.arange(0.0, 0.6, 0.1):
         co_occurence_window(refactorings, str(table) + "H", threshold,)
 
