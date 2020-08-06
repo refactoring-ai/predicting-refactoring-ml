@@ -1,16 +1,9 @@
 from joblib import load
-from keras.models import load_model as keras_load_model
-from keras_metrics import binary_precision, binary_recall
 
 
 def load_object(root_folder, obj_descr_type, model_name, dataset, refactoring_name):
-    if model_name == 'deep-learning' and obj_descr_type == 'model':
-        file_name = root_folder + "/" + obj_descr_type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".h5"
-        return keras_load_model(file_name, custom_objects = {"binary_precision": binary_precision(),
-                                                             "binary_recall": binary_recall()})
-    else:
-        file_name = root_folder + "/" + obj_descr_type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
-        return load(file_name)
+    file_name = root_folder + "/" + obj_descr_type + "-" + model_name + "-" + dataset + "-" + refactoring_name.replace(" ", "") + ".joblib"
+    return load(file_name)
 
 
 def load_model(root_folder, model_name, dataset, refactoring_name):
