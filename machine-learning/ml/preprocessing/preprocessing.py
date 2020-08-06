@@ -14,14 +14,10 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     log("---- Retrieve labeled instances for dataset: %s" % dataset)
 
     # get all refactoring examples we have in our dataset
-    refactorings = refactoring.get_refactored_instances(dataset)
-    refactored_instances = refactorings.drop(["className", "commitId", "gitUrl"], axis=1)
-    refactored_metadata = refactorings[["className", "commitId", "gitUrl"]]
+    refactored_instances = refactoring.get_refactored_instances(dataset)
 
     # load non-refactoring examples
-    non_refactorings = refactoring.get_non_refactored_instances(dataset)
-    non_refactored_instances = non_refactorings.drop(["className", "commitId", "gitUrl"], axis=1)
-    non_refactored_metadata = non_refactorings[["className", "commitId", "gitUrl"]]
+    non_refactored_instances = refactoring.get_non_refactored_instances(dataset)
 
     log("raw number of refactoring instances: {}".format(refactored_instances.shape[0]), False)
     log("raw number of non-refactoring instances: {}".format(non_refactored_instances.shape[0]), False)
@@ -57,12 +53,9 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     if non_refactored_instances.shape[1] != refactored_instances.shape[1]:
         raise ImportError("Number of columns differ from both datasets.")
     merged_dataset = pd.concat([refactored_instances, non_refactored_instances])
-    merged_metadata = pd.concat([refactored_metadata, non_refactored_metadata])
-    assert merged_dataset.shape[0] == merged_metadata.shape[0], "Metadata is not in line anymore with the training data"
 
     #just to be sure, shuffle the dataset
-    merged_dataset = merged_dataset.sample(frac=1, random_state = 42)
-    merged_metadata = merged_metadata.sample(frac=1, random_state = 42)
+    merged_dataset = merged_dataset.sample(frac=1, random_state=42)
 
     # do we want to try the models without some metrics, e.g. process and authorship metrics?
     merged_dataset = merged_dataset.drop(DROP_METRICS, axis=1)
@@ -75,10 +68,8 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
     # for now, we basically perform under sampling
     if is_training_data and BALANCE_DATASET:
         log("instances before balancing: {}".format(Counter(y)))
-        x, y, indices = perform_balancing(x, y)
-        merged_metadata = merged_metadata.iloc[indices]
+        x, y = perform_balancing(x, y)
         assert x.shape[0] == y.shape[0], "Balancing did not work, x and y have different shapes."
-        assert x.shape[0] == merged_metadata.shape[0], "Metadata is not in line anymore with the training data"
         log("instances after balancing: {}".format(Counter(y)))
 
     # apply some scaling to speed up the algorithm
@@ -107,4 +98,4 @@ def retrieve_labelled_instances(dataset, refactoring: LowLevelRefactoring, is_tr
         log("Instance count after dropping faulty process metrics: {}".format(len(merged_dataset.index)), False)
 
     log("Got %d instances with %d features for the dataset: %s." % (x.shape[0], x.shape[1], dataset))
-    return x.columns.values, x, y, scaler, merged_metadata
+    return x.columns.values, x, y, scaler

@@ -22,7 +22,7 @@ def _build_production_model(model_def, best_params, x, y):
     return super_model
 
 
-def _evaluate_model(search, x_train, x_tests, y_train, y_tests):
+def _evaluate_model(search, model_name, refactoring_name, x_train, x_tests, y_train, y_tests):
     log("Test search started at %s\n" % now(), False)
     search.fit(x_train, y_train)
     log(format_best_parameters(search), False)
@@ -31,7 +31,7 @@ def _evaluate_model(search, x_train, x_tests, y_train, y_tests):
     test_scores = {'accuracy': [], 'precision': [], 'recall': [], 'tn': [], 'fp': [], 'fn': [], 'tp': []}
     # Predict unseen results for all validation sets
     for index, x_test in enumerate(x_tests):
-        y_pred = best_estimator.predict(x_test)
+        y_pred = best_estimator.predict(x_test.drop(['id'], axis=1))
         y_test = y_tests[index]
         test_scores["accuracy"] += [accuracy_score(y_test, y_pred)]
         test_scores["precision"] += [precision_score(y_test, y_pred)]
@@ -40,6 +40,9 @@ def _evaluate_model(search, x_train, x_tests, y_train, y_tests):
         test_scores["fp"] += [confusion_matrix(y_test, y_pred).ravel()[1]]
         test_scores["fn"] += [confusion_matrix(y_test, y_pred).ravel()[2]]
         test_scores["tp"] += [confusion_matrix(y_test, y_pred).ravel()[3]]
+
+        # log production model predictions
+        save_results(model_name, refactoring_name, x_test['id'], y_test, y_pred)
 
     return test_scores
 
@@ -103,7 +106,7 @@ class BinaryClassificationPipeline(MLPipeline):
                                          x_tests, y_train, y_tests, dataset_name)
                 # 2.) random percentage train/ test split
                 else:
-                    features, x, y, scaler, metadata = retrieve_labelled_instances(dataset, refactoring, True)
+                    features, x, y, scaler = retrieve_labelled_instances(dataset, refactoring, True)
                     # test if any refactorings were found for the given refactoring type
                     if x is None:
                         log("Skip model building for refactoring type: " + refactoring.name())
@@ -126,8 +129,10 @@ class BinaryClassificationPipeline(MLPipeline):
                 model_name += " test"
             try:
                 log("\nBuilding Model {}".format(model.name()))
+                x_train = x_train.drop(['id'], axis=1)
+                x = x.drop(['id'], axis=1)
                 self._start_time()
-                test_scores, model_to_save = self._run_single_model(model, x, y, x_train, x_tests, y_train, y_tests)
+                test_scores, model_to_save = self._run_single_model(model, model_name, refactoring_name, x, y, x_train, x_tests, y_train, y_tests)
 
                 # log test scores
                 log(format_results_single_run(dataset, refactoring_name, test_names, model_name, test_scores["precision"],
@@ -144,11 +149,7 @@ class BinaryClassificationPipeline(MLPipeline):
                 log(str(e))
                 log(str(traceback.format_exc()))
 
-    def _log_classifier_results(self, model_name, refactoring_name, x, model, metadata):
-        predictions = model.predict(x)
-        save_results(predictions, model_name, refactoring_name, metadata)
-
-    def _run_single_model(self, model_def, x, y, x_train, x_tests, y_train, y_tests):
+    def _run_single_model(self, model_def, model_name, refactoring_name, x, y, x_train, x_tests, y_train, y_tests):
         model = model_def.model()
 
         # perform the search for the best hyper parameters
@@ -162,7 +163,7 @@ class BinaryClassificationPipeline(MLPipeline):
             search = GridSearchCV(model, param_dist, cv=StratifiedKFold(n_splits=N_CV_SEARCH, shuffle=True), iid=False, n_jobs=-1)
 
         # Train and test the model
-        test_scores = _evaluate_model(search, x_train, x_tests, y_train, y_tests)
+        test_scores = _evaluate_model(search, model_name, refactoring_name, x_train, x_tests, y_train, y_tests)
 
         # Run cross validation on whole dataset and safe production ready model
         super_model = _build_production_model(model_def, search.best_params_, x, y)

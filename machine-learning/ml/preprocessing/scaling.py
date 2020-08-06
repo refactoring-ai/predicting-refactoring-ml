@@ -11,8 +11,9 @@ def perform_fit_scaling(x):
     """
 
     scaler = MinMaxScaler()  # Default behavior is to scale to [0,1]
-    new_x = scaler.fit_transform(x)
-    x = pd.DataFrame(new_x, index=x.index, columns=x.columns) # keeping the same indices and column names
+    new_x = scaler.fit_transform(x.drop(['id'], axis=1))
+    new_x = pd.DataFrame(new_x, index=x.index, columns=x.drop(['id'], axis=1).columns) # keeping the same indices and column names
+    x = new_x.assign(id=x['id'])
 
     return x, scaler
 

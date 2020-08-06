@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 
 
-def save_results(predictions, model_name, refactoring_name, metadata):
+def save_results(model_name, refactoring_name, ids, y_test, y_pred):
     file_exists = Path('results/result_file.csv').is_file()
 
     # Assuming the predictions are aligned with the metadata
@@ -10,7 +10,7 @@ def save_results(predictions, model_name, refactoring_name, metadata):
         result_writer = csv.writer(result_file, delimiter=",", quoting=csv.QUOTE_MINIMAL)
 
         if file_exists is False:
-            result_writer.writerow(['Refactoring', 'Classifier', 'RefactorName', 'ClassName', 'CommitId', 'GitUrl'])
+            result_writer.writerow(['Classifier', 'RefactorName', 'Refactoring', 'Prediction', 'id'])
 
-        for id, (idx, row) in enumerate(metadata.iterrows()):
-            result_writer.writerow([str(predictions[id]), str(model_name), str(refactoring_name)] + row.to_list())
+        for id, (idx, value) in enumerate(ids.items()):
+            result_writer.writerow([str(model_name) + str(refactoring_name), str(y_test.loc[idx]), str(y_pred[id]), str(value)])

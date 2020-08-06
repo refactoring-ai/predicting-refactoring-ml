@@ -19,12 +19,14 @@ def perform_feature_reduction(x, y):
     estimator = SVR(kernel="linear")
     selector = RFECV(estimator, step=1, cv=N_CV_FEATURE_REDUCTION)
 
-    log("Features before reduction (total of {}): {}".format(len(x.columns.values), ', '.join(x.columns.values)))
-    selector.fit(x, y)
-    x = x[x.columns[selector.get_support(indices=True)]] # keeping the column names
+    temp_x = x.drop(['id'], axis=1)
+    log("Features before reduction (total of {}): {}".format(len(temp_x.columns.values), ', '.join(temp_x.columns.values)))
+    selector.fit(temp_x, y)
+    temp_x = temp_x[temp_x.columns[selector.get_support(indices=True)]] # keeping the column names
 
-    log("Features after reduction (total of {}): {}".format(len(x.columns.values), ', '.join(x.columns.values)))
+    log("Features after reduction (total of {}): {}".format(len(temp_x.columns.values), ', '.join(temp_x.columns.values)))
     log("Feature ranking: {}".format(', '.join(str(e) for e in selector.ranking_)))
     log("Feature grid scores: {}".format(', '.join(str(e) for e in selector.grid_scores_)))
 
+    x = temp_x.assign(id=x['id'])
     return x
