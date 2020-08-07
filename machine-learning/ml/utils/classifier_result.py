@@ -13,4 +13,4 @@ def save_results(model_name, refactoring_name, ids, y_test, y_pred):
             result_writer.writerow(['Classifier', 'RefactorName', 'Refactoring', 'Prediction', 'id'])
 
         for id, (idx, value) in enumerate(ids.items()):
-            result_writer.writerow([str(model_name) + str(refactoring_name), str(y_test.loc[idx]), str(y_pred[id]), str(value)])
+            result_writer.writerow([model_name, refactoring_name, str(y_test.loc[idx]), str(y_pred[id]), str(value)])
